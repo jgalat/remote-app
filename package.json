@@ -1,0 +1,8 @@
+{
+  "name": "t-app",
+  "description": "Transmission remote",
+  "author": "Jorge Galat <jrgglt@gmail.com>",
+  "license": "MIT",
+  "workspaces": ["./packages/*"],
+  "scripts": {}
+}
