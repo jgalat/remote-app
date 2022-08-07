@@ -13,7 +13,6 @@ import {
   RootStackParamList,
   HomeStackScreenProps,
   SettingsStackParamList,
-  SettingsStackScreenProps,
 } from "../types";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
@@ -23,9 +22,9 @@ import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
 import ThemeScreen from "../screens/theme-screen";
+import ServerConfigurationScreen from "../screens/server-configuration-screen";
 
 import LinkingConfiguration from "./linking-configuration";
-import { ColorScheme } from "../store/settings";
 
 export default function Navigation() {
   const colorScheme = useColorScheme();
@@ -163,7 +162,7 @@ function SettingsStackNavigator() {
       <SettingsStack.Group screenOptions={{ presentation: "modal" }}>
         <SettingsStack.Screen
           name="Server"
-          component={NotFoundScreen}
+          component={ServerConfigurationScreen}
           options={{
             title: "Configure server",
           }}

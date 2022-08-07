@@ -2,6 +2,9 @@ import {
   Text as DefaultText,
   View as DefaultView,
   ScrollView as DefaultScrollView,
+  TextInput as DefaultTextInput,
+  Button as DefaultButton,
+  TouchableOpacity,
   StyleSheet,
 } from "react-native";
 
@@ -33,6 +36,10 @@ export type ScreenProps = ThemeProps &
   DefaultView["props"] & {
     scroll?: boolean;
   };
+export type TextInputProps = DefaultTextInput["props"];
+export type ButtonProps = TouchableOpacity["props"] & {
+  title: string;
+};
 
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
@@ -40,7 +47,7 @@ export function Text(props: TextProps) {
 
   return (
     <DefaultText
-      style={[style, { color, fontFamily: "roboto-mono" }]}
+      style={[{ color, fontFamily: "roboto-mono" }, style]}
       {...otherProps}
     />
   );
@@ -67,13 +74,48 @@ export function Screen(props: ScreenProps) {
 
   return (
     <Component
-      style={[
-        { backgroundColor },
-        styles.screen,
-        style,
-      ]}
+      style={[{ backgroundColor }, styles.screen, style]}
       {...otherProps}
     />
+  );
+}
+
+export function TextInput(props: TextInputProps) {
+  const { style, ...otherProps } = props;
+  const backgroundColor = useThemeColor({}, "background");
+  const color = useThemeColor({}, "text");
+  const placeholder = useThemeColor({}, "placeholder");
+
+  return (
+    <DefaultTextInput
+      style={[
+        {
+          backgroundColor,
+          color,
+          borderColor: color,
+          fontFamily: "roboto-mono",
+        },
+        styles.input,
+        style,
+      ]}
+      placeholderTextColor={placeholder}
+      {...otherProps}
+    />
+  );
+}
+
+export function Button(props: ButtonProps) {
+  const { style, title, ...otherProps } = props;
+  const color = useThemeColor({}, "background");
+  const backgroundColor = useThemeColor({}, "text");
+
+  return (
+    <TouchableOpacity
+      style={[{ backgroundColor }, styles.button, style]}
+      {...otherProps}
+    >
+      <Text style={[{ color }, styles.buttonText]}>{title}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -84,5 +126,25 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     paddingLeft: 16,
     paddingRight: 16,
+  },
+  input: {
+    borderWidth: 2,
+    padding: 8,
+    height: 48,
+    marginBottom: 24,
+  },
+  button: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 0,
+    padding: 8,
+    height: 48,
+    marginBottom: 24,
+  },
+  buttonText: {
+    textTransform: "uppercase",
+    fontWeight: "500",
+    fontSize: 16,
   },
 });

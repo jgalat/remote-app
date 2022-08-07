@@ -3,8 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export type Server = {
   name: string;
   url: string;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 };
 
 export type ColorScheme = "system" | "dark" | "light";
