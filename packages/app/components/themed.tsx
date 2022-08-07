@@ -88,6 +88,7 @@ export function TextInput(props: TextInputProps) {
 
   return (
     <DefaultTextInput
+      autoCapitalize="none"
       style={[
         {
           backgroundColor,
