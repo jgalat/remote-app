@@ -26,11 +26,7 @@ export default function ({ label, left, right, onPress }: OptionProps) {
       </View>
       <View>
         {right && (
-          <Feather
-            name={right}
-            size={24}
-            color={Colors[colorScheme].iconDefault}
-          />
+          <Feather name={right} size={24} color={Colors[colorScheme].icon} />
         )}
       </View>
     </TouchableOpacity>

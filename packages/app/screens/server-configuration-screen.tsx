@@ -1,9 +1,9 @@
 import * as React from "react";
-import { FlatList } from "react-native";
 
-import useSettings from "../hooks/use-settings";
+import useSettings, { useColorScheme } from "../hooks/use-settings";
 import { SettingsStackScreenProps } from "../types";
 import { Server } from "../store/settings";
+import Colors from "../constants/colors";
 
 import { Screen, TextInput, Button } from "../components/themed";
 
@@ -11,6 +11,7 @@ export default function ServerConfigurationScreen({
   navigation,
 }: SettingsStackScreenProps<"Server">) {
   const { settings, store } = useSettings();
+  const colorScheme = useColorScheme();
   const { server } = settings;
 
   const [name, setName] = React.useState(server?.name);
@@ -19,14 +20,24 @@ export default function ServerConfigurationScreen({
   const [password, setPassword] = React.useState(server?.password);
 
   const save = async () => {
-    const server: Server = {
-      name: name ?? "",
-      url: url ?? "",
-      username: username === "" ? undefined : username,
-      password: password === "" ? undefined : password,
-    };
+    try {
+      new URL(url ?? "");
 
-    await store({ ...settings, server });
+      const server: Server = {
+        name: name ?? "",
+        url: url ?? "",
+        username: username === "" ? undefined : username,
+        password: password === "" ? undefined : password,
+      };
+      await store({ ...settings, server });
+      navigation.goBack();
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  const remove = async () => {
+    await store({ ...settings, server: undefined });
     navigation.goBack();
   };
 
@@ -35,12 +46,12 @@ export default function ServerConfigurationScreen({
       <TextInput
         value={name}
         onChangeText={setName}
-        placeholder="Server name"
+        placeholder="Server name (required)"
       />
       <TextInput
         value={url}
         onChangeText={setUrl}
-        placeholder="Server RPC URL"
+        placeholder="Host (required)"
       />
       <TextInput
         value={username}
@@ -53,7 +64,16 @@ export default function ServerConfigurationScreen({
         onChangeText={setPassword}
         placeholder="Password (optional)"
       />
-      <Button title="Save" onPress={save} />
+      <Button
+        title="Save"
+        disabled={name === "" || url === ""}
+        onPress={save}
+      />
+      <Button
+        style={{ backgroundColor: Colors[colorScheme].primary }}
+        title="Delete"
+        onPress={remove}
+      />
     </Screen>
   );
 }
