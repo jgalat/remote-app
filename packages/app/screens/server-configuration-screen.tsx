@@ -1,18 +1,17 @@
 import * as React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 import useSettings, { useColorScheme } from "../hooks/use-settings";
-import { SettingsStackScreenProps } from "../types";
 import { Server } from "../store/settings";
 import Colors from "../constants/colors";
 
 import { Screen, TextInput, Button } from "../components/themed";
 
-export default function ServerConfigurationScreen({
-  navigation,
-}: SettingsStackScreenProps<"Server">) {
+export default function ServerConfigurationScreen() {
+  const navigation = useNavigation();
   const { settings, store } = useSettings();
-  const colorScheme = useColorScheme();
   const { server } = settings;
+  const colorScheme = useColorScheme();
 
   const [name, setName] = React.useState(server?.name);
   const [url, setUrl] = React.useState(server?.url);

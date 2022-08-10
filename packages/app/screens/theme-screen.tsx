@@ -1,16 +1,15 @@
 import * as React from "react";
 import { FlatList } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import Option, { OptionProps } from "../components/option";
 import useSettings from "../hooks/use-settings";
-import { SettingsStackScreenProps } from "../types";
 
 import { Screen } from "../components/themed";
 import { ColorScheme } from "../store/settings";
 
-export default function ThemeScreen({
-  navigation,
-}: SettingsStackScreenProps<"Theme">) {
+function ThemeScreen() {
+  const navigation = useNavigation();
   const { settings, store } = useSettings();
   const { colorScheme } = settings;
 
@@ -56,3 +55,5 @@ export default function ThemeScreen({
     </Screen>
   );
 }
+
+export default ThemeScreen;

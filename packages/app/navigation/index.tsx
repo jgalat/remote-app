@@ -4,20 +4,19 @@ import {
   DefaultTheme,
   DarkTheme,
 } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+} from "@react-navigation/native-stack";
 
 import Colors from "../constants/colors";
 import { useColorScheme } from "../hooks/use-settings";
 import {
   HomeStackParamList,
   RootStackParamList,
-  HomeStackScreenProps,
   SettingsStackParamList,
 } from "../types";
-import ActionList from "../components/action-list";
-import ActionIcon from "../components/action-icon";
 
-import ModalScreen from "../screens/modal-screen";
 import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
@@ -41,19 +40,9 @@ export default function Navigation() {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-  // <Stack.Group screenOptions={{ presentation: "modal" }}>
-  //   <Stack.Screen name="Modal" component={ModalScreen} />
-  // </Stack.Group>
+  const opts = useNavigationOptions();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerTransparent: true,
-        headerTitleStyle: {
-          fontWeight: "500",
-          fontFamily: "roboto-mono",
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={opts}>
       <Stack.Screen
         name="Root"
         component={HomeStackNavigator}
@@ -71,65 +60,28 @@ function RootNavigator() {
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 function HomeStackNavigator() {
-  const colorScheme = useColorScheme();
+  const opts = useNavigationOptions();
   return (
-    <HomeStack.Navigator
-      initialRouteName="Torrents"
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: "roboto-mono",
-          fontWeight: "500",
-          color: Colors[colorScheme].text,
-        },
-        headerStyle: {
-          backgroundColor: Colors[colorScheme].background,
-        },
-        headerShadowVisible: false,
-      }}
-    >
+    <HomeStack.Navigator initialRouteName="Torrents" screenOptions={opts}>
+      <HomeStack.Screen name="Torrents" component={TorrentsScreen} />
+
       <HomeStack.Screen
-        name="Torrents"
-        component={TorrentsScreen}
-        options={({ navigation }: HomeStackScreenProps<"Torrents">) => ({
-          title: "Torrents",
-          headerRight: () => (
-            <ActionList>
-              <ActionIcon
-                onPress={() => navigation.navigate("AddTorrent")}
-                name="plus"
-                size={24}
-                color={Colors[colorScheme].text}
-              />
-              <ActionIcon
-                onPress={() => navigation.navigate("SettingsRoot")}
-                name="settings"
-                size={24}
-                color={Colors[colorScheme].text}
-              />
-            </ActionList>
-          ),
-        })}
+        name="SettingsRoot"
+        component={SettingsStackNavigator}
+        options={{ headerShown: false }}
       />
 
-      <HomeStack.Group screenOptions={{ presentation: "modal" }}>
-        <HomeStack.Screen
-          name="SettingsRoot"
-          component={SettingsStackNavigator}
-          options={{ headerShown: false }}
-        />
+      <HomeStack.Screen
+        name="AddTorrent"
+        component={NotFoundScreen}
+        options={{ title: "Add Torrent" }}
+      />
 
-        <HomeStack.Screen
-          name="AddTorrent"
-          component={NotFoundScreen}
-          options={{}}
-        />
-
-        <HomeStack.Screen
-          name="TorrentDetails"
-          component={NotFoundScreen}
-          options={{}}
-        />
-      </HomeStack.Group>
+      <HomeStack.Screen
+        name="TorrentDetails"
+        component={NotFoundScreen}
+        options={{}}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -137,29 +89,12 @@ function HomeStackNavigator() {
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function SettingsStackNavigator() {
-  const colorScheme = useColorScheme();
+  const opts = useNavigationOptions();
   return (
-    <SettingsStack.Navigator
-      initialRouteName="Settings"
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: "roboto-mono",
-          fontWeight: "500",
-          color: Colors[colorScheme].text,
-        },
-        headerStyle: {
-          backgroundColor: Colors[colorScheme].background,
-        },
-        headerShadowVisible: false,
-      }}
-    >
-      <SettingsStack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{}}
-      />
+    <SettingsStack.Navigator initialRouteName="Settings" screenOptions={opts}>
+      <SettingsStack.Screen name="Settings" component={SettingsScreen} />
 
-      <SettingsStack.Group screenOptions={{ presentation: "modal" }}>
+      <SettingsStack.Group screenOptions={{ animation: "slide_from_right" }}>
         <SettingsStack.Screen
           name="Server"
           component={ServerConfigurationScreen}
@@ -178,4 +113,19 @@ function SettingsStackNavigator() {
       </SettingsStack.Group>
     </SettingsStack.Navigator>
   );
+}
+
+function useNavigationOptions(): NativeStackNavigationOptions {
+  const colorScheme = useColorScheme();
+  return {
+    headerTitleStyle: {
+      fontFamily: "roboto-mono",
+      fontWeight: "500",
+      color: Colors[colorScheme].text,
+    },
+    headerStyle: {
+      backgroundColor: Colors[colorScheme].background,
+    },
+    headerShadowVisible: false,
+  };
 }

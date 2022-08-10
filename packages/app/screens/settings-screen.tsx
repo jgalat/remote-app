@@ -1,15 +1,16 @@
 import * as React from "react";
 import { FlatList } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import Option, { OptionProps } from "../components/option";
-import { useColorScheme } from "../hooks/use-settings";
-import { SettingsStackScreenProps } from "../types";
-
 import { Screen } from "../components/themed";
+import { useColorScheme } from "../hooks/use-settings";
+import { SettingsStackParamList } from "../types";
 
-export default function SettingsScreen({
-  navigation,
-}: SettingsStackScreenProps<"Settings">) {
+export default function SettingsScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
   const colorScheme = useColorScheme();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(
