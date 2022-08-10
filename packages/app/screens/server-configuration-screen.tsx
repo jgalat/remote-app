@@ -15,20 +15,24 @@ export default function ServerConfigurationScreen() {
   const { server } = settings;
   const tint = useThemeColor("tint");
 
-  const [name, setName] = React.useState(server?.name);
-  const [url, setUrl] = React.useState(server?.url);
-  const [username, setUsername] = React.useState(server?.username);
-  const [password, setPassword] = React.useState(server?.password);
+  const [name, setName] = React.useState<string>(server?.name ?? "");
+  const [url, setUrl] = React.useState<string>(server?.url ?? "");
+  const [username, setUsername] = React.useState<string>(
+    server?.username ?? ""
+  );
+  const [password, setPassword] = React.useState<string>(
+    server?.password ?? ""
+  );
 
   const save = async () => {
     try {
-      if (!name || !url) {
+      if (name === "" || url === "") {
         throw new Error("Name and URL are required");
       }
 
       const server: Server = {
-        name: name ?? "",
-        url: url ?? "",
+        name: name,
+        url: url,
         username: username === "" ? undefined : username,
         password: password === "" ? undefined : password,
       };
@@ -69,11 +73,15 @@ export default function ServerConfigurationScreen() {
         onChangeText={setPassword}
         placeholder="Password (optional)"
       />
-      <Button title="Save" disabled={!name || !url} onPress={save} />
+      <Button
+        title="Save"
+        disabled={name === "" || url === ""}
+        onPress={save}
+      />
       <Button
         style={{ backgroundColor: tint }}
         title="Delete"
-        disabled={!server}
+        disabled={server === undefined}
         onPress={remove}
       />
     </Screen>
