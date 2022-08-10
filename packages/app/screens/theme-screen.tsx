@@ -3,10 +3,10 @@ import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import Option, { OptionProps } from "../components/option";
+import Screen from "../components/screen";
 import useSettings from "../hooks/use-settings";
-
-import { Screen } from "../components/themed";
 import { ColorScheme } from "../store/settings";
+
 
 function ThemeScreen() {
   const navigation = useNavigation();

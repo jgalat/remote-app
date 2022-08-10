@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import Option, { OptionProps } from "../components/option";
-import { Screen } from "../components/themed";
+import Screen from "../components/screen";
 import { useColorScheme } from "../hooks/use-settings";
 import { SettingsStackParamList } from "../types";
 

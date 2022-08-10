@@ -9,7 +9,6 @@ import {
   NativeStackNavigationOptions,
 } from "@react-navigation/native-stack";
 
-import Colors from "../constants/colors";
 import { useColorScheme } from "../hooks/use-settings";
 import {
   HomeStackParamList,
@@ -24,6 +23,7 @@ import ThemeScreen from "../screens/theme-screen";
 import ServerConfigurationScreen from "../screens/server-configuration-screen";
 
 import LinkingConfiguration from "./linking-configuration";
+import useThemeColor from "../hooks/use-theme-color";
 
 export default function Navigation() {
   const colorScheme = useColorScheme();
@@ -116,15 +116,16 @@ function SettingsStackNavigator() {
 }
 
 function useNavigationOptions(): NativeStackNavigationOptions {
-  const colorScheme = useColorScheme();
+  const text = useThemeColor("text");
+  const background = useThemeColor("background");
   return {
     headerTitleStyle: {
       fontFamily: "roboto-mono",
       fontWeight: "500",
-      color: Colors[colorScheme].text,
+      color: text,
     },
     headerStyle: {
-      backgroundColor: Colors[colorScheme].background,
+      backgroundColor: background,
     },
     headerShadowVisible: false,
   };

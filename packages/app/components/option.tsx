@@ -2,10 +2,9 @@ import * as React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-import { useColorScheme } from "../hooks/use-settings";
-import Colors from "../constants/colors";
-
-import { View, Text } from "./themed";
+import Text from "./text";
+import View from "./view";
+import { useTheme } from "../hooks/use-theme-color";
 
 export type OptionProps = {
   label: string;
@@ -15,19 +14,17 @@ export type OptionProps = {
 };
 
 export default function ({ label, left, right, onPress }: OptionProps) {
-  const colorScheme = useColorScheme();
+  const theme = useTheme();
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View>
-        <Feather name={left} size={24} color={Colors[colorScheme].text} />
+        <Feather name={left} size={24} color={theme.text} />
       </View>
       <View style={styles.label}>
         <Text>{label}</Text>
       </View>
       <View>
-        {right && (
-          <Feather name={right} size={24} color={Colors[colorScheme].icon} />
-        )}
+        {right && <Feather name={right} size={24} color={theme.icon} />}
       </View>
     </TouchableOpacity>
   );

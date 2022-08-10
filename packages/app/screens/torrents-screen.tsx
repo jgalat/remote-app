@@ -3,18 +3,20 @@ import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { useServer, useColorScheme } from "../hooks/use-settings";
-import { Text, Screen, Button } from "../components/themed";
+import { useServer } from "../hooks/use-settings";
+import Text from "../components/text";
+import Screen from "../components/screen";
+import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
-import Colors from "../constants/colors";
 import { HomeStackParamList } from "../types";
+import useThemeColor from "../hooks/use-theme-color";
 
 export default function TorrentsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const server = useServer();
-  const colorScheme = useColorScheme();
+  const text = useThemeColor("text");
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -32,18 +34,18 @@ export default function TorrentsScreen() {
             onPress={() => navigation.navigate("AddTorrent")}
             name="plus"
             size={24}
-            color={Colors[colorScheme].text}
+            color={text}
           />
           <ActionIcon
             onPress={() => navigation.navigate("SettingsRoot")}
             name="settings"
             size={24}
-            color={Colors[colorScheme].text}
+            color={text}
           />
         </ActionList>
       ),
     });
-  }, [navigation]);
+  }, [navigation, text]);
 
   if (!server) {
     return (

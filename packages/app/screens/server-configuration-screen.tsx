@@ -1,17 +1,19 @@
 import * as React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-import useSettings, { useColorScheme } from "../hooks/use-settings";
+import useSettings from "../hooks/use-settings";
 import { Server } from "../store/settings";
-import Colors from "../constants/colors";
 
-import { Screen, TextInput, Button } from "../components/themed";
+import Screen from "../components/screen";
+import TextInput from "../components/text-input";
+import Button from "../components/button";
+import useThemeColor from "../hooks/use-theme-color";
 
 export default function ServerConfigurationScreen() {
   const navigation = useNavigation();
   const { settings, store } = useSettings();
   const { server } = settings;
-  const colorScheme = useColorScheme();
+  const tint = useThemeColor("tint");
 
   const [name, setName] = React.useState(server?.name);
   const [url, setUrl] = React.useState(server?.url);
@@ -20,7 +22,9 @@ export default function ServerConfigurationScreen() {
 
   const save = async () => {
     try {
-      new URL(url ?? "");
+      if (!name || !url) {
+        throw new Error("Name and URL are required");
+      }
 
       const server: Server = {
         name: name ?? "",
@@ -49,8 +53,10 @@ export default function ServerConfigurationScreen() {
       />
       <TextInput
         value={url}
+        autoCorrect={false}
+        keyboardType={"url"}
         onChangeText={setUrl}
-        placeholder="Host (required)"
+        placeholder="URL (required)"
       />
       <TextInput
         value={username}
@@ -63,14 +69,11 @@ export default function ServerConfigurationScreen() {
         onChangeText={setPassword}
         placeholder="Password (optional)"
       />
+      <Button title="Save" disabled={!name || !url} onPress={save} />
       <Button
-        title="Save"
-        disabled={name === "" || url === ""}
-        onPress={save}
-      />
-      <Button
-        style={{ backgroundColor: Colors[colorScheme].primary }}
+        style={{ backgroundColor: tint }}
         title="Delete"
+        disabled={!server}
         onPress={remove}
       />
     </Screen>

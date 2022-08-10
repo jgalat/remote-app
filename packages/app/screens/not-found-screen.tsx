@@ -1,7 +1,8 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { Text, View } from "../components/themed";
+import Text from "../components/text";
+import View from "../components/view";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 

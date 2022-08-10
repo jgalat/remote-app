@@ -1,7 +1,7 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import useCachedResources from "./hooks/use-cached-resources";
-import { SettingsProvider } from "./hooks/use-settings";
+import { SettingsProvider } from "./contexts/settings";
 import Navigation from "./navigation";
 
 import StatusBar from "./components/status-bar";
