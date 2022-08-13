@@ -60,7 +60,7 @@ export default function ServerConfigurationScreen() {
         autoCorrect={false}
         keyboardType={"url"}
         onChangeText={setUrl}
-        placeholder="URL (required)"
+        placeholder="RPC URL (required)"
       />
       <TextInput
         value={username}

@@ -1,0 +1,13 @@
+{
+  "name": "transmission-client",
+  "version": "0.0.1",
+  "description": "A quick transmission client",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~4.3.5"
+  }
+}

@@ -1,9 +1,6 @@
-import fetch from "node-fetch";
+import * as React from "react";
+import TransmissionClient from "transmission-client"
 
-
-
-class TransmissionClient {
-  private session: string;
-
-  constructor() {}
+function useTransmission() {
+  const ref = React.useRef(new TransmissionClient())
 }
