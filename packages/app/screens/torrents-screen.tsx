@@ -26,19 +26,6 @@ export default function TorrentsScreen() {
       return;
     }
     navigation.setOptions({ title: server.name });
-
-    async function t() {
-      try {
-        if (client) {
-          const response = await client.request({ method: "session-get" });
-          console.log(response);
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-
-    t();
   }, [server, navigation, client]);
 
   React.useLayoutEffect(() => {
