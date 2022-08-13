@@ -2,6 +2,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import useCachedResources from "./hooks/use-cached-resources";
 import { SettingsProvider } from "./contexts/settings";
+import { ClientProvider } from "./contexts/transmission-client";
 import Navigation from "./navigation";
 
 import StatusBar from "./components/status-bar";
@@ -15,10 +16,12 @@ export default function App() {
 
   return (
     <SettingsProvider>
-      <SafeAreaProvider>
-        <Navigation />
-        <StatusBar />
-      </SafeAreaProvider>
+      <ClientProvider>
+        <SafeAreaProvider>
+          <Navigation />
+          <StatusBar />
+        </SafeAreaProvider>
+      </ClientProvider>
     </SettingsProvider>
   );
 }

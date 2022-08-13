@@ -11,12 +11,14 @@ import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import { HomeStackParamList } from "../types";
 import useThemeColor from "../hooks/use-theme-color";
+import { useTransmission } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const server = useServer();
   const text = useThemeColor("text");
+  const client = useTransmission();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -24,7 +26,20 @@ export default function TorrentsScreen() {
       return;
     }
     navigation.setOptions({ title: server.name });
-  }, [server, navigation]);
+
+    async function t() {
+      try {
+        if (client) {
+          const response = await client.request({ method: "session-get" });
+          console.log(response);
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    t();
+  }, [server, navigation, client]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({

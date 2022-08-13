@@ -1,4 +1,4 @@
-// import fetch, { Headers, Response, Request } from "node-fetch";
+import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
 import type { Methods, Mapping } from "./rpc-call";
@@ -23,7 +23,7 @@ export class TransmissionClient {
       const creds = `${this.config.username ?? ""}:${
         this.config.password ?? ""
       }`;
-      headers.set("Authorization", `Basic ${btoa(creds)}`);
+      headers.set("Authorization", `Basic ${encode(creds)}`);
     }
 
     const request: Request = new Request(this.config.url, {
