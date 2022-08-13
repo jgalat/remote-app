@@ -175,5 +175,5 @@ export type Response = {
 };
 
 export type Request = Identifiers & {
-  fields: (keyof Response)[];
+  fields: (keyof Torrent)[];
 };
