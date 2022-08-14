@@ -31,8 +31,6 @@ export function ClientProvider({
   }, [server]);
 
   return (
-    <ClientContext.Provider value={client}>
-      {children}
-    </ClientContext.Provider>
+    <ClientContext.Provider value={client}>{children}</ClientContext.Provider>
   );
 }

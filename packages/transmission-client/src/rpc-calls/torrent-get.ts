@@ -45,16 +45,6 @@ type PeersFrom = {
   fromTracker: number;
 };
 
-enum TorrentStatus {
-  TorrentStopped = "Stopped",
-  QueuedToCheckFiles = "Queued to verify local data",
-  CheckingFiles = "Verifying local data",
-  QueueToDownload = "Queued",
-  Downloading = "Downloading",
-  QueueToSeed = `Queued to Seed`,
-  Seeding = "Seeding",
-}
-
 type Tracker = {
   announce: string;
   id: number;
@@ -156,7 +146,7 @@ type Torrent = {
   seedRatioMode: number;
   sizeWhenDone: number;
   startDate: number;
-  status: TorrentStatus;
+  status: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   trackers: Tracker[];
   trackerStats: TrackerStats[];
   totalSize: number;

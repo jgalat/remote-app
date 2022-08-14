@@ -4,7 +4,8 @@ export default {
     background: "#fff",
     tint: "#e60070",
     icon: "#999",
-    placeholder: "#999"
+    placeholder: "#999",
+    error: "#f00",
   },
   dark: {
     text: "#fff",
@@ -12,5 +13,6 @@ export default {
     tint: "#e60070",
     icon: "#ccc",
     placeholder: "#ccc",
+    error: "#f00",
   },
 };

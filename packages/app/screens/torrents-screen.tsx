@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -9,16 +9,18 @@ import Screen from "../components/screen";
 import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
+import TorrentItem from "../components/torrent-item";
 import { HomeStackParamList } from "../types";
 import useThemeColor from "../hooks/use-theme-color";
-import { useTransmission } from "../hooks/use-transmission";
+import { useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const server = useServer();
   const text = useThemeColor("text");
-  const client = useTransmission();
+  const err = useThemeColor("error");
+  const { data: torrents, error } = useTorrents();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -26,7 +28,7 @@ export default function TorrentsScreen() {
       return;
     }
     navigation.setOptions({ title: server.name });
-  }, [server, navigation, client]);
+  }, [server, navigation]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -62,7 +64,49 @@ export default function TorrentsScreen() {
       </Screen>
     );
   }
-  return <Screen scroll></Screen>;
+
+  if (error) {
+    return (
+      <Screen style={styles.container}>
+        <Text style={[styles.title, { color: err }]}>
+          Failed to connect to server
+        </Text>
+        {error && (
+          <Text style={[styles.title, { color: err }]}>{error.message}</Text>
+        )}
+      </Screen>
+    );
+  }
+
+  if (!torrents) {
+    return (
+      <Screen style={styles.container}>
+        <Text style={[styles.title]}>Retrieving...</Text>
+      </Screen>
+    );
+  }
+
+  if (torrents.length === 0) {
+    return (
+      <Screen style={styles.container}>
+        <Text style={styles.title}>No torrents found :(</Text>
+        <Button
+          title="Add a torrent"
+          onPress={() => navigation.navigate("AddTorrent")}
+        />
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <FlatList
+        data={torrents}
+        renderItem={({ item }) => <TorrentItem torrent={item} />}
+        keyExtractor={({ id }) => id.toString()}
+      />
+    </Screen>
+  );
 }
 
 const styles = StyleSheet.create({
