@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { useServer } from "../hooks/use-settings";
 import Text from "../components/text";
+import View from "../components/view";
 import Screen from "../components/screen";
 import Button from "../components/button";
 import ActionList from "../components/action-list";
@@ -12,7 +13,7 @@ import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import { HomeStackParamList } from "../types";
 import useThemeColor from "../hooks/use-theme-color";
-import { useTorrents } from "../hooks/use-transmission";
+import { useTorrents, useSession } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const navigation =
@@ -21,10 +22,11 @@ export default function TorrentsScreen() {
   const text = useThemeColor("text");
   const err = useThemeColor("error");
   const { data: torrents, error } = useTorrents();
+  const { data: session } = useSession();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
-      navigation.setOptions({ title: "Torrents" });
+      navigation.setOptions({ title: "Remote" });
       return;
     }
     navigation.setOptions({ title: server.name });
@@ -53,7 +55,7 @@ export default function TorrentsScreen() {
 
   if (!server) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.message}>
         <Text style={styles.title}>No server found :(</Text>
         <Button
           title="Configure server"
@@ -67,7 +69,7 @@ export default function TorrentsScreen() {
 
   if (error) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.message}>
         <Text style={[styles.title, { color: err }]}>
           Failed to connect to server
         </Text>
@@ -78,9 +80,9 @@ export default function TorrentsScreen() {
     );
   }
 
-  if (!torrents) {
+  if (!torrents || !session) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.message}>
         <Text style={[styles.title]}>Retrieving...</Text>
       </Screen>
     );
@@ -88,7 +90,7 @@ export default function TorrentsScreen() {
 
   if (torrents.length === 0) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.message}>
         <Text style={styles.title}>No torrents found :(</Text>
         <Button
           title="Add a torrent"
@@ -104,13 +106,16 @@ export default function TorrentsScreen() {
         data={torrents}
         renderItem={({ item }) => <TorrentItem torrent={item} />}
         keyExtractor={({ id }) => id.toString()}
+        ItemSeparatorComponent={() => (
+          <View style={[styles.separator, { backgroundColor: text }]} />
+        )}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  message: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -121,8 +126,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+    marginVertical: 16,
+    height: 2,
+    width: "100%",
   },
 });

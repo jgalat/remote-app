@@ -21,7 +21,7 @@ export default function TextInput(props: TextInputProps) {
         },
         style,
       ]}
-      placeholderTextColor={theme.placeholder}
+      placeholderTextColor={theme.gray}
       {...otherProps}
     />
   );

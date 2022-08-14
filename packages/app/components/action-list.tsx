@@ -20,7 +20,6 @@ export default function ActionList({ spacing = 16, children }: ActionListProps) 
 
 const styles = StyleSheet.create({
   list: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
   },

@@ -26,7 +26,6 @@ export default function Button(props: ButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 0,

@@ -28,9 +28,6 @@ export default function Screen(props: ScreenProps) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    paddingTop: 24,
-    paddingBottom: 24,
-    paddingLeft: 16,
-    paddingRight: 16,
+    padding: 16,
   },
 });

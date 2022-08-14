@@ -32,7 +32,6 @@ export default function ({ label, left, right, onPress }: OptionProps) {
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",

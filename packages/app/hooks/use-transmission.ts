@@ -10,7 +10,7 @@ function useTransmission() {
 export function useTorrents() {
   const client = useTransmission();
   return useSWR(
-    client ? "all-torrents" : null,
+    client ? "torrent-get-all" : null,
     async () => {
       const response = await client?.request({
         method: "torrent-get",
@@ -19,10 +19,16 @@ export function useTorrents() {
             "id",
             "name",
             "status",
+            "peersConnected",
+            "peersSendingToUs",
+            "peersGettingFromUs",
             "percentDone",
             "rateDownload",
             "rateUpload",
-            "queuePosition",
+            "uploadRatio",
+            "uploadedEver",
+            "totalSize",
+            "eta",
           ],
         },
       });
@@ -31,6 +37,23 @@ export function useTorrents() {
     },
     {
       refreshInterval: 3000,
+    }
+  );
+}
+
+export function useSession() {
+  const client = useTransmission()
+  return useSWR(
+    client ? "session-get" : null,
+    async () => {
+      const response = await client?.request({
+        method: "session-get",
+      });
+
+      return response?.arguments;
+    },
+    {
+      revalidateIfStale: false,
     }
   );
 }
