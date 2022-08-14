@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "t-app",
-    "slug": "t-app",
+    "name": "remote",
+    "slug": "remote",
     "owner": "jgalat",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.jgalat.tapp"
+      "package": "com.jgalat.remote"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
