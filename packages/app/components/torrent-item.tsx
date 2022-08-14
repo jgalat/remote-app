@@ -1,12 +1,13 @@
 import * as React from "react";
-import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { TorrentGetResponse } from "transmission-client";
 
 import View from "./view";
 import Text from "./text";
+import ActionIcon from "./action-icon";
 import { useTheme } from "../hooks/use-theme-color";
 import useFormatter from "../hooks/use-formatter";
+import { useTorrentAction } from "../hooks/use-transmission";
 
 export type TorrentItemProps = {
   torrent: TorrentGetResponse["torrents"][number];
@@ -15,6 +16,7 @@ export type TorrentItemProps = {
 export default function ({ torrent }: TorrentItemProps) {
   const { text: color, gray } = useTheme();
   const { formatSize, formatSpeed, formatETA, formatStatus } = useFormatter();
+  const { start, stop } = useTorrentAction(torrent.id);
 
   let status = formatStatus(torrent.status);
   switch (status) {
@@ -39,10 +41,11 @@ export default function ({ torrent }: TorrentItemProps) {
     <TouchableOpacity>
       <View style={styles.container}>
         <View style={styles.icon}>
-          <Feather
+          <ActionIcon
             name={status === "stopped" ? "play" : "pause"}
             color={color}
             size={24}
+            onPress={status === "stopped" ? start : stop}
           />
         </View>
         <View style={styles.stats}>

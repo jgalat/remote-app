@@ -22,4 +22,6 @@ export type {
 export type { Request as TorrentRemoveRequest } from "./rpc-calls/torrent-remove";
 export type { Request as TorrentSetLocationRequest } from "./rpc-calls/torrent-set-location";
 
+export type { Methods } from "./rpc-call";
+
 export { TransmissionClient as default } from "./client";

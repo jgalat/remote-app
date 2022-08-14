@@ -4,7 +4,7 @@ export default {
     background: "#fff",
     tint: "#e60070",
     icon: "#999",
-    error: "#f00",
+    error: "#af0000",
     gray: "#777",
   },
   dark: {
@@ -12,7 +12,7 @@ export default {
     background: "#000",
     tint: "#e60070",
     icon: "#ccc",
-    error: "#f00",
+    error: "#af0000",
     gray: "#ddd",
   },
 };
