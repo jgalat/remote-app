@@ -26,7 +26,7 @@ export default function TorrentsScreen() {
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
-      navigation.setOptions({ title: "Remote" });
+      navigation.setOptions({ title: "remote" });
       return;
     }
     navigation.setOptions({ title: server.name });
