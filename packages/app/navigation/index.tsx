@@ -20,7 +20,7 @@ import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
 import ThemeScreen from "../screens/theme-screen";
-import ServerConfigurationScreen from "../screens/server-configuration-screen";
+import ConnectionSetupScreen from "../screens/connection-setup-screen";
 
 import LinkingConfiguration from "./linking-configuration";
 import useThemeColor from "../hooks/use-theme-color";
@@ -96,10 +96,10 @@ function SettingsStackNavigator() {
 
       <SettingsStack.Group screenOptions={{ animation: "slide_from_right" }}>
         <SettingsStack.Screen
-          name="Server"
-          component={ServerConfigurationScreen}
+          name="ConnectionSetup"
+          component={ConnectionSetupScreen}
           options={{
-            title: "Configure server",
+            title: "Connection",
           }}
         />
 

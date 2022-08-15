@@ -18,8 +18,8 @@ const linking: LinkingOptions<RootStackParamList> = {
               Settings: {
                 path: "/"
               },
-              Server: {
-                path: "/server"
+              ConnectionSetup: {
+                path: "/connection"
               },
               Theme: {
                 path: "/theme"

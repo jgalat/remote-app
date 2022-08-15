@@ -9,7 +9,7 @@ import TextInput from "../components/text-input";
 import Button from "../components/button";
 import useThemeColor from "../hooks/use-theme-color";
 
-export default function ServerConfigurationScreen() {
+export default function ConnectionScreen() {
   const navigation = useNavigation();
   const { settings, store } = useSettings();
   const { server } = settings;
