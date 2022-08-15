@@ -1,5 +1,5 @@
 {
-  "name": "transmission-client",
+  "name": "@remotea-app/transmission-client",
   "version": "0.0.1",
   "description": "A quick transmission client",
   "main": "lib/index.js",
