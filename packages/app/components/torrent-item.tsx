@@ -37,6 +37,11 @@ export default function ({ torrent }: TorrentItemProps) {
     )} (${torrent.uploadRatio.toFixed(2)})`;
   }
 
+  const progress =
+    (status === "verifying local data"
+      ? torrent.recheckProgress
+      : torrent.percentDone) * 100;
+
   return (
     <TouchableOpacity>
       <View style={styles.container}>
@@ -45,7 +50,7 @@ export default function ({ torrent }: TorrentItemProps) {
             name={status === "stopped" ? "play" : "pause"}
             color={color}
             size={24}
-            onPress={status === "stopped" ? start : stop}
+            onPress={() => (status === "stopped" ? start() : stop())}
           />
         </View>
         <View style={styles.stats}>
@@ -59,10 +64,10 @@ export default function ({ torrent }: TorrentItemProps) {
             </View>
             <View style={styles.column}>
               <Text style={[styles.data, { color: gray }]}>
-                {formatSpeed(torrent.rateDownload)}
+                ↓ {formatSpeed(torrent.rateDownload)}
               </Text>
               <Text style={[styles.data, { color: gray }]}>
-                {formatSpeed(torrent.rateUpload)}
+                ↑ {formatSpeed(torrent.rateUpload)}
               </Text>
             </View>
           </View>
@@ -70,7 +75,7 @@ export default function ({ torrent }: TorrentItemProps) {
             style={[
               styles.progress,
               {
-                width: `${torrent.percentDone * 100}%`,
+                width: `${progress}%`,
                 backgroundColor: color,
               },
             ]}
@@ -78,7 +83,7 @@ export default function ({ torrent }: TorrentItemProps) {
           <View style={styles.row}>
             <View style={styles.column}>
               <Text style={[styles.data, { color: gray }]}>
-                {(torrent.percentDone * 100).toFixed(1)}%
+                {progress.toFixed(1)}%
               </Text>
             </View>
             <View style={styles.column}>

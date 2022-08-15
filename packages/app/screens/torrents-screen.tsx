@@ -13,7 +13,7 @@ import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import { HomeStackParamList } from "../types";
 import useThemeColor from "../hooks/use-theme-color";
-import { useTorrents, useSession } from "../hooks/use-transmission";
+import { useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const navigation =
@@ -22,7 +22,6 @@ export default function TorrentsScreen() {
   const text = useThemeColor("text");
   const err = useThemeColor("error");
   const { data: torrents, error } = useTorrents();
-  const { data: session } = useSession();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -80,7 +79,7 @@ export default function TorrentsScreen() {
     );
   }
 
-  if (!torrents || !session) {
+  if (!torrents) {
     return (
       <Screen style={styles.message}>
         <Text style={[styles.title]}>Retrieving...</Text>

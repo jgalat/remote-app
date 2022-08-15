@@ -1,6 +1,9 @@
 import * as React from "react";
 import useSWR, { useSWRConfig } from "swr";
-import TransmissionClient, { Methods } from "@remote-app/transmission-client";
+import TransmissionClient, {
+  Methods,
+  TorrentRemoveRequest,
+} from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
 
@@ -29,6 +32,7 @@ export function useTorrents() {
             "uploadRatio",
             "uploadedEver",
             "totalSize",
+            "recheckProgress",
             "eta",
           ],
         },
@@ -37,7 +41,7 @@ export function useTorrents() {
       return response?.arguments?.torrents;
     },
     {
-      refreshInterval: 2500,
+      refreshInterval: 10000,
     }
   );
 }
@@ -59,36 +63,59 @@ export function useSession() {
   );
 }
 
-function useActionCallback(
-  id: number,
-  method: Methods,
-  client?: TransmissionClient
-) {
-  const { mutate } = useSWRConfig();
-
-  return React.useCallback(async () => {
-    if (!client) {
-      return;
-    }
-
-    await client.request({
-      method,
-      arguments: {
-        ids: id,
-      },
-    });
-
-    mutate("torrent-get-all");
-  }, [id, method, client, mutate]);
+function isTorrentRemove(m: Methods): m is Extract<Methods, "torrent-remove"> {
+  return m === "torrent-remove";
 }
 
 export function useTorrentAction(id: number) {
   const client = useTransmission();
-  const start = useActionCallback(id, "torrent-start", client);
-  const startNow = useActionCallback(id, "torrent-start-now", client);
-  const stop = useActionCallback(id, "torrent-stop", client);
-  const verify = useActionCallback(id, "torrent-verify", client);
-  const reannounce = useActionCallback(id, "torrent-reannounce", client);
+  const { mutate } = useTorrents();
 
-  return { start, startNow, stop, verify, reannounce };
+  const createAction = React.useCallback(
+    <
+      T extends Extract<
+        Methods,
+        | "torrent-start"
+        | "torrent-start-now"
+        | "torrent-stop"
+        | "torrent-verify"
+        | "torrent-reannounce"
+        | "torrent-remove"
+      >
+    >(
+      action: T
+    ) => {
+      return async (
+        params: T extends "torrent-remove"
+          ? Pick<TorrentRemoveRequest, "delete-local-data"> | undefined
+          : undefined = undefined
+      ): Promise<void> => {
+        if (!client) {
+          return;
+        }
+
+        const args =
+          params !== undefined ? { ids: id, ...params } : { ids: id };
+
+        await client.request({
+          method: action,
+          arguments: {
+            ...args,
+          },
+        });
+
+        mutate();
+      };
+    },
+    [client, id, mutate]
+  );
+
+  const start = createAction("torrent-start");
+  const startNow = createAction("torrent-start-now");
+  const stop = createAction("torrent-stop");
+  const verify = createAction("torrent-verify");
+  const reannounce = createAction("torrent-reannounce");
+  const remove = createAction("torrent-remove");
+
+  return { start, startNow, stop, verify, reannounce, remove };
 }
