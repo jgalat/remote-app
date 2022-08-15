@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "description": "A transmission remote session app",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jgalat/remote-app",
+    "directory": "packages/app"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",

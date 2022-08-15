@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import { TorrentGetResponse } from "transmission-client";
+import { TorrentGetResponse } from "@remote-app/transmission-client";
 
 import View from "./view";
 import Text from "./text";

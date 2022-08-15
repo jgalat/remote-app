@@ -1,6 +1,6 @@
 import * as React from "react";
 import useSWR, { useSWRConfig } from "swr";
-import TransmissionClient, { Methods } from "transmission-client";
+import TransmissionClient, { Methods } from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
 

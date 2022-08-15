@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import TransmissionClient from "transmission-client";
+import TransmissionClient from "@remote-app/transmission-client";
 import { useServer } from "../hooks/use-settings";
 
 export const ClientContext = React.createContext<
