@@ -1,7 +1,7 @@
 {
-  "name": "@remotea-app/transmission-client",
+  "name": "@remote-app/transmission-client",
   "version": "0.0.1",
-  "description": "A quick transmission client",
+  "description": "Transmission RPC client",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc --build"
