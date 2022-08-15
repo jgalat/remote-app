@@ -11,6 +11,7 @@ import {
 
 import { useColorScheme } from "../hooks/use-settings";
 import {
+  AddTorrentStackParamList,
   HomeStackParamList,
   RootStackParamList,
   SettingsStackParamList,
@@ -19,6 +20,8 @@ import {
 import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
+import AddTorrentScreen from "../screens/add-torrent-screen";
+import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
 
@@ -72,9 +75,9 @@ function HomeStackNavigator() {
       />
 
       <HomeStack.Screen
-        name="AddTorrent"
-        component={NotFoundScreen}
-        options={{ title: "Add Torrent" }}
+        name="AddTorrentRoot"
+        component={AddTorrentStackNavigator}
+        options={{ headerShown: false }}
       />
 
       <HomeStack.Screen
@@ -112,6 +115,42 @@ function SettingsStackNavigator() {
         />
       </SettingsStack.Group>
     </SettingsStack.Navigator>
+  );
+}
+
+const AddTorrentStack = createNativeStackNavigator<AddTorrentStackParamList>();
+
+function AddTorrentStackNavigator() {
+  const opts = useNavigationOptions();
+  return (
+    <AddTorrentStack.Navigator
+      initialRouteName="AddTorrent"
+      screenOptions={opts}
+    >
+      <AddTorrentStack.Screen
+        name="AddTorrent"
+        component={AddTorrentScreen}
+        options={{ title: "Add Torrent" }}
+      />
+
+      <AddTorrentStack.Group screenOptions={{ animation: "slide_from_right" }}>
+        <AddTorrentStack.Screen
+          name="File"
+          component={NotFoundScreen}
+          options={{
+            title: "File",
+          }}
+        />
+
+        <AddTorrentStack.Screen
+          name="Magnet"
+          component={AddTorrentMagnetScreen}
+          options={{
+            title: "Magnet URL",
+          }}
+        />
+      </AddTorrentStack.Group>
+    </AddTorrentStack.Navigator>
   );
 }
 

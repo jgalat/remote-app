@@ -36,10 +36,11 @@ export default function TorrentsScreen() {
       headerRight: () => (
         <ActionList>
           <ActionIcon
-            onPress={() => navigation.navigate("AddTorrent")}
+            onPress={() => navigation.navigate("AddTorrentRoot")}
             name="plus"
             size={24}
             color={text}
+            disabled={!server}
           />
           <ActionIcon
             onPress={() => navigation.navigate("SettingsRoot")}
@@ -50,16 +51,16 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [navigation, text]);
+  }, [navigation, text, server]);
 
   if (!server) {
     return (
       <Screen style={styles.message}>
-        <Text style={styles.title}>No server found :(</Text>
+        <Text style={styles.title}>No connection found :(</Text>
         <Button
-          title="Configure server"
+          title="Setup connection"
           onPress={() =>
-            navigation.navigate("SettingsRoot", { screen: "Server" })
+            navigation.navigate("SettingsRoot", { screen: "ConnectionSetup" })
           }
         />
       </Screen>
@@ -93,7 +94,7 @@ export default function TorrentsScreen() {
         <Text style={styles.title}>No torrents found :(</Text>
         <Button
           title="Add a torrent"
-          onPress={() => navigation.navigate("AddTorrent")}
+          onPress={() => navigation.navigate("AddTorrentRoot")}
         />
       </Screen>
     );

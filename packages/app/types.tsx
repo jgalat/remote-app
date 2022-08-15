@@ -15,7 +15,7 @@ export type RootStackParamList = {
 export type HomeStackParamList = {
   Torrents: undefined;
   SettingsRoot: NavigatorScreenParams<SettingsStackParamList> | undefined;
-  AddTorrent: undefined;
+  AddTorrentRoot: NavigatorScreenParams<AddTorrentStackParamList> | undefined;
   TorrentDetails: { id: string };
 };
 
@@ -24,6 +24,12 @@ export type SettingsStackParamList = {
   ConnectionSetup: undefined;
   ServerConfiguration: undefined;
   Theme: undefined;
+};
+
+export type AddTorrentStackParamList = {
+  AddTorrent: undefined;
+  File: undefined;
+  Magnet: { url?: string }
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

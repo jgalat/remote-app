@@ -8,7 +8,10 @@ export type ActionListProps = {
   children: JSX.Element | JSX.Element[];
 };
 
-export default function ActionList({ spacing = 16, children }: ActionListProps) {
+export default function ActionList({
+  spacing = 16,
+  children,
+}: ActionListProps) {
   return (
     <View style={styles.list}>
       {React.Children.map(children, (c) => (

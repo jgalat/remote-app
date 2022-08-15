@@ -16,18 +16,29 @@ const linking: LinkingOptions<RootStackParamList> = {
             path: "/settings",
             screens: {
               Settings: {
-                path: "/"
+                path: "/",
               },
               ConnectionSetup: {
-                path: "/connection"
+                path: "/connection",
               },
               Theme: {
-                path: "/theme"
+                path: "/theme",
               },
-            }
+            },
           },
-          AddTorrent: {
-            path: "/add-torrent",
+          AddTorrentRoot: {
+            path: "/add",
+            screens: {
+              AddTorrent: {
+                path: "/",
+              },
+              File: {
+                path: "/file"
+              },
+              Magnet: {
+                path: "/magnet"
+              },
+            },
           },
           TorrentDetails: {
             path: "/torrents/:id",
