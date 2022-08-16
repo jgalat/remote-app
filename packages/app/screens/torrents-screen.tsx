@@ -1,7 +1,6 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useLinkTo, useNavigation } from "@react-navigation/native";
 
 import { useServer } from "../hooks/use-settings";
 import Text from "../components/text";
@@ -11,13 +10,12 @@ import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
-import { HomeStackParamList } from "../types";
 import useThemeColor from "../hooks/use-theme-color";
 import { useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const linkTo = useLinkTo();
+  const navigation = useNavigation();
   const server = useServer();
   const text = useThemeColor("text");
   const err = useThemeColor("error");
@@ -35,15 +33,16 @@ export default function TorrentsScreen() {
     navigation.setOptions({
       headerRight: () => (
         <ActionList>
+          {!!server ? (
+            <ActionIcon
+              onPress={() => linkTo("/add")}
+              name="plus"
+              size={24}
+              color={text}
+            />
+          ) : null}
           <ActionIcon
-            onPress={() => navigation.navigate("AddTorrentRoot")}
-            name="plus"
-            size={24}
-            color={text}
-            disabled={!server}
-          />
-          <ActionIcon
-            onPress={() => navigation.navigate("SettingsRoot")}
+            onPress={() => linkTo("/settings")}
             name="settings"
             size={24}
             color={text}
@@ -51,7 +50,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [navigation, text, server]);
+  }, [linkTo, text, server]);
 
   if (!server) {
     return (
@@ -59,9 +58,7 @@ export default function TorrentsScreen() {
         <Text style={styles.title}>No connection found :(</Text>
         <Button
           title="Setup connection"
-          onPress={() =>
-            navigation.navigate("SettingsRoot", { screen: "ConnectionSetup" })
-          }
+          onPress={() => linkTo("/settings/connection")}
         />
       </Screen>
     );
@@ -92,10 +89,7 @@ export default function TorrentsScreen() {
     return (
       <Screen style={styles.message}>
         <Text style={styles.title}>No torrents found :(</Text>
-        <Button
-          title="Add a torrent"
-          onPress={() => navigation.navigate("AddTorrentRoot")}
-        />
+        <Button title="Add a torrent" onPress={() => linkTo("/add")} />
       </Screen>
     );
   }

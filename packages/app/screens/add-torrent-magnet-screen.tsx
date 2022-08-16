@@ -3,10 +3,7 @@ import { useRoute } from "@react-navigation/native";
 
 import Text from "../components/text";
 import View from "../components/view";
-import {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from "@react-navigation/native-stack";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AddTorrentStackParamList } from "../types";
 
 export default function AddTorrentMagnetScreen() {

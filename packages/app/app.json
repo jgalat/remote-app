@@ -27,14 +27,12 @@
       },
       "package": "ar.jg.remote",
       "versionCode": 1,
-      "intentFilter": [
+      "intentFilters": [
         {
           "action": "VIEW",
           "data": [
             {
               "scheme": "magnet",
-              "host": "*",
-              "pathPrefix": "/add/magnet?url="
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]

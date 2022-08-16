@@ -1,21 +1,16 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useLinkTo, useRoute } from "@react-navigation/native";
 
 import Text from "../components/text";
 import View from "../components/view";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types";
 
 export default function NotFoundScreen() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const linkTo = useLinkTo();
+  const route = useRoute()
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>This screen doesn't exist.</Text>
-      <TouchableOpacity
-        onPress={() => navigation.replace("Root")}
-        style={styles.link}
-      >
+      <Text style={styles.title}>{JSON.stringify(route)}</Text>
+      <TouchableOpacity onPress={() => linkTo("/")} style={styles.link}>
         <Text style={styles.linkText}>Go to home screen!</Text>
       </TouchableOpacity>
     </View>

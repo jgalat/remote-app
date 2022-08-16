@@ -4,7 +4,7 @@ import * as Linking from "expo-linking";
 import { RootStackParamList } from "../types";
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: [Linking.createURL("/")],
+  prefixes: [Linking.createURL("/"), "magnet:"],
   config: {
     screens: {
       Root: {
@@ -12,8 +12,9 @@ const linking: LinkingOptions<RootStackParamList> = {
           Torrents: {
             path: "/",
           },
-          SettingsRoot: {
+          SettingsStack: {
             path: "/settings",
+            initialRouteName: "Settings",
             screens: {
               Settings: {
                 path: "/",
@@ -26,8 +27,9 @@ const linking: LinkingOptions<RootStackParamList> = {
               },
             },
           },
-          AddTorrentRoot: {
+          AddTorrentStack: {
             path: "/add",
+            initialRouteName: "AddTorrent",
             screens: {
               AddTorrent: {
                 path: "/",

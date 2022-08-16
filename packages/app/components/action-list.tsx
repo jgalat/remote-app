@@ -5,7 +5,7 @@ import View from "./view";
 
 export type ActionListProps = {
   spacing?: number;
-  children: JSX.Element | JSX.Element[];
+  children: React.ComponentProps<React.FC>["children"];
 };
 
 export default function ActionList({
@@ -14,9 +14,11 @@ export default function ActionList({
 }: ActionListProps) {
   return (
     <View style={styles.list}>
-      {React.Children.map(children, (c) => (
-        <View style={{ marginLeft: spacing }}>{c}</View>
-      ))}
+      {React.Children.map(children, (c) =>
+        c !== null && c !== undefined ? (
+          <View style={{ marginLeft: spacing }}>{c}</View>
+        ) : null
+      )}
     </View>
   );
 }

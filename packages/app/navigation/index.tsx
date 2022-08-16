@@ -45,7 +45,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const opts = useNavigationOptions();
   return (
-    <Stack.Navigator screenOptions={opts}>
+    <Stack.Navigator initialRouteName="Root" screenOptions={opts}>
       <Stack.Screen
         name="Root"
         component={HomeStackNavigator}
@@ -69,13 +69,13 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="Torrents" component={TorrentsScreen} />
 
       <HomeStack.Screen
-        name="SettingsRoot"
+        name="SettingsStack"
         component={SettingsStackNavigator}
         options={{ headerShown: false }}
       />
 
       <HomeStack.Screen
-        name="AddTorrentRoot"
+        name="AddTorrentStack"
         component={AddTorrentStackNavigator}
         options={{ headerShown: false }}
       />
