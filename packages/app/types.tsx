@@ -8,15 +8,11 @@ declare global {
 }
 
 export type RootStackParamList = {
-  Root: NavigatorScreenParams<HomeStackParamList> | undefined;
-  NotFound: undefined;
-};
-
-export type HomeStackParamList = {
-  Torrents: undefined;
+  Root: undefined;
+  TorrentDetails: { id: string };
   SettingsStack: NavigatorScreenParams<SettingsStackParamList> | undefined;
   AddTorrentStack: NavigatorScreenParams<AddTorrentStackParamList> | undefined;
-  TorrentDetails: { id: string };
+  NotFound: undefined;
 };
 
 export type SettingsStackParamList = {
@@ -29,15 +25,16 @@ export type SettingsStackParamList = {
 export type AddTorrentStackParamList = {
   AddTorrent: undefined;
   File: undefined;
-  Magnet: { url?: string }
+  Magnet: { url?: string };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
-export type HomeStackScreenProps<Screen extends keyof HomeStackParamList> =
-  NativeStackScreenProps<HomeStackParamList, Screen>;
-
 export type SettingsStackScreenProps<
   Screen extends keyof SettingsStackParamList
 > = NativeStackScreenProps<SettingsStackParamList, Screen>;
+
+export type AddTorrentStackScreenProps<
+  Screen extends keyof AddTorrentStackParamList
+> = NativeStackScreenProps<AddTorrentStackParamList, Screen>;

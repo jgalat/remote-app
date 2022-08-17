@@ -1,8 +1,11 @@
 import * as React from "react";
+import * as Linking from "expo-linking";
 import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
+  useNavigationContainerRef,
+  LinkingOptions,
 } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -12,7 +15,6 @@ import {
 import { useColorScheme } from "../hooks/use-settings";
 import {
   AddTorrentStackParamList,
-  HomeStackParamList,
   RootStackParamList,
   SettingsStackParamList,
 } from "../types";
@@ -25,15 +27,15 @@ import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
 
-import LinkingConfiguration from "./linking-configuration";
 import useThemeColor from "../hooks/use-theme-color";
 
 export default function Navigation() {
   const colorScheme = useColorScheme();
+  const props = useNavigationContainerProps();
   return (
     <NavigationContainer
-      linking={LinkingConfiguration}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      {...props}
     >
       <RootNavigator />
     </NavigationContainer>
@@ -46,46 +48,32 @@ function RootNavigator() {
   const opts = useNavigationOptions();
   return (
     <Stack.Navigator initialRouteName="Root" screenOptions={opts}>
+      <Stack.Screen name="Root" component={TorrentsScreen} />
+
       <Stack.Screen
-        name="Root"
-        component={HomeStackNavigator}
+        name="SettingsStack"
+        component={SettingsStackNavigator}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen
+        name="AddTorrentStack"
+        component={AddTorrentStackNavigator}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="TorrentDetails"
+        component={NotFoundScreen}
+        options={{}}
+      />
+
       <Stack.Screen
         name="NotFound"
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
     </Stack.Navigator>
-  );
-}
-
-const HomeStack = createNativeStackNavigator<HomeStackParamList>();
-
-function HomeStackNavigator() {
-  const opts = useNavigationOptions();
-  return (
-    <HomeStack.Navigator initialRouteName="Torrents" screenOptions={opts}>
-      <HomeStack.Screen name="Torrents" component={TorrentsScreen} />
-
-      <HomeStack.Screen
-        name="SettingsStack"
-        component={SettingsStackNavigator}
-        options={{ headerShown: false }}
-      />
-
-      <HomeStack.Screen
-        name="AddTorrentStack"
-        component={AddTorrentStackNavigator}
-        options={{ headerShown: false }}
-      />
-
-      <HomeStack.Screen
-        name="TorrentDetails"
-        component={NotFoundScreen}
-        options={{}}
-      />
-    </HomeStack.Navigator>
   );
 }
 
@@ -168,4 +156,80 @@ function useNavigationOptions(): NativeStackNavigationOptions {
     },
     headerShadowVisible: false,
   };
+}
+
+function useNavigationContainerProps() {
+  const ref = useNavigationContainerRef<RootStackParamList>();
+
+  const getInitialURL = React.useCallback(async () => {
+    const url = await Linking.getInitialURL();
+    if (url?.startsWith("magnet:")) {
+      ref.navigate("AddTorrentStack", { screen: "Magnet", params: { url } });
+    }
+
+    return url;
+  }, [ref]);
+
+  const subscribe = React.useCallback(
+    (listener: (url: string) => void) => {
+      const subscription = Linking.addEventListener("url", ({ url }) => {
+        if (url?.startsWith("magnet:")) {
+          ref.navigate("AddTorrentStack", {
+            screen: "Magnet",
+            params: { url },
+          });
+        }
+        listener(url);
+      });
+      return () => subscription.remove();
+    },
+    [ref]
+  );
+
+  const linking: LinkingOptions<RootStackParamList> = {
+    prefixes: [Linking.createURL("/")],
+    config: {
+      screens: {
+        Root: "/",
+        TorrentDetails: {
+          path: "/torrents/:id",
+        },
+        SettingsStack: {
+          path: "/settings",
+          initialRouteName: "Settings",
+          screens: {
+            Settings: {
+              path: "/",
+            },
+            ConnectionSetup: {
+              path: "/connection",
+            },
+            Theme: {
+              path: "/theme",
+            },
+          },
+        },
+        AddTorrentStack: {
+          path: "/add",
+          initialRouteName: "AddTorrent",
+          screens: {
+            AddTorrent: {
+              path: "/",
+            },
+            File: {
+              path: "/file",
+            },
+            Magnet: {
+              path: "/magnet",
+            },
+          },
+        },
+        NotFound: "*",
+      },
+    },
+    getInitialURL,
+    subscribe,
+  };
+
+  return { ref, linking };
 }
