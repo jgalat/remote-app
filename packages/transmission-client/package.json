@@ -1,6 +1,6 @@
 {
   "name": "@remote-app/transmission-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Transmission RPC client",
   "license": "MIT",
   "repository": {
@@ -8,10 +8,9 @@
     "url": "https://github.com/jgalat/remote-app",
     "directory": "packages/transmission-client"
   },
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "react-native": "src/index.ts",
-  "files": ["src", "lib"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc --build"
   },
