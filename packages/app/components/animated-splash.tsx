@@ -1,53 +1,89 @@
 import * as React from "react";
 import Constants from "expo-constants";
-import { View, Animated, StyleSheet } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
+import * as SplashScreen from "expo-splash-screen";
 
 type AnimatedSplashProps = {
   children: React.ComponentProps<React.FC>["children"];
 };
 
-export default function ({ children }: AnimatedSplashProps) {
-  const animation = React.useMemo(() => new Animated.Value(1), []);
-  const [animationComplete, setAnimationComplete] = React.useState(false);
+SplashScreen.preventAutoHideAsync();
 
-  React.useEffect(() => {
-    Animated.timing(animation, {
+export default function ({ children }: AnimatedSplashProps) {
+  const [translateY] = React.useState(new Animated.Value(100));
+  const [opacity] = React.useState(new Animated.Value(1));
+  const [finished, setFinished] = React.useState(false);
+
+  const onLoad = () => {
+    SplashScreen.hideAsync();
+    Animated.spring(translateY, {
       toValue: 0,
-      duration: 1000,
+      stiffness: 100,
       useNativeDriver: true,
-    }).start(() => setAnimationComplete(true));
-  }, []);
+    }).start(() =>
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setFinished(true))
+    );
+  };
 
   return (
-    <View style={{ flex: 1 }}>
+    <>
       {children}
-      {!animationComplete ? (
+      {!finished ? (
         <Animated.View
           pointerEvents="none"
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              backgroundColor: Constants?.manifest?.splash?.backgroundColor,
-              opacity: animation,
-            },
-          ]}
+          style={[StyleSheet.absoluteFill,styles.container , { opacity }]}
         >
           <Animated.Image
-            style={{
-              width: "100%",
-              height: "100%",
-              resizeMode: "contain",
-              transform: [
-                {
-                  scale: animation,
-                },
-              ],
-            }}
+            style={styles.splash}
             source={require("../assets/images/splash.png")}
             fadeDuration={0}
+            onLoad={onLoad}
           />
+          <View style={styles.textContainer}>
+            <Animated.Text
+              style={[
+                styles.text,
+                {
+                  transform: [
+                    {
+                      translateY,
+                    },
+                  ],
+                },
+              ]}
+            >
+              remote
+            </Animated.Text>
+          </View>
         </Animated.View>
       ) : null}
-    </View>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontFamily: "roboto-mono",
+    fontSize: 64,
+    color: "#000",
+  },
+  textContainer: {
+    position: "absolute",
+    bottom: "35%",
+    width: "100%",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  splash: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  container: {
+    backgroundColor: Constants?.manifest?.splash?.backgroundColor,
+  },
+});

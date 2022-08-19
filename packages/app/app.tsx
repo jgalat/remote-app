@@ -9,21 +9,21 @@ import Navigation from "./navigation";
 import StatusBar from "./components/status-bar";
 
 export default function App() {
-  const resourcesLoaded = useCachedResources();
+  const loaded = useCachedResources();
 
-  if (!resourcesLoaded) {
+  if (!loaded) {
     return null;
   }
 
   return (
     <SettingsProvider>
       <ClientProvider>
-        <SafeAreaProvider>
-          <AnimatedSplash>
+        <AnimatedSplash>
+          <SafeAreaProvider>
             <Navigation />
             <StatusBar />
-          </AnimatedSplash>
-        </SafeAreaProvider>
+          </SafeAreaProvider>
+        </AnimatedSplash>
       </ClientProvider>
     </SettingsProvider>
   );
