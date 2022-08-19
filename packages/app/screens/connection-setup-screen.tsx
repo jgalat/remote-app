@@ -8,10 +8,12 @@ import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
 import useThemeColor from "../hooks/use-theme-color";
+import { useSession } from "../hooks/use-transmission";
 
 export default function ConnectionScreen() {
   const navigation = useNavigation();
   const { settings, store } = useSettings();
+  const { mutate } = useSession();
   const { server } = settings;
   const tint = useThemeColor("tint");
 
@@ -37,6 +39,7 @@ export default function ConnectionScreen() {
         password: password === "" ? undefined : password,
       };
       await store({ ...settings, server });
+      await mutate();
       navigation.goBack();
     } catch (e) {
       console.warn(e);
@@ -45,6 +48,7 @@ export default function ConnectionScreen() {
 
   const remove = async () => {
     await store({ ...settings, server: undefined });
+    await mutate();
     navigation.goBack();
   };
 
@@ -78,12 +82,14 @@ export default function ConnectionScreen() {
         disabled={name === "" || url === ""}
         onPress={save}
       />
-      <Button
-        style={{ backgroundColor: tint }}
-        title="Delete"
-        disabled={server === undefined}
-        onPress={remove}
-      />
+      {server ? (
+        <Button
+          style={{ backgroundColor: tint }}
+          title="Delete"
+          disabled={server === undefined}
+          onPress={remove}
+        />
+      ) : null}
     </Screen>
   );
 }

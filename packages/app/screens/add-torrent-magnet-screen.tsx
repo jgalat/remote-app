@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { useRoute } from "@react-navigation/native";
 
 import Text from "../components/text";

@@ -4,12 +4,13 @@ import { useLinkTo } from "@react-navigation/native";
 
 import Option, { OptionProps } from "../components/option";
 import Screen from "../components/screen";
-import { useColorScheme, useServer } from "../hooks/use-settings";
+import { useColorScheme } from "../hooks/use-settings";
+import { useSession } from "../hooks/use-transmission";
 
 export default function SettingsScreen() {
   const linkTo = useLinkTo();
   const colorScheme = useColorScheme();
-  const server = useServer();
+  const { data: session, error } = useSession();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(
     () => [
@@ -24,7 +25,7 @@ export default function SettingsScreen() {
         label: "Server Configuration",
         onPress: () => linkTo("/settings/theme"),
         right: "chevron-right",
-        disabled: !server,
+        disabled: !session || error,
       },
       {
         left: colorScheme === "dark" ? "moon" : "sun",
@@ -33,7 +34,7 @@ export default function SettingsScreen() {
         right: "chevron-right",
       },
     ],
-    [linkTo, colorScheme]
+    [linkTo, colorScheme, session, error]
   );
 
   return (

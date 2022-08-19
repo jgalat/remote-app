@@ -63,13 +63,9 @@ export function useSession() {
   );
 }
 
-function isTorrentRemove(m: Methods): m is Extract<Methods, "torrent-remove"> {
-  return m === "torrent-remove";
-}
-
 export function useTorrentAction(id: number) {
   const client = useTransmission();
-  const { mutate } = useTorrents();
+  const { data: torrents, mutate } = useTorrents();
 
   const createAction = React.useCallback(
     <
@@ -104,10 +100,10 @@ export function useTorrentAction(id: number) {
           },
         });
 
-        mutate();
+        setTimeout(() => mutate(), 500);
       };
     },
-    [client, id, mutate]
+    [client, id, torrents, mutate]
   );
 
   const start = createAction("torrent-start");

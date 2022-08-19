@@ -11,7 +11,7 @@ import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import useThemeColor from "../hooks/use-theme-color";
-import { useTorrents } from "../hooks/use-transmission";
+import { useSession, useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
@@ -19,6 +19,7 @@ export default function TorrentsScreen() {
   const server = useServer();
   const text = useThemeColor("text");
   const err = useThemeColor("error");
+  const { data: session } = useSession();
   const { data: torrents, error } = useTorrents();
 
   React.useLayoutEffect(() => {
@@ -33,7 +34,7 @@ export default function TorrentsScreen() {
     navigation.setOptions({
       headerRight: () => (
         <ActionList>
-          {!!server ? (
+          {!!session ? (
             <ActionIcon
               onPress={() => linkTo("/add")}
               name="plus"
@@ -50,7 +51,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, server]);
+  }, [linkTo, text, session]);
 
   if (!server) {
     return (
