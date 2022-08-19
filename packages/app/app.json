@@ -32,7 +32,7 @@
           "action": "VIEW",
           "data": [
             {
-              "scheme": "magnet",
+              "scheme": "magnet"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]

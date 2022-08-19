@@ -1,10 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import * as Font from "expo-font";
+import { Asset } from "expo-asset";
+import Constants from "expo-constants";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 
 export default function useCachedResources() {
-  const [isLoadingComplete, setLoadingComplete] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
@@ -15,10 +17,14 @@ export default function useCachedResources() {
           ...Feather.font,
           "roboto-mono": require("../assets/fonts/RobotoMono-VariableFont_wght.ttf"),
         });
+        console.log("AA");
+        console.log(Constants.manifest);
+        await Asset.loadAsync(require("../assets/images/splash.png"));
+        console.log("BB");
       } catch (e) {
         console.warn(e);
       } finally {
-        setLoadingComplete(true);
+        setLoading(true);
         SplashScreen.hideAsync();
       }
     }
@@ -26,5 +32,5 @@ export default function useCachedResources() {
     loadResourcesAndDataAsync();
   }, []);
 
-  return isLoadingComplete;
+  return { loading };
 }

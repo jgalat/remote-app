@@ -1,5 +1,6 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import AnimatedSplash from "./components/animated-splash";
 import useCachedResources from "./hooks/use-cached-resources";
 import { SettingsProvider } from "./contexts/settings";
 import { ClientProvider } from "./contexts/transmission-client";
@@ -18,8 +19,10 @@ export default function App() {
     <SettingsProvider>
       <ClientProvider>
         <SafeAreaProvider>
-          <Navigation />
-          <StatusBar />
+          <AnimatedSplash>
+            <Navigation />
+            <StatusBar />
+          </AnimatedSplash>
         </SafeAreaProvider>
       </ClientProvider>
     </SettingsProvider>
