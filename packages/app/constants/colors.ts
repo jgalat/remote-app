@@ -13,6 +13,6 @@ export default {
     tint: "#e60070",
     icon: "#ccc",
     error: "#af0000",
-    gray: "#ddd",
+    gray: "#ccc",
   },
 };

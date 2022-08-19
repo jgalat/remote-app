@@ -10,15 +10,14 @@ import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
-import useThemeColor from "../hooks/use-theme-color";
+import useThemeColor, { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
   const navigation = useNavigation();
   const server = useServer();
-  const text = useThemeColor("text");
-  const err = useThemeColor("error");
+  const { text, error: err, gray } = useTheme();
   const { data: session } = useSession();
   const { data: torrents, error } = useTorrents();
 
@@ -102,7 +101,7 @@ export default function TorrentsScreen() {
         renderItem={({ item }) => <TorrentItem torrent={item} />}
         keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: text }]} />
+          <View style={[styles.separator, { backgroundColor: gray }]} />
         )}
       />
     </Screen>
