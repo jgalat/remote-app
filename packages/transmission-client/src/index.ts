@@ -18,7 +18,7 @@ export type {
   TorrentSetLocationRequest,
 } from "./rpc-calls";
 
-export type { TorrentStatus } from "./rpc-calls/torrent-get";
+export { TorrentStatus } from "./rpc-calls/torrent-get";
 
 export type { Methods } from "./rpc-call";
 
