@@ -18,6 +18,8 @@ export type {
   TorrentSetLocationRequest,
 } from "./rpc-calls";
 
+export type { TorrentStatus } from "./rpc-calls/torrent-get";
+
 export type { Methods } from "./rpc-call";
 
 export type { HTTPError, TransmissionError } from "./error";

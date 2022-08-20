@@ -85,6 +85,16 @@ type WebSeed = {
   webseed: string;
 };
 
+export enum TorrentStatus {
+  STOPPED,
+  QUEUED_TO_VERIFY_LOCAL_DATA,
+  VERIFYING_LOCAL_DATA,
+  QUEUED_TO_DOWNLOAD,
+  DOWNLOADING,
+  QUEUED_TO_SEED,
+  SEEDING,
+}
+
 type Torrent = {
   activityDate: number;
   addedDate: number;
@@ -146,7 +156,7 @@ type Torrent = {
   seedRatioMode: number;
   sizeWhenDone: number;
   startDate: number;
-  status: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  status: TorrentStatus;
   trackers: Tracker[];
   trackerStats: TrackerStats[];
   totalSize: number;
