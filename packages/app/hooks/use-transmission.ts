@@ -41,7 +41,8 @@ export function useTorrents() {
       return response?.arguments?.torrents;
     },
     {
-      refreshInterval: 10000,
+      refreshInterval: 5000,
+      errorRetryCount: 3,
     }
   );
 }

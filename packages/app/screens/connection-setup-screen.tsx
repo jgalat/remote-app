@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import useSettings from "../hooks/use-settings";
 import { Server } from "../store/settings";
@@ -8,14 +9,17 @@ import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
 import useThemeColor from "../hooks/use-theme-color";
-import { useSession } from "../hooks/use-transmission";
+import { useSession, useTorrents } from "../hooks/use-transmission";
+import { RootStackParamList } from "../types";
 
 export default function ConnectionScreen() {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { settings, store } = useSettings();
-  const { mutate } = useSession();
+  const { mutate: mutateSession } = useSession();
+  const { mutate: mutateTorrents } = useTorrents();
   const { server } = settings;
-  const tint = useThemeColor("tint");
+  const red = useThemeColor("red");
 
   const [name, setName] = React.useState<string>(server?.name ?? "");
   const [url, setUrl] = React.useState<string>(server?.url ?? "");
@@ -39,8 +43,9 @@ export default function ConnectionScreen() {
         password: password === "" ? undefined : password,
       };
       await store({ ...settings, server });
-      await mutate();
-      navigation.goBack();
+      await mutateSession();
+      await mutateTorrents();
+      navigation.navigate("Root");
     } catch (e) {
       console.warn(e);
     }
@@ -48,8 +53,9 @@ export default function ConnectionScreen() {
 
   const remove = async () => {
     await store({ ...settings, server: undefined });
-    await mutate();
-    navigation.goBack();
+    await mutateSession();
+    await mutateTorrents();
+    navigation.navigate("Root");
   };
 
   return (
@@ -84,7 +90,7 @@ export default function ConnectionScreen() {
       />
       {server ? (
         <Button
-          style={{ backgroundColor: tint }}
+          style={{ backgroundColor: red }}
           title="Delete"
           disabled={server === undefined}
           onPress={remove}

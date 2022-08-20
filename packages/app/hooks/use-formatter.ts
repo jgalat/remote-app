@@ -1,10 +1,11 @@
 import * as React from "react";
+import { TorrentStatus } from "@remote-app/transmission-client";
 
 export type Formatter = {
   formatSpeed: (speed: number) => string;
   formatSize: (size: number) => string;
   formatETA: (eta: number) => string;
-  formatStatus: (status: 0 | 1 | 2 | 3 | 4 | 5 | 6) => string;
+  formatStatus: (status: TorrentStatus) => string;
 };
 
 function formatBytes(units: string[]): (bytes: number) => string {
@@ -56,22 +57,22 @@ const formatETA: Formatter["formatETA"] = (eta: number): string => {
 };
 
 const formatStatus: Formatter["formatStatus"] = (
-  status: 0 | 1 | 2 | 3 | 4 | 5 | 6
+  status: TorrentStatus
 ): string => {
   switch (status) {
-    case 0:
+    case TorrentStatus.STOPPED:
       return "stopped";
-    case 1:
+    case TorrentStatus.QUEUED_TO_VERIFY_LOCAL_DATA:
       return "queued to verify local data";
-    case 2:
+    case TorrentStatus.VERIFYING_LOCAL_DATA:
       return "verifying local data";
-    case 3:
+    case TorrentStatus.QUEUED_TO_DOWNLOAD:
       return "queued to download";
-    case 4:
+    case TorrentStatus.DOWNLOADING:
       return "downloading";
-    case 5:
+    case TorrentStatus.QUEUED_TO_SEED:
       return "queued to seed";
-    case 6:
+    case TorrentStatus.SEEDING:
       return "seeding";
   }
 };

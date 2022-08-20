@@ -10,14 +10,14 @@ import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
-import useThemeColor, { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
   const navigation = useNavigation();
   const server = useServer();
-  const { text, error: err, gray } = useTheme();
+  const { text, red, gray } = useTheme();
   const { data: session } = useSession();
   const { data: torrents, error } = useTorrents();
 
@@ -67,11 +67,11 @@ export default function TorrentsScreen() {
   if (error) {
     return (
       <Screen style={styles.message}>
-        <Text style={[styles.title, { color: err }]}>
+        <Text style={[styles.title, { color: red }]}>
           Failed to connect to server
         </Text>
         {error && (
-          <Text style={[styles.title, { color: err }]}>{error.message}</Text>
+          <Text style={[styles.title, { color: red }]}>{error.message}</Text>
         )}
       </Screen>
     );

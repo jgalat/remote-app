@@ -1,30 +1,45 @@
 import * as React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import { TorrentGetResponse } from "@remote-app/transmission-client";
+import {
+  TorrentGetResponse,
+  TorrentStatus,
+} from "@remote-app/transmission-client";
 
 import View from "./view";
 import Text from "./text";
 import ActionIcon from "./action-icon";
+import ProgressBar from "./progress-bar";
 import { useTheme } from "../hooks/use-theme-color";
 import useFormatter from "../hooks/use-formatter";
 import { useTorrentAction } from "../hooks/use-transmission";
 
 export type TorrentItemProps = {
   torrent: TorrentGetResponse["torrents"][number];
-};
+} & React.ComponentProps<typeof TouchableOpacity>;
 
-export default function ({ torrent }: TorrentItemProps) {
-  const { text: color, gray } = useTheme();
+export default function ({ torrent, ...props }: TorrentItemProps) {
+  const { text: color, green, yellow, gray } = useTheme();
   const { formatSize, formatSpeed, formatETA, formatStatus } = useFormatter();
   const { start, stop } = useTorrentAction(torrent.id);
 
   let status = formatStatus(torrent.status);
-  switch (status) {
-    case "downloading":
+  let progress = torrent.percentDone * 100;
+  let progressColor = color;
+  switch (torrent.status) {
+    case TorrentStatus.DOWNLOADING:
       status = `${status} - ${torrent.peersSendingToUs} / ${torrent.peersConnected} peers`;
       break;
-    case "seeding":
+    case TorrentStatus.SEEDING:
       status = `${status} - ${torrent.peersGettingFromUs} / ${torrent.peersConnected} peers`;
+      progressColor =  green;
+      break;
+    case TorrentStatus.VERIFYING_LOCAL_DATA:
+      progress = torrent.recheckProgress * 100;
+      progressColor = yellow;
+      status = `${status} - ${torrent.peersGettingFromUs} / ${torrent.peersConnected} peers`;
+      break;
+    default:
+      progressColor = gray;
       break;
   }
 
@@ -37,13 +52,8 @@ export default function ({ torrent }: TorrentItemProps) {
     )} (${torrent.uploadRatio.toFixed(2)})`;
   }
 
-  const progress =
-    (status === "verifying local data"
-      ? torrent.recheckProgress
-      : torrent.percentDone) * 100;
-
   return (
-    <TouchableOpacity>
+    <TouchableOpacity {...props}>
       <View style={styles.container}>
         <View style={styles.icon}>
           <ActionIcon
@@ -71,14 +81,10 @@ export default function ({ torrent }: TorrentItemProps) {
               </Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.progress,
-              {
-                width: `${progress}%`,
-                backgroundColor: color,
-              },
-            ]}
+          <ProgressBar
+            style={styles.progress}
+            progress={progress}
+            color={progressColor}
           />
           <View style={styles.row}>
             <View style={styles.column}>
@@ -130,6 +136,5 @@ const styles = StyleSheet.create({
   progress: {
     marginTop: 4,
     marginBottom: 4,
-    height: 8,
   },
 });

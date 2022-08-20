@@ -4,15 +4,21 @@ export default {
     background: "#fff",
     tint: "#e60070",
     icon: "#999",
-    error: "#af0000",
     gray: "#777",
+    lightGray: "#ccc",
+    red: "#d3212c",
+    green: "#069c56",
+    yellow: "#ff980e"
   },
   dark: {
     text: "#fff",
     background: "#000",
     tint: "#e60070",
     icon: "#ccc",
-    error: "#af0000",
     gray: "#ccc",
+    lightGray: "#444",
+    red: "#d3212c",
+    green: "#069c56",
+    yellow: "#ff980e"
   },
 };
