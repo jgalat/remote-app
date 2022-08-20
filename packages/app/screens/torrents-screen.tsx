@@ -20,7 +20,7 @@ export default function TorrentsScreen() {
   const server = useServer();
   const { text, gray } = useTheme();
   const { data: session } = useSession();
-  const { data: torrents, error } = useTorrents();
+  const { data: torrents, mutate, isValidating, error } = useTorrents();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -99,6 +99,8 @@ export default function TorrentsScreen() {
         ItemSeparatorComponent={() => (
           <View style={[styles.separator, { backgroundColor: gray }]} />
         )}
+        onRefresh={() => mutate()}
+        refreshing={isValidating}
       />
     </Screen>
   );

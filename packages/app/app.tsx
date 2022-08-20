@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AnimatedSplash from "./components/animated-splash";
@@ -16,15 +17,17 @@ export default function App() {
   }
 
   return (
-    <SettingsProvider>
-      <ClientProvider>
-        <AnimatedSplash>
-          <SafeAreaProvider>
-            <Navigation />
-            <StatusBar />
-          </SafeAreaProvider>
-        </AnimatedSplash>
-      </ClientProvider>
-    </SettingsProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SettingsProvider>
+        <ClientProvider>
+          <AnimatedSplash>
+            <SafeAreaProvider>
+              <Navigation />
+              <StatusBar />
+            </SafeAreaProvider>
+          </AnimatedSplash>
+        </ClientProvider>
+      </SettingsProvider>
+    </GestureHandlerRootView>
   );
 }
