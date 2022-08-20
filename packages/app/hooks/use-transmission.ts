@@ -14,7 +14,7 @@ function useTransmission(): TransmissionClient | undefined {
 export function useTorrents() {
   const client = useTransmission();
   return useSWR(
-    client ? "torrent-get-all" : null,
+    client ? [client, "torrent-get-all"] : null,
     async () => {
       const response = await client?.request({
         method: "torrent-get",
@@ -50,7 +50,7 @@ export function useTorrents() {
 export function useSession() {
   const client = useTransmission();
   return useSWR(
-    client ? "session-get" : null,
+    client ? [client, "session-get"] : null,
     async () => {
       const response = await client?.request({
         method: "session-get",
@@ -66,7 +66,7 @@ export function useSession() {
 
 export function useTorrentAction(id: number) {
   const client = useTransmission();
-  const { data: torrents, mutate } = useTorrents();
+  const { mutate } = useTorrents();
 
   const createAction = React.useCallback(
     <
@@ -104,7 +104,7 @@ export function useTorrentAction(id: number) {
         setTimeout(() => mutate(), 500);
       };
     },
-    [client, id, torrents, mutate]
+    [client, id, mutate]
   );
 
   const start = createAction("torrent-start");

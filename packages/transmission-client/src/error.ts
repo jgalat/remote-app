@@ -1,12 +1,12 @@
 export class HTTPError extends Error {
-  constructor(readonly status: number, readonly message: string) {
+  constructor(public readonly status: number, public readonly message: string) {
     super(message);
     this.name = "HTTPError";
   }
 }
 
 export class TransmissionError extends Error {
-  constructor(readonly message: string) {
+  constructor(public readonly message: string) {
     super(message);
     this.name = "TransmissionError";
   }
