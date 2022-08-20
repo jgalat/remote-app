@@ -1,6 +1,13 @@
 import * as React from "react";
 import Constants from "expo-constants";
-import { Animated, StyleSheet, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { View, StyleSheet } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 
 type AnimatedSplashProps = {
@@ -10,32 +17,49 @@ type AnimatedSplashProps = {
 SplashScreen.preventAutoHideAsync();
 
 export default function ({ children }: AnimatedSplashProps) {
-  const [translateY] = React.useState(new Animated.Value(100));
-  const [opacity] = React.useState(new Animated.Value(1));
-  const [finished, setFinished] = React.useState(false);
+  const translateY = useSharedValue(150);
+  const opacity = useSharedValue(1);
+  const finished = useSharedValue(false);
 
   const onLoad = () => {
+    translateY.value = 0;
     SplashScreen.hideAsync();
-    Animated.spring(translateY, {
-      toValue: 0,
-      stiffness: 100,
-      useNativeDriver: true,
-    }).start(() =>
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => setFinished(true))
-    );
   };
+
+  const translateAnimationStyles = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: withSpring(
+          translateY.value,
+          { stiffness: 150 },
+          () => (opacity.value = 0)
+        ),
+      },
+    ],
+  }));
+
+  const opacityAnimationStyles = useAnimatedStyle(() => ({
+    opacity: withDelay(
+      1000,
+      withTiming(
+        opacity.value,
+        { duration: 500 },
+        () => (finished.value = true)
+      )
+    ),
+  }));
 
   return (
     <>
       {children}
-      {!finished ? (
+      {!finished.value ? (
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFill,styles.container , { opacity }]}
+          style={[
+            StyleSheet.absoluteFill,
+            styles.container,
+            opacityAnimationStyles,
+          ]}
         >
           <Animated.Image
             style={styles.splash}
@@ -44,18 +68,7 @@ export default function ({ children }: AnimatedSplashProps) {
             onLoad={onLoad}
           />
           <View style={styles.textContainer}>
-            <Animated.Text
-              style={[
-                styles.text,
-                {
-                  transform: [
-                    {
-                      translateY,
-                    },
-                  ],
-                },
-              ]}
-            >
+            <Animated.Text style={[styles.text, translateAnimationStyles]}>
               remote
             </Animated.Text>
           </View>
