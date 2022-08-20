@@ -2,6 +2,7 @@ import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
 import type { Methods, Mapping } from "./rpc-call";
+import { HTTPError, TransmissionError } from "./error";
 
 export class TransmissionClient {
   private session: string | null = null;
@@ -40,9 +41,14 @@ export class TransmissionClient {
     }
 
     if (response.status >= 400) {
-      throw new Error(response.statusText);
+      throw new HTTPError(response.status, response.statusText);
     }
 
-    return (await response.json()) as Mapping[M][1];
+    const json = (await response.json()) as Mapping[M][1];
+    if (json && json.result !== "success") {
+      throw new TransmissionError(json.result)
+    }
+
+    return json;
   }
 }
