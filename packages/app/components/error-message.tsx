@@ -31,8 +31,8 @@ export default function ({ error, style, ...props }: ErrorMessageProps) {
 
   return (
     <View style={[styles.container, style]} {...props}>
-      <Text style={[styles.text, { color: red }]}>{title}</Text>
-      <Text style={[styles.text, { color: red }]}>{message}</Text>
+      <Text color={red} style={styles.text}>{title}</Text>
+      <Text color={red} style={styles.text}>{message}</Text>
       <View style={styles.buttons}>
         <Button
           onPress={() => linkTo("/settings/connection")}
@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 20,
   },
   buttons: {
-    marginTop: 16,
+    marginTop: 20,
   }
 });

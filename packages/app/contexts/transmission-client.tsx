@@ -10,7 +10,7 @@ export const ClientContext = React.createContext<
 export function ClientProvider({
   children,
 }: {
-  children: JSX.Element | JSX.Element[];
+  children: React.ComponentProps<React.FC>["children"];
 }) {
   const server = useServer();
   const [client, setClient] = React.useState<TransmissionClient | undefined>();

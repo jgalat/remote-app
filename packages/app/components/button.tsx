@@ -4,20 +4,19 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import { useTheme } from "../hooks/use-theme-color";
 import Text from "./text";
 
-export type ButtonProps = TouchableOpacity["props"] & {
+export type ButtonProps = {
   title: string;
-};
+} & TouchableOpacity["props"];
 
-export default function Button(props: ButtonProps) {
-  const { style, title, ...otherProps } = props;
-  const theme = useTheme();
+export default function Button({ style, title, ...props }: ButtonProps) {
+  const { text, background } = useTheme();
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: theme.text }, style]}
-      {...otherProps}
+      style={[styles.button, { backgroundColor: text }, style]}
+      {...props}
     >
-      <Text style={[styles.buttonText, { color: theme.background }]}>
+      <Text color={background} style={styles.buttonText}>
         {title}
       </Text>
     </TouchableOpacity>

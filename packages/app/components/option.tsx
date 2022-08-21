@@ -21,7 +21,7 @@ export default function ({
   onPress,
   disabled = false,
 }: OptionProps) {
-  const theme = useTheme();
+  const { gray, text } = useTheme();
   return (
     <TouchableOpacity
       style={styles.container}
@@ -29,26 +29,12 @@ export default function ({
       disabled={disabled}
     >
       <View>
-        <Feather
-          name={left}
-          size={24}
-          color={disabled ? theme.gray : theme.text}
-        />
+        <Feather name={left} size={24} color={disabled ? gray : text} />
       </View>
       <View style={styles.label}>
-        <Text style={{ color: disabled ? theme.gray : theme.text }}>
-          {label}
-        </Text>
+        <Text color={disabled ? gray : text}>{label}</Text>
       </View>
-      <View>
-        {right && (
-          <Feather
-            name={right}
-            size={24}
-            color={theme.icon}
-          />
-        )}
-      </View>
+      <View>{right && <Feather name={right} size={24} color={gray} />}</View>
     </TouchableOpacity>
   );
 }

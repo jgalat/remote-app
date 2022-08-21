@@ -31,7 +31,7 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
       break;
     case TorrentStatus.SEEDING:
       status = `${status} - ${torrent.peersGettingFromUs} / ${torrent.peersConnected} peers`;
-      progressColor =  green;
+      progressColor = green;
       break;
     case TorrentStatus.VERIFYING_LOCAL_DATA:
       progress = torrent.recheckProgress * 100;
@@ -57,10 +57,12 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
       <View style={styles.container}>
         <View style={styles.icon}>
           <ActionIcon
-            name={status === "stopped" ? "play" : "pause"}
+            name={torrent.status === TorrentStatus.STOPPED ? "play" : "pause"}
             color={color}
             size={24}
-            onPress={() => (status === "stopped" ? start() : stop())}
+            onPress={() =>
+              torrent.status === TorrentStatus.STOPPED ? start() : stop()
+            }
           />
         </View>
         <View style={styles.stats}>
@@ -69,14 +71,18 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
           </Text>
           <View style={styles.row}>
             <View style={styles.column}>
-              <Text style={[styles.data, { color: gray }]}>{status}</Text>
-              <Text style={[styles.data, { color: gray }]}>{size}</Text>
+              <Text color={gray} style={styles.data}>
+                {status}
+              </Text>
+              <Text color={gray} style={styles.data}>
+                {size}
+              </Text>
             </View>
             <View style={styles.column}>
-              <Text style={[styles.data, { color: gray }]}>
+              <Text color={gray} style={styles.data}>
                 ↓ {formatSpeed(torrent.rateDownload)}
               </Text>
-              <Text style={[styles.data, { color: gray }]}>
+              <Text color={gray} style={styles.data}>
                 ↑ {formatSpeed(torrent.rateUpload)}
               </Text>
             </View>
@@ -88,12 +94,12 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
           />
           <View style={styles.row}>
             <View style={styles.column}>
-              <Text style={[styles.data, { color: gray }]}>
+              <Text color={gray} style={styles.data}>
                 {progress.toFixed(1)}%
               </Text>
             </View>
             <View style={styles.column}>
-              <Text style={[styles.data, { color: gray }]}>
+              <Text color={gray} style={styles.data}>
                 {formatETA(torrent.eta)}
               </Text>
             </View>

@@ -7,21 +7,20 @@ import {
 
 import useThemeColor from "../hooks/use-theme-color";
 
-export type ScreenProps = _View["props"] & {
+export type ScreenProps = {
   scroll?: boolean;
-};
+} & _View["props"];
 
-export default function Screen(props: ScreenProps) {
-  const { style, scroll = false, ...otherProps } = props;
+export default function Screen({
+  style,
+  scroll = false,
+  ...props
+}: ScreenProps) {
   const backgroundColor = useThemeColor("background");
-
   const Component = scroll ? _ScrollView : _View;
 
   return (
-    <Component
-      style={[styles.screen, { backgroundColor }, style]}
-      {...otherProps}
-    />
+    <Component style={[styles.screen, { backgroundColor }, style]} {...props} />
   );
 }
 

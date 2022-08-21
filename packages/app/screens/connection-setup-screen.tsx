@@ -16,8 +16,6 @@ export default function ConnectionScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { settings, store } = useSettings();
-  const { mutate: mutateSession } = useSession();
-  const { mutate: mutateTorrents } = useTorrents();
   const { server } = settings;
   const red = useThemeColor("red");
 
@@ -43,8 +41,6 @@ export default function ConnectionScreen() {
         password: password === "" ? undefined : password,
       };
       await store({ ...settings, server });
-      await mutateSession();
-      await mutateTorrents();
       navigation.navigate("Root");
     } catch (e) {
       console.warn(e);
@@ -53,8 +49,6 @@ export default function ConnectionScreen() {
 
   const remove = async () => {
     await store({ ...settings, server: undefined });
-    await mutateSession();
-    await mutateTorrents();
     navigation.navigate("Root");
   };
 

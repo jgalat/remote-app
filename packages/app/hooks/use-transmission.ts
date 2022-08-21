@@ -1,5 +1,5 @@
 import * as React from "react";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR from "swr";
 import TransmissionClient, {
   Methods,
   TorrentRemoveRequest,
@@ -37,6 +37,7 @@ export function useTorrents() {
           ],
         },
       });
+
 
       return response?.arguments?.torrents;
     },

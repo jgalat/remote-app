@@ -18,9 +18,10 @@ export default function TorrentsScreen() {
   const linkTo = useLinkTo();
   const navigation = useNavigation();
   const server = useServer();
-  const { text, gray } = useTheme();
+  const { text, gray, lightGray } = useTheme();
   const { data: session } = useSession();
-  const { data: torrents, mutate, isValidating, error } = useTorrents();
+  const { data: torrents, mutate, error } = useTorrents();
+  const [refreshing, setRefreshing] = React.useState<boolean>(false);
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -52,6 +53,12 @@ export default function TorrentsScreen() {
       ),
     });
   }, [linkTo, text, session]);
+
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await mutate();
+    setRefreshing(false);
+  }, [mutate, setRefreshing]);
 
   if (!server) {
     return (
@@ -97,10 +104,10 @@ export default function TorrentsScreen() {
         renderItem={({ item }) => <TorrentItem torrent={item} />}
         keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: gray }]} />
+          <View style={[styles.separator, { backgroundColor: lightGray }]} />
         )}
-        onRefresh={() => mutate()}
-        refreshing={isValidating}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
     </Screen>
   );
