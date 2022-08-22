@@ -1,5 +1,6 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { PortalProvider, PortalHost } from "@gorhom/portal";
 
 import AnimatedSplash from "./components/animated-splash";
 import useCachedResources from "./hooks/use-cached-resources";
@@ -22,8 +23,11 @@ export default function App() {
         <ClientProvider>
           <AnimatedSplash>
             <SafeAreaProvider>
-              <Navigation />
-              <StatusBar />
+              <PortalProvider>
+                <Navigation />
+                <StatusBar />
+                <PortalHost name="Root" />
+              </PortalProvider>
             </SafeAreaProvider>
           </AnimatedSplash>
         </ClientProvider>
