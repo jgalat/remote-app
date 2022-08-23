@@ -4,17 +4,19 @@ import { useRoute } from "@react-navigation/native";
 import Text from "../components/text";
 import View from "../components/view";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { AddTorrentStackParamList } from "../types";
+import { RootStackParamList } from "../types";
 
 export default function AddTorrentMagnetScreen() {
-  const { params } =
+  const {
+    params: { url },
+  } =
     useRoute<
-      NativeStackScreenProps<AddTorrentStackParamList, "Magnet">["route"]
+      NativeStackScreenProps<RootStackParamList, "AddTorrentMagnet">["route"]
     >();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{JSON.stringify({ ...params })}</Text>
+      <Text style={styles.title}>{JSON.stringify({ url })}</Text>
     </View>
   );
 }

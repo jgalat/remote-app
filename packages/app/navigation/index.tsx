@@ -136,22 +136,12 @@ function useNavigationOptions(): NativeStackNavigationOptions {
 
 function useNavigationContainerProps() {
   const ref = useNavigationContainerRef<RootStackParamList>();
-  const [url, setUrl] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (!url) {
-      return;
-    }
-
-    ref.navigate("AddTorrentMagnet", { url });
-  }, [ref, url]);
 
   const getInitialURL = React.useCallback(async () => {
     const url = await Linking.getInitialURL();
     if (url?.startsWith("magnet:")) {
-      setUrl(url);
+      return Linking.createURL("/add/magnet", { queryParams: { url } });
     }
-
     return url;
   }, [ref]);
 

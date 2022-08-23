@@ -8,15 +8,20 @@ export type ButtonProps = {
   title: string;
 } & TouchableOpacity["props"];
 
-export default function Button({ style, title, ...props }: ButtonProps) {
-  const { text, background } = useTheme();
+export default function Button({
+  style,
+  title,
+  disabled,
+  ...props
+}: ButtonProps) {
+  const { text, gray, background } = useTheme();
 
   return (
     <TouchableOpacity
       style={[styles.button, { backgroundColor: text }, style]}
       {...props}
     >
-      <Text color={background} style={styles.buttonText}>
+      <Text color={disabled ? gray : background} style={styles.buttonText}>
         {title}
       </Text>
     </TouchableOpacity>
