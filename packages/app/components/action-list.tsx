@@ -9,7 +9,7 @@ export type ActionListProps = {
 };
 
 export default function ActionList({
-  spacing = 16,
+  spacing = 24,
   children,
 }: ActionListProps) {
   return (

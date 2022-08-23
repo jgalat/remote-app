@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     position: "absolute",
-    bottom: "32%",
+    bottom: "35%",
     width: "100%",
     alignItems: "center",
     overflow: "hidden",

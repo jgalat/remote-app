@@ -24,7 +24,7 @@ export function ActionSheetProvider({
     () => ({
       show: (props) => {
         setProps(props);
-        setTimeout(() => ref.current?.expand(), 1);
+        setTimeout(() => ref.current?.expand(), 25);
       },
       ref: () => ref,
     }),

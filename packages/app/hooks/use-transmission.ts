@@ -38,7 +38,6 @@ export function useTorrents() {
         },
       });
 
-
       return response?.arguments?.torrents;
     },
     {
@@ -65,7 +64,7 @@ export function useSession() {
   );
 }
 
-export function useTorrentAction(id: number) {
+export function useTorrentActions() {
   const client = useTransmission();
   const { mutate } = useTorrents();
 
@@ -84,6 +83,7 @@ export function useTorrentAction(id: number) {
       action: T
     ) => {
       return async (
+        ids: number | number[] | "recently-active" | null,
         params: T extends "torrent-remove"
           ? Pick<TorrentRemoveRequest, "delete-local-data"> | undefined
           : undefined = undefined
@@ -92,8 +92,13 @@ export function useTorrentAction(id: number) {
           return;
         }
 
-        const args =
-          params !== undefined ? { ids: id, ...params } : { ids: id };
+        let args = {};
+        if (ids) {
+          args = { ids };
+        }
+        if (params) {
+          args = { ...args, ...params };
+        }
 
         await client.request({
           method: action,
@@ -105,7 +110,7 @@ export function useTorrentAction(id: number) {
         setTimeout(() => mutate(), 500);
       };
     },
-    [client, id, mutate]
+    [client, mutate]
   );
 
   const start = createAction("torrent-start");

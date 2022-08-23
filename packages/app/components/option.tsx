@@ -10,6 +10,7 @@ export type OptionProps = {
   label: string;
   left: React.ComponentProps<typeof Feather>["name"];
   right?: React.ComponentProps<typeof Feather>["name"];
+  color?: string;
 } & React.ComponentProps<typeof TouchableOpacity>;
 
 export default function Option({
@@ -19,9 +20,11 @@ export default function Option({
   onPress,
   disabled = false,
   style,
+  color,
   ...props
 }: OptionProps) {
   const { gray, text } = useTheme();
+  const optionColor = disabled ? gray : color ? color : text;
   return (
     <TouchableOpacity
       style={[styles.container, style]}
@@ -30,10 +33,10 @@ export default function Option({
       {...props}
     >
       <View>
-        <Feather name={left} size={24} color={disabled ? gray : text} />
+        <Feather name={left} size={24} color={optionColor} />
       </View>
       <View style={styles.label}>
-        <Text color={disabled ? gray : text}>{label}</Text>
+        <Text color={optionColor}>{label}</Text>
       </View>
       <View>{right && <Feather name={right} size={24} color={gray} />}</View>
     </TouchableOpacity>

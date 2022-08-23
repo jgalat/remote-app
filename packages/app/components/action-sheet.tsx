@@ -4,6 +4,7 @@ import BottomSheet, {
   useBottomSheetDynamicSnapPoints,
   BottomSheetView,
   BottomSheetBackdrop,
+  BottomSheetProps,
 } from "@gorhom/bottom-sheet";
 
 import Text from "./text";
@@ -14,12 +15,13 @@ export type ActionSheetProps = {
   innerRef: React.RefObject<BottomSheet>;
   title?: string;
   options?: OptionProps[];
-};
+} & Pick<BottomSheetProps, "onClose">;
 
 export default function ActionSheet({
   innerRef,
   title,
   options = [],
+  onClose,
 }: ActionSheetProps) {
   const { background, gray, text } = useTheme();
   const snaps = React.useMemo(() => ["CONTENT_HEIGHT"], []);
@@ -39,6 +41,7 @@ export default function ActionSheet({
       handleHeight={animatedHandleHeight}
       contentHeight={animatedContentHeight}
       enablePanDownToClose={true}
+      onClose={onClose}
       backdropComponent={(props) => (
         <BottomSheetBackdrop
           {...props}
