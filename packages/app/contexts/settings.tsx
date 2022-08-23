@@ -19,9 +19,7 @@ export const SettingsContext: React.Context<AppSettings> =
 
 export function SettingsProvider({
   children,
-}: {
-  children: React.ComponentProps<React.FC>["children"];
-}) {
+}: Omit<React.ComponentProps<typeof SettingsContext.Provider>, "value">) {
   const [loading, setLoading] = React.useState(true);
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);
 

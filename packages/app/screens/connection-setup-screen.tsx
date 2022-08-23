@@ -9,7 +9,6 @@ import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
 import useThemeColor from "../hooks/use-theme-color";
-import { useSession, useTorrents } from "../hooks/use-transmission";
 import { RootStackParamList } from "../types";
 
 export default function ConnectionScreen() {
@@ -41,7 +40,7 @@ export default function ConnectionScreen() {
         password: password === "" ? undefined : password,
       };
       await store({ ...settings, server });
-      navigation.navigate("Root");
+      navigation.pop();
     } catch (e) {
       console.warn(e);
     }
@@ -49,7 +48,7 @@ export default function ConnectionScreen() {
 
   const remove = async () => {
     await store({ ...settings, server: undefined });
-    navigation.navigate("Root");
+    navigation.pop();
   };
 
   return (

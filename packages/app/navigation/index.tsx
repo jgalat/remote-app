@@ -45,33 +45,40 @@ function RootNavigator() {
     <Stack.Navigator initialRouteName="Root" screenOptions={opts}>
       <Stack.Screen name="Root" component={TorrentsScreen} />
 
-      <Stack.Screen
-        name="TorrentDetails"
-        component={NotFoundScreen}
-        options={{}}
-      />
-
-      <Stack.Screen
-        name="AddTorrentFile"
-        component={NotFoundScreen}
-        options={{
-          title: "Import torrent file",
+      <Stack.Group
+        screenOptions={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
         }}
-      />
+      >
+        <Stack.Screen
+          name="TorrentDetails"
+          component={NotFoundScreen}
+          options={{}}
+        />
 
-      <Stack.Screen
-        name="AddTorrentMagnet"
-        component={AddTorrentMagnetScreen}
-        options={{
-          title: "Import magnet URL",
-        }}
-      />
+        <Stack.Screen
+          name="AddTorrentFile"
+          component={NotFoundScreen}
+          options={{
+            title: "Import torrent file",
+          }}
+        />
 
-      <Stack.Screen
-        name="SettingsStack"
-        component={SettingsStackNavigator}
-        options={{ headerShown: false }}
-      />
+        <Stack.Screen
+          name="AddTorrentMagnet"
+          component={AddTorrentMagnetScreen}
+          options={{
+            title: "Import magnet URL",
+          }}
+        />
+
+        <Stack.Screen
+          name="SettingsStack"
+          component={SettingsStackNavigator}
+          options={{ headerShown: false }}
+        />
+      </Stack.Group>
 
       <Stack.Screen
         name="NotFound"

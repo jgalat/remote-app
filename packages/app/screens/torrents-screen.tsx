@@ -12,9 +12,9 @@ import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import ErrorMessage from "../components/error-message";
-import SheetMenu from "../components/sheet-menu";
 import { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
+import useActionSheet from "../hooks/use-action-sheet";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
@@ -24,8 +24,25 @@ export default function TorrentsScreen() {
   const { data: session } = useSession();
   const { data: torrents, mutate, error } = useTorrents();
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
+  const actionSheet = useActionSheet();
 
-  const addTorrentRef = React.useRef<BottomSheet>(null)
+  const addTorrentMenu = React.useCallback(() => {
+    actionSheet.show({
+      title: "Add a Torrent",
+      options: [
+        {
+          label: "File",
+          left: "file",
+          onPress: () => linkTo("/add/file"),
+        },
+        {
+          label: "Magnet URL",
+          left: "link",
+          onPress: () => linkTo("/add/magnet"),
+        },
+      ],
+    });
+  }, [actionSheet, linkTo]);
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -41,7 +58,7 @@ export default function TorrentsScreen() {
         <ActionList>
           {!!session ? (
             <ActionIcon
-              onPress={() => addTorrentRef.current?.expand()}
+              onPress={() => addTorrentMenu()}
               name="plus"
               size={24}
               color={text}
@@ -56,7 +73,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, session, addTorrentRef]);
+  }, [linkTo, text, session, addTorrentMenu]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -112,22 +129,6 @@ export default function TorrentsScreen() {
         )}
         onRefresh={refresh}
         refreshing={refreshing}
-      />
-      <SheetMenu
-        innerRef={addTorrentRef}
-        title="Add a torrent"
-        options={[
-          {
-            label: "File",
-            left: "file",
-            onPress: () => linkTo("/add/file")
-          },
-          {
-            label: "Magnet URL",
-            left: "link",
-            onPress: () => linkTo("/add/magnet"),
-          },
-        ]}
       />
     </Screen>
   );

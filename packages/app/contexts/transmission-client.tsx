@@ -1,6 +1,6 @@
 import * as React from "react";
-
 import TransmissionClient from "@remote-app/transmission-client";
+
 import { useServer } from "../hooks/use-settings";
 
 export const ClientContext = React.createContext<
@@ -9,9 +9,7 @@ export const ClientContext = React.createContext<
 
 export function ClientProvider({
   children,
-}: {
-  children: React.ComponentProps<React.FC>["children"];
-}) {
+}: Omit<React.ComponentProps<typeof ClientContext.Provider>, "value">) {
   const server = useServer();
   const [client, setClient] = React.useState<TransmissionClient | undefined>();
 
