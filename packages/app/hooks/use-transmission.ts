@@ -64,6 +64,59 @@ export function useSession() {
   );
 }
 
+export function useFreeSpace() {
+  const client = useTransmission();
+  const { data: session } = useSession();
+  return useSWR(
+    client && session?.["download-dir"]
+      ? [client, "free-space", session["download-dir"]]
+      : null,
+    async () => {
+      if (!session?.["download-dir"]) {
+        return;
+      }
+
+      const response = await client?.request({
+        method: "free-space",
+        arguments: {
+          path: session["download-dir"],
+        },
+      });
+
+      return response?.arguments;
+    }
+  );
+}
+
+export function useAddTorrent() {
+  const client = useTransmission();
+  const { mutate } = useTorrents();
+
+  const magnet = React.useCallback(
+    async (url: string) => {
+      if (!client) {
+        return;
+      }
+
+      try {
+        await client?.request({
+          method: "torrent-add",
+          arguments: {
+            filename: url,
+          },
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setTimeout(() => mutate(), 500);
+      }
+    },
+    [client, mutate]
+  );
+
+  return { magnet };
+}
+
 export function useTorrentActions() {
   const client = useTransmission();
   const { mutate } = useTorrents();
@@ -100,14 +153,18 @@ export function useTorrentActions() {
           args = { ...args, ...params };
         }
 
-        await client.request({
-          method: action,
-          arguments: {
-            ...args,
-          },
-        });
-
-        setTimeout(() => mutate(), 500);
+        try {
+          await client.request({
+            method: action,
+            arguments: {
+              ...args,
+            },
+          });
+        } catch (e) {
+          console.warn(e);
+        } finally {
+          setTimeout(() => mutate(), 500);
+        }
       };
     },
     [client, mutate]

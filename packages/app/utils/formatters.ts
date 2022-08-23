@@ -1,12 +1,4 @@
-import * as React from "react";
 import { TorrentStatus } from "@remote-app/transmission-client";
-
-export type Formatter = {
-  formatSpeed: (speed: number) => string;
-  formatSize: (size: number) => string;
-  formatETA: (eta: number) => string;
-  formatStatus: (status: TorrentStatus) => string;
-};
 
 function formatBytes(units: string[]): (bytes: number) => string {
   return (bytes: number): string => {
@@ -20,20 +12,10 @@ function formatBytes(units: string[]): (bytes: number) => string {
   };
 }
 
-const formatSpeed: Formatter["formatSpeed"] = formatBytes([
-  "kB/s",
-  "MB/s",
-  "GB/s",
-  "TB/s",
-]);
-const formatSize: Formatter["formatSize"] = formatBytes([
-  "kB",
-  "MB",
-  "GB",
-  "TB",
-]);
+export const formatSpeed = formatBytes(["kB/s", "MB/s", "GB/s", "TB/s"]);
+export const formatSize = formatBytes(["kB", "MB", "GB", "TB"]);
 
-const formatETA: Formatter["formatETA"] = (eta: number): string => {
+export const formatETA = (eta: number): string => {
   if (eta < 0) {
     return "";
   }
@@ -56,9 +38,7 @@ const formatETA: Formatter["formatETA"] = (eta: number): string => {
   return `${seconds}s`;
 };
 
-const formatStatus: Formatter["formatStatus"] = (
-  status: TorrentStatus
-): string => {
+export const formatStatus = (status: TorrentStatus): string => {
   switch (status) {
     case TorrentStatus.STOPPED:
       return "stopped";
@@ -76,10 +56,3 @@ const formatStatus: Formatter["formatStatus"] = (
       return "seeding";
   }
 };
-
-export default function useFormatter(): Formatter {
-  return React.useMemo(
-    () => ({ formatSpeed, formatSize, formatETA, formatStatus }),
-    []
-  );
-}

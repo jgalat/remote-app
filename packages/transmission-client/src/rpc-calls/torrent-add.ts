@@ -1,10 +1,8 @@
 import type { Response as TorrentAddResponse } from "./torrent-get";
 
-export type Request = {
+type optionals = {
   cookies?: string;
-  "download-dir": string;
-  filename?: string;
-  metainfo?: string;
+  "download-dir"?: string;
   paused?: boolean;
   "peer-limit"?: number;
   bandwidthPriority?: number;
@@ -14,6 +12,8 @@ export type Request = {
   "priority-low"?: number[];
   "priority-normal"?: number[];
 };
+
+export type Request = ({ filename: string } | { metainfo: string }) & optionals;
 
 export type Response = {
   torrents: Pick<

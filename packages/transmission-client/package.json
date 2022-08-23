@@ -1,6 +1,6 @@
 {
   "name": "@remote-app/transmission-client",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Transmission RPC client",
   "license": "MIT",
   "repository": {

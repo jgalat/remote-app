@@ -10,8 +10,13 @@ import Text from "./text";
 import ActionIcon from "./action-icon";
 import ProgressBar from "./progress-bar";
 import { useTheme } from "../hooks/use-theme-color";
-import useFormatter from "../hooks/use-formatter";
 import { useTorrentActions } from "../hooks/use-transmission";
+import {
+  formatSize,
+  formatSpeed,
+  formatETA,
+  formatStatus,
+} from "../utils/formatters";
 
 export type TorrentItemProps = {
   torrent: TorrentGetResponse["torrents"][number];
@@ -19,7 +24,6 @@ export type TorrentItemProps = {
 
 export default function ({ torrent, ...props }: TorrentItemProps) {
   const { text: color, green, yellow, gray } = useTheme();
-  const { formatSize, formatSpeed, formatETA, formatStatus } = useFormatter();
   const { start, stop } = useTorrentActions();
 
   let status = formatStatus(torrent.status);
@@ -60,7 +64,9 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
             color={color}
             size={24}
             onPress={() =>
-              torrent.status === TorrentStatus.STOPPED ? start(torrent.id) : stop(torrent.id)
+              torrent.status === TorrentStatus.STOPPED
+                ? start(torrent.id)
+                : stop(torrent.id)
             }
           />
         </View>
