@@ -6,7 +6,7 @@ import View from "../components/view";
 
 export default function NotFoundScreen() {
   const linkTo = useLinkTo();
-  const route = useRoute()
+  const route = useRoute();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{JSON.stringify(route)}</Text>
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "500",
+    fontFamily: "roboto-mono_medium",
   },
   link: {
     marginTop: 15,

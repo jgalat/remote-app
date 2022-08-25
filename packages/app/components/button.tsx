@@ -19,6 +19,7 @@ export default function Button({
   return (
     <TouchableOpacity
       style={[styles.button, { backgroundColor: text }, style]}
+      activeOpacity={disabled ? 1 : undefined}
       {...props}
     >
       <Text color={disabled ? gray : background} style={styles.buttonText}>
@@ -38,8 +39,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   buttonText: {
+    fontFamily: "roboto-mono_medium",
     textTransform: "uppercase",
-    fontWeight: "500",
     fontSize: 16,
   },
 });

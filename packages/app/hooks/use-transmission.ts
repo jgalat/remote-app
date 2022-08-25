@@ -84,7 +84,8 @@ export function useFreeSpace() {
       });
 
       return response?.arguments;
-    }
+    },
+    { refreshInterval: 5000 }
   );
 }
 
@@ -106,7 +107,7 @@ export function useAddTorrent() {
           },
         });
       } catch (e) {
-        console.warn(e);
+        throw e;
       } finally {
         setTimeout(() => mutate(), 500);
       }
@@ -161,7 +162,7 @@ export function useTorrentActions() {
             },
           });
         } catch (e) {
-          console.warn(e);
+          throw e;
         } finally {
           setTimeout(() => mutate(), 500);
         }

@@ -13,6 +13,7 @@ import {
 } from "@react-navigation/native-stack";
 
 import { useColorScheme } from "../hooks/use-settings";
+import useThemeColor from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
 import NotFoundScreen from "../screens/not-found-screen";
@@ -22,14 +23,19 @@ import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
 
-import useThemeColor from "../hooks/use-theme-color";
-
-export default function Navigation() {
+export default function Navigation({
+  onReady,
+}: Pick<React.ComponentProps<typeof NavigationContainer>, "onReady">) {
   const colorScheme = useColorScheme();
-  const props = useNavigationContainerProps();
+  const { onReady: listener, ...props } = useNavigationContainerProps();
+
   return (
     <NavigationContainer
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      onReady={() => {
+        onReady?.();
+        listener();
+      }}
       {...props}
     >
       <RootNavigator />
@@ -123,8 +129,7 @@ function useNavigationOptions(): NativeStackNavigationOptions {
   const background = useThemeColor("background");
   return {
     headerTitleStyle: {
-      fontFamily: "roboto-mono",
-      fontWeight: "500",
+      fontFamily: "roboto-mono_medium",
       color: text,
     },
     headerStyle: {
@@ -135,14 +140,13 @@ function useNavigationOptions(): NativeStackNavigationOptions {
 }
 
 function useNavigationContainerProps() {
-  const ref = useNavigationContainerRef<RootStackParamList>();
+  const ref = useNavigationContainerRef();
 
-  const getInitialURL = React.useCallback(async () => {
+  const onReady = React.useCallback(async () => {
     const url = await Linking.getInitialURL();
     if (url?.startsWith("magnet:")) {
-      return Linking.createURL("/add/magnet", { queryParams: { url } });
+      ref.navigate("AddTorrentMagnet", { url });
     }
-    return url;
   }, [ref]);
 
   const subscribe = React.useCallback(
@@ -190,9 +194,8 @@ function useNavigationContainerProps() {
         NotFound: "*",
       },
     },
-    getInitialURL,
     subscribe,
   };
 
-  return { ref, linking };
+  return { ref, onReady, linking };
 }

@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   name: {
-    fontWeight: "500",
+    fontFamily: "roboto-mono_medium",
     marginBottom: 4,
   },
   data: {

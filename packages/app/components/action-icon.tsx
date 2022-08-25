@@ -21,7 +21,7 @@ export default function ActionIcon({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => ({
-        opacity: pressed ? 0.5 : 1,
+        opacity: disabled ? 1 : pressed ? 0.2 : 1,
       })}
       disabled={disabled}
     >

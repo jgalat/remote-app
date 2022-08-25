@@ -30,6 +30,7 @@ export default function Option({
       style={[styles.container, style]}
       onPress={onPress}
       disabled={disabled}
+      activeOpacity={disabled ? 1 : undefined}
       {...props}
     >
       <View>

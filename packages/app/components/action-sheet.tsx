@@ -12,7 +12,7 @@ import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 
 export type ActionSheetProps = {
-  innerRef: React.RefObject<BottomSheet>;
+  innerRef: React.Ref<BottomSheet>;
   title?: string;
   options?: OptionProps[];
 } & Pick<BottomSheetProps, "onClose">;

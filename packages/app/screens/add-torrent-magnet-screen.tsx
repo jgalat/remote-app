@@ -40,7 +40,7 @@ export default function AddTorrentMagnetScreen() {
 
   React.useEffect(() => {
     if (!server || error) {
-      navigation.replace("Root");
+      navigation.popToTop();
     }
   }, [server, error]);
 
@@ -68,8 +68,12 @@ export default function AddTorrentMagnetScreen() {
       return;
     }
     setState({ ...state, sending: true });
-    await add.magnet(state.url);
-    navigation.popToTop();
+    try {
+      await add.magnet(state.url);
+      navigation.popToTop();
+    } catch (e) {
+      setState({ ...state, sending: false, error: e.message });
+    }
   }, [state]);
 
   return (
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 32,
     fontSize: 20,
-    fontWeight: "500",
+    fontFamily: "roboto-mono_medium"
   },
   error: {
     textAlign: "center",
