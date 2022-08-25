@@ -12,12 +12,11 @@ import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import ErrorMessage from "../components/error-message";
 import { useTheme } from "../hooks/use-theme-color";
-import {
-  useSession,
-  useTorrentActions,
-  useTorrents,
-} from "../hooks/use-transmission";
-import useActionSheet from "../hooks/use-action-sheet";
+import { useSession, useTorrents } from "../hooks/use-transmission";
+import useActionSheet, {
+  useAddTorrentSheet,
+  useTorrentActionsSheet,
+} from "../hooks/use-action-sheet";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
@@ -26,27 +25,10 @@ export default function TorrentsScreen() {
   const actionSheet = useActionSheet();
   const { data: session } = useSession();
   const { data: torrents, mutate, error } = useTorrents();
-  const torrentActions = useTorrentActions();
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
-  const { text, lightGray, red } = useTheme();
-
-  const addTorrentMenu = React.useCallback(() => {
-    actionSheet.show({
-      title: "Add a Torrent",
-      options: [
-        {
-          label: "File",
-          left: "file",
-          onPress: () => linkTo("/add/file"),
-        },
-        {
-          label: "Magnet URL",
-          left: "link",
-          onPress: () => linkTo("/add/magnet"),
-        },
-      ],
-    });
-  }, [actionSheet, linkTo]);
+  const { text, lightGray } = useTheme();
+  const addTorrentSheet = useAddTorrentSheet();
+  const torrentActionsSheet = useTorrentActionsSheet();
 
   const sortByMenu = React.useCallback(() => {
     actionSheet.show({
@@ -87,78 +69,6 @@ export default function TorrentsScreen() {
     });
   }, [actionSheet, linkTo]);
 
-  const confirmMenu = React.useCallback(
-    (id: number) => {
-      actionSheet.show({
-        title: "Are you sure?",
-        options: [
-          {
-            label: "Remove",
-            left: "trash",
-            color: red,
-            onPress: () => torrentActions.remove(id),
-          },
-          {
-            label: "Remove & Trash data",
-            left: "trash-2",
-            color: red,
-            onPress: () =>
-              torrentActions.remove(id, { "delete-local-data": true }),
-          },
-        ],
-      });
-    },
-    [actionSheet, torrentActions]
-  );
-
-  const torrentMenu = React.useCallback(
-    (id: number) => {
-      let requiresConfirmation = false;
-      actionSheet.show({
-        title: "Action",
-        options: [
-          {
-            label: "Start",
-            left: "play",
-            onPress: () => torrentActions.start(id),
-          },
-          {
-            label: "Start now (no queue)",
-            left: "play",
-            onPress: () => torrentActions.startNow(id),
-          },
-          {
-            label: "Stop",
-            left: "pause",
-            onPress: () => torrentActions.stop(id),
-          },
-          {
-            label: "Verify",
-            left: "check-circle",
-            onPress: () => torrentActions.verify(id),
-          },
-          {
-            label: "Reannounce",
-            left: "radio",
-            onPress: () => torrentActions.reannounce(id),
-          },
-          {
-            label: "Remove",
-            left: "trash",
-            color: red,
-            onPress: () => (requiresConfirmation = true),
-          },
-        ],
-        onClose: () => {
-          if (requiresConfirmation) {
-            confirmMenu(id);
-          }
-        },
-      });
-    },
-    [actionSheet, confirmMenu, torrentActions, red]
-  );
-
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
       navigation.setOptions({ title: "remote" });
@@ -175,7 +85,7 @@ export default function TorrentsScreen() {
             ? [
                 <ActionIcon
                   key="add"
-                  onPress={() => addTorrentMenu()}
+                  onPress={() => addTorrentSheet()}
                   name="plus"
                   size={24}
                   color={text}
@@ -198,7 +108,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, session, addTorrentMenu]);
+  }, [linkTo, text, session, addTorrentSheet]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -238,7 +148,7 @@ export default function TorrentsScreen() {
     return (
       <Screen style={styles.message}>
         <Text style={styles.title}>No torrents found :(</Text>
-        <Button title="Add a torrent" onPress={() => linkTo("/add")} />
+        <Button title="Add a torrent" onPress={() => addTorrentSheet()} />
       </Screen>
     );
   }
@@ -248,7 +158,10 @@ export default function TorrentsScreen() {
       <FlatList
         data={torrents}
         renderItem={({ item }) => (
-          <TorrentItem onPress={() => torrentMenu(item.id)} torrent={item} />
+          <TorrentItem
+            onPress={() => torrentActionsSheet(item)}
+            torrent={item}
+          />
         )}
         keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={() => (
