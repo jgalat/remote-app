@@ -59,7 +59,8 @@ export function useSession() {
       return response?.arguments;
     },
     {
-      revalidateIfStale: false,
+      refreshInterval: 5000,
+      errorRetryCount: 3,
     }
   );
 }
@@ -85,7 +86,10 @@ export function useFreeSpace() {
 
       return response?.arguments;
     },
-    { refreshInterval: 5000 }
+    { 
+      refreshInterval: 5000,
+      errorRetryCount: 3,
+    }
   );
 }
 

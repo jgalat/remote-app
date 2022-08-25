@@ -6,16 +6,17 @@ import {
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
+import { Instance, decode } from "magnet-uri";
 
 import Text from "../components/text";
 import View from "../components/view";
 import Button from "../components/button";
 import { useTheme } from "../hooks/use-theme-color";
-import { MagnetData, parseMagnet } from "../utils/parsers";
 import { RootStackParamList } from "../types";
 import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { useServer } from "../hooks/use-settings";
 import { formatSize } from "../utils/formatters";
+
 
 export default function AddTorrentMagnetScreen() {
   const {
@@ -34,7 +35,7 @@ export default function AddTorrentMagnetScreen() {
   const [state, setState] = React.useState<{
     error?: string;
     url?: string;
-    data?: MagnetData;
+    data?: Instance;
     sending?: boolean;
   }>({ sending: false });
 
@@ -49,7 +50,7 @@ export default function AddTorrentMagnetScreen() {
       setState({
         url,
         error: undefined,
-        data: parseMagnet(url),
+        data: decode(url),
       });
     }
   }, [url]);
@@ -57,7 +58,7 @@ export default function AddTorrentMagnetScreen() {
   const onPaste = React.useCallback(async () => {
     const text = await Clipboard.getStringAsync();
     if (text.startsWith("magnet:")) {
-      setState({ url: text, error: undefined, data: parseMagnet(text) });
+      setState({ url: text, error: undefined, data: decode(text as string) });
     } else {
       setState({ error: "Invalid Magnet URL" });
     }
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 32,
     fontSize: 20,
-    fontFamily: "roboto-mono_medium"
+    fontFamily: "roboto-mono_medium",
   },
   error: {
     textAlign: "center",
