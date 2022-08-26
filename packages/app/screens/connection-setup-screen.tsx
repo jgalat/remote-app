@@ -40,7 +40,7 @@ export default function ConnectionScreen() {
         password: password === "" ? undefined : password,
       };
       await store({ ...settings, server });
-      navigation.pop();
+      navigation.popToTop();
     } catch (e) {
       console.warn(e);
     }
@@ -48,7 +48,7 @@ export default function ConnectionScreen() {
 
   const remove = async () => {
     await store({ ...settings, server: undefined });
-    navigation.pop();
+    navigation.popToTop();
   };
 
   return (
