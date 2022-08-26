@@ -12,7 +12,7 @@ import {
   NativeStackNavigationOptions,
 } from "@react-navigation/native-stack";
 
-import { useColorScheme } from "../hooks/use-settings";
+import { useColorScheme, useServer } from "../hooks/use-settings";
 import useThemeColor from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
@@ -27,10 +27,11 @@ export default function Navigation({
   onReady,
 }: Pick<React.ComponentProps<typeof NavigationContainer>, "onReady">) {
   const colorScheme = useColorScheme();
-  const { onReady: listener, ...props } = useNavigationContainerProps();
+  const { onReady: listener, ref, ...props } = useNavigationContainerProps();
 
   return (
     <NavigationContainer
+      ref={ref}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       onReady={() => {
         onReady?.();
@@ -47,6 +48,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const opts = useNavigationOptions();
+  const server = useServer();
   return (
     <Stack.Navigator initialRouteName="Root" screenOptions={opts}>
       <Stack.Screen name="Root" component={TorrentsScreen} />
@@ -57,27 +59,31 @@ function RootNavigator() {
           animation: "slide_from_bottom",
         }}
       >
-        <Stack.Screen
-          name="TorrentDetails"
-          component={NotFoundScreen}
-          options={{}}
-        />
+        {!!server ? (
+          <>
+            <Stack.Screen
+              name="TorrentDetails"
+              component={NotFoundScreen}
+              options={{}}
+            />
 
-        <Stack.Screen
-          name="AddTorrentFile"
-          component={NotFoundScreen}
-          options={{
-            title: "Import torrent file",
-          }}
-        />
+            <Stack.Screen
+              name="AddTorrentFile"
+              component={NotFoundScreen}
+              options={{
+                title: "Import torrent file",
+              }}
+            />
 
-        <Stack.Screen
-          name="AddTorrentMagnet"
-          component={AddTorrentMagnetScreen}
-          options={{
-            title: "Import magnet URL",
-          }}
-        />
+            <Stack.Screen
+              name="AddTorrentMagnet"
+              component={AddTorrentMagnetScreen}
+              options={{
+                title: "Import magnet URL",
+              }}
+            />
+          </>
+        ) : null}
 
         <Stack.Screen
           name="SettingsStack"
@@ -141,16 +147,25 @@ function useNavigationOptions(): NativeStackNavigationOptions {
 
 function useNavigationContainerProps() {
   const ref = useNavigationContainerRef();
+  const server = useServer();
 
   const onReady = React.useCallback(async () => {
+    if (!!server) {
+      return;
+    }
+
     const url = await Linking.getInitialURL();
     if (url?.startsWith("magnet:")) {
       ref.navigate("AddTorrentMagnet", { url });
     }
-  }, [ref]);
+  }, [ref, server]);
 
   const subscribe = React.useCallback(
     (listener: (url: string) => void) => {
+      if (!!server) {
+        return;
+      }
+
       const subscription = Linking.addEventListener("url", ({ url }) => {
         if (url?.startsWith("magnet:")) {
           ref.navigate("AddTorrentMagnet", { url });
@@ -159,7 +174,7 @@ function useNavigationContainerProps() {
       });
       return () => subscription.remove();
     },
-    [ref]
+    [ref, server]
   );
 
   const linking: LinkingOptions<RootStackParamList> = {

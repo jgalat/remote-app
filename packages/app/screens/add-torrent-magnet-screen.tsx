@@ -11,12 +11,15 @@ import { Instance, decode } from "magnet-uri";
 import Text from "../components/text";
 import View from "../components/view";
 import Button from "../components/button";
+import KeyValue from "../components/key-value";
 import { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList } from "../types";
 import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
-import { useServer } from "../hooks/use-settings";
 import { formatSize } from "../utils/formatters";
 
+const isString = (v: string | string[]): v is string => {
+  return typeof v === "string";
+};
 
 export default function AddTorrentMagnetScreen() {
   const {
@@ -29,7 +32,6 @@ export default function AddTorrentMagnetScreen() {
   const { red } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const server = useServer();
   const add = useAddTorrent();
   const { data: freeSpace, error } = useFreeSpace();
   const [state, setState] = React.useState<{
@@ -38,12 +40,6 @@ export default function AddTorrentMagnetScreen() {
     data?: Instance;
     sending?: boolean;
   }>({ sending: false });
-
-  React.useEffect(() => {
-    if (!server || error) {
-      navigation.popToTop();
-    }
-  }, [server, error]);
 
   React.useEffect(() => {
     if (url && url !== state.url) {
@@ -77,21 +73,38 @@ export default function AddTorrentMagnetScreen() {
     }
   }, [state]);
 
+  const magnet = React.useMemo(() => {
+    const { dn, xt, tr } = state.data ?? {};
+
+    return [
+      {
+        field: "Name",
+        value: dn ? (isString(dn) ? dn : dn.join(", ")) : "...",
+      },
+      {
+        field: "Hash",
+        value: xt ? (isString(xt) ? xt : xt.join(", ")) : "...",
+      },
+      { field: "Trackers", value: tr ? (isString(tr) ? 1 : tr.length) : "..." },
+    ];
+  }, [state.data]);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.name} numberOfLines={1}>
-        {state.data?.name ?? "Paste a URL"}
-      </Text>
-      <Button style={styles.button} title="Paste URL" onPress={onPaste} />
+      <View style={styles.magnet}>
+        {magnet.map((row) => (
+          <KeyValue key={row.field} {...row} />
+        ))}
+      </View>
+      <Button title="Paste URL" onPress={onPaste} />
       <Button
-        style={styles.button}
-        disabled={!state.url}
+        disabled={!state.url || error}
         title={state.sending ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
-      {state.error ? (
+      {state.error || error ? (
         <Text color={red} style={styles.error}>
-          {state.error}
+          {state.error ?? error.message}
         </Text>
       ) : null}
       <Text style={styles.free} numberOfLines={1}>
@@ -111,18 +124,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  name: {
-    textAlign: "center",
-    marginBottom: 32,
-    fontSize: 20,
-    fontFamily: "roboto-mono_medium",
+  magnet: {
+    marginBottom: 40,
   },
   error: {
     textAlign: "center",
     marginVertical: 16,
     fontSize: 16,
   },
-  button: {},
   free: {
     marginTop: 24,
     textAlign: "center",
