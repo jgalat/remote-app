@@ -18,26 +18,28 @@ export default function ConnectionScreen() {
   const { server } = settings;
   const red = useThemeColor("red");
 
-  const [name, setName] = React.useState<string>(server?.name ?? "");
-  const [url, setUrl] = React.useState<string>(server?.url ?? "");
-  const [username, setUsername] = React.useState<string>(
-    server?.username ?? ""
-  );
-  const [password, setPassword] = React.useState<string>(
-    server?.password ?? ""
-  );
+  const [form, setForm] = React.useState<{
+    name: string;
+    url: string;
+    username: string;
+    password: string;
+  }>({
+    name: server?.name ?? "",
+    url: server?.url ?? "",
+    username: server?.username ?? "",
+    password: server?.password ?? "",
+  });
 
   const save = async () => {
     try {
-      if (name === "" || url === "") {
+      if (form.name === "" || form.url === "") {
         throw new Error("Name and URL are required");
       }
 
       const server: Server = {
-        name: name,
-        url: url,
-        username: username === "" ? undefined : username,
-        password: password === "" ? undefined : password,
+        ...form,
+        username: form.username === "" ? undefined : form.username,
+        password: form.password === "" ? undefined : form.password,
       };
       await store({ ...settings, server });
       navigation.popToTop();
@@ -54,38 +56,37 @@ export default function ConnectionScreen() {
   return (
     <Screen>
       <TextInput
-        value={name}
-        onChangeText={setName}
+        value={form.name}
+        onChangeText={(t) => setForm({ ...form, name: t })}
         placeholder="Server name (required)"
       />
       <TextInput
-        value={url}
+        value={form.url}
         autoCorrect={false}
         keyboardType={"url"}
-        onChangeText={setUrl}
+        onChangeText={(t) => setForm({ ...form, url: t })}
         placeholder="RPC URL (required)"
       />
       <TextInput
-        value={username}
-        onChangeText={setUsername}
+        value={form.username}
+        onChangeText={(t) => setForm({ ...form, username: t })}
         placeholder="Username (optional)"
       />
       <TextInput
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={form.password}
+        onChangeText={(t) => setForm({ ...form, password: t })}
         placeholder="Password (optional)"
       />
       <Button
         title="Save"
-        disabled={name === "" || url === ""}
+        disabled={form.name === "" || form.url === ""}
         onPress={save}
       />
       {server ? (
         <Button
           style={{ backgroundColor: red }}
           title="Delete"
-          disabled={server === undefined}
           onPress={remove}
         />
       ) : null}
