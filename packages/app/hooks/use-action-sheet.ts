@@ -21,12 +21,12 @@ export function useAddTorrentSheet() {
         {
           label: "File",
           left: "file",
-          onPress: () => linkTo("/add/file"),
+          onPress: () => linkTo("/add-file"),
         },
         {
           label: "Magnet URL",
           left: "link",
-          onPress: () => linkTo("/add/magnet"),
+          onPress: () => linkTo("/add-magnet"),
         },
       ],
     });
@@ -37,6 +37,7 @@ export function useTorrentActionsSheet() {
   const { red } = useTheme();
   const actionSheet = useActionSheet();
   const torrentActions = useTorrentActions();
+  const linkTo = useLinkTo();
 
   const confirmRemoveSheet = React.useCallback(
     (id: number) => {
@@ -68,6 +69,11 @@ export function useTorrentActionsSheet() {
       actionSheet.show({
         title: "Action",
         options: [
+          {
+            label: "Details",
+            left: "info",
+            onPress: () => linkTo(`/torrents/${torrent.id}`),
+          },
           {
             label: "Share",
             left: "share",

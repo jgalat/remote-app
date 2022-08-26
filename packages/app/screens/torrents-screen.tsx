@@ -156,6 +156,7 @@ export default function TorrentsScreen() {
   return (
     <Screen>
       <FlatList
+        fadingEdgeLength={64}
         data={torrents}
         renderItem={({ item }) => (
           <TorrentItem

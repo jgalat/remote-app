@@ -186,10 +186,10 @@ function useNavigationContainerProps() {
           path: "/torrents/:id",
         },
         AddTorrentFile: {
-          path: "/add/file",
+          path: "/add-file",
         },
         AddTorrentMagnet: {
-          path: "/add/magnet",
+          path: "/add-magnet",
         },
         SettingsStack: {
           path: "/settings",

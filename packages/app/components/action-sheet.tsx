@@ -12,7 +12,7 @@ import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 
 export type ActionSheetProps = {
-  innerRef: React.Ref<BottomSheet>;
+  innerRef: React.RefObject<BottomSheet>;
   title?: string;
   options?: OptionProps[];
 } & Pick<BottomSheetProps, "onClose">;
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   option: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
 });
