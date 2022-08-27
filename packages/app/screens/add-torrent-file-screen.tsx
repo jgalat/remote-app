@@ -41,9 +41,13 @@ export default function AddTorrentFileScreen() {
     async function updateUri() {
       if (uri && uri !== state.uri) {
         const filename = `${Date.now()}.torrent`;
-        const fileUri = `${FileSystem.cacheDirectory}torrents/${filename}`;
-        await FileSystem.copyAsync({ from: uri, to: fileUri });
-        setState({ ...state, error: undefined, uri: fileUri, filename });
+        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+        try {
+          await FileSystem.copyAsync({ from: uri, to: fileUri });
+          setState({ ...state, error: undefined, uri: fileUri, filename });
+        } catch (e) {
+          setState({ ...state, error: e.message });
+        }
       }
     }
 
