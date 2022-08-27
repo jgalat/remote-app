@@ -114,12 +114,15 @@ index 0000000..1931e92
 +export declare function magnetEncode(data: MagnetData): string;
 diff --git a/node_modules/@ctrl/magnet-link/index.js b/node_modules/@ctrl/magnet-link/index.js
 new file mode 100644
-index 0000000..347b2cb
+index 0000000..16bf13d
 --- /dev/null
 +++ b/node_modules/@ctrl/magnet-link/index.js
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,222 @@
 +import { base32Decode } from '@ctrl/ts-base32';
 +import * as bep53Range from './bep53.js';
++
++global.Buffer = global.Buffer || require("buffer").Buffer;
++
 +const start = 'magnet:?';
 +export function magnetDecode(uri) {
 +    // Support 'stream-magnet:' as well

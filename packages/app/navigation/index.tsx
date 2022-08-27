@@ -149,7 +149,7 @@ function useNavigationContainerProps() {
 
     const url = await Linking.getInitialURL();
     if (url?.startsWith("magnet:")) {
-      ref.navigate("AddTorrentMagnet", { url });
+      ref.navigate("AddTorrentMagnet", { uri: url });
     }
   }, [ref, server]);
 
@@ -161,7 +161,7 @@ function useNavigationContainerProps() {
 
       const subscription = Linking.addEventListener("url", ({ url }) => {
         if (url?.startsWith("magnet:")) {
-          ref.navigate("AddTorrentMagnet", { url });
+          ref.navigate("AddTorrentMagnet", { uri: url });
         }
         listener(url);
       });

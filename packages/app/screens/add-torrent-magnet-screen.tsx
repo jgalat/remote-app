@@ -19,7 +19,7 @@ import { formatSize } from "../utils/formatters";
 
 export default function AddTorrentMagnetScreen() {
   const {
-    params: { url },
+    params: { uri },
   } =
     useRoute<
       NativeStackScreenProps<RootStackParamList, "AddTorrentMagnet">["route"]
@@ -32,37 +32,38 @@ export default function AddTorrentMagnetScreen() {
   const { data: freeSpace, error } = useFreeSpace();
   const [state, setState] = React.useState<{
     error?: string;
-    url?: string;
+    uri?: string;
     data?: MagnetData;
     sending?: boolean;
   }>({ sending: false });
 
   React.useEffect(() => {
-    if (url && url !== state.url) {
+    if (uri && uri !== state.uri) {
       setState({
-        url,
+        uri,
         error: undefined,
-        data: magnetDecode(url),
+        data: magnetDecode(uri),
       });
     }
-  }, [url]);
+  }, [uri]);
 
   const onPaste = React.useCallback(async () => {
     const text = await Clipboard.getStringAsync();
     if (text.startsWith("magnet:")) {
-      setState({ url: text, error: undefined, data: magnetDecode(text) });
+      setState({ uri: text, error: undefined, data: magnetDecode(text) });
     } else {
       setState({ error: "Invalid Magnet URL" });
     }
   }, [setState]);
 
   const onAdd = React.useCallback(async () => {
-    if (!state.url) {
+    if (!state.uri) {
       return;
     }
+
     setState({ ...state, sending: true });
     try {
-      await add.magnet(state.url);
+      await add.magnet(state.uri);
       navigation.popToTop();
     } catch (e) {
       setState({ ...state, sending: false, error: e.message });
@@ -101,7 +102,7 @@ export default function AddTorrentMagnetScreen() {
       </View>
       <Button title="Paste URL" onPress={onPaste} />
       <Button
-        disabled={!state.url || error}
+        disabled={!state.uri || error}
         title={state.sending ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />

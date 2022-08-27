@@ -7,7 +7,6 @@ import {
 } from "@react-navigation/native-stack";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
-import { Instance, decode } from "magnet-uri";
 
 import Text from "../components/text";
 import View from "../components/view";
@@ -18,13 +17,9 @@ import { RootStackParamList } from "../types";
 import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { formatSize } from "../utils/formatters";
 
-const isString = (v: string | string[]): v is string => {
-  return typeof v === "string";
-};
-
 export default function AddTorrentFileScreen() {
   const {
-    params: { url },
+    params: { uri },
   } =
     useRoute<
       NativeStackScreenProps<RootStackParamList, "AddTorrentFile">["route"]
@@ -43,23 +38,19 @@ export default function AddTorrentFileScreen() {
   }>({ sending: false });
 
   React.useEffect(() => {
-    if (url && url !== state.uri) {
-      FileSystem.read
-      setState({
-        url,
-        error: undefined,
-        // data: decode(url),
-      });
+    async function updateUri() {
+      if (uri && uri !== state.uri) {
+        const filename = `${Date.now()}.torrent`;
+        const fileUri = `${FileSystem.cacheDirectory}torrents/${filename}`;
+        await FileSystem.copyAsync({ from: uri, to: fileUri });
+        setState({ ...state, error: undefined, uri: fileUri, filename });
+      }
     }
-  }, [url]);
+
+    updateUri();
+  }, [uri]);
 
   const onPick = React.useCallback(async () => {
-    // const text = await Clipboard.getStringAsync();
-    // if (text.startsWith("magnet:")) {
-    //   setState({ url: text, error: undefined, data: decode(text as string) });
-    // } else {
-    //   setState({ error: "Invalid Magnet URL" });
-    // }
     const file = await DocumentPicker.getDocumentAsync({
       type: "application/x-bittorrent",
     });
@@ -68,7 +59,12 @@ export default function AddTorrentFileScreen() {
       return;
     }
 
-    setState({ ...state, error: undefined, uri: file.uri, filename: file.name });
+    setState({
+      ...state,
+      error: undefined,
+      uri: file.uri,
+      filename: file.name,
+    });
   }, [setState]);
 
   const onAdd = React.useCallback(async () => {
@@ -89,29 +85,11 @@ export default function AddTorrentFileScreen() {
     }
   }, [state]);
 
-  // const magnet = React.useMemo(() => {
-  //   const { dn, xt, tr } = state.data ?? {};
-
-  //   return [
-  //     {
-  //       field: "Name",
-  //       value: dn ? (isString(dn) ? dn : dn.join(", ")) : "...",
-  //     },
-  //     {
-  //       field: "Hash",
-  //       value: xt ? (isString(xt) ? xt : xt.join(", ")) : "...",
-  //     },
-  //     { field: "Trackers", value: tr ? (isString(tr) ? 1 : tr.length) : "..." },
-  //   ];
-  // }, [state.data]);
-  // {magnet.map((row) => (
-  //   <KeyValue key={row.field} {...row} />
-  // ))}
-  //
-
   return (
     <View style={styles.container}>
-      <View style={styles.file}></View>
+      <View style={styles.file}>
+        <KeyValue field="Filename" value={state.filename ?? "..."} />
+      </View>
       <Button title="Choose a file" onPress={onPick} />
       <Button
         disabled={!state.uri || error}
