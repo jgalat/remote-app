@@ -17,6 +17,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@ctrl/magnet-link": "^3.1.1",
     "@expo/vector-icons": "^13.0.0",
     "@gorhom/bottom-sheet": "^4.4.3",
     "@react-native-async-storage/async-storage": "^1.17.7",
@@ -28,6 +29,8 @@
     "expo-asset": "~8.5.0",
     "expo-clipboard": "~3.0.1",
     "expo-constants": "~13.1.1",
+    "expo-document-picker": "~10.2.1",
+    "expo-file-system": "~14.0.0",
     "expo-font": "~10.1.0",
     "expo-intent-launcher": "~10.2.0",
     "expo-linking": "~3.1.0",
@@ -36,8 +39,6 @@
     "expo-system-ui": "~1.2.0",
     "expo-updates": "~0.13.4",
     "expo-web-browser": "~10.2.1",
-    "magnet-uri": "^6.2.0",
-    "parse-torrent": "^9.1.5",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-native": "0.68.2",
@@ -50,8 +51,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@types/magnet-uri": "^5.1.3",
-    "@types/parse-torrent": "^5.8.4",
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.66.13",
     "eas-cli": "^0.60.0",

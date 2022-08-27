@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   field: {
-    fontFamily: "roboto-mono_medium",
+    fontFamily: "RobotoMono-Medium",
     width: "25%",
     overflow: "scroll",
   },

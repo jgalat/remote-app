@@ -29,7 +29,7 @@ export default function TextInput(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   input: {
-    fontFamily: "roboto-mono",
+    fontFamily: "RobotoMono-Regular",
     borderWidth: 2,
     padding: 8,
     height: 48,

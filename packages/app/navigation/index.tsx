@@ -20,23 +20,16 @@ import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
 import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
+import AddTorrentFileScreen from "../screens/add-torrent-file-screen";
 import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
 
-export default function Navigation({
-  onReady,
-}: Pick<React.ComponentProps<typeof NavigationContainer>, "onReady">) {
+export default function Navigation() {
   const colorScheme = useColorScheme();
-  const { onReady: listener, ref, ...props } = useNavigationContainerProps();
-
+  const props = useNavigationContainerProps();
   return (
     <NavigationContainer
-      ref={ref}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-      onReady={() => {
-        onReady?.();
-        listener();
-      }}
       {...props}
     >
       <RootNavigator />
@@ -69,7 +62,7 @@ function RootNavigator() {
 
             <Stack.Screen
               name="AddTorrentFile"
-              component={NotFoundScreen}
+              component={AddTorrentFileScreen}
               options={{
                 title: "Import torrent file",
               }}
@@ -135,7 +128,7 @@ function useNavigationOptions(): NativeStackNavigationOptions {
   const background = useThemeColor("background");
   return {
     headerTitleStyle: {
-      fontFamily: "roboto-mono_medium",
+      fontFamily: "RobotoMono-Medium",
       color: text,
     },
     headerStyle: {
@@ -177,6 +170,10 @@ function useNavigationContainerProps() {
     [ref, server]
   );
 
+  const getInitialURL = React.useCallback(() => {
+    return Linking.createURL("/");
+  }, []);
+
   const linking: LinkingOptions<RootStackParamList> = {
     prefixes: [Linking.createURL("/")],
     config: {
@@ -209,6 +206,7 @@ function useNavigationContainerProps() {
         NotFound: "*",
       },
     },
+    getInitialURL,
     subscribe,
   };
 

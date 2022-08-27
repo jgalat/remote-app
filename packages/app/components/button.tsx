@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   buttonText: {
-    fontFamily: "roboto-mono_medium",
+    fontFamily: "RobotoMono-Medium",
     textTransform: "uppercase",
     fontSize: 16,
   },

@@ -4,6 +4,13 @@
   "description": "Transmission remote",
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",
-  "workspaces": ["./packages/*"],
-  "scripts": {}
+  "workspaces": [
+    "./packages/*"
+  ],
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "devDependencies": {
+    "patch-package": "^6.4.7"
+  }
 }

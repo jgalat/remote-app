@@ -5,8 +5,9 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
-import * as Clipboard from "expo-clipboard";
-import { MagnetData, magnetDecode } from "@ctrl/magnet-link";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
+import { Instance, decode } from "magnet-uri";
 
 import Text from "../components/text";
 import View from "../components/view";
@@ -17,12 +18,16 @@ import { RootStackParamList } from "../types";
 import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { formatSize } from "../utils/formatters";
 
-export default function AddTorrentMagnetScreen() {
+const isString = (v: string | string[]): v is string => {
+  return typeof v === "string";
+};
+
+export default function AddTorrentFileScreen() {
   const {
     params: { url },
   } =
     useRoute<
-      NativeStackScreenProps<RootStackParamList, "AddTorrentMagnet">["route"]
+      NativeStackScreenProps<RootStackParamList, "AddTorrentFile">["route"]
     >();
 
   const { red } = useTheme();
@@ -32,76 +37,84 @@ export default function AddTorrentMagnetScreen() {
   const { data: freeSpace, error } = useFreeSpace();
   const [state, setState] = React.useState<{
     error?: string;
-    url?: string;
-    data?: MagnetData;
+    uri?: string;
+    filename?: string;
     sending?: boolean;
   }>({ sending: false });
 
   React.useEffect(() => {
-    if (url && url !== state.url) {
+    if (url && url !== state.uri) {
+      FileSystem.read
       setState({
         url,
         error: undefined,
-        data: magnetDecode(url),
+        // data: decode(url),
       });
     }
   }, [url]);
 
-  const onPaste = React.useCallback(async () => {
-    const text = await Clipboard.getStringAsync();
-    if (text.startsWith("magnet:")) {
-      setState({ url: text, error: undefined, data: magnetDecode(text) });
-    } else {
-      setState({ error: "Invalid Magnet URL" });
+  const onPick = React.useCallback(async () => {
+    // const text = await Clipboard.getStringAsync();
+    // if (text.startsWith("magnet:")) {
+    //   setState({ url: text, error: undefined, data: decode(text as string) });
+    // } else {
+    //   setState({ error: "Invalid Magnet URL" });
+    // }
+    const file = await DocumentPicker.getDocumentAsync({
+      type: "application/x-bittorrent",
+    });
+
+    if (file.type === "cancel") {
+      return;
     }
+
+    setState({ ...state, error: undefined, uri: file.uri, filename: file.name });
   }, [setState]);
 
   const onAdd = React.useCallback(async () => {
-    if (!state.url) {
+    if (!state.uri) {
       return;
     }
+
     setState({ ...state, sending: true });
+    const content = await FileSystem.readAsStringAsync(state.uri, {
+      encoding: "base64",
+    });
+
     try {
-      await add.magnet(state.url);
+      await add.file(content);
       navigation.popToTop();
     } catch (e) {
       setState({ ...state, sending: false, error: e.message });
     }
   }, [state]);
 
-  const magnet = React.useMemo(() => {
-    const { dn, xt, tr, xl } = state.data ?? {};
+  // const magnet = React.useMemo(() => {
+  //   const { dn, xt, tr } = state.data ?? {};
 
-    return [
-      {
-        field: "Name",
-        value: dn ? dn.toString() : "...",
-      },
-      {
-        field: "Hash",
-        value: xt ? xt.toString() : "...",
-      },
-      {
-        field: "Size",
-        value: xl ? formatSize(+xl) : "...",
-      },
-      {
-        field: "Trackers",
-        value: tr ? (typeof tr === "string" ? 1 : tr.length) : "...",
-      },
-    ];
-  }, [state.data]);
+  //   return [
+  //     {
+  //       field: "Name",
+  //       value: dn ? (isString(dn) ? dn : dn.join(", ")) : "...",
+  //     },
+  //     {
+  //       field: "Hash",
+  //       value: xt ? (isString(xt) ? xt : xt.join(", ")) : "...",
+  //     },
+  //     { field: "Trackers", value: tr ? (isString(tr) ? 1 : tr.length) : "..." },
+  //   ];
+  // }, [state.data]);
+  // {magnet.map((row) => (
+  //   <KeyValue key={row.field} {...row} />
+  // ))}
+  //
 
   return (
     <View style={styles.container}>
-      <View style={styles.magnet}>
-        {magnet.map((row) => (
-          <KeyValue key={row.field} {...row} />
-        ))}
-      </View>
-      <Button title="Paste URL" onPress={onPaste} />
+      <View style={styles.file}></View>
+      <Button title="Choose a file" onPress={onPick} />
       <Button
-        disabled={!state.url || error}
+        disabled={!state.uri || error}
         title={state.sending ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
@@ -127,7 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  magnet: {
+  file: {
     marginBottom: 40,
   },
   error: {

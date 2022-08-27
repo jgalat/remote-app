@@ -9,7 +9,6 @@ import {
 
 export type AppSettings = {
   settings: Settings;
-  loading: boolean;
   load: () => Promise<void>;
   store: (settings: Settings) => Promise<void>;
 };
@@ -20,24 +19,13 @@ export const SettingsContext: React.Context<AppSettings> =
 export function SettingsProvider({
   children,
 }: Omit<React.ComponentProps<typeof SettingsContext.Provider>, "value">) {
-  const [loading, setLoading] = React.useState(true);
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);
-
-  React.useEffect(() => {
-    loadSettings().then((settings) => {
-      setSettings(settings);
-      setLoading(false);
-    });
-  }, []);
 
   const value: AppSettings = {
     settings,
-    loading,
     load: async () => {
-      setLoading(true);
       const settings = await loadSettings();
       setSettings(settings);
-      setLoading(false);
     },
     store: async (settings: Settings) => {
       await storeSettings(settings);

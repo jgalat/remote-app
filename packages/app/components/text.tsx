@@ -17,6 +17,6 @@ export default function Text({ color, style, ...props }: TextProps) {
 
 const styles = StyleSheet.create({
   text: {
-    fontFamily: "roboto-mono",
+    fontFamily: "RobotoMono-Regular",
   },
 });

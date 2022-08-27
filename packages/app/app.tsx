@@ -9,32 +9,44 @@ import { SettingsProvider } from "./contexts/settings";
 import { ClientProvider } from "./contexts/transmission-client";
 import { ActionSheetProvider } from "./contexts/action-sheet";
 import Navigation from "./navigation";
+import View from "./components/view";
 import StatusBar from "./components/status-bar";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function App() {
+function App() {
   const loaded = useCachedResources();
-  const onReady = React.useCallback(() => {
-    SplashScreen.hideAsync();
-  }, []);
 
   if (!loaded) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={StyleSheet.absoluteFill}>
+    <View style={styles.container}>
+      <ActionSheetProvider>
+        <Navigation />
+        <StatusBar />
+      </ActionSheetProvider>
+    </View>
+  );
+}
+
+export default function () {
+  return (
+    <GestureHandlerRootView style={styles.container}>
       <SettingsProvider>
         <ClientProvider>
           <SafeAreaProvider>
-            <ActionSheetProvider>
-              <Navigation onReady={onReady} />
-              <StatusBar />
-            </ActionSheetProvider>
+            <App />
           </SafeAreaProvider>
         </ClientProvider>
       </SettingsProvider>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "roboto-mono_medium",
+    fontFamily: "RobotoMono-Medium",
   },
   link: {
     marginTop: 15,

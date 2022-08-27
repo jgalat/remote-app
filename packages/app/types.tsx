@@ -11,7 +11,7 @@ export type RootStackParamList = {
   Root: undefined;
   TorrentDetails: { id: string };
   SettingsStack: NavigatorScreenParams<SettingsStackParamList> | undefined;
-  AddTorrentFile: undefined;
+  AddTorrentFile: { url?: string };
   AddTorrentMagnet: { url?: string };
   NotFound: undefined;
 };

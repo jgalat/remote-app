@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: "roboto-mono_medium",
+    fontFamily: "RobotoMono-Medium",
     marginBottom: 24,
   },
   separator: {

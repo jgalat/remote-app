@@ -4,6 +4,7 @@ import TransmissionClient, {
   Methods,
   TorrentRemoveRequest,
 } from "@remote-app/transmission-client";
+import { encode as b64 } from "base-64";
 
 import { ClientContext } from "../contexts/transmission-client";
 
@@ -152,7 +153,29 @@ export function useAddTorrent() {
     [client, mutate]
   );
 
-  return { magnet };
+  const file = React.useCallback(
+    async (content: string) => {
+      if (!client) {
+        return;
+      }
+
+      try {
+        await client?.request({
+          method: "torrent-add",
+          arguments: {
+            metainfo: content,
+          },
+        });
+      } catch (e) {
+        throw e;
+      } finally {
+        setTimeout(() => mutate(), 500);
+      }
+    },
+    [client, mutate]
+  );
+
+  return { magnet, file };
 }
 
 export function useTorrentActions() {
