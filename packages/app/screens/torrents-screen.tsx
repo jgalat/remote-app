@@ -1,8 +1,9 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { useLinkTo, useNavigation } from "@react-navigation/native";
+import { Torrent } from "@remote-app/transmission-client";
 
-import { useServer, useSortSettings } from "../hooks/use-settings";
+import { useServer, useListing } from "../hooks/use-settings";
 import Text from "../components/text";
 import View from "../components/view";
 import Screen from "../components/screen";
@@ -15,16 +16,18 @@ import { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
 import {
   useAddTorrentSheet,
+  useFilterSheet,
   useSortBySheet,
   useTorrentActionsSheet,
 } from "../hooks/use-action-sheet";
 import compare from "../utils/sort";
+import predicate from "../utils/filter";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
   const navigation = useNavigation();
   const server = useServer();
-  const { sort, direction } = useSortSettings();
+  const { sort, direction, filter } = useListing();
   const { data: session } = useSession();
   const { data: torrents, mutate, error } = useTorrents();
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
@@ -32,6 +35,7 @@ export default function TorrentsScreen() {
   const addTorrentSheet = useAddTorrentSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
   const sortBySheet = useSortBySheet();
+  const filterSheet = useFilterSheet();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -58,6 +62,13 @@ export default function TorrentsScreen() {
                   key="sort"
                   onPress={() => sortBySheet()}
                   name="align-left"
+                  size={24}
+                  color={text}
+                />,
+                <ActionIcon
+                  key="filter"
+                  onPress={() => filterSheet()}
+                  name="filter"
                   size={24}
                   color={text}
                 />,
@@ -117,11 +128,15 @@ export default function TorrentsScreen() {
     );
   }
 
+  const render: Torrent[] = [...torrents]
+    .sort(compare(direction, sort))
+    .filter(predicate(filter));
+
   return (
     <Screen>
       <FlatList
         fadingEdgeLength={64}
-        data={[...torrents].sort(compare(direction, sort))}
+        data={render}
         renderItem={({ item }) => (
           <TorrentItem
             onPress={() => torrentActionsSheet(item)}

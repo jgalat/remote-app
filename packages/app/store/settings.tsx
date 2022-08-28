@@ -22,18 +22,33 @@ export type Sort =
 
 export type Direction = "asc" | "desc";
 
+export type Filter =
+  | "all"
+  | "active"
+  | "downloading"
+  | "seeding"
+  | "paused"
+  | "completed"
+  | "finished";
+
 export type Settings = {
   server?: Server;
   colorScheme: ColorScheme;
-  sort: Sort;
-  direction: Direction;
+  listing: {
+    sort: Sort;
+    direction: Direction;
+    filter: Filter;
+  };
 };
 
 export const defaultSettings: Settings = {
   server: undefined,
   colorScheme: "system",
-  sort: "queue",
-  direction: "asc",
+  listing: {
+    sort: "queue",
+    direction: "asc",
+    filter: "all",
+  },
 };
 
 const SETTINGS_KEY = "@settings";
@@ -44,7 +59,12 @@ export async function loadSettings(): Promise<Settings> {
     return defaultSettings;
   }
 
-  return JSON.parse(value) as Settings;
+  const settings = JSON.parse(value) as Settings;
+  return {
+    ...defaultSettings,
+    ...settings,
+    listing: { ...defaultSettings.listing, ...settings.listing },
+  };
 }
 
 export async function storeSettings(settings: Settings): Promise<void> {

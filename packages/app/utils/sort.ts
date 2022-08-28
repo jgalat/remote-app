@@ -74,5 +74,5 @@ const map = {
 };
 
 export default function (d: Direction, s: Sort): Compare {
-  return direction(d, map[s] ?? name);
+  return direction(d, map[s]);
 }

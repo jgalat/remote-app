@@ -26,9 +26,6 @@ export function useServer(): Server | undefined {
   return useSettings().settings.server;
 }
 
-export function useSortSettings(): Pick<Settings, "sort" | "direction"> {
-  const {
-    settings: { sort, direction },
-  } = useSettings();
-  return { sort, direction };
+export function useListing(): Settings["listing"] {
+  return useSettings().settings.listing;
 }

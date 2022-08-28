@@ -8,7 +8,7 @@ import { ActionSheetContext } from "../contexts/action-sheet";
 import { useTorrentActions } from "./use-transmission";
 import { useTheme } from "./use-theme-color";
 import useSettings from "./use-settings";
-import type { Sort } from "../store/settings";
+import type { Sort, Filter } from "../store/settings";
 
 export default function useActionSheet() {
   return React.useContext(ActionSheetContext);
@@ -139,7 +139,7 @@ export function useTorrentActionsSheet() {
 export function useSortBySheet() {
   const actionSheet = useActionSheet();
   const { settings, store } = useSettings();
-  const { sort, direction } = settings;
+  const { sort, direction } = settings.listing;
 
   const update = React.useCallback(
     (s: Sort): (() => Promise<void>) => {
@@ -147,13 +147,19 @@ export function useSortBySheet() {
         if (s === sort) {
           return await store({
             ...settings,
-            direction: direction === "desc" ? "asc" : "desc",
+            listing: {
+              ...settings.listing,
+              direction: direction === "desc" ? "asc" : "desc",
+            },
           });
         }
         return await store({
           ...settings,
-          direction: "desc",
-          sort: s,
+          listing: {
+            ...settings.listing,
+            direction: "desc",
+            sort: s,
+          },
         });
       };
     },
@@ -227,6 +233,83 @@ export function useSortBySheet() {
           left: "chevron-right",
           onPress: update("ratio"),
           right: right("ratio"),
+        },
+      ],
+    });
+  }, [actionSheet, update, right]);
+}
+
+export function useFilterSheet() {
+  const actionSheet = useActionSheet();
+  const { settings, store } = useSettings();
+  const { filter } = settings.listing;
+
+  const update = React.useCallback(
+    (f: Filter): (() => Promise<void>) => {
+      return async () => {
+        return await store({
+          ...settings,
+          listing: {
+            ...settings.listing,
+            filter: f,
+          },
+        });
+      };
+    },
+    [filter, settings]
+  );
+
+  const right = React.useCallback(
+    (f: Filter): React.ComponentProps<typeof Feather>["name"] | undefined =>
+      f === filter ? "check" : undefined,
+    [filter]
+  );
+
+  return React.useCallback(() => {
+    actionSheet.show({
+      title: "Filter",
+      options: [
+        {
+          label: "All",
+          left: "chevron-right",
+          onPress: update("all"),
+          right: right("all"),
+        },
+        {
+          label: "Active",
+          left: "chevron-right",
+          onPress: update("active"),
+          right: right("active"),
+        },
+        {
+          label: "Downloading",
+          left: "chevron-right",
+          onPress: update("downloading"),
+          right: right("downloading"),
+        },
+        {
+          label: "Seeding",
+          left: "chevron-right",
+          onPress: update("seeding"),
+          right: right("seeding"),
+        },
+        {
+          label: "Paused",
+          left: "chevron-right",
+          onPress: update("paused"),
+          right: right("paused"),
+        },
+        {
+          label: "Completed",
+          left: "chevron-right",
+          onPress: update("completed"),
+          right: right("completed"),
+        },
+        {
+          label: "Finished",
+          left: "chevron-right",
+          onPress: update("finished"),
+          right: right("finished"),
         },
       ],
     });
