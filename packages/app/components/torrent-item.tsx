@@ -23,7 +23,7 @@ export type TorrentItemProps = {
 } & React.ComponentProps<typeof TouchableOpacity>;
 
 export default function ({ torrent, ...props }: TorrentItemProps) {
-  const { text: color, green, yellow, gray } = useTheme();
+  const { text: color, green, yellow, red, gray } = useTheme();
   const { start, stop } = useTorrentActions();
 
   let status = formatStatus(torrent.status);
@@ -75,9 +75,13 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
             {torrent.name}
           </Text>
           <View style={styles.row}>
-            <View style={styles.column}>
-              <Text color={gray} style={styles.data}>
-                {status}
+            <View style={[styles.column, { flex: 1 }]}>
+              <Text
+                numberOfLines={1}
+                color={torrent.error ? red : gray}
+                style={styles.data}
+              >
+                {torrent.error ? torrent.errorString : status}
               </Text>
               <Text color={gray} style={styles.data}>
                 {size}
