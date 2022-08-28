@@ -19,6 +19,7 @@ export type {
 } from "./rpc-calls";
 
 export { TorrentStatus } from "./rpc-calls/torrent-get";
+export type { Torrent } from "./rpc-calls/torrent-get";
 
 export type { Methods } from "./rpc-call";
 

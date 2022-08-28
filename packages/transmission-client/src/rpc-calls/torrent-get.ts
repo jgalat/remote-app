@@ -95,7 +95,7 @@ export enum TorrentStatus {
   SEEDING,
 }
 
-type Torrent = {
+export type Torrent = {
   activityDate: number;
   addedDate: number;
   bandwidthPriority: number;
