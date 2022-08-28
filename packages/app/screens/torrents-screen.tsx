@@ -2,7 +2,7 @@ import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { useLinkTo, useNavigation } from "@react-navigation/native";
 
-import { useServer } from "../hooks/use-settings";
+import { useServer, useSortSettings } from "../hooks/use-settings";
 import Text from "../components/text";
 import View from "../components/view";
 import Screen from "../components/screen";
@@ -13,61 +13,25 @@ import TorrentItem from "../components/torrent-item";
 import ErrorMessage from "../components/error-message";
 import { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
-import useActionSheet, {
+import {
   useAddTorrentSheet,
+  useSortBySheet,
   useTorrentActionsSheet,
 } from "../hooks/use-action-sheet";
+import compare from "../utils/sort";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
   const navigation = useNavigation();
   const server = useServer();
-  const actionSheet = useActionSheet();
+  const { sort, direction } = useSortSettings();
   const { data: session } = useSession();
   const { data: torrents, mutate, error } = useTorrents();
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
   const { text, lightGray } = useTheme();
   const addTorrentSheet = useAddTorrentSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
-
-  const sortByMenu = React.useCallback(() => {
-    actionSheet.show({
-      title: "Sort by",
-      options: [
-        {
-          label: "Name",
-          left: "chevron-right",
-          onPress: () => {},
-          right: "check",
-        },
-        {
-          label: "Progress",
-          left: "chevron-right",
-          onPress: () => {},
-        },
-        {
-          label: "Size",
-          left: "chevron-right",
-          onPress: () => {},
-        },
-        {
-          label: "Status",
-          left: "chevron-right",
-          onPress: () => {},
-        },
-        {
-          label: "Time remaining",
-          left: "chevron-right",
-          onPress: () => {},
-        },
-        {
-          label: "Ratio",
-          left: "chevron-right",
-          onPress: () => {},
-        },
-      ],
-    });
-  }, [actionSheet, linkTo]);
+  const sortBySheet = useSortBySheet();
 
   React.useLayoutEffect(() => {
     if (!server || server.name === "") {
@@ -92,7 +56,7 @@ export default function TorrentsScreen() {
                 />,
                 <ActionIcon
                   key="sort"
-                  onPress={() => sortByMenu()}
+                  onPress={() => sortBySheet()}
                   name="align-left"
                   size={24}
                   color={text}
@@ -108,7 +72,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, session, addTorrentSheet]);
+  }, [linkTo, text, session, addTorrentSheet, sortBySheet]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -157,7 +121,7 @@ export default function TorrentsScreen() {
     <Screen>
       <FlatList
         fadingEdgeLength={64}
-        data={torrents}
+        data={[...torrents].sort(compare(direction, sort))}
         renderItem={({ item }) => (
           <TorrentItem
             onPress={() => torrentActionsSheet(item)}

@@ -9,14 +9,31 @@ export type Server = {
 
 export type ColorScheme = "system" | "dark" | "light";
 
+export type Sort =
+  | "queue"
+  | "activity"
+  | "age"
+  | "name"
+  | "progress"
+  | "size"
+  | "status"
+  | "time-remaining"
+  | "ratio";
+
+export type Direction = "asc" | "desc";
+
 export type Settings = {
   server?: Server;
   colorScheme: ColorScheme;
+  sort: Sort;
+  direction: Direction;
 };
 
 export const defaultSettings: Settings = {
   server: undefined,
   colorScheme: "system",
+  sort: "queue",
+  direction: "asc",
 };
 
 const SETTINGS_KEY = "@settings";

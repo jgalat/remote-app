@@ -5,7 +5,7 @@ import {
 } from "react-native";
 
 import { SettingsContext } from "../contexts/settings";
-import { Server } from "../store/settings";
+import { Server, Settings } from "../store/settings";
 
 export default function useSettings() {
   return React.useContext(SettingsContext);
@@ -24,4 +24,11 @@ export function useColorScheme(): "light" | "dark" {
 
 export function useServer(): Server | undefined {
   return useSettings().settings.server;
+}
+
+export function useSortSettings(): Pick<Settings, "sort" | "direction"> {
+  const {
+    settings: { sort, direction },
+  } = useSettings();
+  return { sort, direction };
 }

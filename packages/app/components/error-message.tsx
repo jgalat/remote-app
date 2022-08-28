@@ -22,7 +22,11 @@ export default function ({ error, style, ...props }: ErrorMessageProps) {
   let title = "Failed to connect";
   let message = error.message;
   if (error instanceof HTTPError) {
-    message = `${error.status}: ${error.message}`;
+    if (!error.message) {
+      message = `HTTP Status ${error.status}`;
+    } else {
+      message = `${error.status}: ${error.message}`;
+    }
   }
 
   if (error instanceof TransmissionError) {
@@ -31,8 +35,12 @@ export default function ({ error, style, ...props }: ErrorMessageProps) {
 
   return (
     <View style={[styles.container, style]} {...props}>
-      <Text color={red} style={styles.text}>{title}</Text>
-      <Text color={red} style={styles.text}>{message}</Text>
+      <Text color={red} style={styles.text}>
+        {title}
+      </Text>
+      <Text color={red} style={styles.text}>
+        {message}
+      </Text>
       <View style={styles.buttons}>
         <Button
           onPress={() => linkTo("/settings/connection")}
@@ -59,5 +67,5 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 20,
-  }
+  },
 });

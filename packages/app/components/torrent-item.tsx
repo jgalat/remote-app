@@ -1,9 +1,6 @@
 import * as React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import {
-  TorrentGetResponse,
-  TorrentStatus,
-} from "@remote-app/transmission-client";
+import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
 import View from "./view";
 import Text from "./text";
@@ -19,7 +16,7 @@ import {
 } from "../utils/formatters";
 
 export type TorrentItemProps = {
-  torrent: TorrentGetResponse["torrents"][number];
+  torrent: Torrent;
 } & React.ComponentProps<typeof TouchableOpacity>;
 
 export default function ({ torrent, ...props }: TorrentItemProps) {
@@ -48,7 +45,9 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
 
   let size = `${formatSize(
     torrent.percentDone * torrent.totalSize
-  )} / ${formatSize(torrent.totalSize)} (${torrent.uploadRatio.toFixed(2)})`;
+  )} / ${formatSize(torrent.totalSize)} (${
+    torrent.uploadRatio < 0 ? "0.00" : torrent.uploadRatio.toFixed(2)
+  })`;
   if (torrent.percentDone == 1) {
     size = `${formatSize(torrent.totalSize)} - ${formatSize(
       torrent.uploadedEver

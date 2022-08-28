@@ -1,11 +1,14 @@
 import * as React from "react";
 import { Share } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
+import { Torrent } from "@remote-app/transmission-client";
 
 import { ActionSheetContext } from "../contexts/action-sheet";
 import { useTorrentActions } from "./use-transmission";
 import { useTheme } from "./use-theme-color";
-import { TorrentGetResponse } from "../../transmission-client/dist";
+import useSettings from "./use-settings";
+import type { Sort } from "../store/settings";
 
 export default function useActionSheet() {
   return React.useContext(ActionSheetContext);
@@ -64,7 +67,7 @@ export function useTorrentActionsSheet() {
   );
 
   return React.useCallback(
-    (torrent: TorrentGetResponse["torrents"][number]) => {
+    (torrent: Torrent) => {
       let requiresConfirmation = false;
       actionSheet.show({
         title: "Action",
@@ -131,4 +134,101 @@ export function useTorrentActionsSheet() {
     },
     [actionSheet, confirmRemoveSheet, torrentActions, red]
   );
+}
+
+export function useSortBySheet() {
+  const actionSheet = useActionSheet();
+  const { settings, store } = useSettings();
+  const { sort, direction } = settings;
+
+  const update = React.useCallback(
+    (s: Sort): (() => Promise<void>) => {
+      return async () => {
+        if (s === sort) {
+          return await store({
+            ...settings,
+            direction: direction === "desc" ? "asc" : "desc",
+          });
+        }
+        return await store({
+          ...settings,
+          direction: "desc",
+          sort: s,
+        });
+      };
+    },
+    [sort, direction, settings]
+  );
+
+  const right = React.useCallback(
+    (s: Sort): React.ComponentProps<typeof Feather>["name"] | undefined =>
+      s !== sort
+        ? undefined
+        : direction === "asc"
+        ? "chevron-down"
+        : "chevron-up",
+    [sort, direction]
+  );
+
+  return React.useCallback(() => {
+    actionSheet.show({
+      title: "Sort by",
+      options: [
+        {
+          label: "Queue",
+          left: "chevron-right",
+          onPress: update("queue"),
+          right: right("queue"),
+        },
+        {
+          label: "Activity",
+          left: "chevron-right",
+          onPress: update("activity"),
+          right: right("activity"),
+        },
+        {
+          label: "Age",
+          left: "chevron-right",
+          onPress: update("age"),
+          right: right("age"),
+        },
+        {
+          label: "Name",
+          left: "chevron-right",
+          onPress: update("name"),
+          right: right("name"),
+        },
+        {
+          label: "Progress",
+          left: "chevron-right",
+          onPress: update("progress"),
+          right: right("progress"),
+        },
+        {
+          label: "Size",
+          left: "chevron-right",
+          onPress: update("size"),
+          right: right("size"),
+        },
+        {
+          label: "Status",
+          left: "chevron-right",
+          onPress: update("status"),
+          right: right("status"),
+        },
+        {
+          label: "Time Remaining",
+          left: "chevron-right",
+          onPress: update("time-remaining"),
+          right: right("time-remaining"),
+        },
+        {
+          label: "Ratio",
+          left: "chevron-right",
+          onPress: update("ratio"),
+          right: right("ratio"),
+        },
+      ],
+    });
+  }, [actionSheet, update, right]);
 }

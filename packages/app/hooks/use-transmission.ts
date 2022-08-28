@@ -4,7 +4,6 @@ import TransmissionClient, {
   Methods,
   TorrentRemoveRequest,
 } from "@remote-app/transmission-client";
-import { encode as b64 } from "base-64";
 
 import { ClientContext } from "../contexts/transmission-client";
 
@@ -79,6 +78,22 @@ export function useTorrents() {
       errorRetryCount: 3,
     }
   );
+}
+
+export function useTorrent(id: number) {
+  const { data, ...rest } = useTorrents();
+  if (!data) {
+    return { data, ...rest };
+  }
+  const torrent = data.find((t) => t.id === id);
+  if (!torrent) {
+    return {
+      ...rest,
+      data: undefined,
+      error: new Error("torrent not found"),
+    };
+  }
+  return { data: torrent, ...rest };
 }
 
 export function useSession() {
