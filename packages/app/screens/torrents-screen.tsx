@@ -149,6 +149,10 @@ export default function TorrentsScreen() {
         )}
         onRefresh={refresh}
         refreshing={refreshing}
+        contentContainerStyle={{ flexGrow: 1 }}
+        ListEmptyComponent={
+          <Text style={styles.empty}>Nothing to see here...</Text>
+        }
       />
     </Screen>
   );
@@ -164,6 +168,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 24,
+  },
+  empty: {
+    alignSelf: "center",
+    marginTop: 48,
+    fontSize: 16,
+    fontFamily: "RobotoMono-Medium",
   },
   separator: {
     marginVertical: 16,
