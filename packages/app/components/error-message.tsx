@@ -14,7 +14,7 @@ type ErrorMessageProps = {
   error: Error;
 } & React.ComponentProps<typeof View>;
 
-export default function ({ error, style, ...props }: ErrorMessageProps) {
+export default function ErrorMessage({ error, style, ...props }: ErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
   const { mutate } = useTorrents();

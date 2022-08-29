@@ -5,9 +5,8 @@ import { useTheme } from "../hooks/use-theme-color";
 
 export type TextInputProps = _TextInput["props"];
 
-export default function TextInput(props: TextInputProps) {
-  const { style, ...otherProps } = props;
-  const theme = useTheme();
+export default function TextInput({ style, ...props }: TextInputProps) {
+  const { background, text, gray } = useTheme();
 
   return (
     <_TextInput
@@ -15,14 +14,14 @@ export default function TextInput(props: TextInputProps) {
       style={[
         styles.input,
         {
-          backgroundColor: theme.background,
-          color: theme.text,
-          borderColor: theme.text,
+          backgroundColor: background,
+          color: text,
+          borderColor: text,
         },
         style,
       ]}
-      placeholderTextColor={theme.gray}
-      {...otherProps}
+      placeholderTextColor={gray}
+      {...props}
     />
   );
 }

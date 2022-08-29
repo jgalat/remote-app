@@ -5,20 +5,27 @@ import { useTheme } from "../hooks/use-theme-color";
 type ProgressBarProps = {
   progress: number;
   color: string;
-} & View["props"];
+} & Pick<React.ComponentProps<typeof View>, "style">;
 
-export default function ({ progress, color, style }: ProgressBarProps) {
+export default function ProgressBar({
+  progress,
+  color,
+  style,
+}: ProgressBarProps) {
   const { lightGray } = useTheme();
-  return (
-    <View style={[style, styles.root]}>
-      <View style={[styles.background, { backgroundColor: lightGray }]} />
-      <View
-        style={[
-          styles.foreground,
-          { width: `${progress}%`, backgroundColor: color },
-        ]}
-      />
-    </View>
+  return React.useMemo(
+    () => (
+      <View style={[style, styles.root]}>
+        <View style={[styles.background, { backgroundColor: lightGray }]} />
+        <View
+          style={[
+            styles.foreground,
+            { width: `${progress}%`, backgroundColor: color },
+          ]}
+        />
+      </View>
+    ),
+    [progress, color, style, lightGray]
   );
 }
 

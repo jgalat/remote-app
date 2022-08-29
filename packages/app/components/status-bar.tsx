@@ -1,9 +1,12 @@
 import * as React from "react";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar as _StatusBar } from "expo-status-bar";
 
 import { useColorScheme } from "../hooks/use-settings";
 
-export default function () {
+export default function StatusBar() {
   const colorScheme = useColorScheme();
-  return <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />;
+  return React.useMemo(
+    () => <_StatusBar style={colorScheme === "dark" ? "light" : "dark"} />,
+    [colorScheme]
+  );
 }

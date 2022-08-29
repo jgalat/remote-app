@@ -12,14 +12,17 @@ type KeyValueProps = {
 
 export default function KeyValue({ field, value }: KeyValueProps) {
   const { gray } = useTheme();
-  return (
-    <View style={styles.row}>
-      <Text style={styles.field}>{field}</Text>
+  return React.useMemo(
+    () => (
+      <View style={styles.row}>
+        <Text style={styles.field}>{field}</Text>
 
-      <ScrollView horizontal fadingEdgeLength={64}>
-        <Text style={[styles.value, { color: gray }]}>{value}</Text>
-      </ScrollView>
-    </View>
+        <ScrollView horizontal fadingEdgeLength={64}>
+          <Text style={[styles.value, { color: gray }]}>{value}</Text>
+        </ScrollView>
+      </View>
+    ),
+    [field, value, gray]
   );
 }
 

@@ -10,7 +10,7 @@ export type ActionIconProps = {
   disabled?: React.ComponentProps<typeof Pressable>["disabled"];
 };
 
-export default function ActionIcon({
+export default React.memo(function ActionIcon({
   onPress,
   name,
   color,
@@ -28,4 +28,4 @@ export default function ActionIcon({
       <Feather name={name} size={size} color={color} />
     </Pressable>
   );
-}
+});

@@ -4,11 +4,12 @@ import { Feather } from "@expo/vector-icons";
 
 import Text from "./text";
 import View from "./view";
+import Badge from "./badge";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type OptionProps = {
   label: string;
-  left: React.ComponentProps<typeof Feather>["name"];
+  left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];
   color?: string;
 } & React.ComponentProps<typeof TouchableOpacity>;
@@ -34,12 +35,18 @@ export default function Option({
       {...props}
     >
       <View>
-        <Feather name={left} size={24} color={optionColor} />
+        {typeof left === "number" ? (
+          <Badge label={left} />
+        ) : (
+          <Feather name={left} size={24} color={optionColor} />
+        )}
       </View>
       <View style={styles.label}>
         <Text color={optionColor}>{label}</Text>
       </View>
-      <View>{right && <Feather name={right} size={24} color={gray} />}</View>
+      <View>
+        {right ? <Feather name={right} size={24} color={gray} /> : null}
+      </View>
     </TouchableOpacity>
   );
 }

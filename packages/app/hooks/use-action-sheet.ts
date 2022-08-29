@@ -5,10 +5,11 @@ import { Feather } from "@expo/vector-icons";
 import { Torrent } from "@remote-app/transmission-client";
 
 import { ActionSheetContext } from "../contexts/action-sheet";
-import { useTorrentActions } from "./use-transmission";
+import { useTorrentActions, useTorrents } from "./use-transmission";
 import { useTheme } from "./use-theme-color";
 import useSettings from "./use-settings";
 import type { Sort, Filter } from "../store/settings";
+import predicate from "../utils/filter";
 
 export default function useActionSheet() {
   return React.useContext(ActionSheetContext);
@@ -241,6 +242,7 @@ export function useSortBySheet() {
 
 export function useFilterSheet() {
   const actionSheet = useActionSheet();
+  const { data: torrents } = useTorrents();
   const { settings, store } = useSettings();
   const { filter } = settings.listing;
 
@@ -265,53 +267,58 @@ export function useFilterSheet() {
     [filter]
   );
 
+  const left = React.useCallback(
+    (f: Filter) => torrents?.filter(predicate(f)).length ?? 0,
+    [torrents]
+  );
+
   return React.useCallback(() => {
     actionSheet.show({
       title: "Filter",
       options: [
         {
           label: "All",
-          left: "chevron-right",
+          left: left("all"),
           onPress: update("all"),
           right: right("all"),
         },
         {
           label: "Active",
-          left: "chevron-right",
+          left: left("active"),
           onPress: update("active"),
           right: right("active"),
         },
         {
           label: "Downloading",
-          left: "chevron-right",
+          left: left("downloading"),
           onPress: update("downloading"),
           right: right("downloading"),
         },
         {
           label: "Seeding",
-          left: "chevron-right",
+          left: left("seeding"),
           onPress: update("seeding"),
           right: right("seeding"),
         },
         {
           label: "Paused",
-          left: "chevron-right",
+          left: left("paused"),
           onPress: update("paused"),
           right: right("paused"),
         },
         {
           label: "Completed",
-          left: "chevron-right",
+          left: left("completed"),
           onPress: update("completed"),
           right: right("completed"),
         },
         {
           label: "Finished",
-          left: "chevron-right",
+          left: left("finished"),
           onPress: update("finished"),
           right: right("finished"),
         },
       ],
     });
-  }, [actionSheet, update, right]);
+  }, [actionSheet, update, right, left]);
 }
