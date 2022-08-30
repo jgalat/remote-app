@@ -279,7 +279,7 @@ export function useFilterSheet() {
         options: [
           {
             label: "All",
-            left: 200,
+            left: left("all"),
             onPress: update("all"),
             right: right("all"),
           },

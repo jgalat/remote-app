@@ -12,6 +12,7 @@ import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import ErrorMessage from "../components/error-message";
+import Stats from "../components/stats";
 import { useTheme } from "../hooks/use-theme-color";
 import { useSession, useTorrents } from "../hooks/use-transmission";
 import {
@@ -143,7 +144,7 @@ export default function TorrentsScreen() {
             torrent={item}
           />
         )}
-        keyExtractor={({ id }) => id.toString()}
+        keyExtractor={({ id }, i) => id.toString() + i}
         ItemSeparatorComponent={() => (
           <View style={[styles.separator, { backgroundColor: lightGray }]} />
         )}
@@ -153,7 +154,7 @@ export default function TorrentsScreen() {
           <Text style={styles.empty}>Nothing to see here...</Text>
         }
       />
-      <View><Text>Hello</Text></View>
+      <Stats />
     </Screen>
   );
 }

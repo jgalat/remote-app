@@ -14,6 +14,7 @@ import {
   formatETA,
   formatStatus,
 } from "../utils/formatters";
+import {Feather} from "@expo/vector-icons";
 
 export type TorrentItemProps = {
   torrent: Torrent;
@@ -88,10 +89,10 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
             </View>
             <View style={styles.column}>
               <Text color={gray} style={styles.data}>
-                ↓ {formatSpeed(torrent.rateDownload)}
+                <Feather name="arrow-down" color={gray} /> {formatSpeed(torrent.rateDownload)}
               </Text>
               <Text color={gray} style={styles.data}>
-                ↑ {formatSpeed(torrent.rateUpload)}
+                <Feather name="arrow-up" color={gray} /> {formatSpeed(torrent.rateUpload)}
               </Text>
             </View>
           </View>

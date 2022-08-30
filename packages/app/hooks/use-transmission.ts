@@ -2,6 +2,7 @@ import * as React from "react";
 import useSWR from "swr";
 import TransmissionClient, {
   Methods,
+  SessionSetRequest,
   TorrentRemoveRequest,
 } from "@remote-app/transmission-client";
 
@@ -114,6 +115,31 @@ export function useSession() {
   );
 }
 
+export function useSessionSet() {
+  const client = useTransmission();
+  const { mutate } = useSession();
+
+  return React.useCallback(
+    async (params: Partial<SessionSetRequest>) => {
+      if (!client) {
+        return;
+      }
+
+      try {
+        await client.request({
+          method: "session-set",
+          arguments: params,
+        });
+      } catch (e) {
+        throw e;
+      } finally {
+        setTimeout(() => mutate(), 500);
+      }
+    },
+    [client, mutate]
+  );
+}
+
 export function useFreeSpace() {
   const client = useTransmission();
   const { data: session } = useSession();
@@ -142,6 +168,24 @@ export function useFreeSpace() {
   );
 }
 
+export function useSessionStats() {
+  const client = useTransmission();
+  return useSWR(
+    client ? [client, "session-stats"] : null,
+    async () => {
+      const response = await client?.request({
+        method: "session-stats",
+      });
+
+      return response?.arguments;
+    },
+    {
+      refreshInterval: 5000,
+      errorRetryCount: 3,
+    }
+  );
+}
+
 export function useAddTorrent() {
   const client = useTransmission();
   const { mutate } = useTorrents();
@@ -153,7 +197,7 @@ export function useAddTorrent() {
       }
 
       try {
-        await client?.request({
+        await client.request({
           method: "torrent-add",
           arguments: {
             filename: url,
@@ -175,7 +219,7 @@ export function useAddTorrent() {
       }
 
       try {
-        await client?.request({
+        await client.request({
           method: "torrent-add",
           arguments: {
             metainfo: content,
