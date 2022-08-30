@@ -34,7 +34,7 @@ export default function Option({
       activeOpacity={disabled ? 1 : undefined}
       {...props}
     >
-      <View>
+      <View style={{ width: typeof left === "number" ? "15%" : "auto" }}>
         {typeof left === "number" ? (
           <Badge label={left} />
         ) : (

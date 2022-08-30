@@ -25,7 +25,7 @@ export default function Badge({ label, style, ...props }: BadgeProps) {
 const styles = StyleSheet.create({
   badge: {
     height: 24,
-    width: 24,
+    paddingHorizontal: 8,
     alignItems: "center",
     borderRadius: 24,
   },

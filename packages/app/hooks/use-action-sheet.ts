@@ -20,7 +20,7 @@ export function useAddTorrentSheet() {
   const linkTo = useLinkTo();
   return React.useCallback(() => {
     actionSheet.show({
-      title: "Add a Torrent",
+      title: "Add a torrent",
       options: [
         {
           label: "File",
@@ -272,53 +272,55 @@ export function useFilterSheet() {
     [torrents]
   );
 
-  return React.useCallback(() => {
-    actionSheet.show({
-      title: "Filter",
-      options: [
-        {
-          label: "All",
-          left: left("all"),
-          onPress: update("all"),
-          right: right("all"),
-        },
-        {
-          label: "Active",
-          left: left("active"),
-          onPress: update("active"),
-          right: right("active"),
-        },
-        {
-          label: "Downloading",
-          left: left("downloading"),
-          onPress: update("downloading"),
-          right: right("downloading"),
-        },
-        {
-          label: "Seeding",
-          left: left("seeding"),
-          onPress: update("seeding"),
-          right: right("seeding"),
-        },
-        {
-          label: "Paused",
-          left: left("paused"),
-          onPress: update("paused"),
-          right: right("paused"),
-        },
-        {
-          label: "Completed",
-          left: left("completed"),
-          onPress: update("completed"),
-          right: right("completed"),
-        },
-        {
-          label: "Finished",
-          left: left("finished"),
-          onPress: update("finished"),
-          right: right("finished"),
-        },
-      ],
-    });
-  }, [actionSheet, update, right, left]);
+  return React.useCallback(
+    () =>
+      actionSheet.show({
+        title: "Filter",
+        options: [
+          {
+            label: "All",
+            left: 200,
+            onPress: update("all"),
+            right: right("all"),
+          },
+          {
+            label: "Active",
+            left: left("active"),
+            onPress: update("active"),
+            right: right("active"),
+          },
+          {
+            label: "Downloading",
+            left: left("downloading"),
+            onPress: update("downloading"),
+            right: right("downloading"),
+          },
+          {
+            label: "Seeding",
+            left: left("seeding"),
+            onPress: update("seeding"),
+            right: right("seeding"),
+          },
+          {
+            label: "Paused",
+            left: left("paused"),
+            onPress: update("paused"),
+            right: right("paused"),
+          },
+          {
+            label: "Completed",
+            left: left("completed"),
+            onPress: update("completed"),
+            right: right("completed"),
+          },
+          {
+            label: "Finished",
+            left: left("finished"),
+            onPress: update("finished"),
+            right: right("finished"),
+          },
+        ],
+      }),
+    [actionSheet, left, update, right]
+  );
 }

@@ -83,7 +83,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, session, addTorrentSheet, sortBySheet]);
+  }, [linkTo, text, session, addTorrentSheet, sortBySheet, filterSheet]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -149,11 +149,11 @@ export default function TorrentsScreen() {
         )}
         onRefresh={refresh}
         refreshing={refreshing}
-        contentContainerStyle={{ flexGrow: 1 }}
         ListEmptyComponent={
           <Text style={styles.empty}>Nothing to see here...</Text>
         }
       />
+      <View><Text>Hello</Text></View>
     </Screen>
   );
 }
