@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    font: "RobotoMono-Medium",
+    fontFamily: "RobotoMono-Medium",
     fontSize: 24,
     marginBottom: 8,
     marginTop: 24,
