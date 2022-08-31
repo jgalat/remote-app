@@ -10,7 +10,7 @@ import { useColorScheme } from "../hooks/use-settings";
 import { useSession } from "../hooks/use-transmission";
 import { useTheme } from "../hooks/use-theme-color";
 
-import json from "../package.json";
+import packageJson from "../package.json";
 
 export default function SettingsScreen() {
   const linkTo = useLinkTo();
@@ -51,7 +51,7 @@ export default function SettingsScreen() {
         keyExtractor={(item) => item.label}
       />
       <Text color={gray} style={styles.text}>
-        Version {json.version}
+        Version {packageJson.version}
       </Text>
     </Screen>
   );

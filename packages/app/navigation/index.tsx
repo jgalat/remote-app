@@ -23,6 +23,7 @@ import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import AddTorrentFileScreen from "../screens/add-torrent-file-screen";
 import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
+import TorrentDetails from "../screens/torrent-details";
 
 export default function Navigation() {
   const colorScheme = useColorScheme();
@@ -56,8 +57,8 @@ function RootNavigator() {
           <>
             <Stack.Screen
               name="TorrentDetails"
-              component={NotFoundScreen}
-              options={{}}
+              component={TorrentDetails}
+              options={{ title: "Details" }}
             />
 
             <Stack.Screen
@@ -188,6 +189,9 @@ function useNavigationContainerProps() {
         Root: "/",
         TorrentDetails: {
           path: "/torrents/:id",
+          parse: {
+            id: (s: string) => +s,
+          },
         },
         AddTorrentFile: {
           path: "/add-file",

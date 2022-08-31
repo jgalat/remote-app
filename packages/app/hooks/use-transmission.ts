@@ -2,6 +2,7 @@ import * as React from "react";
 import useSWR from "swr";
 import TransmissionClient, {
   Methods,
+  SessionGetResponse,
   SessionSetRequest,
   TorrentRemoveRequest,
 } from "@remote-app/transmission-client";
@@ -23,6 +24,7 @@ export function useTorrents() {
           fields: [
             "id",
             "addedDate",
+            "doneDate",
             "name",
             "totalSize",
             "error",
@@ -117,26 +119,29 @@ export function useSession() {
 
 export function useSessionSet() {
   const client = useTransmission();
-  const { mutate } = useSession();
+  const { data: session, mutate } = useSession();
 
   return React.useCallback(
-    async (params: Partial<SessionSetRequest>) => {
+    async (params: SessionSetRequest) => {
       if (!client) {
         return;
       }
 
-      try {
-        await client.request({
-          method: "session-set",
-          arguments: params,
-        });
-      } catch (e) {
-        throw e;
-      } finally {
-        setTimeout(() => mutate(), 500);
-      }
+      await mutate(
+        async () => {
+          await client.request({
+            method: "session-set",
+            arguments: params,
+          });
+          return { ...session, ...params } as SessionGetResponse;
+        },
+        {
+          optimisticData: { ...session, ...params } as SessionGetResponse,
+          rollbackOnError: true,
+        }
+      );
     },
-    [client, mutate]
+    [client, session, mutate]
   );
 }
 

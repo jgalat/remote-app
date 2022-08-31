@@ -4,16 +4,19 @@
   },
   "build": {
     "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_ENV": "development"
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "APP_ENV": "production"
+      }
+    }
   },
   "submit": {
     "production": {}

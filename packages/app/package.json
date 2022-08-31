@@ -13,7 +13,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:android:preview": "eas build --platform android --local --profile preview",
+    "build:android:development": "eas build --platform android --local --profile development",
+    "build:android:production": "eas build --platform android --local --profile production",
     "eject": "expo eject"
   },
   "dependencies": {

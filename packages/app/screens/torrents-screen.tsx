@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { useLinkTo, useNavigation } from "@react-navigation/native";
-import { Torrent } from "@remote-app/transmission-client";
+import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
 import { useServer, useListing } from "../hooks/use-settings";
 import Text from "../components/text";
@@ -14,7 +14,11 @@ import TorrentItem from "../components/torrent-item";
 import ErrorMessage from "../components/error-message";
 import Stats from "../components/stats";
 import { useTheme } from "../hooks/use-theme-color";
-import { useSession, useTorrents } from "../hooks/use-transmission";
+import {
+  useSession,
+  useTorrentActions,
+  useTorrents,
+} from "../hooks/use-transmission";
 import {
   useAddTorrentSheet,
   useFilterSheet,
@@ -33,6 +37,7 @@ export default function TorrentsScreen() {
   const { data: torrents, mutate, error } = useTorrents();
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
   const { text, lightGray } = useTheme();
+  const { start, stop } = useTorrentActions();
   const addTorrentSheet = useAddTorrentSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
   const sortBySheet = useSortBySheet();
@@ -138,13 +143,27 @@ export default function TorrentsScreen() {
       <FlatList
         fadingEdgeLength={64}
         data={render}
-        renderItem={({ item }) => (
+        renderItem={({ item: torrent }) => (
           <TorrentItem
-            onPress={() => torrentActionsSheet(item)}
-            torrent={item}
+            onPress={() => torrentActionsSheet(torrent)}
+            torrent={torrent}
+            left={
+              <ActionIcon
+                name={
+                  torrent.status === TorrentStatus.STOPPED ? "play" : "pause"
+                }
+                color={text}
+                size={24}
+                onPress={() =>
+                  torrent.status === TorrentStatus.STOPPED
+                    ? start(torrent.id)
+                    : stop(torrent.id)
+                }
+              />
+            }
           />
         )}
-        keyExtractor={({ id }, i) => id.toString() + i}
+        keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={() => (
           <View style={[styles.separator, { backgroundColor: lightGray }]} />
         )}

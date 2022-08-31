@@ -9,7 +9,7 @@ declare global {
 
 export type RootStackParamList = {
   Root: undefined;
-  TorrentDetails: { id: string };
+  TorrentDetails: { id: number };
   SettingsStack: NavigatorScreenParams<SettingsStackParamList> | undefined;
   AddTorrentFile: { uri?: string };
   AddTorrentMagnet: { uri?: string };

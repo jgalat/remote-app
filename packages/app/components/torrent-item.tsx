@@ -4,10 +4,8 @@ import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
 import View from "./view";
 import Text from "./text";
-import ActionIcon from "./action-icon";
 import ProgressBar from "./progress-bar";
 import { useTheme } from "../hooks/use-theme-color";
-import { useTorrentActions } from "../hooks/use-transmission";
 import {
   formatSize,
   formatSpeed,
@@ -18,11 +16,11 @@ import {Feather} from "@expo/vector-icons";
 
 export type TorrentItemProps = {
   torrent: Torrent;
+  left?: React.ReactNode;
 } & React.ComponentProps<typeof TouchableOpacity>;
 
-export default function ({ torrent, ...props }: TorrentItemProps) {
+export default function ({ torrent, left, ...props }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
-  const { start, stop } = useTorrentActions();
 
   let status = formatStatus(torrent.status);
   let progress = torrent.percentDone * 100;
@@ -58,18 +56,7 @@ export default function ({ torrent, ...props }: TorrentItemProps) {
   return (
     <TouchableOpacity {...props}>
       <View style={styles.container}>
-        <View style={styles.icon}>
-          <ActionIcon
-            name={torrent.status === TorrentStatus.STOPPED ? "play" : "pause"}
-            color={color}
-            size={24}
-            onPress={() =>
-              torrent.status === TorrentStatus.STOPPED
-                ? start(torrent.id)
-                : stop(torrent.id)
-            }
-          />
-        </View>
+        {left ? <View style={styles.left}>{left}</View> : null}
         <View style={styles.stats}>
           <Text numberOfLines={1} style={styles.name}>
             {torrent.name}
@@ -124,14 +111,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  icon: {
+  left: {
     flexDirection: "column",
     justifyContent: "center",
+    marginRight: 16,
   },
   stats: {
     flex: 1,
     flexShrink: 1,
-    marginLeft: 16,
   },
   row: {
     flexDirection: "row",

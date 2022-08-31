@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Share } from "react-native";
-import { useLinkTo } from "@react-navigation/native";
+import { useLinkTo, useRoute } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import { Torrent } from "@remote-app/transmission-client";
 
@@ -10,6 +10,7 @@ import { useTheme } from "./use-theme-color";
 import useSettings from "./use-settings";
 import type { Sort, Filter } from "../store/settings";
 import predicate from "../utils/filter";
+import { OptionProps } from "../components/option";
 
 export default function useActionSheet() {
   return React.useContext(ActionSheetContext);
@@ -42,6 +43,7 @@ export function useTorrentActionsSheet() {
   const actionSheet = useActionSheet();
   const torrentActions = useTorrentActions();
   const linkTo = useLinkTo();
+  const route = useRoute();
 
   const confirmRemoveSheet = React.useCallback(
     (id: number) => {
@@ -70,62 +72,70 @@ export function useTorrentActionsSheet() {
   return React.useCallback(
     (torrent: Torrent) => {
       let requiresConfirmation = false;
-      actionSheet.show({
-        title: "Action",
-        options: [
+      let options: OptionProps[] = [
+        {
+          label: "Share",
+          left: "share",
+          onPress: async () => {
+            try {
+              await Share.share(
+                {
+                  message: torrent.magnetLink,
+                },
+                { dialogTitle: `Share ${torrent.name}` }
+              );
+            } catch (e) {
+              console.warn(e);
+            }
+          },
+        },
+        {
+          label: "Start",
+          left: "play",
+          onPress: () => torrentActions.start(torrent.id),
+        },
+        {
+          label: "Start now",
+          left: "play",
+          onPress: () => torrentActions.startNow(torrent.id),
+        },
+        {
+          label: "Stop",
+          left: "pause",
+          onPress: () => torrentActions.stop(torrent.id),
+        },
+        {
+          label: "Verify",
+          left: "check-circle",
+          onPress: () => torrentActions.verify(torrent.id),
+        },
+        {
+          label: "Reannounce",
+          left: "radio",
+          onPress: () => torrentActions.reannounce(torrent.id),
+        },
+        {
+          label: "Remove",
+          left: "trash",
+          color: red,
+          onPress: () => (requiresConfirmation = true),
+        },
+      ];
+
+      if (!route.path?.startsWith("/torrents/")) {
+        options = [
           {
             label: "Details",
             left: "info",
             onPress: () => linkTo(`/torrents/${torrent.id}`),
           },
-          {
-            label: "Share",
-            left: "share",
-            onPress: async () => {
-              try {
-                await Share.share(
-                  {
-                    message: torrent.magnetLink,
-                  },
-                  { dialogTitle: `Share ${torrent.name}` }
-                );
-              } catch (e) {
-                console.warn(e);
-              }
-            },
-          },
-          {
-            label: "Start",
-            left: "play",
-            onPress: () => torrentActions.start(torrent.id),
-          },
-          {
-            label: "Start now",
-            left: "play",
-            onPress: () => torrentActions.startNow(torrent.id),
-          },
-          {
-            label: "Stop",
-            left: "pause",
-            onPress: () => torrentActions.stop(torrent.id),
-          },
-          {
-            label: "Verify",
-            left: "check-circle",
-            onPress: () => torrentActions.verify(torrent.id),
-          },
-          {
-            label: "Reannounce",
-            left: "radio",
-            onPress: () => torrentActions.reannounce(torrent.id),
-          },
-          {
-            label: "Remove",
-            left: "trash",
-            color: red,
-            onPress: () => (requiresConfirmation = true),
-          },
-        ],
+          ...options,
+        ];
+      }
+
+      actionSheet.show({
+        title: "Action",
+        options,
         onClose: () => {
           if (requiresConfirmation) {
             confirmRemoveSheet(torrent.id);
@@ -133,7 +143,7 @@ export function useTorrentActionsSheet() {
         },
       });
     },
-    [actionSheet, confirmRemoveSheet, torrentActions, red]
+    [actionSheet, confirmRemoveSheet, torrentActions, route, red]
   );
 }
 

@@ -7,8 +7,7 @@ import Screen from "../components/screen";
 import useSettings from "../hooks/use-settings";
 import { ColorScheme } from "../store/settings";
 
-
-function ThemeScreen() {
+export default function ThemeScreen() {
   const navigation = useNavigation();
   const { settings, store } = useSettings();
   const { colorScheme } = settings;
@@ -55,5 +54,3 @@ function ThemeScreen() {
     </Screen>
   );
 }
-
-export default ThemeScreen;
