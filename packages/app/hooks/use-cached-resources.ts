@@ -29,14 +29,11 @@ export default function useCachedResources() {
   }, []);
 
   React.useEffect(() => {
-    async function hideSplashScreen() {
-      if (!loaded) {
-        return;
-      }
-      await SplashScreen.hideAsync();
+    if (!loaded) {
+      return;
     }
 
-    hideSplashScreen();
+    setTimeout(() => SplashScreen.hideAsync(), 500);
   }, [loaded]);
 
   return loaded;

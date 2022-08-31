@@ -3,6 +3,7 @@ import { SectionList, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import Text from "../components/text";
 import Screen from "../components/screen";
 import ErrorMessage from "../components/error-message";
 import TorrentItem from "../components/torrent-item";
@@ -12,8 +13,7 @@ import { useTorrent } from "../hooks/use-transmission";
 import { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList } from "../types";
 import { useTorrentActionsSheet } from "../hooks/use-action-sheet";
-import Text from "../components/text";
-import KeyValue from "../components/key-value";
+import KeyValue, { KeyValueProps } from "../components/key-value";
 import { formatSize, formatStatus } from "../utils/formatters";
 
 export default function TorrentDetails() {
@@ -52,7 +52,7 @@ export default function TorrentDetails() {
   const data = React.useMemo<
     {
       section: string;
-      data: { field: string; value: string | number; copy?: boolean }[];
+      data: KeyValueProps[];
     }[]
   >(() => {
     if (!torrent) {
