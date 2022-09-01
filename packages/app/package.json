@@ -1,6 +1,6 @@
 {
   "name": "@remote-app/app",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A transmission remote session app",
   "main": "index.js",
   "repository": {
