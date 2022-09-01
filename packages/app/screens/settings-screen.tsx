@@ -39,6 +39,12 @@ export default function SettingsScreen() {
         onPress: () => linkTo("/settings/theme"),
         right: "chevron-right",
       },
+      {
+        left: "info",
+        label: "About",
+        onPress: () => linkTo("/settings/about"),
+        right: "chevron-right",
+      },
     ],
     [linkTo, colorScheme, session, error]
   );

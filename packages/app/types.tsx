@@ -21,6 +21,7 @@ export type SettingsStackParamList = {
   ConnectionSetup: undefined;
   ServerConfiguration: undefined;
   Theme: undefined;
+  About: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

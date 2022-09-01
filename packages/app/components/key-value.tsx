@@ -28,7 +28,13 @@ export default function KeyValue({ field, value, copy }: KeyValueProps) {
 
         <ScrollView horizontal fadingEdgeLength={64}>
           {copy ? (
-            <Pressable style={styles.pressable} onPress={onCopy}>
+            <Pressable
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+                ...styles.pressable,
+              })}
+              onPress={onCopy}
+            >
               <Feather name="clipboard" color={tint} size={16} />
               <Text style={[styles.value, { color: tint }]}> {value}</Text>
             </Pressable>

@@ -19,6 +19,7 @@ import { RootStackParamList, SettingsStackParamList } from "../types";
 import NotFoundScreen from "../screens/not-found-screen";
 import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
+import AboutScreen from "../screens/about-screen";
 import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import AddTorrentFileScreen from "../screens/add-torrent-file-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
@@ -112,7 +113,6 @@ function SettingsStackNavigator() {
             title: "Connection",
           }}
         />
-
         <SettingsStack.Screen
           name="ServerConfiguration"
           component={ServerConfigurationScreen}
@@ -120,12 +120,18 @@ function SettingsStackNavigator() {
             title: "Server configuration",
           }}
         />
-
         <SettingsStack.Screen
           name="Theme"
           component={ThemeScreen}
           options={{
             title: "Select theme",
+          }}
+        />
+        <SettingsStack.Screen
+          name="About"
+          component={AboutScreen}
+          options={{
+            title: "About",
           }}
         />
       </SettingsStack.Group>
@@ -223,6 +229,9 @@ function useNavigationContainerProps() {
             },
             Theme: {
               path: "/theme",
+            },
+            About: {
+              path: "/about",
             },
           },
         },
