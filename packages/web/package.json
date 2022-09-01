@@ -1,0 +1,19 @@
+{
+  "name": "@remote-app/web",
+  "version": "0.0.1",
+  "description": "Website",
+  "main": "index.js",
+  "author": "Jorge Galat <jrgglt@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgalat/remote-app.git",
+    "directory": "packages/app"
+  },
+  "scripts": {
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jgalat/remote-app/issues"
+  },
+  "devDependencies": {}
+}

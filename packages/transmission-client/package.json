@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jgalat/remote-app",
+    "url": "git+https://github.com/jgalat/remote-app.git",
     "directory": "packages/transmission-client"
   },
   "main": "dist/index.js",
