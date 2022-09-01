@@ -90,7 +90,7 @@ export default function ServerConfigurationScreen() {
           />
         </View>
         <TextInput
-          style={styles.input}
+          containerStyle={styles.input}
           editable={state["speed-limit-down-enabled"]}
           keyboardType="numeric"
           onChangeText={update("speed-limit-down")}
@@ -108,7 +108,7 @@ export default function ServerConfigurationScreen() {
           />
         </View>
         <TextInput
-          style={styles.input}
+          containerStyle={styles.input}
           editable={state["speed-limit-up-enabled"]}
           keyboardType="numeric"
           onChangeText={update("speed-limit-up")}
@@ -132,7 +132,7 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <Text style={styles.left}>Download (kB/s)</Text>
         <TextInput
-          style={styles.input}
+          containerStyle={styles.input}
           keyboardType="numeric"
           onChangeText={update("alt-speed-down")}
           onBlur={onBlur("alt-speed-down")}
@@ -143,7 +143,7 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <Text style={styles.left}>Upload (kB/s)</Text>
         <TextInput
-          style={styles.input}
+          containerStyle={styles.input}
           keyboardType="numeric"
           onChangeText={update("alt-speed-up")}
           onBlur={onBlur("alt-speed-up")}
@@ -162,7 +162,7 @@ export default function ServerConfigurationScreen() {
           />
         </View>
         <TextInput
-          style={styles.input}
+          containerStyle={styles.input}
           editable={state["download-queue-enabled"]}
           keyboardType="numeric"
           onChangeText={update("download-queue-size")}

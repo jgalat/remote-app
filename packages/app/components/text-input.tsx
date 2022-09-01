@@ -3,17 +3,20 @@ import { View, TextInput as _TextInput, StyleSheet } from "react-native";
 
 import { useTheme } from "../hooks/use-theme-color";
 
-export type TextInputProps = _TextInput["props"];
+export type TextInputProps = {
+  containerStyle?: _TextInput["props"]["style"];
+} & _TextInput["props"];
 
 export default function TextInput({
   style,
   editable = true,
+  containerStyle,
   ...props
 }: TextInputProps) {
   const { background, text, gray, lightGray } = useTheme();
 
   return (
-    <View pointerEvents={editable ? undefined : "none"} style={style}>
+    <View pointerEvents={editable ? undefined : "none"} style={containerStyle}>
       <_TextInput
         autoCapitalize="none"
         style={[
