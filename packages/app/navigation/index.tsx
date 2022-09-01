@@ -21,8 +21,9 @@ import TorrentsScreen from "../screens/torrents-screen";
 import SettingsScreen from "../screens/settings-screen";
 import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
 import AddTorrentFileScreen from "../screens/add-torrent-file-screen";
-import ThemeScreen from "../screens/theme-screen";
 import ConnectionSetupScreen from "../screens/connection-setup-screen";
+import ServerConfigurationScreen from "../screens/server-configuration-screen";
+import ThemeScreen from "../screens/theme-screen";
 import TorrentDetails from "../screens/torrent-details";
 
 export default function Navigation() {
@@ -109,6 +110,14 @@ function SettingsStackNavigator() {
           component={ConnectionSetupScreen}
           options={{
             title: "Connection",
+          }}
+        />
+
+        <SettingsStack.Screen
+          name="ServerConfiguration"
+          component={ServerConfigurationScreen}
+          options={{
+            title: "Server configuration",
           }}
         />
 
@@ -208,6 +217,9 @@ function useNavigationContainerProps() {
             },
             ConnectionSetup: {
               path: "/connection",
+            },
+            ServerConfiguration: {
+              path: "/server-configuration",
             },
             Theme: {
               path: "/theme",

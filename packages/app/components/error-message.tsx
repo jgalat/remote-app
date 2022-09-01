@@ -10,7 +10,7 @@ import Button from "./button";
 import { useTheme } from "../hooks/use-theme-color";
 import { useTorrents } from "../hooks/use-transmission";
 
-type ErrorMessageProps = {
+export type ErrorMessageProps = {
   error: Error;
 } & React.ComponentProps<typeof View>;
 

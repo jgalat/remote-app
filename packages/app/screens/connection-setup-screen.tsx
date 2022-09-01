@@ -1,4 +1,5 @@
 import * as React from "react";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -56,11 +57,13 @@ export default function ConnectionScreen() {
   return (
     <Screen>
       <TextInput
+        style={styles.input}
         value={form.name}
         onChangeText={(t) => setForm({ ...form, name: t })}
         placeholder="Server name (required)"
       />
       <TextInput
+        style={styles.input}
         value={form.url}
         autoCorrect={false}
         keyboardType={"url"}
@@ -68,11 +71,13 @@ export default function ConnectionScreen() {
         placeholder="RPC URL (required)"
       />
       <TextInput
+        style={styles.input}
         value={form.username}
         onChangeText={(t) => setForm({ ...form, username: t })}
         placeholder="Username (optional)"
       />
       <TextInput
+        style={styles.input}
         secureTextEntry
         value={form.password}
         onChangeText={(t) => setForm({ ...form, password: t })}
@@ -93,3 +98,9 @@ export default function ConnectionScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+    marginBottom: 24,
+  }
+})

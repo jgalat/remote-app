@@ -29,7 +29,7 @@ export default function SettingsScreen() {
       {
         left: "server",
         label: "Server Configuration",
-        onPress: () => linkTo("/settings/theme"),
+        onPress: () => linkTo("/settings/server-configuration"),
         right: "chevron-right",
         disabled: !session || error,
       },

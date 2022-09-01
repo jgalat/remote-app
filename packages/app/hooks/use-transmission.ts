@@ -117,6 +117,24 @@ export function useSession() {
   );
 }
 
+export function useSessionFreeze() {
+  const client = useTransmission();
+  return useSWR(
+    client ? [client, "session-get-freeze"] : null,
+    async () => {
+      const response = await client?.request({
+        method: "session-get",
+      });
+
+      return response?.arguments;
+    },
+    {
+      refreshInterval: 5000,
+      errorRetryCount: 3,
+    }
+  );
+}
+
 export function useSessionSet() {
   const client = useTransmission();
   const { data: session, mutate } = useSession();

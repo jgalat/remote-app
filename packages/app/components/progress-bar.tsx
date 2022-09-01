@@ -2,7 +2,7 @@ import * as React from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "../hooks/use-theme-color";
 
-type ProgressBarProps = {
+export type ProgressBarProps = {
   progress: number;
   color: string;
 } & Pick<React.ComponentProps<typeof View>, "style">;
