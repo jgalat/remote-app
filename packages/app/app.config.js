@@ -4,8 +4,8 @@ export default {
   expo: {
     name:
       process.env.APP_ENV === "development"
-        ? "Remote for Transmission (development)"
-        : "Remote for Transmission",
+        ? "Remote (development)"
+        : "Remote",
     slug: "remote",
     owner: "jgalat",
     version: packageJson.version,
