@@ -22,19 +22,12 @@ export default function useCachedResources() {
         console.warn(e);
       } finally {
         setLoaded(true);
+        setTimeout(() => SplashScreen.hideAsync(), 500);
       }
     }
 
     loadResourcesAndDataAsync();
   }, []);
-
-  React.useEffect(() => {
-    if (!loaded) {
-      return;
-    }
-
-    setTimeout(() => SplashScreen.hideAsync(), 500);
-  }, [loaded]);
 
   return loaded;
 }
