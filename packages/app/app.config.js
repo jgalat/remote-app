@@ -72,9 +72,6 @@ export default {
         },
       ],
     },
-    web: {
-      favicon: "./assets/images/favicon.png",
-    },
     packagerOpts: {
       config: "metro.config.js",
     },
