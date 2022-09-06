@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Pressable } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 export type ActionIconProps = {
@@ -7,6 +7,7 @@ export type ActionIconProps = {
   name: React.ComponentProps<typeof Feather>["name"];
   color: React.ComponentProps<typeof Feather>["color"];
   size: React.ComponentProps<typeof Feather>["size"];
+  style?: React.ComponentProps<typeof Feather>["style"];
   disabled?: React.ComponentProps<typeof Pressable>["disabled"];
 };
 
@@ -15,6 +16,7 @@ export default React.memo(function ActionIcon({
   name,
   color,
   size,
+  style,
   disabled = false,
 }: ActionIconProps) {
   return (
@@ -25,7 +27,18 @@ export default React.memo(function ActionIcon({
       })}
       disabled={disabled}
     >
-      <Feather name={name} size={size} color={color} />
+      <Feather
+        style={[styles.icon, style]}
+        name={name}
+        size={size}
+        color={color}
+      />
     </Pressable>
   );
+});
+
+const styles = StyleSheet.create({
+  icon: {
+    padding: 8,
+  },
 });

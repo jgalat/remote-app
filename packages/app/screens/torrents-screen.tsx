@@ -159,6 +159,7 @@ export default function TorrentsScreen() {
                     ? start(torrent.id)
                     : stop(torrent.id)
                 }
+                style={styles.icon}
               />
             }
           />
@@ -200,4 +201,8 @@ const styles = StyleSheet.create({
     height: 2,
     width: "100%",
   },
+  icon: {
+    paddingVertical: 8,
+    paddingRight: 8,
+  }
 });

@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: "column",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: 8,
   },
   stats: {
     flex: 1,

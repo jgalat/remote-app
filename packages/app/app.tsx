@@ -1,7 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 
 import useCachedResources from "./hooks/use-cached-resources";
@@ -36,9 +35,7 @@ export default function () {
     <GestureHandlerRootView style={styles.container}>
       <SettingsProvider>
         <ClientProvider>
-          <SafeAreaProvider>
-            <App />
-          </SafeAreaProvider>
+          <App />
         </ClientProvider>
       </SettingsProvider>
     </GestureHandlerRootView>
