@@ -3,9 +3,7 @@ import packageJson from "./package.json";
 export default {
   expo: {
     name:
-      process.env.APP_ENV === "development"
-        ? "Remote (development)"
-        : "Remote",
+      process.env.APP_ENV === "development" ? "Remote (development)" : "Remote",
     slug: "remote",
     owner: "jgalat",
     version: packageJson.version,
@@ -72,6 +70,15 @@ export default {
         },
       ],
     },
+    plugins: [
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/notification-icon.png",
+          color: "#ffffff",
+        },
+      ],
+    ],
     packagerOpts: {
       config: "metro.config.js",
     },

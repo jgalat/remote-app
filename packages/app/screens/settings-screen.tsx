@@ -34,6 +34,13 @@ export default function SettingsScreen() {
         disabled: !session || error,
       },
       {
+        left: "rss",
+        label: "Background Tasks",
+        onPress: () => linkTo("/settings/task-configuration"),
+        right: "chevron-right",
+        disabled: !session || error,
+      },
+      {
         left: colorScheme === "dark" ? "moon" : "sun",
         label: "Theme",
         onPress: () => linkTo("/settings/theme"),

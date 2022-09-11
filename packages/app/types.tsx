@@ -20,6 +20,7 @@ export type SettingsStackParamList = {
   Settings: undefined;
   ConnectionSetup: undefined;
   ServerConfiguration: undefined;
+  TaskConfiguration: undefined;
   Theme: undefined;
   About: undefined;
 };

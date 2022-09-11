@@ -4,6 +4,10 @@ import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
 import useSettings from "./use-settings";
+import {
+  isTorrentsNotifierTaskRegistered,
+  registerTorrentsNotifierTask,
+} from "../tasks/torrents-notifier";
 
 export default function useCachedResources() {
   const [loaded, setLoaded] = React.useState<boolean>(false);
@@ -12,7 +16,13 @@ export default function useCachedResources() {
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
-        await loadSettings();
+        const storedSettings = await loadSettings();
+        const taskRegistered = await isTorrentsNotifierTaskRegistered();
+
+        if (storedSettings.backgroundTask && !taskRegistered) {
+          await registerTorrentsNotifierTask();
+        }
+
         await Font.loadAsync({
           ...Feather.font,
           "RobotoMono-Regular": require("../assets/fonts/RobotoMono-Regular.ttf"),

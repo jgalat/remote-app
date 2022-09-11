@@ -26,6 +26,7 @@ import ConnectionSetupScreen from "../screens/connection-setup-screen";
 import ServerConfigurationScreen from "../screens/server-configuration-screen";
 import ThemeScreen from "../screens/theme-screen";
 import TorrentDetails from "../screens/torrent-details";
+import TaskConfigurationScreen from "../screens/task-configuration-screen";
 
 export default function Navigation() {
   const colorScheme = useColorScheme();
@@ -118,6 +119,13 @@ function SettingsStackNavigator() {
           component={ServerConfigurationScreen}
           options={{
             title: "Server configuration",
+          }}
+        />
+        <SettingsStack.Screen
+          name="TaskConfiguration"
+          component={TaskConfigurationScreen}
+          options={{
+            title: "Background tasks",
           }}
         />
         <SettingsStack.Screen
@@ -226,6 +234,9 @@ function useNavigationContainerProps() {
             },
             ServerConfiguration: {
               path: "/server-configuration",
+            },
+            TaskConfiguration: {
+              path: "/task-configuration",
             },
             Theme: {
               path: "/theme",

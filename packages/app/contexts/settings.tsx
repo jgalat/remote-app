@@ -9,7 +9,7 @@ import {
 
 export type AppSettings = {
   settings: Settings;
-  load: () => Promise<void>;
+  load: () => Promise<Settings>;
   store: (settings: Settings) => Promise<void>;
 };
 
@@ -26,6 +26,7 @@ export function SettingsProvider({
     load: async () => {
       const settings = await loadSettings();
       setSettings(settings);
+      return settings;
     },
     store: async (settings: Settings) => {
       await storeSettings(settings);
