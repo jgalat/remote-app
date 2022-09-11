@@ -29,7 +29,7 @@ TaskManager.defineTask(TORRENTS_NOTIFIER_TASK, async () => {
     const response = await client.request({
       method: "torrent-get",
       arguments: {
-        fields: ["id", "doneDate", "name"],
+        fields: ["id", "doneDate"],
       },
     });
 
@@ -40,14 +40,14 @@ TaskManager.defineTask(TORRENTS_NOTIFIER_TASK, async () => {
 
     const now = Math.round(Date.now() / 1000);
     const done = torrents.filter(
-      (t) => t.doneDate > -1 && now - t.doneDate > 60 * 1
+      (t) => t.doneDate > -1 && now - t.doneDate < 60 * 5
     );
 
     if (done.length === 0) {
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
 
-    Notifications.scheduleNotificationAsync({
+    await Notifications.scheduleNotificationAsync({
       content: {
         title: "Finished torrents",
         body: `${done.length} ${
@@ -70,7 +70,7 @@ export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
 
 export async function registerTorrentsNotifierTask(): Promise<void> {
   return BackgroundFetch.registerTaskAsync(TORRENTS_NOTIFIER_TASK, {
-    minimumInterval: 60 * 1,
+    minimumInterval: 60 * 5,
     stopOnTerminate: false,
     startOnBoot: true,
   });
