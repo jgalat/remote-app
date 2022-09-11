@@ -19,7 +19,7 @@ export default function useCachedResources() {
         const storedSettings = await loadSettings();
         const taskRegistered = await isTorrentsNotifierTaskRegistered();
 
-        if (storedSettings.backgroundTask && !taskRegistered) {
+        if (storedSettings.notifications && !taskRegistered) {
           await registerTorrentsNotifierTask();
         }
 
