@@ -38,7 +38,7 @@ export default function AddTorrentMagnetScreen() {
   }>({ sending: false });
 
   React.useEffect(() => {
-    if (uri && uri !== state.uri) {
+    if (uri) {
       setState({
         uri,
         error: undefined,

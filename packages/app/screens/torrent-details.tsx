@@ -91,7 +91,9 @@ export default function TorrentDetails() {
           },
           {
             field: "Uploaded",
-            value: formatSize(torrent.uploadedEver),
+            value: `${formatSize(
+              torrent.uploadedEver
+            )} (${torrent.uploadRatio.toFixed(2)})`,
           },
           {
             field: "Pieces",
@@ -129,7 +131,10 @@ export default function TorrentDetails() {
           },
           {
             field: "Completed",
-            value: new Date(torrent.doneDate * 1000).toLocaleString(),
+            value:
+              torrent.doneDate === -1
+                ? ""
+                : new Date(torrent.doneDate * 1000).toLocaleString(),
           },
           {
             field: "Last activity",
