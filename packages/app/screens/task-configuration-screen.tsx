@@ -32,8 +32,8 @@ export default function TaskConfigurationScreen() {
     } else {
       await registerTorrentsNotifierTask();
     }
-    store({ ...settings, notifications: !isTaskRegistered });
-    check();
+    await store({ ...settings, notifications: !isTaskRegistered });
+    await check();
   }, [settings, store, check]);
 
   return (
