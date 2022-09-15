@@ -1,6 +1,6 @@
 {
   "name": "@remote-app/app",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A transmission remote session app",
   "main": "index.js",
   "repository": {
@@ -23,7 +23,7 @@
     "@react-native-async-storage/async-storage": "^1.17.7",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.1.0",
-    "@remote-app/transmission-client": "0.0.12",
+    "@remote-app/transmission-client": "0.0.13",
     "buffer": "^6.0.3",
     "expo": "~45.0.7",
     "expo-asset": "~8.5.0",
