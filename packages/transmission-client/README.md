@@ -1,5 +1,7 @@
 # @remote-app/transmission-client
 
+![npm](https://img.shields.io/npm/v/@remote-app/transmission-client)
+
 A lightweight Transmission RPC client.
 
 ## Install
