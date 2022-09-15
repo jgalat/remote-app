@@ -7,8 +7,8 @@ Transmission is a free and open source lightweight P2P client for the BitTorrent
 
 ## Screenshots
 
-![Screenshot 0](.github/screenshots/screenshot-0.jpg)
-![Screenshot 1](.github/screenshots/screenshot-1.jpg)
-![Screenshot 2](.github/screenshots/screenshot-2.jpg)
-![Screenshot 3](.github/screenshots/screenshot-3.jpg)
-![Screenshot 4](.github/screenshots/screenshot-4.jpg)
+<img src="./.github/screenshots/screenshot-0.jpg" width="250">
+<img src="./.github/screenshots/screenshot-1.jpg" width="250">
+<img src="./.github/screenshots/screenshot-2.jpg" width="250">
+<img src="./.github/screenshots/screenshot-3.jpg" width="250">
+<img src="./.github/screenshots/screenshot-4.jpg" width="250">
