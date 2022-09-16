@@ -1,5 +1,10 @@
 import * as React from "react";
-import { StyleSheet, FlatList, GestureResponderEvent } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  GestureResponderEvent,
+  BackHandler,
+} from "react-native";
 import BottomSheet, {
   useBottomSheetDynamicSnapPoints,
   BottomSheetView,
@@ -25,6 +30,23 @@ export default function ActionSheet({
 }: ActionSheetProps) {
   const { background, gray, text } = useTheme();
   const snaps = React.useMemo(() => ["CONTENT_HEIGHT"], []);
+  const [show, setShow] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!show) {
+      return;
+    }
+
+    const subscribe = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (show) {
+        innerRef.current?.close();
+        return true;
+      }
+      return false;
+    });
+
+    return () => subscribe.remove();
+  }, [innerRef, show]);
 
   const {
     animatedHandleHeight,
@@ -37,6 +59,7 @@ export default function ActionSheet({
     <BottomSheet
       ref={innerRef}
       index={-1}
+      onChange={(idx) => setShow(idx > -1)}
       snapPoints={animatedSnapPoints}
       handleHeight={animatedHandleHeight}
       contentHeight={animatedContentHeight}
