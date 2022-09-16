@@ -1,10 +1,12 @@
 import * as React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
+import { Feather } from "@expo/vector-icons";
 
 import View from "./view";
 import Text from "./text";
 import ProgressBar from "./progress-bar";
+import Pressable from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 import {
   formatSize,
@@ -12,12 +14,11 @@ import {
   formatETA,
   formatStatus,
 } from "../utils/formatters";
-import {Feather} from "@expo/vector-icons";
 
 export type TorrentItemProps = {
   torrent: Torrent;
   left?: React.ReactNode;
-} & React.ComponentProps<typeof TouchableOpacity>;
+} & React.ComponentProps<typeof Pressable>;
 
 export default function ({ torrent, left, ...props }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
@@ -54,7 +55,7 @@ export default function ({ torrent, left, ...props }: TorrentItemProps) {
   }
 
   return (
-    <TouchableOpacity {...props}>
+    <Pressable {...props}>
       <View style={styles.container}>
         {left ? <View style={styles.left}>{left}</View> : null}
         <View style={styles.stats}>
@@ -76,10 +77,12 @@ export default function ({ torrent, left, ...props }: TorrentItemProps) {
             </View>
             <View style={styles.column}>
               <Text color={gray} style={styles.data}>
-                <Feather name="arrow-down" color={gray} /> {formatSpeed(torrent.rateDownload)}
+                <Feather name="arrow-down" color={gray} />{" "}
+                {formatSpeed(torrent.rateDownload)}
               </Text>
               <Text color={gray} style={styles.data}>
-                <Feather name="arrow-up" color={gray} /> {formatSpeed(torrent.rateUpload)}
+                <Feather name="arrow-up" color={gray} />{" "}
+                {formatSpeed(torrent.rateUpload)}
               </Text>
             </View>
           </View>
@@ -102,7 +105,7 @@ export default function ({ torrent, left, ...props }: TorrentItemProps) {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

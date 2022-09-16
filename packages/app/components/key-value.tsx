@@ -1,10 +1,11 @@
 import * as React from "react";
-import { Pressable, ScrollView, StyleSheet, ToastAndroid } from "react-native";
+import { ScrollView, StyleSheet, ToastAndroid } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Feather } from "@expo/vector-icons";
 
 import View from "./view";
 import Text from "./text";
+import Pressable from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type KeyValueProps = {
@@ -28,13 +29,7 @@ export default function KeyValue({ field, value, copy }: KeyValueProps) {
 
         <ScrollView horizontal fadingEdgeLength={64}>
           {copy ? (
-            <Pressable
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-                ...styles.pressable,
-              })}
-              onPress={onCopy}
-            >
+            <Pressable style={styles.pressable} onPress={onCopy}>
               <Feather name="clipboard" color={tint} size={16} />
               <Text style={[styles.value, { color: tint }]}> {value}</Text>
             </Pressable>

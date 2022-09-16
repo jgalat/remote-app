@@ -78,7 +78,7 @@ export default function ServerConfigurationScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen variant="scroll">
       <Text style={styles.title}>Speed limits</Text>
 
       <View style={styles.row}>

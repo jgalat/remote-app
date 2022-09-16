@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
+import Pressable from "./pressable";
 import Text from "./text";
 import { useTheme } from "../hooks/use-theme-color";
 
@@ -20,14 +21,7 @@ export default function Checkbox({
 
   return React.useMemo(
     () => (
-      <Pressable
-        onPress={() => onPress?.(!value)}
-        style={({ pressed }) => ({
-          flexDirection: "row",
-          alignItems: "center",
-          opacity: pressed ? 0.5 : 1,
-        })}
-      >
+      <Pressable onPress={() => onPress?.(!value)} style={styles.checkbox}>
         <Feather
           name={value ? "check-square" : "square"}
           color={value ? tint : text}
@@ -41,6 +35,10 @@ export default function Checkbox({
 }
 
 const styles = StyleSheet.create({
+  checkbox: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   label: {
     marginLeft: 8,
   },

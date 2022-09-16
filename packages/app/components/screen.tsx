@@ -2,22 +2,38 @@ import * as React from "react";
 import {
   View as _View,
   ScrollView as _ScrollView,
+  KeyboardAvoidingView as _KeyboardAvoidingView,
   StyleSheet,
 } from "react-native";
 
 import useThemeColor from "../hooks/use-theme-color";
 
+type Variant = "view" | "scroll" | "keyboardavoiding";
+
 export type ScreenProps = {
-  scroll?: boolean;
-} & _View["props"];
+  variant?: Variant;
+} & _View["props"] &
+  _ScrollView["props"] &
+  _KeyboardAvoidingView["props"];
+
+function view(variant: Variant): any {
+  switch (variant) {
+    case "view":
+      return _View;
+    case "scroll":
+      return _ScrollView;
+    case "keyboardavoiding":
+      return _KeyboardAvoidingView;
+  }
+}
 
 export default function Screen({
   style,
-  scroll = false,
+  variant = "view",
   ...props
 }: ScreenProps) {
   const backgroundColor = useThemeColor("background");
-  const Component = scroll ? _ScrollView : _View;
+  const Component = view(variant);
 
   return (
     <Component style={[styles.screen, { backgroundColor }, style]} {...props} />

@@ -1,12 +1,13 @@
 import * as React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
-import { useTheme } from "../hooks/use-theme-color";
 import Text from "./text";
+import Pressable from "./pressable";
+import { useTheme } from "../hooks/use-theme-color";
 
 export type ButtonProps = {
   title: string;
-} & TouchableOpacity["props"];
+} & React.ComponentProps<typeof Pressable>;
 
 export default function Button({
   style,
@@ -17,15 +18,15 @@ export default function Button({
   const { text, gray, background } = useTheme();
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.button, { backgroundColor: text }, style]}
-      activeOpacity={disabled ? 1 : undefined}
+      disabled={disabled}
       {...props}
     >
       <Text color={disabled ? gray : background} style={styles.buttonText}>
         {title}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

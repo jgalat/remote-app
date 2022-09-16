@@ -37,7 +37,7 @@ export default function TaskConfigurationScreen() {
   }, [settings, store, check]);
 
   return (
-    <Screen scroll>
+    <Screen variant="scroll">
       <Text style={styles.title}>Finished torrents</Text>
       <View style={styles.row}>
         <Checkbox

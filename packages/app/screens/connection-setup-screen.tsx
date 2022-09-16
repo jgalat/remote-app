@@ -55,7 +55,7 @@ export default function ConnectionScreen() {
   };
 
   return (
-    <Screen>
+    <Screen variant="keyboardavoiding">
       <TextInput
         style={styles.input}
         value={form.name}

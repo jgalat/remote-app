@@ -1,10 +1,11 @@
 import * as React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Text from "./text";
 import View from "./view";
 import Badge from "./badge";
+import Pressable from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type OptionProps = {
@@ -12,7 +13,7 @@ export type OptionProps = {
   left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];
   color?: string;
-} & React.ComponentProps<typeof TouchableOpacity>;
+} & React.ComponentProps<typeof Pressable>;
 
 export default function Option({
   label,
@@ -26,11 +27,7 @@ export default function Option({
   const { gray, text } = useTheme();
   const optionColor = color ? color : text;
   return (
-    <TouchableOpacity
-      style={[styles.container, style]}
-      onPress={onPress}
-      {...props}
-    >
+    <Pressable style={[styles.container, style]} onPress={onPress} {...props}>
       <View style={{ width: typeof left === "number" ? "15%" : "auto" }}>
         {typeof left === "number" ? (
           <Badge label={left} />
@@ -44,7 +41,7 @@ export default function Option({
       <View>
         {right ? <Feather name={right} size={24} color={gray} /> : null}
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

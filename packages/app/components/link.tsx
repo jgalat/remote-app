@@ -1,10 +1,11 @@
 import * as React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 
-import { useTheme } from "../hooks/use-theme-color";
 import Text from "./text";
+import Pressable from "./pressable";
+import { useTheme } from "../hooks/use-theme-color";
 
 export type LinkProps = {
   to: string;
@@ -21,13 +22,7 @@ export default function Link({ to, title }: LinkProps) {
 
   return React.useMemo(
     () => (
-      <Pressable
-        style={(state) => ({
-          opacity: state.pressed ? 0.5 : 1,
-          ...styles.pressable,
-        })}
-        onPress={goTo}
-      >
+      <Pressable style={styles.link} onPress={goTo}>
         <Text style={{ color: tint }}>{title} </Text>
         <Feather name="external-link" color={tint} size={16} />
       </Pressable>
@@ -37,7 +32,7 @@ export default function Link({ to, title }: LinkProps) {
 }
 
 const styles = StyleSheet.create({
-  pressable: {
+  link: {
     flexDirection: "row",
     alignItems: "center",
     padding: 4,

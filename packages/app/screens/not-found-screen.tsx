@@ -1,8 +1,9 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { useLinkTo, useRoute } from "@react-navigation/native";
 
 import Text from "../components/text";
 import View from "../components/view";
+import Pressable from "../components/pressable";
 
 export default function NotFoundScreen() {
   const linkTo = useLinkTo();
@@ -10,9 +11,9 @@ export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{JSON.stringify(route)}</Text>
-      <TouchableOpacity onPress={() => linkTo("/")} style={styles.link}>
+      <Pressable onPress={() => linkTo("/")} style={styles.link}>
         <Text style={styles.linkText}>Go to home screen!</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

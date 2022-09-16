@@ -15,7 +15,7 @@ import { formatSpeed } from "../utils/formatters";
 
 export type StatsProps = React.ComponentProps<typeof View>;
 
-export default function Stats({style, ...props }: StatsProps) {
+export default function Stats({ style, ...props }: StatsProps) {
   const { text } = useTheme();
   const { data: session } = useSession();
   const { data: stats } = useSessionStats();
