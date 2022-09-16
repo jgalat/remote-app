@@ -57,7 +57,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     marginBottom: 32,
-    height: 32,
+    minHeight: 32,
+    paddingVertical: 12,
   },
   label: {
     flex: 1,

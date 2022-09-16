@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   option: {
-    marginBottom: 16,
+    marginBottom: 4,
   },
 });

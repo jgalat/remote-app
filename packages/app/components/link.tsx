@@ -14,13 +14,10 @@ export type LinkProps = {
 export default function Link({ to, title }: LinkProps) {
   const { tint } = useTheme();
 
-  const goTo = React.useCallback(async () => {
-    const supported = await Linking.canOpenURL(to);
-    if (!supported) {
-      return;
-    }
-    await Linking.openURL(to);
-  }, [to]);
+  const goTo = React.useCallback(
+    () => Linking.openURL(to).catch(() => {}),
+    [to]
+  );
 
   return React.useMemo(
     () => (
@@ -43,5 +40,6 @@ const styles = StyleSheet.create({
   pressable: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 4,
   },
 });
