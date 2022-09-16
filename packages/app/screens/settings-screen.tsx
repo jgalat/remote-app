@@ -18,28 +18,32 @@ export default function SettingsScreen() {
   const { gray } = useTheme();
   const { data: session, error } = useSession();
 
-  const options: OptionProps[] = React.useMemo<OptionProps[]>(
-    () => [
+  const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
+    const connection: OptionProps[] = [
       {
         left: "wifi",
         label: "Connection",
         onPress: () => linkTo("/settings/connection"),
         right: "chevron-right",
       },
+    ];
+
+    const serverOptions: OptionProps[] = [
       {
         left: "server",
         label: "Server Configuration",
         onPress: () => linkTo("/settings/server-configuration"),
         right: "chevron-right",
-        disabled: !session || error,
       },
       {
         left: "rss",
         label: "Background Tasks",
         onPress: () => linkTo("/settings/task-configuration"),
         right: "chevron-right",
-        disabled: !session || error,
       },
+    ];
+
+    const appOptions: OptionProps[] = [
       {
         left: colorScheme === "dark" ? "moon" : "sun",
         label: "Theme",
@@ -52,9 +56,14 @@ export default function SettingsScreen() {
         onPress: () => linkTo("/settings/about"),
         right: "chevron-right",
       },
-    ],
-    [linkTo, colorScheme, session, error]
-  );
+    ];
+
+    return [
+      ...connection,
+      ...(!session || error ? [] : serverOptions),
+      ...appOptions,
+    ];
+  }, [linkTo, colorScheme, session, error]);
 
   return (
     <Screen>

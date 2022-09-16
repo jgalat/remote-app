@@ -19,19 +19,16 @@ export default function Option({
   left,
   right,
   onPress,
-  disabled = false,
   style,
   color,
   ...props
 }: OptionProps) {
   const { gray, text } = useTheme();
-  const optionColor = disabled ? gray : color ? color : text;
+  const optionColor = color ? color : text;
   return (
     <TouchableOpacity
       style={[styles.container, style]}
       onPress={onPress}
-      disabled={disabled}
-      activeOpacity={disabled ? 1 : undefined}
       {...props}
     >
       <View style={{ width: typeof left === "number" ? "15%" : "auto" }}>
