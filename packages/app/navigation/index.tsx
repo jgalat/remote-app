@@ -12,6 +12,7 @@ import {
   NativeStackNavigationOptions,
 } from "@react-navigation/native-stack";
 
+import ActionIcon from "../components/action-icon";
 import { useColorScheme, useServer } from "../hooks/use-settings";
 import useThemeColor from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
@@ -147,10 +148,12 @@ function SettingsStackNavigator() {
   );
 }
 
-function useNavigationOptions(): NativeStackNavigationOptions {
+function useNavigationOptions(): (props: {
+  navigation: any;
+}) => NativeStackNavigationOptions {
   const text = useThemeColor("text");
   const background = useThemeColor("background");
-  return {
+  return ({ navigation }) => ({
     headerTitleStyle: {
       fontFamily: "RobotoMono-Medium",
       color: text,
@@ -159,7 +162,17 @@ function useNavigationOptions(): NativeStackNavigationOptions {
       backgroundColor: background,
     },
     headerShadowVisible: false,
-  };
+    headerLeft: ({ canGoBack }) =>
+      canGoBack ? (
+        <ActionIcon
+          name="arrow-left"
+          color={text}
+          onPress={() => navigation.goBack()}
+          size={24}
+          style={{ paddingLeft: 0, paddingRight: 32 }}
+        />
+      ) : null,
+  });
 }
 
 function useNavigationContainerProps() {
