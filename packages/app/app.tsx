@@ -1,7 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 
@@ -33,7 +32,7 @@ function App() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={StyleSheet.absoluteFill}>
       <ActionSheetProvider>
         <Navigation />
         <StatusBar />
@@ -44,20 +43,12 @@ function App() {
 
 export default function () {
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <GestureHandlerRootView style={StyleSheet.absoluteFill}>
       <SettingsProvider>
         <ClientProvider>
-          <SafeAreaProvider>
-            <App />
-          </SafeAreaProvider>
+          <App />
         </ClientProvider>
       </SettingsProvider>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

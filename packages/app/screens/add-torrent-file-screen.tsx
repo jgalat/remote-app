@@ -39,7 +39,7 @@ export default function AddTorrentFileScreen() {
 
   React.useEffect(() => {
     async function updateUri() {
-      if (uri && uri !== state.uri) {
+      if (uri) {
         const filename = `${Date.now()}.torrent`;
         const fileUri = `${FileSystem.cacheDirectory}${filename}`;
         try {

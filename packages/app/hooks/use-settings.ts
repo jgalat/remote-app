@@ -5,7 +5,7 @@ import {
 } from "react-native";
 
 import { SettingsContext } from "../contexts/settings";
-import { Server, Settings } from "../store/settings";
+import { Settings } from "../store/settings";
 
 export default function useSettings() {
   return React.useContext(SettingsContext);
@@ -22,7 +22,7 @@ export function useColorScheme(): "light" | "dark" {
   return colorScheme;
 }
 
-export function useServer(): Server | undefined {
+export function useServer(): Settings["server"] {
   return useSettings().settings.server;
 }
 
