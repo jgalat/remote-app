@@ -9,7 +9,8 @@
     "directory": "packages/web"
   },
   "scripts": {
-    "publish": "CLOUDFLARE_ACCOUNT_ID=e5d555f9d1fca923675e48bf46bb2a6d npx wrangler pages publish ./public"
+    "publish": "wrangler pages publish ./public",
+    "dev": "wrangler pages dev ./public --live-reload"
   },
   "license": "MIT",
   "bugs": {

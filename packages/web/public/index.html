@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Remote for Transmission</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Remote for Transmission</title>
+    <meta
+      name="description"
+      content="Remote for Transmission is an open source Transmission BitTorrent remote client built with React Native. Download it for free on Google Play."
+    />
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,30 +16,59 @@
       rel="stylesheet"
     />
     <style>
-      body {
+      :root {
         font-family: "Roboto Mono", monospace;
-        padding: 1em;
+      }
+
+      body {
+        max-width: 480px;
+        margin: 0 auto;
+
+        padding: 2rem 1rem 1rem 1rem;
 
         display: flex;
         flex-direction: column;
         align-items: center;
+
+        overflow-y: hidden;
       }
 
-      h1 {
+      h1,
+      p {
         text-align: center;
+        margin: 0;
+        margin-bottom: 24px;
       }
 
-      img {
+      .playstore-link {
         max-width: 240px;
+      }
+
+      .screen-preview {
+        max-width: 100%;
+        margin-top: 24px;
       }
     </style>
   </head>
   <body>
     <h1>Remote for Transmission</h1>
-    <a href="https://play.google.com/store/apps/details?id=ar.jg.remote"
+    <p>
+      An open source Transmission BitTorrent remote client built with React
+      Native
+    </p>
+    <a
+      href="https://play.google.com/store/apps/details?id=ar.jg.remote"
+      rel="noopener noreferrer"
+      target="_blank"
       ><img
+        class="playstore-link"
         alt="Get it on Google Play"
         src="https://play.google.com/intl/es-419/badges/static/images/badges/en_badge_web_generic.png"
     /></a>
+    <img
+      class="screen-preview"
+      alt="Preview of the app"
+      src="assets/screen.jpg"
+    />
   </body>
 </html>
