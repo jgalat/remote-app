@@ -12,9 +12,7 @@ export const ActionSheetContext = React.createContext<SheetActions>(
   {} as SheetActions
 );
 
-export function ActionSheetProvider({
-  children,
-}: Omit<React.ComponentProps<typeof ActionSheetContext.Provider>, "value">) {
+export function ActionSheetProvider({ children }: React.PropsWithChildren) {
   const ref = React.useRef<BottomSheet>(null);
   const [props, setProps] = React.useState<Omit<ActionSheetProps, "innerRef">>(
     {} as ActionSheetProps

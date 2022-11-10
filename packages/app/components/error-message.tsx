@@ -4,7 +4,7 @@ import { useLinkTo } from "@react-navigation/native";
 import { HTTPError, TransmissionError } from "@remote-app/transmission-client";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 
-import View from "./view";
+import View, { ViewProps } from "./view";
 import Text from "./text";
 import Button from "./button";
 import { useTheme } from "../hooks/use-theme-color";
@@ -12,9 +12,13 @@ import { useTorrents } from "../hooks/use-transmission";
 
 export type ErrorMessageProps = {
   error: Error;
-} & React.ComponentProps<typeof View>;
+} & ViewProps;
 
-export default function ErrorMessage({ error, style, ...props }: ErrorMessageProps) {
+export default function ErrorMessage({
+  error,
+  style,
+  ...props
+}: ErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
   const { mutate } = useTorrents();

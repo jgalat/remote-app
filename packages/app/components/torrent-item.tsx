@@ -6,7 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import View from "./view";
 import Text from "./text";
 import ProgressBar from "./progress-bar";
-import Pressable from "./pressable";
+import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 import {
   formatSize,
@@ -18,7 +18,7 @@ import {
 export type TorrentItemProps = {
   torrent: Torrent;
   left?: React.ReactNode;
-} & React.ComponentProps<typeof Pressable>;
+} & PressableProps;
 
 export default function ({ torrent, left, ...props }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();

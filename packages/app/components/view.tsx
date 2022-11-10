@@ -1,9 +1,9 @@
 import * as React from "react";
-import { View as _View } from "react-native";
+import { View as _View, ViewProps as _ViewProps } from "react-native";
 
 import useThemeColor from "../hooks/use-theme-color";
 
-export type ViewProps = _View["props"];
+export type ViewProps = _ViewProps;
 
 export default function View({ style, ...props }: ViewProps) {
   const backgroundColor = useThemeColor("background");
