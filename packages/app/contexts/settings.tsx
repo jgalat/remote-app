@@ -16,9 +16,7 @@ export type AppSettings = {
 export const SettingsContext: React.Context<AppSettings> =
   React.createContext<AppSettings>({} as AppSettings);
 
-export function SettingsProvider({
-  children,
-}: Omit<React.ComponentProps<typeof SettingsContext.Provider>, "value">) {
+export function SettingsProvider({ children }: React.PropsWithChildren) {
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);
 
   const value: AppSettings = {

@@ -1,12 +1,11 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 
-import View from "./view";
+import View, { ViewProps } from "./view";
 
 export type ActionListProps = {
   spacing?: number;
-  children: React.ComponentProps<React.FC>["children"];
-};
+} & ViewProps;
 
 export default function ActionList({
   spacing = 12,

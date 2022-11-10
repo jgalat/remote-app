@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-import View from "./view";
+import View, { ViewProps } from "./view";
 import Text from "./text";
 import ActionIcon from "./action-icon";
 import { useTheme } from "../hooks/use-theme-color";
@@ -13,7 +13,7 @@ import {
 } from "../hooks/use-transmission";
 import { formatSpeed } from "../utils/formatters";
 
-export type StatsProps = React.ComponentProps<typeof View>;
+export type StatsProps = ViewProps;
 
 export default function Stats({ style, ...props }: StatsProps) {
   const { text } = useTheme();

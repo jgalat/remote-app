@@ -1,8 +1,11 @@
 import * as React from "react";
 import {
   View as _View,
+  ViewProps,
   ScrollView as _ScrollView,
+  ScrollViewProps,
   KeyboardAvoidingView as _KeyboardAvoidingView,
+  KeyboardAvoidingViewProps,
   StyleSheet,
 } from "react-native";
 
@@ -12,9 +15,9 @@ type Variant = "view" | "scroll" | "keyboardavoiding";
 
 export type ScreenProps = {
   variant?: Variant;
-} & _View["props"] &
-  _ScrollView["props"] &
-  _KeyboardAvoidingView["props"];
+} & ViewProps &
+  ScrollViewProps &
+  KeyboardAvoidingViewProps;
 
 function view(variant: Variant): any {
   switch (variant) {

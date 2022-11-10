@@ -7,9 +7,7 @@ export const ClientContext = React.createContext<
   TransmissionClient | undefined
 >(undefined);
 
-export function ClientProvider({
-  children,
-}: Omit<React.ComponentProps<typeof ClientContext.Provider>, "value">) {
+export function ClientProvider({ children }: React.PropsWithChildren) {
   const server = useServer();
   const [client, setClient] = React.useState<TransmissionClient | undefined>();
 

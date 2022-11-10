@@ -5,7 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import Text from "./text";
 import View from "./view";
 import Badge from "./badge";
-import Pressable from "./pressable";
+import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type OptionProps = {
@@ -13,7 +13,7 @@ export type OptionProps = {
   left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];
   color?: string;
-} & React.ComponentProps<typeof Pressable>;
+} & PressableProps;
 
 export default function Option({
   label,

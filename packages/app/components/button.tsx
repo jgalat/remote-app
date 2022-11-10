@@ -2,12 +2,12 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 
 import Text from "./text";
-import Pressable from "./pressable";
+import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type ButtonProps = {
   title: string;
-} & React.ComponentProps<typeof Pressable>;
+} & PressableProps;
 
 export default function Button({
   style,

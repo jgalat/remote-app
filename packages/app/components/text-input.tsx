@@ -1,11 +1,18 @@
 import * as React from "react";
-import { View, TextInput as _TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput as _TextInput,
+  TextInputProps as _TextInputProps,
+  TextStyle,
+  StyleSheet,
+  StyleProp,
+} from "react-native";
 
 import { useTheme } from "../hooks/use-theme-color";
 
 export type TextInputProps = {
-  containerStyle?: _TextInput["props"]["style"];
-} & _TextInput["props"];
+  containerStyle?: StyleProp<TextStyle>;
+} & _TextInputProps;
 
 export default function TextInput({
   style,
