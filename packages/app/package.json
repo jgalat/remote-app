@@ -9,12 +9,11 @@
     "directory": "packages/app"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "build:android:development": "eas build --platform android --local --profile development",
-    "build:android:production": "eas build --platform android --local --profile production",
-    "eject": "expo eject"
+    "start": "npx expo start",
+    "android": "npx expo start --android",
+    "ios": "npx expo start --ios",
+    "build:android:development": "npx eas build --platform android --local --profile development",
+    "build:android:production": "npx eas build --platform android --local --profile production"
   },
   "dependencies": {
     "@ctrl/magnet-link": "3.1.1",
@@ -53,8 +52,6 @@
     "@babel/core": "^7.12.9",
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.66.13",
-    "eas-cli": "^0.60.0",
-    "expo-cli": "^6.0.5",
     "typescript": "~4.3.5"
   }
 }

@@ -82,5 +82,10 @@ export default {
     packagerOpts: {
       config: "metro.config.js",
     },
+    extra: {
+      eas: {
+        projectId: "583f843d-ee60-4248-bfe8-4d94bddd0ccf",
+      },
+    },
   },
 };
