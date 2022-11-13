@@ -59,21 +59,21 @@ export default function TorrentsScreen() {
             ? [
                 <ActionIcon
                   key="add"
-                  onPress={() => addTorrentSheet()}
+                  onPress={addTorrentSheet}
                   name="plus"
                   size={24}
                   color={text}
                 />,
                 <ActionIcon
                   key="sort"
-                  onPress={() => sortBySheet()}
+                  onPress={sortBySheet}
                   name="align-left"
                   size={24}
                   color={text}
                 />,
                 <ActionIcon
                   key="filter"
-                  onPress={() => filterSheet()}
+                  onPress={filterSheet}
                   name="filter"
                   size={24}
                   color={text}
@@ -145,7 +145,7 @@ export default function TorrentsScreen() {
         data={render}
         renderItem={({ item: torrent }) => (
           <TorrentItem
-            onPress={() => torrentActionsSheet(torrent)}
+            onPress={() => torrentActionsSheet({ torrent })}
             torrent={torrent}
             left={
               <ActionIcon
@@ -204,5 +204,5 @@ const styles = StyleSheet.create({
   icon: {
     paddingVertical: 8,
     paddingRight: 8,
-  }
+  },
 });

@@ -1,86 +1,50 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  FlatList,
-  GestureResponderEvent,
-  BackHandler,
-} from "react-native";
-import BottomSheet, {
-  useBottomSheetDynamicSnapPoints,
-  BottomSheetView,
-  BottomSheetBackdrop,
-  BottomSheetProps,
-} from "@gorhom/bottom-sheet";
+import { StyleSheet, FlatList, GestureResponderEvent } from "react-native";
+import _ActionSheet, {
+  SheetProps as _SheetProps,
+  ActionSheetRef,
+} from "react-native-actions-sheet";
 
 import Text from "./text";
+import View from "./view";
 import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 
+export type SheetProps<T = any> = _SheetProps<T>;
+
 export type ActionSheetProps = {
-  innerRef: React.RefObject<BottomSheet>;
   title?: string;
   options?: OptionProps[];
-} & Pick<BottomSheetProps, "onClose">;
+} & _SheetProps;
 
 export default function ActionSheet({
-  innerRef,
   title,
   options = [],
-  onClose,
+  sheetId,
 }: ActionSheetProps) {
+  const ref = React.useRef<ActionSheetRef>(null);
   const { background, gray, text } = useTheme();
-  const snaps = React.useMemo(() => ["CONTENT_HEIGHT"], []);
-  const [show, setShow] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!show) {
-      return;
-    }
-
-    const subscribe = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (show) {
-        innerRef.current?.close();
-        return true;
-      }
-      return false;
-    });
-
-    return () => subscribe.remove();
-  }, [innerRef, show]);
-
-  const {
-    animatedHandleHeight,
-    animatedSnapPoints,
-    animatedContentHeight,
-    handleContentLayout,
-  } = useBottomSheetDynamicSnapPoints(snaps);
 
   return (
-    <BottomSheet
-      ref={innerRef}
-      index={-1}
-      onChange={(idx) => setShow(idx > -1)}
-      snapPoints={animatedSnapPoints}
-      handleHeight={animatedHandleHeight}
-      contentHeight={animatedContentHeight}
-      enablePanDownToClose={true}
-      onClose={onClose}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop
-          {...props}
-          disappearsOnIndex={-1}
-          appearsOnIndex={0}
-          pressBehavior="close"
-        />
-      )}
-      handleIndicatorStyle={{ backgroundColor: text, marginTop: 8 }}
-      backgroundStyle={{
+    <_ActionSheet
+      id={sheetId}
+      ref={ref}
+      containerStyle={{
         backgroundColor: background,
         borderWidth: 2,
         borderColor: gray,
+        borderBottomWidth: 0,
       }}
+      indicatorStyle={{
+        backgroundColor: text,
+        marginTop: 12,
+        height: 4,
+      }}
+      openAnimationConfig={{ speed: 50, bounciness: 0 }}
+      closeAnimationConfig={{ speed: 50, bounciness: 0 }}
+      gestureEnabled
     >
-      <BottomSheetView style={styles.container} onLayout={handleContentLayout}>
+      <View style={styles.container}>
         {title ? <Text style={styles.title}>{title}</Text> : null}
         <FlatList
           data={options}
@@ -88,16 +52,16 @@ export default function ActionSheet({
             <Option
               {...props}
               onPress={(event: GestureResponderEvent) => {
+                ref.current?.hide();
                 onPress?.(event);
-                innerRef.current?.close();
               }}
               style={[styles.option, style]}
             />
           )}
           keyExtractor={(item) => item.label}
         />
-      </BottomSheetView>
-    </BottomSheet>
+      </View>
+    </_ActionSheet>
   );
 }
 
@@ -108,7 +72,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   option: {
     marginBottom: 4,
