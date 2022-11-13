@@ -40,8 +40,8 @@ export default function AddTorrentFileScreen() {
   React.useEffect(() => {
     async function updateUri() {
       if (uri) {
-        const filename = `${Date.now()}.torrent`;
-        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+        const filename = `[Filename unavailable].torrent`;
+        const fileUri = `${FileSystem.cacheDirectory}${Date.now()}.torrent`;
         try {
           await FileSystem.copyAsync({ from: uri, to: fileUri });
           setState({ ...state, error: undefined, uri: fileUri, filename });

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as Linking from "expo-linking";
 import {
-  NavigationContainer,
+  NavigationContainer as _NavigationContainer,
   DefaultTheme,
   DarkTheme,
   useNavigationContainerRef,
@@ -29,22 +29,22 @@ import ThemeScreen from "../screens/theme-screen";
 import TorrentDetails from "../screens/torrent-details";
 import TaskConfigurationScreen from "../screens/task-configuration-screen";
 
-export default function Navigation() {
+export function NavigationContainer({ children }: React.PropsWithChildren) {
   const colorScheme = useColorScheme();
   const props = useNavigationContainerProps();
   return (
-    <NavigationContainer
+    <_NavigationContainer
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
-      <RootNavigator />
-    </NavigationContainer>
+      {children}
+    </_NavigationContainer>
   );
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function RootNavigator() {
+export function RootNavigator() {
   const opts = useNavigationOptions();
   const server = useServer();
   return (

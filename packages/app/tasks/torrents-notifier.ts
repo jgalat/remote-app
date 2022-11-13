@@ -6,9 +6,9 @@ import TransmissionClient from "@remote-app/transmission-client";
 
 import { loadSettings } from "../store/settings";
 
-const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
+export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
-TaskManager.defineTask(TORRENTS_NOTIFIER_TASK, async () => {
+export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.BackgroundFetchResult> {
   const state = await Network.getNetworkStateAsync();
   if (!state.isConnected || !state.isInternetReachable) {
     return BackgroundFetch.BackgroundFetchResult.NoData;
@@ -62,7 +62,7 @@ TaskManager.defineTask(TORRENTS_NOTIFIER_TASK, async () => {
   }
 
   return BackgroundFetch.BackgroundFetchResult.NewData;
-});
+}
 
 export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
   return TaskManager.isTaskRegisteredAsync(TORRENTS_NOTIFIER_TASK);
