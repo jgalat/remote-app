@@ -7,6 +7,8 @@ import useSettings from "../hooks/use-settings";
 import type { Sort } from "../store/settings";
 import type { OptionProps } from "../components/option";
 
+export const SORT_BY_SHEET_NAME = "sort-by";
+
 export default function (props: SheetProps) {
   const { settings, store } = useSettings();
   const { sort, direction } = settings.listing;

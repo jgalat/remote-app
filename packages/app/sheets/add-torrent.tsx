@@ -2,6 +2,8 @@ import { useLinkTo } from "@react-navigation/native";
 
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 
+export const ADD_TORRENT_SHEET_NAME = "add-torrent";
+
 export default function (props: SheetProps) {
   const linkTo = useLinkTo();
   return (

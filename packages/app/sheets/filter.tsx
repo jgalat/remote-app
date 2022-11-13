@@ -9,6 +9,8 @@ import predicate from "../utils/filter";
 import type { Filter } from "../store/settings";
 import type { OptionProps } from "../components/option";
 
+export const FILTER_SHEET_NAME = "filter";
+
 export default function (props: SheetProps) {
   const { data: torrents } = useTorrents();
   const { settings, store } = useSettings();

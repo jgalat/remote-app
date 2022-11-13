@@ -7,6 +7,7 @@ import type { Torrent } from "@remote-app/transmission-client";
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 import { useTorrentActions } from "../hooks/use-transmission";
 import { useTheme } from "../hooks/use-theme-color";
+import { REMOVE_CONFIRM_SHEET_NAME } from "./remove-confirm";
 
 import type { OptionProps } from "../components/option";
 
@@ -14,6 +15,8 @@ export type Payload = {
   torrent: Torrent;
   showDetails?: boolean;
 };
+
+export const TORRENT_ACTIONS_SHEET_NAME = "torrent-actions";
 
 export default function ({ payload, ...props }: SheetProps<Payload>) {
   const { red } = useTheme();
@@ -71,7 +74,8 @@ export default function ({ payload, ...props }: SheetProps<Payload>) {
       label: "Remove",
       left: "trash",
       color: red,
-      onPress: () => SheetManager.show("remove-confirm", { payload: id }),
+      onPress: () =>
+        SheetManager.show(REMOVE_CONFIRM_SHEET_NAME, { payload: id }),
     },
   ];
 

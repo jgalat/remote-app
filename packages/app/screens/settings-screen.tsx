@@ -1,6 +1,5 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
-import { FlatList } from "react-native";
+import { StyleSheet, FlatList } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
 
 import Text from "../components/text";

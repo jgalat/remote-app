@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, ToastAndroid } from "react-native";
+import { StyleSheet } from "react-native";
 
 import Checkbox from "../components/checkbox";
 import Text from "../components/text";
