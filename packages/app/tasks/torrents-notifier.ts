@@ -5,6 +5,7 @@ import * as Notifications from "expo-notifications";
 import TransmissionClient from "@remote-app/transmission-client";
 
 import { loadSettings } from "../store/settings";
+import { loadState, storeState } from "../store/task-torrents-notifier";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
@@ -38,10 +39,11 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
 
-    const now = Math.round(Date.now() / 1000);
-    const done = torrents.filter(
-      (t) => t.doneDate > -1 && now - t.doneDate < 60 * 5
-    );
+    const { lastUpdate } = await loadState();
+    const done = torrents.filter((t) => t.doneDate > lastUpdate);
+
+    const now = Math.floor(Date.now() / 1000);
+    await storeState({ lastUpdate: now });
 
     if (done.length === 0) {
       return BackgroundFetch.BackgroundFetchResult.NoData;
