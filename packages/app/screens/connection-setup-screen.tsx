@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import useSettings from "../hooks/use-settings";
 import { Server } from "../store/settings";
 
+import Text from "../components/text";
 import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
@@ -30,6 +31,7 @@ export default function ConnectionScreen() {
     username: server?.username ?? "",
     password: server?.password ?? "",
   });
+  const [error, setError] = React.useState<string>();
 
   const save = async () => {
     try {
@@ -44,8 +46,12 @@ export default function ConnectionScreen() {
       };
       await store({ ...settings, server });
       navigation.popToTop();
-    } catch (e) {
-      console.warn(e);
+    } catch (e: any) {
+      let message = "Something went wrong";
+      if (e instanceof Error) {
+        message = e.message;
+      }
+      setError(message);
     }
   };
 
@@ -95,6 +101,11 @@ export default function ConnectionScreen() {
           onPress={remove}
         />
       ) : null}
+      {error ? (
+        <Text color={red} style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
     </Screen>
   );
 }
@@ -102,5 +113,10 @@ export default function ConnectionScreen() {
 const styles = StyleSheet.create({
   input: {
     marginBottom: 24,
-  }
-})
+  },
+  error: {
+    textAlign: "center",
+    marginVertical: 16,
+    fontSize: 16,
+  },
+});

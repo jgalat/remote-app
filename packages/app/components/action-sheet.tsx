@@ -68,7 +68,7 @@ export default function ActionSheet({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 32,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 24,

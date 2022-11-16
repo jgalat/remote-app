@@ -59,7 +59,6 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
       trigger: null,
     });
   } catch (e) {
-    console.warn(e);
     return BackgroundFetch.BackgroundFetchResult.Failed;
   }
 

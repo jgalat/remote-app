@@ -66,7 +66,11 @@ export default function AddTorrentMagnetScreen() {
       await add.magnet(state.uri);
       navigation.popToTop();
     } catch (e: any) {
-      setState({ ...state, sending: false, error: e.message });
+      let message = "Something went wrong";
+      if (e instanceof Error) {
+        message = e.message;
+      }
+      setState({ ...state, sending: false, error: message });
     }
   }, [state]);
 

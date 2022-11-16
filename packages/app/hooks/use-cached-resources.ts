@@ -29,7 +29,7 @@ export default function useCachedResources() {
           "RobotoMono-Medium": require("../assets/fonts/RobotoMono-Medium.ttf"),
         });
       } catch (e) {
-        console.warn(e);
+        throw e;
       } finally {
         setLoaded(true);
         setTimeout(() => SplashScreen.hideAsync(), 500);

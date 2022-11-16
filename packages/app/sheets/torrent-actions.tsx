@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Share } from "react-native";
+import { Share, ToastAndroid } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
 import { SheetManager } from "react-native-actions-sheet";
 import type { Torrent } from "@remote-app/transmission-client";
@@ -41,7 +41,7 @@ export default function ({ payload, ...props }: SheetProps<Payload>) {
             { dialogTitle: `Share ${name}` }
           );
         } catch (e) {
-          console.warn(e);
+          ToastAndroid.show("Failed to share magnet link", ToastAndroid.SHORT);
         }
       },
     },

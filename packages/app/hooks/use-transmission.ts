@@ -8,6 +8,7 @@ import TransmissionClient, {
 } from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
+import { ToastAndroid } from "react-native";
 
 function useTransmission(): TransmissionClient | undefined {
   return React.useContext(ClientContext);
@@ -280,9 +281,9 @@ export function useTorrentActions() {
     ) => {
       return async (
         ids: number | number[] | "recently-active" | null,
-        params: T extends "torrent-remove"
-          ? Pick<TorrentRemoveRequest, "delete-local-data"> | undefined
-          : undefined = undefined
+        params?: T extends "torrent-remove"
+          ? Pick<TorrentRemoveRequest, "delete-local-data">
+          : undefined
       ): Promise<void> => {
         if (!client) {
           return;
@@ -304,7 +305,7 @@ export function useTorrentActions() {
             },
           });
         } catch (e) {
-          throw e;
+          ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
         } finally {
           setTimeout(() => mutate(), 500);
         }

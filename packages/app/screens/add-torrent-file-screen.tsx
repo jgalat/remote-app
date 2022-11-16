@@ -46,7 +46,11 @@ export default function AddTorrentFileScreen() {
           await FileSystem.copyAsync({ from: uri, to: fileUri });
           setState({ ...state, error: undefined, uri: fileUri, filename });
         } catch (e: any) {
-          setState({ ...state, error: e.message });
+          let message = "Something went wrong";
+          if (e instanceof Error) {
+            message = e.message;
+          }
+          setState({ ...state, error: message });
         }
       }
     }
@@ -85,7 +89,11 @@ export default function AddTorrentFileScreen() {
       await add.file(content);
       navigation.popToTop();
     } catch (e: any) {
-      setState({ ...state, sending: false, error: e.message });
+      let message = "Something went wrong";
+      if (e instanceof Error) {
+        message = e.message;
+      }
+      setState({ ...state, sending: false, error: message });
     }
   }, [state]);
 

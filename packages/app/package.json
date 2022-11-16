@@ -9,9 +9,9 @@
     "directory": "packages/app"
   },
   "scripts": {
-    "start": "npx expo start",
-    "android": "npx expo start --android",
-    "ios": "npx expo start --ios",
+    "dev": "npx expo start",
+    "dev:android": "npx expo start --android",
+    "dev:ios": "npx expo start --ios",
     "build:android:development": "npx eas build --platform android --local --profile development",
     "build:android:production": "npx eas build --platform android --local --profile production"
   },
@@ -35,7 +35,7 @@
     "expo-linking": "~3.2.3",
     "expo-network": "~5.0.0",
     "expo-notifications": "~0.17.0",
-    "expo-splash-screen": "~0.17.4",
+    "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-task-manager": "~11.0.1",
     "react": "18.1.0",

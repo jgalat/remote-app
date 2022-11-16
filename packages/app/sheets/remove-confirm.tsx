@@ -6,7 +6,7 @@ export const REMOVE_CONFIRM_SHEET_NAME = "remove-confirm";
 
 export default function ({ payload: id, ...props }: SheetProps<number>) {
   const { red } = useTheme();
-  const torrentActions = useTorrentActions();
+  const { remove } = useTorrentActions();
 
   return (
     <ActionSheet
@@ -16,14 +16,13 @@ export default function ({ payload: id, ...props }: SheetProps<number>) {
           label: "Remove",
           left: "trash",
           color: red,
-          onPress: () => torrentActions.remove(id!),
+          onPress: () => remove(id!),
         },
         {
           label: "Remove & Trash data",
           left: "trash-2",
           color: red,
-          onPress: () =>
-            torrentActions.remove(id!, { "delete-local-data": true }),
+          onPress: () => remove(id!, { "delete-local-data": true }),
         },
       ]}
       {...props}
