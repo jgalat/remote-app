@@ -1,13 +1,13 @@
 import * as React from "react";
 import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import Option, { OptionProps } from "../components/option";
 import Screen from "../components/screen";
 import useSettings from "../hooks/use-settings";
-import { ColorScheme } from "../store/settings";
-import { RootStackParamList } from "../types";
+import type { ColorScheme } from "../store/settings";
+import type { RootStackParamList } from "../types";
 
 export default function ThemeScreen() {
   const navigation =

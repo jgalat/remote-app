@@ -3,15 +3,14 @@ import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import useSettings from "../hooks/use-settings";
-import { Server } from "../store/settings";
-
 import Text from "../components/text";
 import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
 import useThemeColor from "../hooks/use-theme-color";
-import { RootStackParamList } from "../types";
+import useSettings from "../hooks/use-settings";
+import type { RootStackParamList } from "../types";
+import type { Server } from "../store/settings";
 
 export default function ConnectionScreen() {
   const navigation =

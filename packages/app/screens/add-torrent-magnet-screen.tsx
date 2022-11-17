@@ -13,9 +13,9 @@ import View from "../components/view";
 import Button from "../components/button";
 import KeyValue from "../components/key-value";
 import { useTheme } from "../hooks/use-theme-color";
-import { RootStackParamList } from "../types";
 import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { formatSize } from "../utils/formatters";
+import type { RootStackParamList } from "../types";
 
 export default function AddTorrentMagnetScreen() {
   const {

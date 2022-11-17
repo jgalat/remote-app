@@ -7,8 +7,8 @@ import Text from "../components/text";
 import View from "../components/view";
 import TextInput from "../components/text-input";
 import Screen from "../components/screen";
-import ErrorMessage from "../components/error-message";
 import { useSession, useSessionSet } from "../hooks/use-transmission";
+import { ErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
   const { data: session, error } = useSession();
@@ -61,20 +61,12 @@ export default function ServerConfigurationScreen() {
     [state, setState, sessionSet]
   );
 
-  if (error || !session) {
-    return (
-      <Screen style={styles.message}>
-        <ErrorMessage error={error} />
-      </Screen>
-    );
+  if (error) {
+    return <ErrorScreen error={error} />;
   }
 
-  if (!state) {
-    return (
-      <Screen style={styles.message}>
-        <Text>Retrieving...</Text>
-      </Screen>
-    );
+  if (!state || !session) {
+    return <LoadingScreen />;
   }
 
   return (
@@ -175,11 +167,6 @@ export default function ServerConfigurationScreen() {
 }
 
 const styles = StyleSheet.create({
-  message: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 20,

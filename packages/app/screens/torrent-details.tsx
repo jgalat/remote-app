@@ -1,11 +1,10 @@
 import * as React from "react";
 import { SectionList, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import Text from "../components/text";
 import Screen from "../components/screen";
-import ErrorMessage from "../components/error-message";
 import TorrentItem from "../components/torrent-item";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
@@ -15,6 +14,7 @@ import { RootStackParamList } from "../types";
 import { useTorrentActionsSheet } from "../hooks/use-action-sheet";
 import KeyValue, { KeyValueProps } from "../components/key-value";
 import { formatSize, formatStatus } from "../utils/formatters";
+import { ErrorScreen, LoadingScreen } from "./utils";
 
 export default function TorrentDetails() {
   const {
@@ -145,12 +145,12 @@ export default function TorrentDetails() {
     ];
   }, [torrent]);
 
-  if (error || !torrent) {
-    return (
-      <Screen style={styles.message}>
-        <ErrorMessage error={error} />
-      </Screen>
-    );
+  if (error) {
+    return <ErrorScreen error={error} />;
+  }
+
+  if (!torrent) {
+    return <LoadingScreen />;
   }
 
   return (
@@ -169,11 +169,6 @@ export default function TorrentDetails() {
 }
 
 const styles = StyleSheet.create({
-  message: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 24,

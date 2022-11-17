@@ -3,7 +3,6 @@ import { FlatList, StyleSheet } from "react-native";
 import { useLinkTo, useNavigation } from "@react-navigation/native";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
-import { useServer, useListing } from "../hooks/use-settings";
 import Text from "../components/text";
 import View from "../components/view";
 import Screen from "../components/screen";
@@ -11,7 +10,6 @@ import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
-import ErrorMessage from "../components/error-message";
 import Stats from "../components/stats";
 import { useTheme } from "../hooks/use-theme-color";
 import {
@@ -19,6 +17,7 @@ import {
   useTorrentActions,
   useTorrents,
 } from "../hooks/use-transmission";
+import { useServer, useListing } from "../hooks/use-settings";
 import {
   useAddTorrentSheet,
   useFilterSheet,
@@ -27,6 +26,7 @@ import {
 } from "../hooks/use-action-sheet";
 import compare from "../utils/sort";
 import predicate from "../utils/filter";
+import { ErrorScreen, LoadingScreen } from "./utils";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
@@ -110,26 +110,18 @@ export default function TorrentsScreen() {
   }
 
   if (error) {
-    return (
-      <Screen style={styles.message}>
-        <ErrorMessage error={error} />
-      </Screen>
-    );
+    return <ErrorScreen error={error} />;
   }
 
   if (!torrents) {
-    return (
-      <Screen style={styles.message}>
-        <Text style={styles.title}>Retrieving...</Text>
-      </Screen>
-    );
+    return <LoadingScreen />;
   }
 
   if (torrents.length === 0) {
     return (
       <Screen style={styles.message}>
         <Text style={styles.title}>No torrents found :(</Text>
-        <Button title="Add a torrent" onPress={() => addTorrentSheet()} />
+        <Button title="Add a torrent" onPress={addTorrentSheet} />
       </Screen>
     );
   }
