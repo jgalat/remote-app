@@ -15,7 +15,7 @@ import { formatSpeed } from "../utils/formatters";
 
 export type StatsProps = ViewProps;
 
-export default function Stats({ style, ...props }: StatsProps) {
+export default React.memo(function Stats({ style, ...props }: StatsProps) {
   const { text } = useTheme();
   const { data: session } = useSession();
   const { data: stats } = useSessionStats();
@@ -45,7 +45,7 @@ export default function Stats({ style, ...props }: StatsProps) {
       </Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

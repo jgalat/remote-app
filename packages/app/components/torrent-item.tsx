@@ -20,7 +20,11 @@ export type TorrentItemProps = {
   left?: React.ReactNode;
 } & PressableProps;
 
-export default function ({ torrent, left, ...props }: TorrentItemProps) {
+export default React.memo(function ({
+  torrent,
+  left,
+  ...props
+}: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
 
   let status = formatStatus(torrent.status);
@@ -107,7 +111,7 @@ export default function ({ torrent, left, ...props }: TorrentItemProps) {
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

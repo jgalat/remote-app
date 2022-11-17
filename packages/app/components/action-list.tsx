@@ -7,7 +7,7 @@ export type ActionListProps = {
   spacing?: number;
 } & ViewProps;
 
-export default function ActionList({
+export default React.memo(function ActionList({
   spacing = 12,
   children,
 }: ActionListProps) {
@@ -20,7 +20,7 @@ export default function ActionList({
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   list: {

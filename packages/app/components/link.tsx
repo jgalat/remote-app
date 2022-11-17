@@ -12,7 +12,7 @@ export type LinkProps = {
   title: string;
 };
 
-export default function Link({ to, title }: LinkProps) {
+export default React.memo(function Link({ to, title }: LinkProps) {
   const { tint } = useTheme();
 
   const goTo = React.useCallback(
@@ -20,16 +20,13 @@ export default function Link({ to, title }: LinkProps) {
     [to]
   );
 
-  return React.useMemo(
-    () => (
-      <Pressable style={styles.link} onPress={goTo}>
-        <Text style={{ color: tint }}>{title} </Text>
-        <Feather name="external-link" color={tint} size={16} />
-      </Pressable>
-    ),
-    [title, goTo, tint]
+  return (
+    <Pressable style={styles.link} onPress={goTo}>
+      <Text style={{ color: tint }}>{title} </Text>
+      <Feather name="external-link" color={tint} size={16} />
+    </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   link: {

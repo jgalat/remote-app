@@ -7,20 +7,20 @@ import Text from "./text";
 
 export type BadgeProps = { label: string | number } & ViewProps;
 
-export default function Badge({ label, style, ...props }: BadgeProps) {
+export default React.memo(function Badge({
+  label,
+  style,
+  ...props
+}: BadgeProps) {
   const { text, background } = useTheme();
-
-  return React.useMemo(
-    () => (
-      <View style={[styles.badge, { backgroundColor: text }]} {...props}>
-        <Text style={styles.text} color={background}>
-          {label}
-        </Text>
-      </View>
-    ),
-    [label, style, text, background]
+  return (
+    <View style={[styles.badge, { backgroundColor: text }]} {...props}>
+      <Text style={styles.text} color={background}>
+        {label}
+      </Text>
+    </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   badge: {

@@ -14,7 +14,7 @@ export type TextInputProps = {
   containerStyle?: StyleProp<TextStyle>;
 } & _TextInputProps;
 
-export default function TextInput({
+export default React.memo(function TextInput({
   style,
   editable = true,
   containerStyle,
@@ -40,7 +40,7 @@ export default function TextInput({
       />
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   input: {

@@ -14,7 +14,11 @@ export type KeyValueProps = {
   copy?: boolean;
 };
 
-export default function KeyValue({ field, value, copy }: KeyValueProps) {
+export default React.memo(function KeyValue({
+  field,
+  value,
+  copy,
+}: KeyValueProps) {
   const { gray, tint } = useTheme();
 
   const onCopy = React.useCallback(async () => {
@@ -22,26 +26,23 @@ export default function KeyValue({ field, value, copy }: KeyValueProps) {
     ToastAndroid.show("Magnet Link copied", ToastAndroid.SHORT);
   }, [value]);
 
-  return React.useMemo(
-    () => (
-      <View style={styles.row}>
-        <Text style={styles.field}>{field}</Text>
+  return (
+    <View style={styles.row}>
+      <Text style={styles.field}>{field}</Text>
 
-        <ScrollView horizontal fadingEdgeLength={64}>
-          {copy ? (
-            <Pressable style={styles.pressable} onPress={onCopy}>
-              <Feather name="clipboard" color={tint} size={16} />
-              <Text style={[styles.value, { color: tint }]}> {value}</Text>
-            </Pressable>
-          ) : (
-            <Text style={[styles.value, { color: gray }]}>{value}</Text>
-          )}
-        </ScrollView>
-      </View>
-    ),
-    [field, value, copy, onCopy, gray, tint]
+      <ScrollView horizontal fadingEdgeLength={64}>
+        {copy ? (
+          <Pressable style={styles.pressable} onPress={onCopy}>
+            <Feather name="clipboard" color={tint} size={16} />
+            <Text style={[styles.value, { color: tint }]}> {value}</Text>
+          </Pressable>
+        ) : (
+          <Text style={[styles.value, { color: gray }]}>{value}</Text>
+        )}
+      </ScrollView>
+    </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

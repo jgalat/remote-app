@@ -14,7 +14,7 @@ export type ErrorMessageProps = {
   error: Error;
 } & ViewProps;
 
-export default function ErrorMessage({
+export default React.memo(function ErrorMessage({
   error,
   style,
   ...props
@@ -58,7 +58,7 @@ export default function ErrorMessage({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -7,27 +7,24 @@ export type ProgressBarProps = {
   color: string;
 } & Pick<ViewProps, "style">;
 
-export default function ProgressBar({
+export default React.memo(function ProgressBar({
   progress,
   color,
   style,
 }: ProgressBarProps) {
   const { lightGray } = useTheme();
-  return React.useMemo(
-    () => (
-      <View style={[style, styles.root]}>
-        <View style={[styles.background, { backgroundColor: lightGray }]} />
-        <View
-          style={[
-            styles.foreground,
-            { width: `${progress}%`, backgroundColor: color },
-          ]}
-        />
-      </View>
-    ),
-    [progress, color, style, lightGray]
+  return (
+    <View style={[style, styles.root]}>
+      <View style={[styles.background, { backgroundColor: lightGray }]} />
+      <View
+        style={[
+          styles.foreground,
+          { width: `${progress}%`, backgroundColor: color },
+        ]}
+      />
+    </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   root: {

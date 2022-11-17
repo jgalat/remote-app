@@ -9,7 +9,7 @@ export type ButtonProps = {
   title: string;
 } & PressableProps;
 
-export default function Button({
+export default React.memo(function Button({
   style,
   title,
   disabled,
@@ -28,7 +28,7 @@ export default function Button({
       </Text>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   button: {

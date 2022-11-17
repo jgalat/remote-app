@@ -10,7 +10,7 @@ export type PressableProps = {
   style?: StyleProp<ViewStyle>;
 } & Omit<_PressableProps, "style">;
 
-export default function Pressable({
+export default React.memo(function Pressable({
   style,
   disabled,
   ...props
@@ -28,4 +28,4 @@ export default function Pressable({
       {...props}
     />
   );
-}
+});

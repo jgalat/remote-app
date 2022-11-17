@@ -15,7 +15,7 @@ export type OptionProps = {
   color?: string;
 } & PressableProps;
 
-export default function Option({
+export default React.memo(function Option({
   label,
   left,
   right,
@@ -43,7 +43,7 @@ export default function Option({
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

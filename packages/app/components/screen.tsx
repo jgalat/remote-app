@@ -30,7 +30,7 @@ function view(variant: Variant): any {
   }
 }
 
-export default function Screen({
+export default React.memo(function Screen({
   style,
   variant = "view",
   ...props
@@ -41,7 +41,7 @@ export default function Screen({
   return (
     <Component style={[styles.screen, { backgroundColor }, style]} {...props} />
   );
-}
+});
 
 const styles = StyleSheet.create({
   screen: {
