@@ -45,7 +45,7 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
     const now = Math.floor(Date.now() / 1000);
     await storeState({ lastUpdate: now });
 
-    if (done.length === 0) {
+    if (done.length === 0 || lastUpdate === 0) {
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
 
