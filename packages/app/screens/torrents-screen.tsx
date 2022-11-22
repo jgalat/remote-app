@@ -26,7 +26,7 @@ import {
 } from "../hooks/use-action-sheet";
 import compare from "../utils/sort";
 import predicate from "../utils/filter";
-import { ErrorScreen, LoadingScreen } from "./utils";
+import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function TorrentsScreen() {
   const linkTo = useLinkTo();
@@ -110,7 +110,7 @@ export default function TorrentsScreen() {
   }
 
   if (error) {
-    return <ErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} />;
   }
 
   if (!torrents) {

@@ -14,7 +14,7 @@ import { RootStackParamList } from "../types";
 import { useTorrentActionsSheet } from "../hooks/use-action-sheet";
 import KeyValue, { KeyValueProps } from "../components/key-value";
 import { formatSize, formatStatus } from "../utils/formatters";
-import { ErrorScreen, LoadingScreen } from "./utils";
+import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function TorrentDetails() {
   const {
@@ -146,7 +146,7 @@ export default function TorrentDetails() {
   }, [torrent]);
 
   if (error) {
-    return <ErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} />;
   }
 
   if (!torrent) {

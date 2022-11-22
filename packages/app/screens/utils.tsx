@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 import Text from "../components/text";
 import Screen from "../components/screen";
-import ErrorMessage from "../components/error-message";
+import NetworkErrorMessage from "../components/network-error-message";
 
 export function LoadingScreen() {
   return (
@@ -14,10 +14,10 @@ export function LoadingScreen() {
 
 export type ErrorScreenProps = { error: Error };
 
-export function ErrorScreen({ error }: ErrorScreenProps) {
+export function NetworkErrorScreen({ error }: ErrorScreenProps) {
   return (
     <Screen style={styles.message}>
-      <ErrorMessage error={error} />
+      <NetworkErrorMessage error={error} />
     </Screen>
   );
 }

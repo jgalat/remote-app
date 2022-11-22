@@ -94,7 +94,7 @@ export function useTorrent(id: number) {
     return {
       ...rest,
       data: undefined,
-      error: new Error("torrent not found"),
+      error: new Error("Torrent not found"),
     };
   }
   return { data: torrent, ...rest };

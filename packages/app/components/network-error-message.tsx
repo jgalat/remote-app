@@ -10,15 +10,15 @@ import Button from "./button";
 import { useTheme } from "../hooks/use-theme-color";
 import { useTorrents } from "../hooks/use-transmission";
 
-export type ErrorMessageProps = {
+export type NetworkErrorMessageProps = {
   error: Error;
 } & ViewProps;
 
-export default React.memo(function ErrorMessage({
+export default React.memo(function NetworkErrorMessage({
   error,
   style,
   ...props
-}: ErrorMessageProps) {
+}: NetworkErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
   const { mutate } = useTorrents();

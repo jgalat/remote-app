@@ -8,7 +8,7 @@ import View from "../components/view";
 import TextInput from "../components/text-input";
 import Screen from "../components/screen";
 import { useSession, useSessionSet } from "../hooks/use-transmission";
-import { ErrorScreen, LoadingScreen } from "./utils";
+import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
   const { data: session, error } = useSession();
@@ -62,7 +62,7 @@ export default function ServerConfigurationScreen() {
   );
 
   if (error) {
-    return <ErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} />;
   }
 
   if (!state || !session) {
