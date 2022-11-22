@@ -3,16 +3,17 @@ import { SheetProvider } from "react-native-actions-sheet";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 
-import useCachedResources from "./hooks/use-cached-resources";
+import StatusBar from "./components/status-bar";
+import Screen from "./components/screen";
+import useLoader from "./hooks/use-loader";
 import { SettingsProvider } from "./contexts/settings";
 import { ClientProvider } from "./contexts/transmission-client";
 import { NavigationContainer, RootNavigator } from "./navigation";
-import StatusBar from "./components/status-bar";
 
 import "./sheets";
 import "./tasks";
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,14 +24,20 @@ Notifications.setNotificationHandler({
 });
 
 function App() {
-  const loaded = useCachedResources();
+  const loaded = useLoader();
+
+  const onLoad = React.useCallback(async () => {
+    if (loaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <Screen />;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer onReady={onLoad}>
       <SheetProvider>
         <RootNavigator />
       </SheetProvider>

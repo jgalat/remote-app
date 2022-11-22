@@ -6,6 +6,7 @@ import {
   DarkTheme,
   useNavigationContainerRef,
   LinkingOptions,
+  NavigationContainerProps,
 } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -29,13 +30,25 @@ import ThemeScreen from "../screens/theme-screen";
 import TorrentDetails from "../screens/torrent-details";
 import TaskConfigurationScreen from "../screens/task-configuration-screen";
 
-export function NavigationContainer({ children }: React.PropsWithChildren) {
+export function NavigationContainer({
+  children,
+  onReady: onLoad,
+  ...override
+}: NavigationContainerProps & { onReady: () => void }) {
   const colorScheme = useColorScheme();
-  const props = useNavigationContainerProps();
+  const { onReady: linkRedirect, ...props } = useNavigationContainerProps();
+
+  const onReady = React.useCallback(async () => {
+    await linkRedirect();
+    onLoad();
+  }, [linkRedirect, onLoad]);
+
   return (
     <_NavigationContainer
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
+      {...override}
+      onReady={onReady}
     >
       {children}
     </_NavigationContainer>
