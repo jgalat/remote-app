@@ -1,4 +1,5 @@
 import * as React from "react";
+import { ToastAndroid } from "react-native";
 import useSWR from "swr";
 import TransmissionClient, {
   Methods,
@@ -8,7 +9,6 @@ import TransmissionClient, {
 } from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
-import { ToastAndroid } from "react-native";
 
 function useTransmission(): TransmissionClient | undefined {
   return React.useContext(ClientContext);
