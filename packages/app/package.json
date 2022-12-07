@@ -23,7 +23,7 @@
     "@react-navigation/native-stack": "^6.9.1",
     "@remote-app/transmission-client": "0.0.13",
     "buffer": "^6.0.3",
-    "expo": "^47.0.0",
+    "expo": "^47.0.8",
     "expo-asset": "~8.6.2",
     "expo-background-fetch": "~11.0.1",
     "expo-clipboard": "~4.0.1",
