@@ -29,10 +29,14 @@ export default function ServerConfigurationScreen() {
         return;
       }
 
+      if (session?.[field] === state[field]) {
+        return;
+      }
+
       try {
         await sessionSet({ [field]: state[field] });
         ToastAndroid.show("Server updated successfully", ToastAndroid.SHORT);
-      } catch (e) {
+      } catch {
         ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
       }
     },
@@ -53,7 +57,7 @@ export default function ServerConfigurationScreen() {
         try {
           await sessionSet({ [field]: value });
           ToastAndroid.show("Server updated successfully", ToastAndroid.SHORT);
-        } catch (e) {
+        } catch {
           ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
         }
       }

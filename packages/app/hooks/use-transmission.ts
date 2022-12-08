@@ -304,7 +304,7 @@ export function useTorrentActions() {
               ...args,
             },
           });
-        } catch (e) {
+        } catch {
           ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
         } finally {
           setTimeout(() => mutate(), 500);

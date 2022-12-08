@@ -40,7 +40,7 @@ export default function ({ payload, ...props }: SheetProps<Payload>) {
             },
             { dialogTitle: `Share ${name}` }
           );
-        } catch (e) {
+        } catch {
           ToastAndroid.show("Failed to share magnet link", ToastAndroid.SHORT);
         }
       },
