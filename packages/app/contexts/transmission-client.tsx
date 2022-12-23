@@ -9,21 +9,16 @@ export const ClientContext = React.createContext<
 
 export function ClientProvider({ children }: React.PropsWithChildren) {
   const server = useServer();
-  const [client, setClient] = React.useState<TransmissionClient | undefined>();
-
-  React.useEffect(() => {
+  const client = React.useMemo(() => {
     if (!server) {
-      setClient(undefined);
       return;
     }
 
-    setClient(
-      new TransmissionClient({
-        url: server.url,
-        username: server.username,
-        password: server.password,
-      })
-    );
+    return new TransmissionClient({
+      url: server.url,
+      username: server.username,
+      password: server.password,
+    });
   }, [server]);
 
   return (
