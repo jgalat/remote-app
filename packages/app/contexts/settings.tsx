@@ -13,8 +13,8 @@ export type AppSettings = {
   store: (settings: Settings) => Promise<void>;
 };
 
-export const SettingsContext: React.Context<AppSettings> =
-  React.createContext<AppSettings>({} as AppSettings);
+export const SettingsContext: React.Context<AppSettings | undefined> =
+  React.createContext<AppSettings | undefined>(undefined);
 
 export function SettingsProvider({ children }: React.PropsWithChildren) {
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);

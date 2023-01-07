@@ -8,7 +8,11 @@ import { SettingsContext } from "../contexts/settings";
 import { Settings } from "../store/settings";
 
 export default function useSettings() {
-  return React.useContext(SettingsContext);
+  const ctx = React.useContext(SettingsContext);
+  if (!ctx) {
+    throw new Error("Using SettingsContext outside of provider");
+  }
+  return ctx;
 }
 
 export function useColorScheme(): "light" | "dark" {
