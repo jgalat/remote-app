@@ -1,8 +1,12 @@
 {
   "name": "@remote-app/transmission-client",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Transmission RPC client",
-  "keywords": ["transmission", "rpc", "client"],
+  "keywords": [
+    "transmission",
+    "rpc",
+    "client"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,7 +16,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "react-native": "src/index.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc --build"
   },
