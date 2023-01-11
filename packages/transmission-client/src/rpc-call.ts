@@ -1,4 +1,5 @@
 import type {
+  SessionGetRequest,
   SessionGetResponse,
   SessionSetRequest,
   SessionStatsResponse,
@@ -38,35 +39,60 @@ type TorrentMethods =
 
 export type Methods = SessionMethods | TorrentMethods;
 
-export type RPCRequest<A> = {
-  method: Methods;
-  arguments?: A;
+export type RPCRequest<M, T> = {
+  method: M;
+  arguments?: T;
   tag?: number;
 };
 
-export type RPCResponse<B> = {
-  result: "success" | string;
-  arguments?: B;
+export type RPCResponse<A> = {
+  result: string;
+  arguments: A;
   tag?: number;
 };
 
-export type RPCCall<A, B = void> = B extends void
-  ? [RPCRequest<A>, void]
-  : [RPCRequest<A>, RPCResponse<B>];
+type RPCCall<
+  M extends Methods,
+  TRequest,
+  TResponse = never
+> = TResponse extends never
+  ? (request: RPCRequest<M, TRequest>) => void
+  : (request: RPCRequest<M, TRequest>) => RPCResponse<TResponse>;
 
-export type Mapping = {
-  "session-get": RPCCall<never, SessionGetResponse>;
-  "session-set": RPCCall<SessionSetRequest>;
-  "session-stats": RPCCall<never, SessionStatsResponse>;
-  "free-space": RPCCall<FreeSpaceRequest, FreeSpaceResponse>;
-  "torrent-start": RPCCall<TorrentStartRequest>;
-  "torrent-start-now": RPCCall<TorrentStartNowRequest>;
-  "torrent-stop": RPCCall<TorrentStopRequest>;
-  "torrent-verify": RPCCall<TorrentVerifyRequest>;
-  "torrent-reannounce": RPCCall<TorrentReannounceRequest>;
-  "torrent-remove": RPCCall<TorrentRemoveRequest>;
-  "torrent-set-location": RPCCall<TorrentSetLocationRequest>;
-  "torrent-get": RPCCall<TorrentGetRequest, TorrentGetResponse>;
-  "torrent-add": RPCCall<TorrentAddRequest, TorrentAddResponse>;
-  "torrent-set": RPCCall<TorrentSetRequest>;
+export type MethodRequest = {
+  "session-get": SessionGetRequest;
+  "session-set": SessionSetRequest;
+  "session-stats": never;
+  "free-space": FreeSpaceRequest;
+  "torrent-start": TorrentStartRequest;
+  "torrent-start-now": TorrentStartNowRequest;
+  "torrent-stop": TorrentStopRequest;
+  "torrent-verify": TorrentVerifyRequest;
+  "torrent-reannounce": TorrentReannounceRequest;
+  "torrent-remove": TorrentRemoveRequest;
+  "torrent-set-location": TorrentSetLocationRequest;
+  "torrent-get": TorrentGetRequest;
+  "torrent-add": TorrentAddRequest;
+  "torrent-set": TorrentSetRequest;
+};
+
+export type MethodResponse = {
+  "session-get": SessionGetResponse;
+  "session-set": SessionSetRequest;
+  "session-stats": SessionStatsResponse;
+  "free-space": FreeSpaceResponse;
+  "torrent-start": TorrentStartRequest;
+  "torrent-start-now": TorrentStartNowRequest;
+  "torrent-stop": TorrentStopRequest;
+  "torrent-verify": TorrentVerifyRequest;
+  "torrent-reannounce": TorrentReannounceRequest;
+  "torrent-remove": TorrentRemoveRequest;
+  "torrent-set-location": TorrentSetLocationRequest;
+  "torrent-get": TorrentGetResponse;
+  "torrent-add": TorrentAddResponse;
+  "torrent-set": TorrentSetRequest;
+};
+
+export type Calls = {
+  [K in Methods]: RPCCall<K, MethodRequest[K], MethodResponse[K]>;
 };

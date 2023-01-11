@@ -1,4 +1,7 @@
-export type { Response as SessionGetResponse } from "./session-get";
+export type {
+  Request as SessionGetRequest,
+  Response as SessionGetResponse,
+} from "./session-get";
 export type { Request as SessionSetRequest } from "./session-set";
 export type { Response as SessionStatsResponse } from "./session-stats";
 export type {

@@ -1,7 +1,7 @@
 import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
-import type { Methods, Mapping } from "./rpc-call";
+import type { Methods, Calls } from "./rpc-call";
 import { HTTPError, TransmissionError } from "./error";
 
 export class TransmissionClient {
@@ -10,8 +10,8 @@ export class TransmissionClient {
   constructor(private config: TransmissionConfig) {}
 
   async request<M extends Methods>(
-    body: Mapping[M][0] & { method: M }
-  ): Promise<Mapping[M][1]> {
+    req: Parameters<Calls[M]>[0] & { method: M }
+  ): Promise<ReturnType<Calls[M]>> {
     const headers = new Headers({
       "Content-Type": "application/json",
     });
@@ -30,23 +30,23 @@ export class TransmissionClient {
     const request: Request = new Request(this.config.url, {
       method: "POST",
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(req),
     });
 
     const response: Response = await fetch(request);
 
     if (response.status === 409) {
       this.session = response.headers.get("x-transmission-session-id");
-      return await this.request<M>(body);
+      return await this.request<M>(req);
     }
 
-    if (response.status >= 400) {
+    if (!response.ok) {
       throw new HTTPError(response.status, response.statusText);
     }
 
-    const json = (await response.json()) as Mapping[M][1];
+    const json = (await response.json()) as ReturnType<Calls[M]>;
     if (json && json.result !== "success") {
-      throw new TransmissionError(json.result)
+      throw new TransmissionError(json.result);
     }
 
     return json;

@@ -1,3 +1,5 @@
+import { Fields } from "./utils";
+
 type Units = {
   "speed-units": string[];
   "speed-bytes": number;
@@ -57,3 +59,5 @@ export type Response = {
   "utp-enabled": boolean;
   version: string;
 };
+
+export type Request = Partial<Fields<keyof Response>>;

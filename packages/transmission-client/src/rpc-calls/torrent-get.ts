@@ -1,4 +1,4 @@
-import { Identifiers } from "./utils";
+import { Identifiers, Fields } from "./utils";
 
 type File = {
   bytesCompleted: number;
@@ -174,6 +174,4 @@ export type Response = {
   torrents: Torrent[];
 };
 
-export type Request = Identifiers & {
-  fields: (keyof Torrent)[];
-};
+export type Request = Identifiers & Fields<keyof Torrent>;
