@@ -40,7 +40,7 @@ export default function ServerConfigurationScreen() {
         ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
       }
     },
-    [state, sessionSet]
+    [state, session, sessionSet]
   );
 
   const update = React.useCallback(
@@ -62,7 +62,7 @@ export default function ServerConfigurationScreen() {
         }
       }
     },
-    [state, setState, sessionSet]
+    [state, sessionSet]
   );
 
   if (error) {

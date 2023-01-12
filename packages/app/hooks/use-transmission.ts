@@ -227,8 +227,6 @@ export function useAddTorrent() {
             filename: url,
           },
         });
-      } catch (e) {
-        throw e;
       } finally {
         setTimeout(() => mutate(), 500);
       }
@@ -249,8 +247,6 @@ export function useAddTorrent() {
             metainfo: content,
           },
         });
-      } catch (e) {
-        throw e;
       } finally {
         setTimeout(() => mutate(), 500);
       }

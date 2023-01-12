@@ -1,10 +1,15 @@
+import * as React from "react";
+
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 import { useTheme } from "../hooks/use-theme-color";
 import { useTorrentActions } from "../hooks/use-transmission";
 
 export const REMOVE_CONFIRM_SHEET_NAME = "remove-confirm";
 
-export default function ({ payload: id, ...props }: SheetProps<number>) {
+export default function RemoveConfirmSheet({
+  payload: id,
+  ...props
+}: SheetProps<number>) {
   const { red } = useTheme();
   const { remove } = useTorrentActions();
 

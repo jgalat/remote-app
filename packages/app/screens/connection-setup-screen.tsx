@@ -12,6 +12,13 @@ import useSettings from "../hooks/use-settings";
 import type { RootStackParamList } from "../types";
 import type { Server } from "../store/settings";
 
+type Form = {
+  name: string;
+  url: string;
+  username: string;
+  password: string;
+};
+
 export default function ConnectionScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -19,20 +26,18 @@ export default function ConnectionScreen() {
   const { server } = settings;
   const red = useThemeColor("red");
 
-  const [form, setForm] = React.useState<{
-    name: string;
-    url: string;
-    username: string;
-    password: string;
-  }>({
-    name: server?.name ?? "",
-    url: server?.url ?? "",
-    username: server?.username ?? "",
-    password: server?.password ?? "",
-  });
+  const [form, updateForm] = React.useReducer(
+    (prev: Form, f: Partial<Form>) => ({ ...prev, ...f }),
+    {
+      name: server?.name ?? "",
+      url: server?.url ?? "",
+      username: server?.username ?? "",
+      password: server?.password ?? "",
+    }
+  );
   const [error, setError] = React.useState<string>();
 
-  const save = async () => {
+  const save = React.useCallback(async () => {
     try {
       if (form.name === "" || form.url === "") {
         throw new Error("Name and URL are required");
@@ -43,28 +48,28 @@ export default function ConnectionScreen() {
         username: form.username === "" ? undefined : form.username,
         password: form.password === "" ? undefined : form.password,
       };
-      await store({ ...settings, server });
+      await store({ server });
       navigation.popToTop();
-    } catch (e: any) {
+    } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
         message = e.message;
       }
       setError(message);
     }
-  };
+  }, [form, navigation, store]);
 
-  const remove = async () => {
-    await store({ ...settings, server: undefined });
+  const remove = React.useCallback(async () => {
+    await store({ server: undefined });
     navigation.popToTop();
-  };
+  }, [store, navigation]);
 
   return (
     <Screen variant="keyboardavoiding">
       <TextInput
         style={styles.input}
         value={form.name}
-        onChangeText={(t) => setForm({ ...form, name: t })}
+        onChangeText={(t) => updateForm({ name: t })}
         placeholder="Server name (required)"
       />
       <TextInput
@@ -72,20 +77,20 @@ export default function ConnectionScreen() {
         value={form.url}
         autoCorrect={false}
         keyboardType={"url"}
-        onChangeText={(t) => setForm({ ...form, url: t })}
+        onChangeText={(t) => updateForm({ url: t })}
         placeholder="RPC URL (required)"
       />
       <TextInput
         style={styles.input}
         value={form.username}
-        onChangeText={(t) => setForm({ ...form, username: t })}
+        onChangeText={(t) => updateForm({ username: t })}
         placeholder="Username (optional)"
       />
       <TextInput
         style={styles.input}
         secureTextEntry
         value={form.password}
-        onChangeText={(t) => setForm({ ...form, password: t })}
+        onChangeText={(t) => updateForm({ password: t })}
         placeholder="Password (optional)"
       />
       <Button

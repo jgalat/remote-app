@@ -19,6 +19,7 @@ export type ScreenProps = {
   ScrollViewProps &
   KeyboardAvoidingViewProps;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function view(variant: Variant): any {
   switch (variant) {
     case "view":

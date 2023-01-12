@@ -20,7 +20,7 @@ export type TorrentItemProps = {
   left?: React.ReactNode;
 } & PressableProps;
 
-export default React.memo(function ({
+export default React.memo(function TorrentItem({
   torrent,
   left,
   ...props

@@ -11,7 +11,7 @@ import type { OptionProps } from "../components/option";
 
 export const FILTER_SHEET_NAME = "filter";
 
-export default function (props: SheetProps) {
+export default function FilterSheet(props: SheetProps) {
   const { data: torrents } = useTorrents();
   const { settings, store } = useSettings();
   const { filter } = settings.listing;
@@ -20,7 +20,6 @@ export default function (props: SheetProps) {
     (f: Filter): (() => Promise<void>) => {
       return async () => {
         return await store({
-          ...settings,
           listing: {
             ...settings.listing,
             filter: f,
@@ -28,7 +27,7 @@ export default function (props: SheetProps) {
         });
       };
     },
-    [filter, settings]
+    [store, settings.listing]
   );
 
   const right = React.useCallback(
@@ -87,7 +86,7 @@ export default function (props: SheetProps) {
         right: right("finished"),
       },
     ],
-    [update, right]
+    [left, update, right]
   );
 
   return <ActionSheet title="Filter" options={options} {...props} />;

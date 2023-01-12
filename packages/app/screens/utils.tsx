@@ -1,3 +1,4 @@
+import * as React from "react";
 import { StyleSheet } from "react-native";
 
 import Text from "../components/text";

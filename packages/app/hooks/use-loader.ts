@@ -31,7 +31,7 @@ export default function useCachedResources() {
         setLoaded(true);
       }
     })();
-  }, []);
+  }, [loadSettings]);
 
   return loaded;
 }

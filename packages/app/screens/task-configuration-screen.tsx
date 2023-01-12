@@ -13,17 +13,17 @@ import {
 } from "../tasks/torrents-notifier";
 
 export default function TaskConfigurationScreen() {
-  const { settings, store } = useSettings();
+  const { store } = useSettings();
   const [state, setState] = React.useState<boolean>(false);
-
-  React.useLayoutEffect(() => {
-    check();
-  }, []);
 
   const check = React.useCallback(async () => {
     const isTaskRegistered = await isTorrentsNotifierTaskRegistered();
     setState(isTaskRegistered);
-  }, [setState]);
+  }, []);
+
+  React.useLayoutEffect(() => {
+    check();
+  }, [check]);
 
   const onPress = React.useCallback(async () => {
     const isTaskRegistered = await isTorrentsNotifierTaskRegistered();
@@ -32,9 +32,9 @@ export default function TaskConfigurationScreen() {
     } else {
       await registerTorrentsNotifierTask();
     }
-    await store({ ...settings, notifications: !isTaskRegistered });
+    await store({ notifications: !isTaskRegistered });
     await check();
-  }, [settings, store, check]);
+  }, [store, check]);
 
   return (
     <Screen variant="scroll">

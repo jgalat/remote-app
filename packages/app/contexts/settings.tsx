@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useColorScheme as _useColorScheme } from "react-native";
 import {
   Settings,
   loadSettings,
@@ -10,26 +9,36 @@ import {
 export type AppSettings = {
   settings: Settings;
   load: () => Promise<Settings>;
-  store: (settings: Settings) => Promise<void>;
+  store: (diff: Partial<Settings>) => Promise<void>;
 };
 
 export const SettingsContext: React.Context<AppSettings | undefined> =
   React.createContext<AppSettings | undefined>(undefined);
 
 export function SettingsProvider({ children }: React.PropsWithChildren) {
-  const [settings, setSettings] = React.useState<Settings>(defaultSettings);
+  const [settings, setSettings] = React.useReducer(
+    (p: Settings, s: Partial<Settings>) => ({ ...p, ...s }),
+    defaultSettings
+  );
+
+  const load = React.useCallback(async () => {
+    const settings = await loadSettings();
+    setSettings(settings);
+    return settings;
+  }, []);
+
+  const store = React.useCallback(
+    async (diff: Partial<Settings>) => {
+      await storeSettings({ ...settings, ...diff });
+      setSettings(diff);
+    },
+    [settings]
+  );
 
   const value: AppSettings = {
     settings,
-    load: async () => {
-      const settings = await loadSettings();
-      setSettings(settings);
-      return settings;
-    },
-    store: async (settings: Settings) => {
-      await storeSettings(settings);
-      setSettings(settings);
-    },
+    load,
+    store,
   };
 
   return (

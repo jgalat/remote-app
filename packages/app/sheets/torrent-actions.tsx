@@ -18,7 +18,7 @@ export type Payload = {
 
 export const TORRENT_ACTIONS_SHEET_NAME = "torrent-actions";
 
-export default function ({
+export default function TorrentActionsSheet({
   payload: {
     torrent: { id, name, magnetLink },
     showDetails = true,

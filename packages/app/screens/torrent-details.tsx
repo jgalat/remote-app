@@ -47,7 +47,7 @@ export default function TorrentDetails() {
         </ActionList>
       ),
     });
-  }, [id, text, torrent, error, torrentActionsSheet]);
+  }, [id, text, torrent, error, torrentActionsSheet, navigation]);
 
   const data = React.useMemo<
     {

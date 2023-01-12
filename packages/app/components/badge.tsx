@@ -14,7 +14,7 @@ export default React.memo(function Badge({
 }: BadgeProps) {
   const { text, background } = useTheme();
   return (
-    <View style={[styles.badge, { backgroundColor: text }]} {...props}>
+    <View style={[styles.badge, { backgroundColor: text }, style]} {...props}>
       <Text style={styles.text} color={background}>
         {label}
       </Text>

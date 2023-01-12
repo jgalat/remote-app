@@ -55,7 +55,7 @@ export default function TorrentsScreen() {
     navigation.setOptions({
       headerRight: () => (
         <ActionList>
-          {!!session
+          {session
             ? [
                 <ActionIcon
                   key="add"
@@ -89,7 +89,7 @@ export default function TorrentsScreen() {
         </ActionList>
       ),
     });
-  }, [linkTo, text, session, addTorrentSheet, sortBySheet, filterSheet]);
+  }, [linkTo, text, session, addTorrentSheet, sortBySheet, filterSheet, navigation]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);

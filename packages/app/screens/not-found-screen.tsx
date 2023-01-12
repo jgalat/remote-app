@@ -1,3 +1,4 @@
+import * as React from "react";
 import { StyleSheet } from "react-native";
 import { useLinkTo, useRoute } from "@react-navigation/native";
 

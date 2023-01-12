@@ -16,7 +16,7 @@ export default React.memo(function Link({ to, title }: LinkProps) {
   const { tint } = useTheme();
 
   const goTo = React.useCallback(
-    () => Linking.openURL(to).catch(() => {}),
+    () => Linking.openURL(to).catch(() => undefined),
     [to]
   );
 

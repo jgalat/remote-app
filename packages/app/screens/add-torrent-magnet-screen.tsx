@@ -17,6 +17,13 @@ import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { formatSize } from "../utils/formatters";
 import type { RootStackParamList } from "../types";
 
+type State = {
+  error?: string;
+  uri?: string;
+  data?: MagnetData;
+  sending?: boolean;
+};
+
 export default function AddTorrentMagnetScreen() {
   const {
     params: { uri },
@@ -30,12 +37,10 @@ export default function AddTorrentMagnetScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const add = useAddTorrent();
   const { data: freeSpace, error } = useFreeSpace();
-  const [state, setState] = React.useState<{
-    error?: string;
-    uri?: string;
-    data?: MagnetData;
-    sending?: boolean;
-  }>({ sending: false });
+  const [state, setState] = React.useReducer(
+    (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
+    { sending: false }
+  );
 
   React.useEffect(() => {
     if (uri) {
@@ -54,25 +59,25 @@ export default function AddTorrentMagnetScreen() {
     } else {
       setState({ error: "Invalid Magnet URL" });
     }
-  }, [setState]);
+  }, []);
 
   const onAdd = React.useCallback(async () => {
     if (!state.uri) {
       return;
     }
 
-    setState({ ...state, sending: true });
+    setState({ sending: true });
     try {
       await add.magnet(state.uri);
       navigation.popToTop();
-    } catch (e: any) {
+    } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
         message = e.message;
       }
-      setState({ ...state, sending: false, error: message });
+      setState({ sending: false, error: message });
     }
-  }, [state]);
+  }, [add, navigation, state.uri]);
 
   const magnet = React.useMemo(() => {
     const { dn, xt, tr, xl } = state.data ?? {};

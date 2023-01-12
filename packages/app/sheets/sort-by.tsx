@@ -9,7 +9,7 @@ import type { OptionProps } from "../components/option";
 
 export const SORT_BY_SHEET_NAME = "sort-by";
 
-export default function (props: SheetProps) {
+export default function SortBySheet(props: SheetProps) {
   const { settings, store } = useSettings();
   const { sort, direction } = settings.listing;
 
@@ -18,7 +18,6 @@ export default function (props: SheetProps) {
       return async () => {
         if (s === sort) {
           return await store({
-            ...settings,
             listing: {
               ...settings.listing,
               direction: direction === "desc" ? "asc" : "desc",
@@ -26,7 +25,6 @@ export default function (props: SheetProps) {
           });
         }
         return await store({
-          ...settings,
           listing: {
             ...settings.listing,
             direction: "desc",
@@ -35,7 +33,7 @@ export default function (props: SheetProps) {
         });
       };
     },
-    [sort, direction, settings]
+    [sort, direction, settings.listing, store]
   );
 
   const right = React.useCallback(

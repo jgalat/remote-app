@@ -17,10 +17,10 @@ export default function ThemeScreen() {
 
   const select = React.useCallback(
     (option: ColorScheme) => async () => {
-      await store({ ...settings, colorScheme: option });
+      await store({ colorScheme: option });
       navigation.popToTop();
     },
-    [settings, navigation]
+    [store, navigation]
   );
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(

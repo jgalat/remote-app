@@ -17,6 +17,13 @@ import { useAddTorrent, useFreeSpace } from "../hooks/use-transmission";
 import { formatSize } from "../utils/formatters";
 import type { RootStackParamList } from "../types";
 
+type State = {
+  error?: string;
+  uri?: string;
+  filename?: string;
+  sending?: boolean;
+};
+
 export default function AddTorrentFileScreen() {
   const {
     params: { uri },
@@ -30,12 +37,12 @@ export default function AddTorrentFileScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const add = useAddTorrent();
   const { data: freeSpace, error } = useFreeSpace();
-  const [state, setState] = React.useState<{
-    error?: string;
-    uri?: string;
-    filename?: string;
-    sending?: boolean;
-  }>({ sending: false });
+  const [state, setState] = React.useReducer(
+    (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
+    {
+      sending: false,
+    }
+  );
 
   React.useEffect(() => {
     async function updateUri() {
@@ -44,13 +51,13 @@ export default function AddTorrentFileScreen() {
         const fileUri = `${FileSystem.cacheDirectory}${Date.now()}.torrent`;
         try {
           await FileSystem.copyAsync({ from: uri, to: fileUri });
-          setState({ ...state, error: undefined, uri: fileUri, filename });
-        } catch (e: any) {
+          setState({ error: undefined, uri: fileUri, filename });
+        } catch (e) {
           let message = "Something went wrong";
           if (e instanceof Error) {
             message = e.message;
           }
-          setState({ ...state, error: message });
+          setState({ error: message });
         }
       }
     }
@@ -68,19 +75,18 @@ export default function AddTorrentFileScreen() {
     }
 
     setState({
-      ...state,
       error: undefined,
       uri: file.uri,
       filename: file.name,
     });
-  }, [setState]);
+  }, []);
 
   const onAdd = React.useCallback(async () => {
     if (!state.uri) {
       return;
     }
 
-    setState({ ...state, sending: true });
+    setState({ sending: true });
     const content = await FileSystem.readAsStringAsync(state.uri, {
       encoding: "base64",
     });
@@ -88,14 +94,14 @@ export default function AddTorrentFileScreen() {
     try {
       await add.file(content);
       navigation.popToTop();
-    } catch (e: any) {
+    } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
         message = e.message;
       }
-      setState({ ...state, sending: false, error: message });
+      setState({ sending: false, error: message });
     }
-  }, [state]);
+  }, [add, navigation, state.uri]);
 
   return (
     <View style={styles.container}>

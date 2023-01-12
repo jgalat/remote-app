@@ -70,7 +70,7 @@ export function RootNavigator() {
           animation: "slide_from_bottom",
         }}
       >
-        {!!server ? (
+        {server ? (
           <>
             <Stack.Screen
               name="TorrentDetails"
@@ -162,6 +162,7 @@ function SettingsStackNavigator() {
 }
 
 function useNavigationOptions(): (props: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigation: any;
 }) => NativeStackNavigationOptions {
   const text = useThemeColor("text");
