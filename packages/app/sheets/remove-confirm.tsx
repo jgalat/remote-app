@@ -16,13 +16,13 @@ export default function ({ payload: id, ...props }: SheetProps<number>) {
           label: "Remove",
           left: "trash",
           color: red,
-          onPress: () => remove(id!),
+          onPress: () => remove(id),
         },
         {
           label: "Remove & Trash data",
           left: "trash-2",
           color: red,
-          onPress: () => remove(id!, { "delete-local-data": true }),
+          onPress: () => remove(id, { "delete-local-data": true }),
         },
       ]}
       {...props}

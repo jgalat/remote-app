@@ -18,15 +18,16 @@ export type Payload = {
 
 export const TORRENT_ACTIONS_SHEET_NAME = "torrent-actions";
 
-export default function ({ payload, ...props }: SheetProps<Payload>) {
+export default function ({
+  payload: {
+    torrent: { id, name, magnetLink },
+    showDetails = true,
+  },
+  ...props
+}: SheetProps<Payload>) {
   const { red } = useTheme();
   const torrentActions = useTorrentActions();
   const linkTo = useLinkTo();
-
-  const {
-    torrent: { id, name, magnetLink },
-    showDetails = true,
-  } = payload!;
 
   let options: OptionProps[] = [
     {

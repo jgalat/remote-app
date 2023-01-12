@@ -10,7 +10,7 @@ import View from "./view";
 import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 
-export type SheetProps<T = any> = _SheetProps<T>;
+export type SheetProps<T = never> = _SheetProps<T> & { payload: T };
 
 export type ActionSheetProps = {
   title?: string;
