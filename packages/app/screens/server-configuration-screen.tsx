@@ -1,5 +1,10 @@
 import * as React from "react";
-import { StyleSheet, ToastAndroid } from "react-native";
+import {
+  NativeSyntheticEvent,
+  StyleSheet,
+  TextInputTextInputEventData,
+  ToastAndroid,
+} from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
 
 import Checkbox from "../components/checkbox";
@@ -16,12 +21,12 @@ export default function ServerConfigurationScreen() {
   const [state, setState] = React.useState<SessionGetResponse | undefined>();
 
   React.useLayoutEffect(() => {
-    if (!session) {
+    if (!session || state) {
       return;
     }
 
     setState(session);
-  }, [session]);
+  }, [session, state]);
 
   const onBlur = React.useCallback(
     (field: keyof SessionGetResponse) => async () => {
@@ -50,7 +55,10 @@ export default function ServerConfigurationScreen() {
       }
 
       if (typeof state[field] === "number" && typeof value === "string") {
-        setState({ ...state, [field]: +value.replace(/[^0-9]/g, "") });
+        return setState({
+          ...state,
+          [field]: Number(value.replace(/[^0-9]/g, "")),
+        });
       }
 
       if (typeof state[field] === "boolean" && typeof value === "boolean") {
