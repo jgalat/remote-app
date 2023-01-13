@@ -13,7 +13,7 @@ import { NavigationContainer, RootNavigator } from "./navigation";
 import "./sheets";
 import "./tasks";
 
-SplashScreen.preventAutoHideAsync().catch(() => {});
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -45,7 +45,7 @@ function App() {
   );
 }
 
-export default function () {
+export default function Providers() {
   return (
     <SettingsProvider>
       <ClientProvider>
