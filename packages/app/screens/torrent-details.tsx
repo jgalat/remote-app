@@ -30,19 +30,18 @@ export default function TorrentDetails() {
   const torrentActionsSheet = useTorrentActionsSheet();
 
   React.useLayoutEffect(() => {
-    if (error || !torrent) {
-      return navigation.setOptions({ headerRigt: () => <></> });
-    }
-
     navigation.setOptions({
-      headerRight: () => (
-        <ActionList>
-          <ActionIcon
-            onPress={() => torrentActionsSheet({ torrent, showDetails: false })}
-            name="more-vertical"
-          />
-        </ActionList>
-      ),
+      headerRight: () =>
+        error || !torrent ? null : (
+          <ActionList>
+            <ActionIcon
+              onPress={() =>
+                torrentActionsSheet({ torrents: [torrent], details: false })
+              }
+              name="more-vertical"
+            />
+          </ActionList>
+        ),
     });
   }, [id, text, torrent, error, torrentActionsSheet, navigation]);
 

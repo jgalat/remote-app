@@ -6,6 +6,7 @@ import TransmissionClient, {
   SessionGetResponse,
   SessionSetRequest,
   TorrentRemoveRequest,
+  TorrentSetRequest,
 } from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
@@ -276,7 +277,7 @@ export function useTorrentActions() {
       action: T
     ) => {
       return async (
-        ids: number | number[] | "recently-active" | null,
+        ids: TorrentSetRequest["ids"],
         params?: T extends "torrent-remove"
           ? Pick<TorrentRemoveRequest, "delete-local-data">
           : undefined

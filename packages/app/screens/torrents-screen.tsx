@@ -65,8 +65,20 @@ export default function TorrentsScreen() {
           />
         ) : null,
       headerRight: () => {
-        if (activeSelection) {
-          return <ActionList></ActionList>;
+        if (activeSelection && torrents) {
+          return (
+            <ActionList>
+              <ActionIcon
+                onPress={() =>
+                  torrentActionsSheet({
+                    torrents: torrents.filter((t) => selection.has(t.id)),
+                    details: false,
+                  })
+                }
+                name="more-vertical"
+              />
+            </ActionList>
+          );
         }
 
         const actions = session
@@ -96,6 +108,9 @@ export default function TorrentsScreen() {
     activeSelection,
     clear,
     server,
+    torrentActionsSheet,
+    torrents,
+    selection,
   ]);
 
   const refresh = React.useCallback(async () => {
@@ -147,7 +162,7 @@ export default function TorrentsScreen() {
             onPress={() =>
               activeSelection
                 ? toggle(torrent.id)
-                : torrentActionsSheet({ torrent })
+                : torrentActionsSheet({ torrents: [torrent] })
             }
             onLongPress={() => toggle(torrent.id)}
             torrent={torrent}

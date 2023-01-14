@@ -7,69 +7,63 @@ import type { Torrent } from "@remote-app/transmission-client";
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 import { useTorrentActions } from "../hooks/use-transmission";
 import { useTheme } from "../hooks/use-theme-color";
+import useTorrentSelection from "../hooks/use-torrent-selection";
 import { REMOVE_CONFIRM_SHEET_NAME } from "./remove-confirm";
 
 import type { OptionProps } from "../components/option";
 
 export type Payload = {
-  torrent: Torrent;
-  showDetails?: boolean;
+  torrents: Torrent[];
+  details?: boolean;
 };
 
 export const TORRENT_ACTIONS_SHEET_NAME = "torrent-actions";
 
 export default function TorrentActionsSheet({
-  payload: {
-    torrent: { id, name, magnetLink },
-    showDetails = true,
-  },
+  payload: { torrents, details = true },
   ...props
 }: SheetProps<Payload>) {
   const { red } = useTheme();
   const torrentActions = useTorrentActions();
   const linkTo = useLinkTo();
+  const { clear } = useTorrentSelection();
+
+  const wrap = React.useCallback(
+    (action: (ids: Torrent["id"][]) => Promise<void>, ids: Torrent["id"][]) =>
+      async () => {
+        await action(ids);
+        clear();
+      },
+    [clear]
+  );
+
+  const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
   let options: OptionProps[] = [
     {
-      label: "Share",
-      left: "share",
-      onPress: async () => {
-        try {
-          await Share.share(
-            {
-              message: magnetLink,
-            },
-            { dialogTitle: `Share ${name}` }
-          );
-        } catch {
-          ToastAndroid.show("Failed to share magnet link", ToastAndroid.SHORT);
-        }
-      },
-    },
-    {
       label: "Start",
       left: "play",
-      onPress: () => torrentActions.start(id),
+      onPress: wrap(torrentActions.start, ids),
     },
     {
       label: "Start now",
       left: "play",
-      onPress: () => torrentActions.startNow(id),
+      onPress: wrap(torrentActions.startNow, ids),
     },
     {
       label: "Stop",
       left: "pause",
-      onPress: () => torrentActions.stop(id),
+      onPress: wrap(torrentActions.stop, ids),
     },
     {
       label: "Verify",
       left: "check-circle",
-      onPress: () => torrentActions.verify(id),
+      onPress: wrap(torrentActions.verify, ids),
     },
     {
       label: "Reannounce",
       left: "radio",
-      onPress: () => torrentActions.reannounce(id),
+      onPress: wrap(torrentActions.reannounce, ids),
     },
     {
       label: "Remove",
@@ -77,12 +71,39 @@ export default function TorrentActionsSheet({
       color: red,
       onPress: () =>
         SheetManager.show(REMOVE_CONFIRM_SHEET_NAME, {
-          payload: id,
+          payload: ids,
         }),
     },
   ];
 
-  if (showDetails) {
+  if (torrents.length === 1) {
+    const [{ name, magnetLink }] = torrents;
+    options = [
+      {
+        label: "Share",
+        left: "share",
+        onPress: async () => {
+          try {
+            await Share.share(
+              {
+                message: magnetLink,
+              },
+              { dialogTitle: `Share ${name}` }
+            );
+          } catch {
+            ToastAndroid.show(
+              "Failed to share magnet link",
+              ToastAndroid.SHORT
+            );
+          }
+        },
+      },
+      ...options,
+    ];
+  }
+
+  if (torrents.length === 1 && details) {
+    const [{ id }] = torrents;
     options = [
       {
         label: "Details",
