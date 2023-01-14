@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  NativeSyntheticEvent,
-  StyleSheet,
-  TextInputTextInputEventData,
-  ToastAndroid,
-} from "react-native";
+import { StyleSheet, ToastAndroid } from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
 
 import Checkbox from "../components/checkbox";
@@ -13,20 +8,22 @@ import View from "../components/view";
 import TextInput from "../components/text-input";
 import Screen from "../components/screen";
 import { useSession, useSessionSet } from "../hooks/use-transmission";
+import useKeyboard from "../hooks/use-keyboard";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
   const { data: session, error } = useSession();
   const sessionSet = useSessionSet();
   const [state, setState] = React.useState<SessionGetResponse | undefined>();
+  const { visible } = useKeyboard();
 
   React.useLayoutEffect(() => {
-    if (!session || state) {
+    if (!session || visible) {
       return;
     }
 
     setState(session);
-  }, [session, state]);
+  }, [session, visible]);
 
   const onBlur = React.useCallback(
     (field: keyof SessionGetResponse) => async () => {
