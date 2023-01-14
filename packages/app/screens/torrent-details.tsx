@@ -40,8 +40,6 @@ export default function TorrentDetails() {
           <ActionIcon
             onPress={() => torrentActionsSheet({ torrent, showDetails: false })}
             name="more-vertical"
-            size={24}
-            color={text}
           />
         </ActionList>
       ),

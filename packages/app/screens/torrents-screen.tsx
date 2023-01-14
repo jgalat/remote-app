@@ -60,9 +60,7 @@ export default function TorrentsScreen() {
         activeSelection ? (
           <ActionIcon
             name="arrow-left"
-            color={text}
             onPress={() => clear()}
-            size={24}
             style={{ paddingLeft: 0 }}
           />
         ) : null,
@@ -73,39 +71,16 @@ export default function TorrentsScreen() {
 
         const actions = session
           ? [
-              <ActionIcon
-                key="add"
-                onPress={addTorrentSheet}
-                name="plus"
-                size={24}
-                color={text}
-              />,
-              <ActionIcon
-                key="sort"
-                onPress={sortBySheet}
-                name="align-left"
-                size={24}
-                color={text}
-              />,
-              <ActionIcon
-                key="filter"
-                onPress={filterSheet}
-                name="filter"
-                size={24}
-                color={text}
-              />,
+              <ActionIcon key="add" onPress={addTorrentSheet} name="plus" />,
+              <ActionIcon key="sort" onPress={sortBySheet} name="align-left" />,
+              <ActionIcon key="filter" onPress={filterSheet} name="filter" />,
             ]
           : [];
 
         return (
           <ActionList>
             {actions}
-            <ActionIcon
-              onPress={() => linkTo("/settings")}
-              name="settings"
-              size={24}
-              color={text}
-            />
+            <ActionIcon onPress={() => linkTo("/settings")} name="settings" />
           </ActionList>
         );
       },
@@ -188,8 +163,6 @@ export default function TorrentsScreen() {
                   name={
                     torrent.status === TorrentStatus.STOPPED ? "play" : "pause"
                   }
-                  color={text}
-                  size={24}
                   onPress={() =>
                     torrent.status === TorrentStatus.STOPPED
                       ? start(torrent.id)

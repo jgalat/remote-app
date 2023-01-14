@@ -180,9 +180,7 @@ function useNavigationOptions(): (props: {
       canGoBack ? (
         <ActionIcon
           name="arrow-left"
-          color={text}
           onPress={() => navigation.goBack()}
-          size={24}
           style={{ paddingLeft: 0, paddingRight: 32 }}
         />
       ) : null,

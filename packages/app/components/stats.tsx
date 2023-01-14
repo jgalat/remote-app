@@ -30,7 +30,6 @@ export default React.memo(function Stats({ style, ...props }: StatsProps) {
       <View style={styles.alt}>
         <ActionIcon
           size={32}
-          color={text}
           name={session?.["alt-speed-enabled"] ? "zap-off" : "zap"}
           onPress={() =>
             setSession({
