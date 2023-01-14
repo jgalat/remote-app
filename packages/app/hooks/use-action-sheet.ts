@@ -10,7 +10,7 @@ export function useAddTorrentSheet() {
 export function useTorrentActionsSheet() {
   return React.useCallback(
     (payload: Payload) =>
-      SheetManager.show("torrent-actions", {
+      SheetManager.show<Payload, void>("torrent-actions", {
         payload,
       }),
     []

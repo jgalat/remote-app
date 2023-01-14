@@ -8,6 +8,7 @@ import Screen from "./components/screen";
 import useLoader from "./hooks/use-loader";
 import { SettingsProvider } from "./contexts/settings";
 import { ClientProvider } from "./contexts/transmission-client";
+import { TorrentSelectionProvider } from "./contexts/torrent-selection";
 import { NavigationContainer, RootNavigator } from "./navigation";
 
 import "./sheets";
@@ -38,9 +39,11 @@ function App() {
 
   return (
     <NavigationContainer onReady={onLoad}>
-      <SheetProvider>
-        <RootNavigator />
-      </SheetProvider>
+      <TorrentSelectionProvider>
+        <SheetProvider>
+          <RootNavigator />
+        </SheetProvider>
+      </TorrentSelectionProvider>
     </NavigationContainer>
   );
 }

@@ -31,8 +31,7 @@ export default function TorrentDetails() {
 
   React.useLayoutEffect(() => {
     if (error || !torrent) {
-      navigation.setOptions({ headerRigt: () => <></> });
-      return;
+      return navigation.setOptions({ headerRigt: () => <></> });
     }
 
     navigation.setOptions({

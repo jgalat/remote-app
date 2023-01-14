@@ -3,15 +3,15 @@ import TransmissionClient from "@remote-app/transmission-client";
 
 import { useServer } from "../hooks/use-settings";
 
-export const ClientContext = React.createContext<
-  TransmissionClient | undefined
->(undefined);
+export const ClientContext = React.createContext<TransmissionClient | null>(
+  null
+);
 
 export function ClientProvider({ children }: React.PropsWithChildren) {
   const server = useServer();
   const client = React.useMemo(() => {
     if (!server) {
-      return;
+      return null;
     }
 
     return new TransmissionClient({

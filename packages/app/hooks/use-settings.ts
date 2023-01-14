@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   useColorScheme as _useColorScheme,
   ColorSchemeName,
@@ -6,13 +5,10 @@ import {
 
 import { SettingsContext } from "../contexts/settings";
 import { Settings } from "../store/settings";
+import useNonNullContext from "./use-non-null-context";
 
 export default function useSettings() {
-  const ctx = React.useContext(SettingsContext);
-  if (!ctx) {
-    throw new Error("Using SettingsContext outside of provider");
-  }
-  return ctx;
+  return useNonNullContext(SettingsContext)
 }
 
 export function useColorScheme(): "light" | "dark" {

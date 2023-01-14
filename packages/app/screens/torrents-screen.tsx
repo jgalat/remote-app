@@ -11,6 +11,7 @@ import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
 import TorrentItem from "../components/torrent-item";
 import Stats from "../components/stats";
+import Checkbox from "../components/checkbox";
 import { useTheme } from "../hooks/use-theme-color";
 import {
   useSession,
@@ -24,6 +25,7 @@ import {
   useSortBySheet,
   useTorrentActionsSheet,
 } from "../hooks/use-action-sheet";
+import useTorrentSelection from "../hooks/use-torrent-selection";
 import compare from "../utils/sort";
 import predicate from "../utils/filter";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
@@ -35,7 +37,7 @@ export default function TorrentsScreen() {
   const { sort, direction, filter } = useListing();
   const { data: session } = useSession();
   const { data: torrents, mutate, error } = useTorrents();
-  const [refreshing, setRefreshing] = React.useState<boolean>(false);
+  const [refreshing, setRefreshing] = React.useState(false);
   const { text, lightGray } = useTheme();
   const { start, stop } = useTorrentActions();
   const addTorrentSheet = useAddTorrentSheet();
@@ -43,53 +45,83 @@ export default function TorrentsScreen() {
   const sortBySheet = useSortBySheet();
   const filterSheet = useFilterSheet();
 
-  React.useLayoutEffect(() => {
-    if (!server || server.name === "") {
-      navigation.setOptions({ title: "remote" });
-      return;
-    }
-    navigation.setOptions({ title: server.name });
-  }, [server, navigation]);
+  const {
+    active: activeSelection,
+    selection,
+    toggle,
+    clear,
+  } = useTorrentSelection();
 
   React.useLayoutEffect(() => {
+    const title = !server || server.name === "" ? "remote" : server.name;
     navigation.setOptions({
-      headerRight: () => (
-        <ActionList>
-          {session
-            ? [
-                <ActionIcon
-                  key="add"
-                  onPress={addTorrentSheet}
-                  name="plus"
-                  size={24}
-                  color={text}
-                />,
-                <ActionIcon
-                  key="sort"
-                  onPress={sortBySheet}
-                  name="align-left"
-                  size={24}
-                  color={text}
-                />,
-                <ActionIcon
-                  key="filter"
-                  onPress={filterSheet}
-                  name="filter"
-                  size={24}
-                  color={text}
-                />,
-              ]
-            : null}
+      title: activeSelection ? "" : title,
+      headerLeft: () =>
+        activeSelection ? (
           <ActionIcon
-            onPress={() => linkTo("/settings")}
-            name="settings"
-            size={24}
+            name="arrow-left"
             color={text}
+            onPress={() => clear()}
+            size={24}
+            style={{ paddingLeft: 0 }}
           />
-        </ActionList>
-      ),
+        ) : null,
+      headerRight: () => {
+        if (activeSelection) {
+          return <ActionList></ActionList>;
+        }
+
+        const actions = session
+          ? [
+              <ActionIcon
+                key="add"
+                onPress={addTorrentSheet}
+                name="plus"
+                size={24}
+                color={text}
+              />,
+              <ActionIcon
+                key="sort"
+                onPress={sortBySheet}
+                name="align-left"
+                size={24}
+                color={text}
+              />,
+              <ActionIcon
+                key="filter"
+                onPress={filterSheet}
+                name="filter"
+                size={24}
+                color={text}
+              />,
+            ]
+          : [];
+
+        return (
+          <ActionList>
+            {actions}
+            <ActionIcon
+              onPress={() => linkTo("/settings")}
+              name="settings"
+              size={24}
+              color={text}
+            />
+          </ActionList>
+        );
+      },
     });
-  }, [linkTo, text, session, addTorrentSheet, sortBySheet, filterSheet, navigation]);
+  }, [
+    linkTo,
+    text,
+    session,
+    addTorrentSheet,
+    sortBySheet,
+    filterSheet,
+    navigation,
+    activeSelection,
+    clear,
+    server,
+  ]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -137,22 +169,34 @@ export default function TorrentsScreen() {
         data={render}
         renderItem={({ item: torrent }) => (
           <TorrentItem
-            onPress={() => torrentActionsSheet({ torrent })}
+            onPress={() =>
+              activeSelection
+                ? toggle(torrent.id)
+                : torrentActionsSheet({ torrent })
+            }
+            onLongPress={() => toggle(torrent.id)}
             torrent={torrent}
             left={
-              <ActionIcon
-                name={
-                  torrent.status === TorrentStatus.STOPPED ? "play" : "pause"
-                }
-                color={text}
-                size={24}
-                onPress={() =>
-                  torrent.status === TorrentStatus.STOPPED
-                    ? start(torrent.id)
-                    : stop(torrent.id)
-                }
-                style={styles.icon}
-              />
+              activeSelection ? (
+                <Checkbox
+                  value={selection.has(torrent.id)}
+                  style={styles.icon}
+                  onPress={() => toggle(torrent.id)}
+                />
+              ) : (
+                <ActionIcon
+                  name={
+                    torrent.status === TorrentStatus.STOPPED ? "play" : "pause"
+                  }
+                  color={text}
+                  size={24}
+                  onPress={() =>
+                    torrent.status === TorrentStatus.STOPPED
+                      ? start(torrent.id)
+                      : stop(torrent.id)
+                  }
+                />
+              )
             }
           />
         )}
@@ -194,7 +238,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   icon: {
-    paddingVertical: 8,
-    paddingRight: 8,
+    padding: 8,
   },
 });

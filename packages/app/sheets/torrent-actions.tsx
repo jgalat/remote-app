@@ -76,7 +76,9 @@ export default function TorrentActionsSheet({
       left: "trash",
       color: red,
       onPress: () =>
-        SheetManager.show(REMOVE_CONFIRM_SHEET_NAME, { payload: id }),
+        SheetManager.show(REMOVE_CONFIRM_SHEET_NAME, {
+          payload: id,
+        }),
     },
   ];
 

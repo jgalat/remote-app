@@ -12,8 +12,7 @@ export type AppSettings = {
   store: (diff: Partial<Settings>) => Promise<void>;
 };
 
-export const SettingsContext: React.Context<AppSettings | undefined> =
-  React.createContext<AppSettings | undefined>(undefined);
+export const SettingsContext = React.createContext<AppSettings | null>(null);
 
 export function SettingsProvider({ children }: React.PropsWithChildren) {
   const [settings, setSettings] = React.useReducer(

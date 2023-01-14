@@ -14,7 +14,7 @@ import {
 
 export default function TaskConfigurationScreen() {
   const { store } = useSettings();
-  const [state, setState] = React.useState<boolean>(false);
+  const [state, setState] = React.useState(false);
 
   const check = React.useCallback(async () => {
     const isTaskRegistered = await isTorrentsNotifierTaskRegistered();

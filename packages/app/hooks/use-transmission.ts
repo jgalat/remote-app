@@ -10,7 +10,7 @@ import TransmissionClient, {
 
 import { ClientContext } from "../contexts/transmission-client";
 
-function useTransmission(): TransmissionClient | undefined {
+function useTransmission(): TransmissionClient | null {
   return React.useContext(ClientContext);
 }
 
