@@ -72,6 +72,14 @@ export default {
     },
     plugins: [
       [
+        "expo-build-properties",
+        {
+          android: {
+            enableProguardInReleaseBuilds: true,
+          },
+        },
+      ],
+      [
         "expo-notifications",
         {
           icon: "./assets/images/notification-icon.png",
