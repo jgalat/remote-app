@@ -6,9 +6,7 @@ import { useTheme } from "../hooks/use-theme-color";
 import useTorrentSelection from "../hooks/use-torrent-selection";
 import { useTorrentActions } from "../hooks/use-transmission";
 
-export const REMOVE_CONFIRM_SHEET_NAME = "remove-confirm";
-
-export default function RemoveConfirmSheet({
+function RemoveConfirmSheet({
   payload: ids,
   ...props
 }: SheetProps<Torrent["id"][]>) {
@@ -43,3 +41,7 @@ export default function RemoveConfirmSheet({
     />
   );
 }
+
+RemoveConfirmSheet.sheetId = "remove-confirm";
+
+export default RemoveConfirmSheet;

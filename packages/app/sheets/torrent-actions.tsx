@@ -8,7 +8,7 @@ import ActionSheet, { SheetProps } from "../components/action-sheet";
 import { useTorrentActions } from "../hooks/use-transmission";
 import { useTheme } from "../hooks/use-theme-color";
 import useTorrentSelection from "../hooks/use-torrent-selection";
-import { REMOVE_CONFIRM_SHEET_NAME } from "./remove-confirm";
+import RemoveConfirmSheet from "./remove-confirm";
 
 import type { OptionProps } from "../components/option";
 
@@ -17,9 +17,7 @@ export type Payload = {
   details?: boolean;
 };
 
-export const TORRENT_ACTIONS_SHEET_NAME = "torrent-actions";
-
-export default function TorrentActionsSheet({
+function TorrentActionsSheet({
   payload: { torrents, details = true },
   ...props
 }: SheetProps<Payload>) {
@@ -70,7 +68,7 @@ export default function TorrentActionsSheet({
       left: "trash",
       color: red,
       onPress: () =>
-        SheetManager.show(REMOVE_CONFIRM_SHEET_NAME, {
+        SheetManager.show(RemoveConfirmSheet.sheetId, {
           payload: ids,
         }),
     },
@@ -116,3 +114,7 @@ export default function TorrentActionsSheet({
 
   return <ActionSheet title="Action" options={options} {...props} />;
 }
+
+TorrentActionsSheet.sheetId = "torrent-actions";
+
+export default TorrentActionsSheet;

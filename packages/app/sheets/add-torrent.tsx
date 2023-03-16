@@ -3,9 +3,7 @@ import { useLinkTo } from "@react-navigation/native";
 
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 
-export const ADD_TORRENT_SHEET_NAME = "add-torrent";
-
-export default function AddTorrentSheet(props: SheetProps) {
+function AddTorrentSheet(props: SheetProps) {
   const linkTo = useLinkTo();
   return (
     <ActionSheet
@@ -26,3 +24,7 @@ export default function AddTorrentSheet(props: SheetProps) {
     />
   );
 }
+
+AddTorrentSheet.sheetId = "add-torrent";
+
+export default AddTorrentSheet;

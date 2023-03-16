@@ -7,9 +7,7 @@ import useSettings from "../hooks/use-settings";
 import type { Sort } from "../store/settings";
 import type { OptionProps } from "../components/option";
 
-export const SORT_BY_SHEET_NAME = "sort-by";
-
-export default function SortBySheet(props: SheetProps) {
+function SortBySheet(props: SheetProps) {
   const { settings, store } = useSettings();
   const { sort, direction } = settings.listing;
 
@@ -108,3 +106,7 @@ export default function SortBySheet(props: SheetProps) {
 
   return <ActionSheet title="Sort by" options={options} {...props} />;
 }
+
+SortBySheet.sheetId = "sort-by";
+
+export default SortBySheet;

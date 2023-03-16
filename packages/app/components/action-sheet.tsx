@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet, FlatList, GestureResponderEvent } from "react-native";
 import _ActionSheet, {
   SheetProps as _SheetProps,
-  ActionSheetRef,
+  SheetManager,
 } from "react-native-actions-sheet";
 
 import Text from "./text";
@@ -22,13 +22,11 @@ export default function ActionSheet({
   options = [],
   sheetId,
 }: ActionSheetProps) {
-  const ref = React.useRef<ActionSheetRef>(null);
   const { background, gray, text } = useTheme();
 
   return (
     <_ActionSheet
       id={sheetId}
-      ref={ref}
       containerStyle={{
         backgroundColor: background,
         borderWidth: 2,
@@ -52,7 +50,7 @@ export default function ActionSheet({
             <Option
               {...props}
               onPress={(event: GestureResponderEvent) => {
-                ref.current?.hide();
+                SheetManager.hide(sheetId);
                 onPress?.(event);
               }}
               style={[styles.option, style]}
