@@ -153,6 +153,7 @@ export default function TorrentDetails() {
     <Screen>
       <TorrentItem disabled torrent={torrent} />
       <SectionList
+        fadingEdgeLength={64}
         sections={data}
         renderSectionHeader={({ section }) => (
           <Text style={styles.title}>{section.section}</Text>
