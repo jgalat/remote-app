@@ -1,4 +1,4 @@
-import type { Response as TorrentAddResponse } from "./torrent-get";
+import type { Response as TorrentGetResponse } from "./torrent-get";
 
 type optionals = {
   cookies?: string;
@@ -15,9 +15,16 @@ type optionals = {
 
 export type Request = ({ filename: string } | { metainfo: string }) & optionals;
 
-export type Response = {
-  torrents: Pick<
-    TorrentAddResponse["torrents"][number],
-    "id" | "name" | "hashString"
-  >[];
-};
+export type Response =
+  | {
+      "torrent-added": Pick<
+        TorrentGetResponse["torrents"][number],
+        "id" | "name" | "hashString"
+      >[];
+    }
+  | {
+      "torrent-duplicate": Pick<
+        TorrentGetResponse["torrents"][number],
+        "id" | "name" | "hashString"
+      >[];
+    };
