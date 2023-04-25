@@ -78,19 +78,19 @@ export type MethodRequest = {
 
 export type MethodResponse = {
   "session-get": SessionGetResponse;
-  "session-set": SessionSetRequest;
+  "session-set": never;
   "session-stats": SessionStatsResponse;
   "free-space": FreeSpaceResponse;
-  "torrent-start": TorrentStartRequest;
-  "torrent-start-now": TorrentStartNowRequest;
-  "torrent-stop": TorrentStopRequest;
-  "torrent-verify": TorrentVerifyRequest;
-  "torrent-reannounce": TorrentReannounceRequest;
-  "torrent-remove": TorrentRemoveRequest;
-  "torrent-set-location": TorrentSetLocationRequest;
+  "torrent-start": never;
+  "torrent-start-now": never;
+  "torrent-stop": never;
+  "torrent-verify": never;
+  "torrent-reannounce": never;
+  "torrent-remove": never;
+  "torrent-set-location": never;
   "torrent-get": TorrentGetResponse;
   "torrent-add": TorrentAddResponse;
-  "torrent-set": TorrentSetRequest;
+  "torrent-set": never;
 };
 
 export type Calls = {
