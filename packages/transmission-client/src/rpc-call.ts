@@ -51,13 +51,9 @@ export type RPCResponse<A> = {
   tag?: number;
 };
 
-type RPCCall<
-  M extends Methods,
-  TRequest,
-  TResponse = never
-> = TResponse extends never
-  ? (request: RPCRequest<M, TRequest>) => void
-  : (request: RPCRequest<M, TRequest>) => RPCResponse<TResponse>;
+type RPCCall<M extends Methods, TRequest, TResponse> = (
+  request: RPCRequest<M, TRequest>
+) => RPCResponse<TResponse>;
 
 export type MethodRequest = {
   "session-get": SessionGetRequest;
@@ -78,19 +74,19 @@ export type MethodRequest = {
 
 export type MethodResponse = {
   "session-get": SessionGetResponse;
-  "session-set": never;
+  "session-set": void;
   "session-stats": SessionStatsResponse;
   "free-space": FreeSpaceResponse;
-  "torrent-start": never;
-  "torrent-start-now": never;
-  "torrent-stop": never;
-  "torrent-verify": never;
-  "torrent-reannounce": never;
-  "torrent-remove": never;
-  "torrent-set-location": never;
+  "torrent-start": void;
+  "torrent-start-now": void;
+  "torrent-stop": void;
+  "torrent-verify": void;
+  "torrent-reannounce": void;
+  "torrent-remove": void;
+  "torrent-set-location": void;
   "torrent-get": TorrentGetResponse;
   "torrent-add": TorrentAddResponse;
-  "torrent-set": never;
+  "torrent-set": void;
 };
 
 export type Calls = {
