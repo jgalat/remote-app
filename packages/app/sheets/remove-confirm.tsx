@@ -4,14 +4,14 @@ import { Torrent } from "@remote-app/transmission-client";
 import ActionSheet, { SheetProps } from "../components/action-sheet";
 import { useTheme } from "../hooks/use-theme-color";
 import useTorrentSelection from "../hooks/use-torrent-selection";
-import { useTorrentActions } from "../hooks/use-transmission";
+import { useTorrentAction } from "../hooks/use-transmission";
 
 function RemoveConfirmSheet({
   payload: ids,
   ...props
 }: SheetProps<Torrent["id"][]>) {
   const { red } = useTheme();
-  const { remove } = useTorrentActions();
+  const remove = useTorrentAction("torrent-remove");
   const { clear } = useTorrentSelection();
 
   return (
@@ -22,18 +22,19 @@ function RemoveConfirmSheet({
           label: "Remove",
           left: "trash",
           color: red,
-          onPress: async () => {
-            await remove(ids);
-            clear();
+          onPress: () => {
+            remove.mutate({ ids }, { onSettled: clear });
           },
         },
         {
           label: "Remove & Trash data",
           left: "trash-2",
           color: red,
-          onPress: async () => {
-            await remove(ids, { "delete-local-data": true });
-            clear();
+          onPress: () => {
+            remove.mutate(
+              { ids, "delete-local-data": true },
+              { onSettled: clear }
+            );
           },
         },
       ]}

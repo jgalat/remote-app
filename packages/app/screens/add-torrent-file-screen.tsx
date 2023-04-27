@@ -18,10 +18,9 @@ import { formatSize } from "../utils/formatters";
 import type { RootStackParamList } from "../types";
 
 type State = {
-  error?: string;
   uri?: string;
   filename?: string;
-  sending?: boolean;
+  error?: string;
 };
 
 export default function AddTorrentFileScreen() {
@@ -35,13 +34,11 @@ export default function AddTorrentFileScreen() {
   const { red } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const add = useAddTorrent();
-  const { data: freeSpace, error } = useFreeSpace();
+  const addTorrent = useAddTorrent();
+  const freeSpace = useFreeSpace();
   const [state, setState] = React.useReducer(
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
-    {
-      sending: false,
-    }
+    {}
   );
 
   React.useEffect(() => {
@@ -68,6 +65,7 @@ export default function AddTorrentFileScreen() {
   const onPick = React.useCallback(async () => {
     const file = await DocumentPicker.getDocumentAsync({
       type: "application/x-bittorrent",
+      copyToCacheDirectory: true,
     });
 
     if (file.type === "cancel") {
@@ -86,22 +84,21 @@ export default function AddTorrentFileScreen() {
       return;
     }
 
-    setState({ sending: true });
-    const content = await FileSystem.readAsStringAsync(state.uri, {
-      encoding: "base64",
-    });
-
     try {
-      await add.file(content);
+      const content = await FileSystem.readAsStringAsync(state.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      await addTorrent.mutateAsync({ metainfo: content });
       navigation.popToTop();
     } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
         message = e.message;
       }
-      setState({ sending: false, error: message });
+      setState({ error: message });
     }
-  }, [add, navigation, state.uri]);
+  }, [navigation, state.uri, addTorrent]);
 
   return (
     <View style={styles.container}>
@@ -110,19 +107,19 @@ export default function AddTorrentFileScreen() {
       </View>
       <Button title="Choose a file" onPress={onPick} />
       <Button
-        disabled={!state.uri || error}
-        title={state.sending ? "Sending..." : "Add Torrent"}
+        disabled={!state.uri || freeSpace.isError}
+        title={addTorrent.isLoading ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
-      {state.error || error ? (
+      {state.error || freeSpace.isError ? (
         <Text color={red} style={styles.error}>
-          {state.error ?? error.message}
+          {state.error ?? freeSpace.error?.message}
         </Text>
       ) : null}
       <Text style={styles.free} numberOfLines={1}>
         Free space:{" "}
-        {freeSpace?.["size-bytes"]
-          ? formatSize(freeSpace?.["size-bytes"])
+        {freeSpace.data?.["size-bytes"]
+          ? formatSize(freeSpace.data?.["size-bytes"])
           : "loading..."}
       </Text>
     </View>

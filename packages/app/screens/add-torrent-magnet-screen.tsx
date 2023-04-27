@@ -21,7 +21,6 @@ type State = {
   error?: string;
   uri?: string;
   data?: MagnetData;
-  sending?: boolean;
 };
 
 export default function AddTorrentMagnetScreen() {
@@ -35,11 +34,11 @@ export default function AddTorrentMagnetScreen() {
   const { red } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const add = useAddTorrent();
-  const { data: freeSpace, error } = useFreeSpace();
+  const addTorrent = useAddTorrent();
+  const freeSpace = useFreeSpace();
   const [state, setState] = React.useReducer(
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
-    { sending: false }
+    {}
   );
 
   React.useEffect(() => {
@@ -66,18 +65,17 @@ export default function AddTorrentMagnetScreen() {
       return;
     }
 
-    setState({ sending: true });
     try {
-      await add.magnet(state.uri);
+      await addTorrent.mutateAsync({ filename: state.uri });
       navigation.popToTop();
     } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
         message = e.message;
       }
-      setState({ sending: false, error: message });
+      setState({ error: message });
     }
-  }, [add, navigation, state.uri]);
+  }, [addTorrent, navigation, state.uri]);
 
   const magnet = React.useMemo(() => {
     const { dn, xt, tr, xl } = state.data ?? {};
@@ -111,19 +109,19 @@ export default function AddTorrentMagnetScreen() {
       </View>
       <Button title="Paste URL" onPress={onPaste} />
       <Button
-        disabled={!state.uri || error}
-        title={state.sending ? "Sending..." : "Add Torrent"}
+        disabled={!state.uri || freeSpace.isError}
+        title={addTorrent.isLoading ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
-      {state.error || error ? (
+      {state.error || freeSpace.isError ? (
         <Text color={red} style={styles.error}>
-          {state.error ?? error.message}
+          {state.error ?? freeSpace.error?.message}
         </Text>
       ) : null}
       <Text style={styles.free} numberOfLines={1}>
         Free space:{" "}
-        {freeSpace?.["size-bytes"]
-          ? formatSize(freeSpace?.["size-bytes"])
+        {freeSpace.data?.["size-bytes"]
+          ? formatSize(freeSpace.data?.["size-bytes"])
           : "loading..."}
       </Text>
     </View>

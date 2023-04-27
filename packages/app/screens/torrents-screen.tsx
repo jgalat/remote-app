@@ -36,9 +36,9 @@ export default function TorrentsScreen() {
   const server = useServer();
   const { sort, direction, filter } = useListing();
   const { data: session } = useSession();
-  const { data: torrents, mutate, error } = useTorrents();
+  const { data: torrents, refetch, error, isLoading } = useTorrents();
   const [refreshing, setRefreshing] = React.useState(false);
-  const { text, lightGray } = useTheme();
+  const { lightGray } = useTheme();
   const { start, stop } = useTorrentActions();
   const addTorrentSheet = useAddTorrentSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
@@ -72,7 +72,6 @@ export default function TorrentsScreen() {
                 onPress={() =>
                   torrentActionsSheet({
                     torrents: torrents.filter((t) => selection.has(t.id)),
-                    details: false,
                   })
                 }
                 name="more-vertical"
@@ -98,26 +97,25 @@ export default function TorrentsScreen() {
       },
     });
   }, [
-    linkTo,
-    text,
-    session,
-    addTorrentSheet,
-    sortBySheet,
-    filterSheet,
-    navigation,
     activeSelection,
+    addTorrentSheet,
     clear,
+    filterSheet,
+    linkTo,
+    navigation,
+    selection,
     server,
+    session,
+    sortBySheet,
     torrentActionsSheet,
     torrents,
-    selection,
   ]);
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
-    await mutate();
+    await refetch();
     setRefreshing(false);
-  }, [mutate, setRefreshing]);
+  }, [refetch]);
 
   if (!server) {
     return (
@@ -135,7 +133,7 @@ export default function TorrentsScreen() {
     return <NetworkErrorScreen error={error} />;
   }
 
-  if (!torrents) {
+  if (isLoading || !torrents) {
     return <LoadingScreen />;
   }
 
@@ -180,8 +178,8 @@ export default function TorrentsScreen() {
                   }
                   onPress={() =>
                     torrent.status === TorrentStatus.STOPPED
-                      ? start(torrent.id)
-                      : stop(torrent.id)
+                      ? start.mutate({ ids: torrent.id })
+                      : stop.mutate({ ids: torrent.id })
                   }
                 />
               )

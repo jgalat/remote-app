@@ -21,7 +21,7 @@ export default React.memo(function NetworkErrorMessage({
 }: NetworkErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
-  const { mutate } = useTorrents();
+  const { refetch } = useTorrents();
 
   let title = "Failed to connect";
   let message = error.message;
@@ -54,7 +54,7 @@ export default React.memo(function NetworkErrorMessage({
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
           title="Network Settings"
         />
-        <Button onPress={() => mutate()} title="Retry" />
+        <Button onPress={() => refetch()} title="Retry" />
       </View>
     </View>
   );

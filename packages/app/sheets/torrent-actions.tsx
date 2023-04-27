@@ -14,23 +14,25 @@ import type { OptionProps } from "../components/option";
 
 export type Payload = {
   torrents: Torrent[];
-  details?: boolean;
+  individual?: boolean;
 };
 
 function TorrentActionsSheet({
-  payload: { torrents, details = true },
+  payload: { torrents, individual = false },
   ...props
 }: SheetProps<Payload>) {
   const { red } = useTheme();
-  const torrentActions = useTorrentActions();
+  const actions = useTorrentActions();
   const linkTo = useLinkTo();
   const { clear } = useTorrentSelection();
 
   const wrap = React.useCallback(
-    (action: (ids: Torrent["id"][]) => Promise<void>, ids: Torrent["id"][]) =>
-      async () => {
-        await action(ids);
-        clear();
+    (
+        action: ReturnType<typeof useTorrentActions>["start"],
+        ids: Torrent["id"][]
+      ) =>
+      () => {
+        action.mutate({ ids }, { onSettled: clear });
       },
     [clear]
   );
@@ -41,36 +43,27 @@ function TorrentActionsSheet({
     {
       label: "Start",
       left: "play",
-      onPress: wrap(torrentActions.start, ids),
+      onPress: wrap(actions.start, ids),
     },
     {
       label: "Start now",
       left: "play",
-      onPress: wrap(torrentActions.startNow, ids),
+      onPress: wrap(actions.startNow, ids),
     },
     {
       label: "Stop",
       left: "pause",
-      onPress: wrap(torrentActions.stop, ids),
+      onPress: wrap(actions.stop, ids),
     },
     {
       label: "Verify",
       left: "check-circle",
-      onPress: wrap(torrentActions.verify, ids),
+      onPress: wrap(actions.verify, ids),
     },
     {
       label: "Reannounce",
       left: "radio",
-      onPress: wrap(torrentActions.reannounce, ids),
-    },
-    {
-      label: "Remove",
-      left: "trash",
-      color: red,
-      onPress: () =>
-        SheetManager.show(RemoveConfirmSheet.sheetId, {
-          payload: ids,
-        }),
+      onPress: wrap(actions.reannounce, ids),
     },
   ];
 
@@ -100,7 +93,7 @@ function TorrentActionsSheet({
     ];
   }
 
-  if (torrents.length === 1 && details) {
+  if (torrents.length === 1 && !individual) {
     const [{ id }] = torrents;
     options = [
       {
@@ -109,6 +102,21 @@ function TorrentActionsSheet({
         onPress: () => linkTo(`/torrents/${id}`),
       },
       ...options,
+    ];
+  }
+
+  if (!individual) {
+    options = [
+      ...options,
+      {
+        label: "Remove",
+        left: "trash",
+        color: red,
+        onPress: () =>
+          SheetManager.show(RemoveConfirmSheet.sheetId, {
+            payload: ids,
+          }),
+      },
     ];
   }
 

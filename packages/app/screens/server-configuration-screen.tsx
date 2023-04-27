@@ -13,7 +13,7 @@ import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
   const { data: session, error } = useSession();
-  const sessionSet = useSessionSet();
+  const { mutate } = useSessionSet();
   const [state, setState] = React.useState<SessionGetResponse | undefined>();
   const { visible } = useKeyboard();
 
@@ -35,14 +35,22 @@ export default function ServerConfigurationScreen() {
         return;
       }
 
-      try {
-        await sessionSet({ [field]: state[field] });
-        ToastAndroid.show("Server updated successfully", ToastAndroid.SHORT);
-      } catch {
-        ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
-      }
+      mutate(
+        { [field]: state[field] },
+        {
+          onSuccess: () => {
+            ToastAndroid.show(
+              "Server updated successfully",
+              ToastAndroid.SHORT
+            );
+          },
+          onError: () => {
+            ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+          },
+        }
+      );
     },
-    [state, session, sessionSet]
+    [state, session, mutate]
   );
 
   const update = React.useCallback(
@@ -59,15 +67,23 @@ export default function ServerConfigurationScreen() {
       }
 
       if (typeof state[field] === "boolean" && typeof value === "boolean") {
-        try {
-          await sessionSet({ [field]: value });
-          ToastAndroid.show("Server updated successfully", ToastAndroid.SHORT);
-        } catch {
-          ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
-        }
+        mutate(
+          { [field]: value },
+          {
+            onSuccess: () => {
+              ToastAndroid.show(
+                "Server updated successfully",
+                ToastAndroid.SHORT
+              );
+            },
+            onError: () => {
+              ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+            },
+          }
+        );
       }
     },
-    [state, sessionSet]
+    [state, mutate]
   );
 
   if (error) {

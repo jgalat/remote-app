@@ -1,12 +1,19 @@
 import * as React from "react";
 import { ToastAndroid } from "react-native";
-import useSWR from "swr";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import TransmissionClient, {
   Methods,
   SessionGetResponse,
   SessionSetRequest,
   TorrentRemoveRequest,
-  TorrentSetRequest,
+  Torrent,
+  TransmissionError,
+  HTTPError,
+  TorrentAddRequest,
+  TorrentAddResponse,
+  FreeSpaceResponse,
+  SessionStatsResponse,
+  TorrentStatus,
 } from "@remote-app/transmission-client";
 
 import { ClientContext } from "../contexts/transmission-client";
@@ -15,96 +22,95 @@ function useTransmission(): TransmissionClient | null {
   return React.useContext(ClientContext);
 }
 
+const fields = [
+  "id",
+  "addedDate",
+  "doneDate",
+  "name",
+  "totalSize",
+  "error",
+  "errorString",
+  "eta",
+  "isFinished",
+  "isStalled",
+  "leftUntilDone",
+  "metadataPercentComplete",
+  "peersConnected",
+  "peersGettingFromUs",
+  "peersSendingToUs",
+  "percentDone",
+  "queuePosition",
+  "rateDownload",
+  "rateUpload",
+  "recheckProgress",
+  "seedRatioMode",
+  "seedRatioLimit",
+  "sizeWhenDone",
+  "status",
+  "trackers",
+  "downloadDir",
+  "uploadedEver",
+  "uploadRatio",
+  "webseedsSendingToUs",
+  "activityDate",
+  "corruptEver",
+  "desiredAvailable",
+  "downloadedEver",
+  "fileStats",
+  "haveUnchecked",
+  "haveValid",
+  "peers",
+  "startDate",
+  "trackerStats",
+  "comment",
+  "creator",
+  "dateCreated",
+  "files",
+  "hashString",
+  "isPrivate",
+  "pieceCount",
+  "pieceSize",
+  "magnetLink",
+] as const;
+
+type HookError = TransmissionError | HTTPError;
+
 export function useTorrents() {
   const client = useTransmission();
-  return useSWR(
-    client ? [client, "torrent-get-all"] : null,
+  return useQuery<Torrent[] | undefined, HookError>(
+    ["torrent-get", client],
     async () => {
       const response = await client?.request({
         method: "torrent-get",
-        arguments: {
-          fields: [
-            "id",
-            "addedDate",
-            "doneDate",
-            "name",
-            "totalSize",
-            "error",
-            "errorString",
-            "eta",
-            "isFinished",
-            "isStalled",
-            "leftUntilDone",
-            "metadataPercentComplete",
-            "peersConnected",
-            "peersGettingFromUs",
-            "peersSendingToUs",
-            "percentDone",
-            "queuePosition",
-            "rateDownload",
-            "rateUpload",
-            "recheckProgress",
-            "seedRatioMode",
-            "seedRatioLimit",
-            "sizeWhenDone",
-            "status",
-            "trackers",
-            "downloadDir",
-            "uploadedEver",
-            "uploadRatio",
-            "webseedsSendingToUs",
-            "activityDate",
-            "corruptEver",
-            "desiredAvailable",
-            "downloadedEver",
-            "fileStats",
-            "haveUnchecked",
-            "haveValid",
-            "peers",
-            "startDate",
-            "trackerStats",
-            "comment",
-            "creator",
-            "dateCreated",
-            "files",
-            "hashString",
-            "isPrivate",
-            "pieceCount",
-            "pieceSize",
-            "magnetLink",
-          ],
-        },
+        arguments: { fields: [...fields] },
       });
 
       return response?.arguments?.torrents;
     },
     {
-      refreshInterval: 5000,
-      errorRetryCount: 3,
+      enabled: Boolean(client),
+      refetchInterval: 5000,
+      retry: 3,
     }
   );
 }
 
 export function useTorrent(id: number) {
-  const { data, ...rest } = useTorrents();
-  if (!data) {
-    return { data, ...rest };
+  const torrents = useTorrents();
+  if (!torrents.data) {
+    return torrents;
   }
-  const torrent = data.find((t) => t.id === id);
-  if (!torrent) {
-    return {
-      ...rest,
-      data: undefined,
-      error: new Error("Torrent not found"),
-    };
-  }
-  return { data: torrent, ...rest };
+
+  return {
+    ...torrents,
+    data: torrents.data.filter((torrent) => torrent.id === id),
+  };
 }
 
 export function useSession() {
   const client = useTransmission();
-  return useSWR(
-    client ? [client, "session-get"] : null,
+  return useQuery<SessionGetResponse | undefined, HookError>(
+    ["session-get", client],
     async () => {
       const response = await client?.request({
         method: "session-get",
@@ -113,65 +119,64 @@ export function useSession() {
       return response?.arguments;
     },
     {
-      refreshInterval: 5000,
-      errorRetryCount: 3,
-    }
-  );
-}
-
-export function useSessionFreeze() {
-  const client = useTransmission();
-  return useSWR(
-    client ? [client, "session-get-freeze"] : null,
-    async () => {
-      const response = await client?.request({
-        method: "session-get",
-      });
-
-      return response?.arguments;
-    },
-    {
-      refreshInterval: 5000,
-      errorRetryCount: 3,
+      enabled: Boolean(client),
+      refetchInterval: 5000,
+      retry: 3,
     }
   );
 }
 
 export function useSessionSet() {
+  const queryClient = useQueryClient();
   const client = useTransmission();
-  const { data: session, mutate } = useSession();
 
-  return React.useCallback(
-    async (params: SessionSetRequest) => {
-      if (!client) {
-        return;
-      }
+  return useMutation<
+    void,
+    HookError,
+    SessionSetRequest,
+    { previous?: SessionGetResponse }
+  >({
+    mutationFn: async (params: SessionSetRequest): Promise<void> => {
+      await client?.request({
+        method: "session-set",
+        arguments: params,
+      });
+    },
+    onMutate: async (params: SessionSetRequest) => {
+      await queryClient.cancelQueries(["session-get", client]);
+      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
+        ["session-get", client]
+      );
 
-      await mutate(
-        async () => {
-          await client.request({
-            method: "session-set",
-            arguments: params,
-          });
-          return { ...session, ...params } as SessionGetResponse;
-        },
-        {
-          optimisticData: { ...session, ...params } as SessionGetResponse,
-          rollbackOnError: true,
+      queryClient.setQueryData(
+        ["session-get", client],
+        (
+          old: SessionGetResponse | undefined
+        ): SessionGetResponse | undefined => {
+          if (!old) {
+            return;
+          }
+          return { ...old, ...params };
         }
       );
+
+      return { previous };
     },
-    [client, session, mutate]
-  );
+    onError: (_err, _params, context) => {
+      queryClient.setQueryData(["session-get", client], context?.previous);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries(["session-get", client]);
+    },
+  });
 }
 
 export function useFreeSpace() {
   const client = useTransmission();
   const { data: session } = useSession();
-  return useSWR(
-    client && session?.["download-dir"]
-      ? [client, "free-space", session["download-dir"]]
-      : null,
+  return useQuery<FreeSpaceResponse | undefined, HookError>(
+    ["free-space", client, session?.["download-dir"]],
     async () => {
       if (!session?.["download-dir"]) {
         return;
@@ -187,16 +192,17 @@ export function useFreeSpace() {
       return response?.arguments;
     },
     {
-      refreshInterval: 5000,
-      errorRetryCount: 3,
+      enabled: Boolean(client && session?.["download-dir"]),
+      refetchInterval: 5000,
+      retry: 3,
     }
   );
 }
 
 export function useSessionStats() {
   const client = useTransmission();
-  return useSWR(
-    client ? [client, "session-stats"] : null,
+  return useQuery<SessionStatsResponse | undefined, HookError>(
+    ["session-stats", client],
     async () => {
       const response = await client?.request({
         method: "session-stats",
@@ -204,119 +210,151 @@ export function useSessionStats() {
 
       return response?.arguments;
     },
+
     {
-      refreshInterval: 5000,
-      errorRetryCount: 3,
+      enabled: Boolean(client),
+      refetchInterval: 5000,
     }
   );
 }
 
 export function useAddTorrent() {
+  const queryClient = useQueryClient();
   const client = useTransmission();
-  const { mutate } = useTorrents();
 
-  const magnet = React.useCallback(
-    async (url: string) => {
-      if (!client) {
-        return;
-      }
+  return useMutation<
+    TorrentAddResponse | undefined,
+    HookError,
+    TorrentAddRequest
+  >({
+    mutationFn: async (
+      params: TorrentAddRequest
+    ): Promise<TorrentAddResponse | undefined> => {
+      const response = await client?.request({
+        method: "torrent-add",
+        arguments: params,
+      });
 
-      try {
-        await client.request({
-          method: "torrent-add",
-          arguments: {
-            filename: url,
-          },
-        });
-      } finally {
-        setTimeout(() => mutate(), 500);
-      }
+      return response?.arguments;
     },
-    [client, mutate]
-  );
-
-  const file = React.useCallback(
-    async (content: string) => {
-      if (!client) {
-        return;
-      }
-
-      try {
-        await client.request({
-          method: "torrent-add",
-          arguments: {
-            metainfo: content,
-          },
-        });
-      } finally {
-        setTimeout(() => mutate(), 500);
-      }
+    onMutate: async () => {
+      await queryClient.cancelQueries(["torrent-get", client]);
     },
-    [client, mutate]
-  );
+    onSettled: () => {
+      queryClient.invalidateQueries(["torrent-get", client]);
+    },
+  });
+}
 
-  return { magnet, file };
+type TorrentActionMutationParams<T> = T extends "torrent-remove"
+  ? TorrentRemoveRequest
+  : Pick<TorrentRemoveRequest, "ids">;
+
+export function useTorrentAction<
+  T extends Extract<
+    Methods,
+    | "torrent-start"
+    | "torrent-start-now"
+    | "torrent-stop"
+    | "torrent-verify"
+    | "torrent-reannounce"
+    | "torrent-remove"
+  >
+>(action: T) {
+  const queryClient = useQueryClient();
+  const client = useTransmission();
+  return useMutation({
+    mutationFn: async (
+      params: TorrentActionMutationParams<T>
+    ): Promise<void> => {
+      await client?.request({
+        method: action,
+        arguments: params,
+      });
+    },
+    onMutate: async (params: TorrentActionMutationParams<T>) => {
+      await queryClient.cancelQueries(["torrent-get", client]);
+
+      const previous = queryClient.getQueryData<Torrent[] | undefined>([
+        "torrent-get",
+        client,
+      ]);
+
+      const ids = (
+        Array.isArray(params.ids)
+          ? params.ids
+          : typeof params.ids === "number"
+          ? [params.ids]
+          : []
+      ).map(Number);
+
+      queryClient.setQueryData(
+        ["torrent-get", client],
+        (old: Torrent[] | undefined): Torrent[] | undefined => {
+          if (!old) {
+            return;
+          }
+
+          if (action === "torrent-remove") {
+            return old.filter((torrent) => !ids.includes(torrent.id));
+          }
+
+          return old.map((torrent) => {
+            if (ids.includes(torrent.id)) {
+              return { ...torrent, status: getStatus(action, torrent) };
+            }
+
+            return torrent;
+          });
+        }
+      );
+
+      return { previous };
+    },
+    onError: (_error, _params, context) => {
+      queryClient.setQueryData(["torrent-get", client], context?.previous);
+      ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
+    },
+    onSettled: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries(["torrent-get", client]);
+      }, 250);
+    },
+  });
+}
+
+function getStatus(
+  action:
+    | "torrent-start"
+    | "torrent-start-now"
+    | "torrent-stop"
+    | "torrent-verify"
+    | "torrent-reannounce",
+  torrent: Torrent
+): TorrentStatus {
+  switch (action) {
+    case "torrent-start":
+    case "torrent-start-now":
+      if (torrent.percentDone === 1) {
+        return TorrentStatus.QUEUED_TO_SEED;
+      }
+      return TorrentStatus.QUEUED_TO_DOWNLOAD;
+    case "torrent-stop":
+      return TorrentStatus.STOPPED;
+    case "torrent-verify":
+      return TorrentStatus.QUEUED_TO_VERIFY_LOCAL_DATA;
+    default:
+      return torrent.status;
+  }
 }
 
 export function useTorrentActions() {
-  const client = useTransmission();
-  const { mutate } = useTorrents();
-
-  const createAction = React.useCallback(
-    <
-      T extends Extract<
-        Methods,
-        | "torrent-start"
-        | "torrent-start-now"
-        | "torrent-stop"
-        | "torrent-verify"
-        | "torrent-reannounce"
-        | "torrent-remove"
-      >
-    >(
-      action: T
-    ) => {
-      return async (
-        ids: TorrentSetRequest["ids"],
-        params?: T extends "torrent-remove"
-          ? Pick<TorrentRemoveRequest, "delete-local-data">
-          : undefined
-      ): Promise<void> => {
-        if (!client) {
-          return;
-        }
-
-        let args = {};
-        if (ids) {
-          args = { ids };
-        }
-        if (params) {
-          args = { ...args, ...params };
-        }
-
-        try {
-          await client.request({
-            method: action,
-            arguments: {
-              ...args,
-            },
-          });
-        } catch {
-          ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
-        } finally {
-          setTimeout(() => mutate(), 500);
-        }
-      };
-    },
-    [client, mutate]
-  );
-
-  const start = createAction("torrent-start");
-  const startNow = createAction("torrent-start-now");
-  const stop = createAction("torrent-stop");
-  const verify = createAction("torrent-verify");
-  const reannounce = createAction("torrent-reannounce");
-  const remove = createAction("torrent-remove");
+  const start = useTorrentAction("torrent-start");
+  const startNow = useTorrentAction("torrent-start-now");
+  const stop = useTorrentAction("torrent-stop");
+  const verify = useTorrentAction("torrent-verify");
+  const reannounce = useTorrentAction("torrent-reannounce");
+  const remove = useTorrentAction("torrent-remove");
 
   return { start, startNow, stop, verify, reannounce, remove };
 }

@@ -8,7 +8,7 @@ import {
   registerTorrentsNotifierTask,
 } from "../tasks/torrents-notifier";
 
-export default function useCachedResources() {
+export default function useLoader() {
   const [loaded, setLoaded] = React.useState(false);
   const { load: loadSettings } = useSettings();
 

@@ -25,25 +25,25 @@ export default function TorrentDetails() {
     >();
   const navigation = useNavigation();
 
-  const { data: torrent, error } = useTorrent(id);
+  const { data: torrents, error, isLoading } = useTorrent(id);
   const { text } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () =>
-        error || !torrent ? null : (
+        error || !torrents ? null : (
           <ActionList>
             <ActionIcon
               onPress={() =>
-                torrentActionsSheet({ torrents: [torrent], details: false })
+                torrentActionsSheet({ torrents, individual: true })
               }
               name="more-vertical"
             />
           </ActionList>
         ),
     });
-  }, [id, text, torrent, error, torrentActionsSheet, navigation]);
+  }, [id, text, torrents, error, torrentActionsSheet, navigation]);
 
   const data = React.useMemo<
     {
@@ -51,9 +51,11 @@ export default function TorrentDetails() {
       data: KeyValueProps[];
     }[]
   >(() => {
-    if (!torrent) {
+    if (!torrents || torrents.length !== 1) {
       return [];
     }
+
+    const torrent = torrents[0];
 
     return [
       {
@@ -139,19 +141,19 @@ export default function TorrentDetails() {
         ],
       },
     ];
-  }, [torrent]);
+  }, [torrents]);
 
   if (error) {
     return <NetworkErrorScreen error={error} />;
   }
 
-  if (!torrent) {
+  if (isLoading || !torrents || torrents.length !== 1) {
     return <LoadingScreen />;
   }
 
   return (
     <Screen>
-      <TorrentItem disabled torrent={torrent} />
+      <TorrentItem disabled torrent={torrents[0]} />
       <SectionList
         fadingEdgeLength={64}
         sections={data}

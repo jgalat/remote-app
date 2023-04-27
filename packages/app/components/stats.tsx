@@ -19,7 +19,7 @@ export default React.memo(function Stats({ style, ...props }: StatsProps) {
   const { text } = useTheme();
   const { data: session } = useSession();
   const { data: stats } = useSessionStats();
-  const setSession = useSessionSet();
+  const { mutate } = useSessionSet();
 
   return (
     <View style={[styles.container, style]} {...props}>
@@ -32,7 +32,7 @@ export default React.memo(function Stats({ style, ...props }: StatsProps) {
           size={32}
           name={session?.["alt-speed-enabled"] ? "zap-off" : "zap"}
           onPress={() =>
-            setSession({
+            mutate({
               "alt-speed-enabled": !session?.["alt-speed-enabled"],
             })
           }

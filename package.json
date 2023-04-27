@@ -4,9 +4,7 @@
   "description": "Transmission remote",
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",
-  "workspaces": [
-    "./packages/*"
-  ],
+  "workspaces": ["./packages/*"],
   "scripts": {
     "postinstall": "patch-package"
   },
