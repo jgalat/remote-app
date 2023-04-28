@@ -214,6 +214,7 @@ export function useSessionStats() {
     {
       enabled: Boolean(client),
       refetchInterval: 5000,
+      retry: 3,
     }
   );
 }
