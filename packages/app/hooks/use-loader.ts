@@ -21,12 +21,13 @@ export default function useLoader() {
           "RobotoMono-Medium": require("../assets/fonts/RobotoMono-Medium.ttf"),
         });
 
-        const storedSettings = await loadSettings();
-        const taskRegistered = await isTorrentsNotifierTaskRegistered();
+        await loadSettings();
 
-        if (storedSettings.notifications && !taskRegistered) {
+        if (!(await isTorrentsNotifierTaskRegistered())) {
           await registerTorrentsNotifierTask();
         }
+      } catch {
+        // ignore
       } finally {
         setLoaded(true);
       }

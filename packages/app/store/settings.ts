@@ -39,7 +39,6 @@ export type Settings = {
     direction: Direction;
     filter: Filter;
   };
-  notifications: boolean;
 };
 
 export const defaultSettings: Settings = {
@@ -50,7 +49,6 @@ export const defaultSettings: Settings = {
     direction: "asc",
     filter: "all",
   },
-  notifications: true,
 };
 
 const SETTINGS_KEY = "@settings";

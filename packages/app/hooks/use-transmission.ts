@@ -318,7 +318,7 @@ export function useTorrentAction<
     onSettled: () => {
       setTimeout(() => {
         queryClient.invalidateQueries(["torrent-get", client]);
-      }, 250);
+      }, 500);
     },
   });
 }

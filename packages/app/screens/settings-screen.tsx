@@ -34,12 +34,6 @@ export default function SettingsScreen() {
         onPress: () => linkTo("/settings/server-configuration"),
         right: "chevron-right",
       },
-      {
-        left: "rss",
-        label: "Background Tasks",
-        onPress: () => linkTo("/settings/task-configuration"),
-        right: "chevron-right",
-      },
     ];
 
     const appOptions: OptionProps[] = [
