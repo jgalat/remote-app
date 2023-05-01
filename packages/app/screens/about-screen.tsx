@@ -19,6 +19,12 @@ export default function AboutScreen() {
           to="https://github.com/jgalat/remote-app"
         />
       </View>
+      <View style={styles.link}>
+        <Link
+          title="Wiki"
+          to="https://github.com/jgalat/remote-app/wiki"
+        />
+      </View>
     </Screen>
   );
 }
