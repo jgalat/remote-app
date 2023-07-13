@@ -1,10 +1,12 @@
 {
   "name": "remote-app",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Transmission remote",
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",
-  "workspaces": ["./packages/*"],
+  "workspaces": [
+    "./packages/*"
+  ],
   "scripts": {
     "postinstall": "patch-package"
   },
