@@ -30,6 +30,6 @@ export default React.memo(function ActionIcon({
 
 const styles = StyleSheet.create({
   icon: {
-    padding: 8,
+    padding: 12,
   },
 });

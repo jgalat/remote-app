@@ -8,7 +8,7 @@ export type ActionListProps = {
 } & ViewProps;
 
 export default React.memo(function ActionList({
-  spacing = 12,
+  spacing = 16,
   children,
 }: ActionListProps) {
   return (

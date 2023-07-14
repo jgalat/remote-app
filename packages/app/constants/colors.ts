@@ -5,7 +5,7 @@ export default {
     tint: "#e60070",
     gray: "#777",
     lightGray: "#ccc",
-    red: "#d3212c",
+    red: "#ea1010",
     green: "#069c56",
     yellow: "#ff980e"
   },
@@ -15,7 +15,7 @@ export default {
     tint: "#e60070",
     gray: "#ccc",
     lightGray: "#444",
-    red: "#d3212c",
+    red: "#ea1010",
     green: "#069c56",
     yellow: "#ff980e"
   },

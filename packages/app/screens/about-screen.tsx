@@ -15,7 +15,7 @@ export default function AboutScreen() {
       </View>
       <View style={styles.link}>
         <Link
-          title="GitHub Repository"
+          title="Repository"
           to="https://github.com/jgalat/remote-app"
         />
       </View>
@@ -37,10 +37,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
-    marginBottom: 24,
+    fontSize: 24,
+    marginBottom: 32,
   },
   link: {
-    marginBottom: 16,
+    marginBottom: 24,
   },
 });

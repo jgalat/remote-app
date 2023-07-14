@@ -24,7 +24,7 @@ export default React.memo(function Option({
   color,
   ...props
 }: OptionProps) {
-  const { gray, text } = useTheme();
+  const { text } = useTheme();
   const optionColor = color ? color : text;
   return (
     <Pressable style={[styles.container, style]} onPress={onPress} {...props}>
@@ -39,7 +39,7 @@ export default React.memo(function Option({
         <Text color={optionColor}>{label}</Text>
       </View>
       <View>
-        {right ? <Feather name={right} size={24} color={gray} /> : null}
+        {right ? <Feather name={right} size={24} color={text} /> : null}
       </View>
     </Pressable>
   );

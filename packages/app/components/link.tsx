@@ -22,8 +22,8 @@ export default React.memo(function Link({ to, title }: LinkProps) {
 
   return (
     <Pressable style={styles.link} onPress={goTo}>
-      <Text style={{ color: tint }}>{title} </Text>
-      <Feather name="external-link" color={tint} size={16} />
+      <Text style={[styles.text, { color: tint }]}>{title} </Text>
+      <Feather name="external-link" color={tint} size={20} />
     </Pressable>
   );
 });
@@ -33,5 +33,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 4,
+  },
+  text: {
+    fontSize: 20,
   },
 });

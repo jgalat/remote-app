@@ -23,8 +23,8 @@ export default React.memo(function Pressable({
           opacity: disabled ? 1 : pressed ? 0.5 : 1,
         },
       ]}
-      hitSlop={8}
-      pressRetentionOffset={8}
+      hitSlop={12}
+      pressRetentionOffset={12}
       {...props}
     />
   );
