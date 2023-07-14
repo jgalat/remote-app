@@ -1,10 +1,7 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 
@@ -24,13 +21,6 @@ type State = {
 };
 
 export default function AddTorrentFileScreen() {
-  const {
-    params: { uri },
-  } =
-    useRoute<
-      NativeStackScreenProps<RootStackParamList, "AddTorrentFile">["route"]
-    >();
-
   const { red } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -40,27 +30,6 @@ export default function AddTorrentFileScreen() {
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
     {}
   );
-
-  React.useEffect(() => {
-    async function updateUri() {
-      if (uri) {
-        const filename = `[Filename unavailable].torrent`;
-        const fileUri = `${FileSystem.cacheDirectory}${Date.now()}.torrent`;
-        try {
-          await FileSystem.copyAsync({ from: uri, to: fileUri });
-          setState({ error: undefined, uri: fileUri, filename });
-        } catch (e) {
-          let message = "Something went wrong";
-          if (e instanceof Error) {
-            message = e.message;
-          }
-          setState({ error: message });
-        }
-      }
-    }
-
-    updateUri();
-  }, [uri]);
 
   const onPick = React.useCallback(async () => {
     const result = await DocumentPicker.getDocumentAsync({

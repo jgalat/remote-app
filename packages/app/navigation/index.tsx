@@ -192,10 +192,6 @@ function useNavigationContainerProps() {
     if (url?.startsWith("magnet:")) {
       ref.navigate("AddTorrentMagnet", { uri: url });
     }
-
-    if (url?.startsWith("content:") || url?.startsWith("file:")) {
-      ref.navigate("AddTorrentFile", { uri: url });
-    }
   }, [ref, server]);
 
   const subscribe = React.useCallback(
@@ -207,9 +203,6 @@ function useNavigationContainerProps() {
       const subscription = Linking.addEventListener("url", ({ url }) => {
         if (url?.startsWith("magnet:")) {
           ref.navigate("AddTorrentMagnet", { uri: url });
-        }
-        if (url?.startsWith("content:") || url?.startsWith("file:")) {
-          ref.navigate("AddTorrentFile", { uri: url });
         }
         listener(url);
       });

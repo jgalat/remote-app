@@ -43,31 +43,6 @@ export default {
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
-        {
-          action: "VIEW",
-          data: [
-            {
-              scheme: "http",
-            },
-            {
-              scheme: "https",
-            },
-            {
-              host: "*",
-              pathPattern: ".*\\.torrent",
-            },
-          ],
-          category: ["BROWSABLE", "DEFAULT"],
-        },
-        {
-          action: "VIEW",
-          data: [
-            {
-              mimeType: "application/x-bittorrent",
-            },
-          ],
-          category: ["BROWSABLE", "DEFAULT"],
-        },
       ],
     },
     plugins: [

@@ -13,7 +13,7 @@ export type RootStackParamList = {
   Root: undefined;
   TorrentDetails: { id: number };
   SettingsStack: NavigatorScreenParams<SettingsStackParamList> | undefined;
-  AddTorrentFile: { uri?: string };
+  AddTorrentFile: undefined;
   AddTorrentMagnet: { uri?: string };
   NotFound: undefined;
 };
@@ -30,5 +30,5 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
 export type SettingsStackScreenProps<
-  Screen extends keyof SettingsStackParamList
+  Screen extends keyof SettingsStackParamList,
 > = NativeStackScreenProps<SettingsStackParamList, Screen>;
