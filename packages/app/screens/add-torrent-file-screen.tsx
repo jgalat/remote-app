@@ -63,14 +63,17 @@ export default function AddTorrentFileScreen() {
   }, [uri]);
 
   const onPick = React.useCallback(async () => {
-    const file = await DocumentPicker.getDocumentAsync({
+    const result = await DocumentPicker.getDocumentAsync({
       type: "application/x-bittorrent",
       copyToCacheDirectory: true,
+      multiple: false,
     });
 
-    if (file.type === "cancel") {
+    if (result.canceled) {
       return;
     }
+
+    const [file] = result.assets;
 
     setState({
       error: undefined,
