@@ -9,7 +9,7 @@
     "directory": "packages/web"
   },
   "scripts": {
-    "publish": "wrangler pages publish ./public",
+    "publish": "wrangler pages deploy ./public",
     "dev": "wrangler pages dev ./public --live-reload"
   },
   "license": "MIT",
@@ -17,6 +17,6 @@
     "url": "https://github.com/jgalat/remote-app/issues"
   },
   "devDependencies": {
-    "wrangler": "^2.0.28"
+    "wrangler": "^3.2.0"
   }
 }
