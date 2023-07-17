@@ -26,11 +26,12 @@ export default React.memo(function Checkbox({
       style={[styles.checkbox, style]}
     >
       <Feather
+        style={styles.icon}
         name={value ? "check-square" : "square"}
         color={value ? tint : text}
         size={24}
       />
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? <Text>{label}</Text> : null}
     </Pressable>
   );
 });
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  label: {
-    marginLeft: 8,
+  icon: {
+    padding: 12,
   },
 });

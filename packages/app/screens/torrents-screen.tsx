@@ -168,7 +168,6 @@ export default function TorrentsScreen() {
               activeSelection ? (
                 <Checkbox
                   value={selection.has(torrent.id)}
-                  style={styles.icon}
                   onPress={() => toggle(torrent.id)}
                 />
               ) : (
@@ -222,8 +221,5 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     height: 2,
     width: "100%",
-  },
-  icon: {
-    padding: 8,
   },
 });
