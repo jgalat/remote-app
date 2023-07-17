@@ -165,7 +165,6 @@ export function useSessionSet() {
     onError: (_err, _params, context) => {
       queryClient.setQueryData(["session-get", client], context?.previous);
     },
-
     onSettled: () => {
       queryClient.invalidateQueries(["session-get", client]);
     },
@@ -210,7 +209,6 @@ export function useSessionStats() {
 
       return response?.arguments;
     },
-
     {
       enabled: Boolean(client),
       refetchInterval: 5000,
@@ -260,7 +258,7 @@ export function useTorrentAction<
     | "torrent-verify"
     | "torrent-reannounce"
     | "torrent-remove"
-  >
+  >,
 >(action: T) {
   const queryClient = useQueryClient();
   const client = useTransmission();

@@ -22,7 +22,7 @@ export default function ActionSheet({
   options = [],
   sheetId,
 }: ActionSheetProps) {
-  const { background, gray, text } = useTheme();
+  const { background, text } = useTheme();
 
   return (
     <_ActionSheet
@@ -30,7 +30,7 @@ export default function ActionSheet({
       containerStyle={{
         backgroundColor: background,
         borderWidth: 2,
-        borderColor: gray,
+        borderColor: text,
         borderBottomWidth: 0,
       }}
       indicatorStyle={{

@@ -7,14 +7,12 @@ import Option, { OptionProps } from "../components/option";
 import Screen from "../components/screen";
 import { useColorScheme } from "../hooks/use-settings";
 import { useSession } from "../hooks/use-transmission";
-import { useTheme } from "../hooks/use-theme-color";
 
 import packageJson from "../package.json";
 
 export default function SettingsScreen() {
   const linkTo = useLinkTo();
   const colorScheme = useColorScheme();
-  const { gray } = useTheme();
   const { data: session, error } = useSession();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
@@ -65,7 +63,7 @@ export default function SettingsScreen() {
         renderItem={({ item }) => <Option {...item} />}
         keyExtractor={(item) => item.label}
       />
-      <Text color={gray} style={styles.text}>
+      <Text style={styles.text}>
         Version {packageJson.version}
       </Text>
     </Screen>
