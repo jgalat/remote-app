@@ -10,6 +10,7 @@ export type CheckboxProps = {
   value: boolean;
   label?: string;
   onPress?: (checked: boolean) => void;
+  iconStyle?: React.ComponentProps<typeof Feather>["style"];
 } & Omit<PressableProps, "onPress">;
 
 export default React.memo(function Checkbox({
@@ -17,6 +18,7 @@ export default React.memo(function Checkbox({
   label,
   onPress,
   style,
+  iconStyle,
 }: CheckboxProps) {
   const { text, tint } = useTheme();
 
@@ -26,7 +28,7 @@ export default React.memo(function Checkbox({
       style={[styles.checkbox, style]}
     >
       <Feather
-        style={styles.icon}
+        style={[styles.icon, iconStyle]}
         name={value ? "check-square" : "square"}
         color={value ? tint : text}
         size={24}

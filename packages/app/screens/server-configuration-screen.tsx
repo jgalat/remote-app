@@ -101,6 +101,7 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <View style={styles.left}>
           <Checkbox
+            iconStyle={styles.icon}
             value={state["speed-limit-down-enabled"]}
             onPress={update("speed-limit-down-enabled")}
             label="Download (kB/s)"
@@ -119,6 +120,7 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <View style={styles.left}>
           <Checkbox
+            iconStyle={styles.icon}
             value={state["speed-limit-up-enabled"]}
             onPress={update("speed-limit-up-enabled")}
             label="Upload (kB/s)"
@@ -140,6 +142,7 @@ export default function ServerConfigurationScreen() {
 
       <View style={styles.row}>
         <Checkbox
+          iconStyle={styles.icon}
           value={state["alt-speed-enabled"]}
           onPress={update("alt-speed-enabled")}
           label="Enable alternative speed limits"
@@ -173,6 +176,7 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <View style={styles.left}>
           <Checkbox
+            iconStyle={styles.icon}
             value={state["download-queue-enabled"]}
             onPress={update("download-queue-enabled")}
             label="Download queue"
@@ -209,5 +213,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flexGrow: 1,
+  },
+  icon: {
+    paddingLeft: 0,
   },
 });
