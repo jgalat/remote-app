@@ -1,5 +1,10 @@
 import * as React from "react";
-import { StyleSheet, ToastAndroid } from "react-native";
+import {
+  NativeSyntheticEvent,
+  StyleSheet,
+  TextInputSubmitEditingEventData,
+  ToastAndroid,
+} from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
 
 import Checkbox from "../components/checkbox";
@@ -8,65 +13,23 @@ import View from "../components/view";
 import TextInput from "../components/text-input";
 import Screen from "../components/screen";
 import { useSession, useSessionSet } from "../hooks/use-transmission";
-import useKeyboard from "../hooks/use-keyboard";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
-  const { data: session, error } = useSession();
+  const { data: session, isLoading, error } = useSession();
   const { mutate } = useSessionSet();
-  const [state, setState] = React.useState<SessionGetResponse | undefined>();
-  const { visible } = useKeyboard();
 
-  React.useLayoutEffect(() => {
-    if (!session || visible) {
-      return;
-    }
-
-    setState(session);
-  }, [session, visible]);
-
-  const onBlur = React.useCallback(
-    (field: keyof SessionGetResponse) => async () => {
-      if (!state) {
-        return;
-      }
-
-      if (session?.[field] === state[field]) {
-        return;
-      }
-
-      mutate(
-        { [field]: state[field] },
-        {
-          onSuccess: () => {
-            ToastAndroid.show(
-              "Server updated successfully",
-              ToastAndroid.SHORT
-            );
-          },
-          onError: () => {
-            ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
-          },
+  const onSubmitEditing = React.useCallback(
+    (field: keyof SessionGetResponse) =>
+      ({
+        nativeEvent: { text },
+      }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+        const value = Number(text.replace(/[^0-9]/g, ""));
+        const current = session?.[field];
+        if (typeof current !== "number" || current === value) {
+          return;
         }
-      );
-    },
-    [state, session, mutate]
-  );
 
-  const update = React.useCallback(
-    (field: keyof SessionGetResponse) => async (value: string | boolean) => {
-      if (!state) {
-        return;
-      }
-
-      if (typeof state[field] === "number" && typeof value === "string") {
-        return setState({
-          ...state,
-          [field]: Number(value.replace(/[^0-9]/g, "")),
-        });
-      }
-
-      if (typeof state[field] === "boolean" && typeof value === "boolean") {
         mutate(
           { [field]: value },
           {
@@ -81,39 +44,62 @@ export default function ServerConfigurationScreen() {
             },
           }
         );
+      },
+    [mutate, session]
+  );
+
+  const onUpdate = React.useCallback(
+    (field: keyof SessionGetResponse) => (value: boolean) => {
+      const current = session?.[field];
+      if (typeof current !== "boolean" || current === value) {
+        return;
       }
+
+      mutate(
+        { [field]: value },
+        {
+          onSuccess: () => {
+            ToastAndroid.show(
+              "Server updated successfully",
+              ToastAndroid.SHORT
+            );
+          },
+          onError: () => {
+            ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+          },
+        }
+      );
     },
-    [state, mutate]
+    [mutate, session]
   );
 
   if (error) {
     return <NetworkErrorScreen error={error} />;
   }
 
-  if (!state || !session) {
+  if (isLoading || !session) {
     return <LoadingScreen />;
   }
 
   return (
     <Screen variant="scroll">
-      <Text style={styles.title}>Speed limits</Text>
+      <Text style={[styles.title, { marginTop: 0 }]}>Speed limits</Text>
 
       <View style={styles.row}>
         <View style={styles.left}>
           <Checkbox
             iconStyle={styles.icon}
-            value={state["speed-limit-down-enabled"]}
-            onPress={update("speed-limit-down-enabled")}
+            value={session["speed-limit-down-enabled"]}
+            onPress={onUpdate("speed-limit-down-enabled")}
             label="Download (kB/s)"
           />
         </View>
         <TextInput
           containerStyle={styles.input}
-          editable={state["speed-limit-down-enabled"]}
+          editable={session["speed-limit-down-enabled"]}
           keyboardType="numeric"
-          onChangeText={update("speed-limit-down")}
-          onBlur={onBlur("speed-limit-down")}
-          value={state["speed-limit-down"].toString()}
+          onSubmitEditing={onSubmitEditing("speed-limit-down")}
+          defaultValue={String(session["speed-limit-down"])}
         />
       </View>
 
@@ -121,30 +107,27 @@ export default function ServerConfigurationScreen() {
         <View style={styles.left}>
           <Checkbox
             iconStyle={styles.icon}
-            value={state["speed-limit-up-enabled"]}
-            onPress={update("speed-limit-up-enabled")}
+            value={session["speed-limit-up-enabled"]}
+            onPress={onUpdate("speed-limit-up-enabled")}
             label="Upload (kB/s)"
           />
         </View>
         <TextInput
           containerStyle={styles.input}
-          editable={state["speed-limit-up-enabled"]}
+          editable={session["speed-limit-up-enabled"]}
           keyboardType="numeric"
-          onChangeText={update("speed-limit-up")}
-          onBlur={onBlur("speed-limit-up")}
-          value={state["speed-limit-up"].toString()}
+          onSubmitEditing={onSubmitEditing("speed-limit-up")}
+          defaultValue={String(session["speed-limit-up"])}
         />
       </View>
 
-      <Text style={[styles.title, { marginTop: 24 }]}>
-        Alternative speed limits
-      </Text>
+      <Text style={styles.title}>Alternative speed limits</Text>
 
       <View style={styles.row}>
         <Checkbox
           iconStyle={styles.icon}
-          value={state["alt-speed-enabled"]}
-          onPress={update("alt-speed-enabled")}
+          value={session["alt-speed-enabled"]}
+          onPress={onUpdate("alt-speed-enabled")}
           label="Enable alternative speed limits"
         />
       </View>
@@ -154,9 +137,8 @@ export default function ServerConfigurationScreen() {
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onChangeText={update("alt-speed-down")}
-          onBlur={onBlur("alt-speed-down")}
-          value={state["alt-speed-down"].toString()}
+          onSubmitEditing={onSubmitEditing("alt-speed-down")}
+          defaultValue={String(session["alt-speed-down"])}
         />
       </View>
 
@@ -165,30 +147,43 @@ export default function ServerConfigurationScreen() {
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onChangeText={update("alt-speed-up")}
-          onBlur={onBlur("alt-speed-up")}
-          value={state["alt-speed-up"].toString()}
+          onSubmitEditing={onSubmitEditing("alt-speed-up")}
+          value={String(session["alt-speed-up"])}
         />
       </View>
 
-      <Text style={[styles.title, { marginTop: 24 }]}>Queue</Text>
+      <Text style={styles.title}>Queue</Text>
 
       <View style={styles.row}>
         <View style={styles.left}>
           <Checkbox
             iconStyle={styles.icon}
-            value={state["download-queue-enabled"]}
-            onPress={update("download-queue-enabled")}
+            value={session["download-queue-enabled"]}
+            onPress={onUpdate("download-queue-enabled")}
             label="Download queue"
           />
         </View>
         <TextInput
           containerStyle={styles.input}
-          editable={state["download-queue-enabled"]}
+          editable={session["download-queue-enabled"]}
           keyboardType="numeric"
-          onChangeText={update("download-queue-size")}
-          onBlur={onBlur("download-queue-size")}
-          value={state["download-queue-size"].toString()}
+          onSubmitEditing={onSubmitEditing("download-queue-size")}
+          defaultValue={String(session["download-queue-size"])}
+        />
+      </View>
+      <View style={[styles.row, { paddingBottom: 64 }]}>
+        <Checkbox
+          iconStyle={styles.icon}
+          value={session["seed-queue-enabled"]}
+          onPress={onUpdate("seed-queue-enabled")}
+          label="Seed queue"
+        />
+        <TextInput
+          containerStyle={[styles.input]}
+          editable={session["seed-queue-enabled"]}
+          keyboardType="numeric"
+          onSubmitEditing={onSubmitEditing("seed-queue-size")}
+          defaultValue={String(session["seed-queue-size"])}
         />
       </View>
     </Screen>
@@ -200,21 +195,20 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMono-Medium",
     fontSize: 20,
     marginBottom: 16,
+    marginTop: 24,
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: "column",
     marginBottom: 20,
   },
   left: {
-    width: "50%",
-    marginRight: 24,
+    marginBottom: 12,
   },
   input: {
     flexGrow: 1,
   },
   icon: {
     paddingLeft: 0,
+    paddingBottom: 8,
   },
 });

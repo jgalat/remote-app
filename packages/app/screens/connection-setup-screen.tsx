@@ -65,7 +65,7 @@ export default function ConnectionScreen() {
   }, [store, navigation]);
 
   return (
-    <Screen variant="keyboardavoiding">
+    <Screen variant="scroll">
       <TextInput
         style={styles.input}
         value={form.name}

@@ -20,7 +20,7 @@ export default React.memo(function TextInput({
   containerStyle,
   ...props
 }: TextInputProps) {
-  const { background, text, gray, lightGray } = useTheme();
+  const { background, text, lightGray } = useTheme();
 
   return (
     <View pointerEvents={editable ? undefined : "none"} style={containerStyle}>
@@ -35,7 +35,6 @@ export default React.memo(function TextInput({
           },
           style,
         ]}
-        placeholderTextColor={editable ? gray : lightGray}
         {...props}
       />
     </View>
