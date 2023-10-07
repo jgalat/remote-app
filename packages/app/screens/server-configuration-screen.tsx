@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   NativeSyntheticEvent,
   StyleSheet,
-  TextInputSubmitEditingEventData,
+  TextInputEndEditingEventData,
   ToastAndroid,
 } from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
@@ -19,11 +19,11 @@ export default function ServerConfigurationScreen() {
   const { data: session, isLoading, error } = useSession();
   const { mutate } = useSessionSet();
 
-  const onSubmitEditing = React.useCallback(
+  const onEndEditing = React.useCallback(
     (field: keyof SessionGetResponse) =>
       ({
         nativeEvent: { text },
-      }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+      }: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
         const value = Number(text.replace(/[^0-9]/g, ""));
         const current = session?.[field];
         if (typeof current !== "number" || current === value) {
@@ -98,7 +98,7 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["speed-limit-down-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("speed-limit-down")}
+          onEndEditing={onEndEditing("speed-limit-down")}
           defaultValue={String(session["speed-limit-down"])}
         />
       </View>
@@ -116,7 +116,7 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["speed-limit-up-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("speed-limit-up")}
+          onEndEditing={onEndEditing("speed-limit-up")}
           defaultValue={String(session["speed-limit-up"])}
         />
       </View>
@@ -137,7 +137,7 @@ export default function ServerConfigurationScreen() {
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("alt-speed-down")}
+          onEndEditing={onEndEditing("alt-speed-down")}
           defaultValue={String(session["alt-speed-down"])}
         />
       </View>
@@ -147,8 +147,8 @@ export default function ServerConfigurationScreen() {
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("alt-speed-up")}
-          value={String(session["alt-speed-up"])}
+          onEndEditing={onEndEditing("alt-speed-up")}
+          defaultValue={String(session["alt-speed-up"])}
         />
       </View>
 
@@ -167,7 +167,7 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["download-queue-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("download-queue-size")}
+          onEndEditing={onEndEditing("download-queue-size")}
           defaultValue={String(session["download-queue-size"])}
         />
       </View>
@@ -184,7 +184,7 @@ export default function ServerConfigurationScreen() {
           containerStyle={[styles.input]}
           editable={session["seed-queue-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("seed-queue-size")}
+          onEndEditing={onEndEditing("seed-queue-size")}
           defaultValue={String(session["seed-queue-size"])}
         />
       </View>
