@@ -200,15 +200,12 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   row: {
-    flexDirection: "column",
     marginBottom: 20,
   },
   label: {
     marginBottom: 12,
   },
-  input: {
-    flexGrow: 1,
-  },
+  input: {},
   icon: {
     paddingLeft: 0,
   },
