@@ -86,7 +86,7 @@ export default function ServerConfigurationScreen() {
       <Text style={[styles.title, { marginTop: 0 }]}>Speed limits</Text>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["speed-limit-down-enabled"]}
@@ -104,7 +104,7 @@ export default function ServerConfigurationScreen() {
       </View>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["speed-limit-up-enabled"]}
@@ -133,7 +133,7 @@ export default function ServerConfigurationScreen() {
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.left}>Download (kB/s)</Text>
+        <Text style={styles.label}>Download (kB/s)</Text>
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
@@ -143,7 +143,7 @@ export default function ServerConfigurationScreen() {
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.left}>Upload (kB/s)</Text>
+        <Text style={styles.label}>Upload (kB/s)</Text>
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
@@ -155,7 +155,7 @@ export default function ServerConfigurationScreen() {
       <Text style={styles.title}>Queue</Text>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["download-queue-enabled"]}
@@ -172,12 +172,14 @@ export default function ServerConfigurationScreen() {
         />
       </View>
       <View style={[styles.row, { paddingBottom: 64 }]}>
-        <Checkbox
-          iconStyle={styles.icon}
-          value={session["seed-queue-enabled"]}
-          onPress={onUpdate("seed-queue-enabled")}
-          label="Seed queue"
-        />
+        <View style={styles.label}>
+          <Checkbox
+            iconStyle={styles.icon}
+            value={session["seed-queue-enabled"]}
+            onPress={onUpdate("seed-queue-enabled")}
+            label="Seed queue"
+          />
+        </View>
         <TextInput
           containerStyle={[styles.input]}
           editable={session["seed-queue-enabled"]}
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     marginBottom: 20,
   },
-  left: {
+  label: {
     marginBottom: 12,
   },
   input: {
@@ -209,6 +211,5 @@ const styles = StyleSheet.create({
   },
   icon: {
     paddingLeft: 0,
-    paddingBottom: 8,
   },
 });
