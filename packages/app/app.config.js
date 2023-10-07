@@ -51,6 +51,7 @@ export default {
         {
           android: {
             enableProguardInReleaseBuilds: true,
+            usesCleartextTraffic: true,
           },
         },
       ],
