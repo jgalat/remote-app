@@ -13,11 +13,7 @@ import TorrentItem from "../components/torrent-item";
 import Stats from "../components/stats";
 import Checkbox from "../components/checkbox";
 import { useTheme } from "../hooks/use-theme-color";
-import {
-  useSession,
-  useTorrentActions,
-  useTorrents,
-} from "../hooks/use-transmission";
+import { useTorrentActions, useTorrents } from "../hooks/use-transmission";
 import { useServer, useListing } from "../hooks/use-settings";
 import {
   useAddTorrentSheet,
@@ -35,7 +31,6 @@ export default function TorrentsScreen() {
   const navigation = useNavigation();
   const server = useServer();
   const { sort, direction, filter } = useListing();
-  const { data: session } = useSession();
   const { data: torrents, refetch, error, isLoading } = useTorrents();
   const [refreshing, setRefreshing] = React.useState(false);
   const { lightGray } = useTheme();
@@ -80,7 +75,7 @@ export default function TorrentsScreen() {
           );
         }
 
-        const actions = session
+        const actions = torrents
           ? [
               <ActionIcon key="add" onPress={addTorrentSheet} name="plus" />,
               <ActionIcon key="sort" onPress={sortBySheet} name="align-left" />,
@@ -105,7 +100,6 @@ export default function TorrentsScreen() {
     navigation,
     selection,
     server,
-    session,
     sortBySheet,
     torrentActionsSheet,
     torrents,
@@ -130,7 +124,7 @@ export default function TorrentsScreen() {
   }
 
   if (error) {
-    return <NetworkErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
   if (isLoading || !torrents) {
@@ -191,9 +185,6 @@ export default function TorrentsScreen() {
         )}
         onRefresh={refresh}
         refreshing={refreshing}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Nothing to see here...</Text>
-        }
       />
       <Stats />
     </Screen>

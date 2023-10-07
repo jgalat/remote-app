@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   NativeSyntheticEvent,
   StyleSheet,
-  TextInputSubmitEditingEventData,
+  TextInputEndEditingEventData,
   ToastAndroid,
 } from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
@@ -16,14 +16,14 @@ import { useSession, useSessionSet } from "../hooks/use-transmission";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
-  const { data: session, isLoading, error } = useSession();
+  const { data: session, isLoading, error, refetch } = useSession();
   const { mutate } = useSessionSet();
 
-  const onSubmitEditing = React.useCallback(
+  const onEndEditing = React.useCallback(
     (field: keyof SessionGetResponse) =>
       ({
         nativeEvent: { text },
-      }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+      }: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
         const value = Number(text.replace(/[^0-9]/g, ""));
         const current = session?.[field];
         if (typeof current !== "number" || current === value) {
@@ -74,7 +74,7 @@ export default function ServerConfigurationScreen() {
   );
 
   if (error) {
-    return <NetworkErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
   if (isLoading || !session) {
@@ -86,7 +86,7 @@ export default function ServerConfigurationScreen() {
       <Text style={[styles.title, { marginTop: 0 }]}>Speed limits</Text>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["speed-limit-down-enabled"]}
@@ -98,13 +98,13 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["speed-limit-down-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("speed-limit-down")}
+          onEndEditing={onEndEditing("speed-limit-down")}
           defaultValue={String(session["speed-limit-down"])}
         />
       </View>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["speed-limit-up-enabled"]}
@@ -116,7 +116,7 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["speed-limit-up-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("speed-limit-up")}
+          onEndEditing={onEndEditing("speed-limit-up")}
           defaultValue={String(session["speed-limit-up"])}
         />
       </View>
@@ -133,29 +133,29 @@ export default function ServerConfigurationScreen() {
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.left}>Download (kB/s)</Text>
+        <Text style={styles.label}>Download (kB/s)</Text>
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("alt-speed-down")}
+          onEndEditing={onEndEditing("alt-speed-down")}
           defaultValue={String(session["alt-speed-down"])}
         />
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.left}>Upload (kB/s)</Text>
+        <Text style={styles.label}>Upload (kB/s)</Text>
         <TextInput
           containerStyle={styles.input}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("alt-speed-up")}
-          value={String(session["alt-speed-up"])}
+          onEndEditing={onEndEditing("alt-speed-up")}
+          defaultValue={String(session["alt-speed-up"])}
         />
       </View>
 
       <Text style={styles.title}>Queue</Text>
 
       <View style={styles.row}>
-        <View style={styles.left}>
+        <View style={styles.label}>
           <Checkbox
             iconStyle={styles.icon}
             value={session["download-queue-enabled"]}
@@ -167,22 +167,24 @@ export default function ServerConfigurationScreen() {
           containerStyle={styles.input}
           editable={session["download-queue-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("download-queue-size")}
+          onEndEditing={onEndEditing("download-queue-size")}
           defaultValue={String(session["download-queue-size"])}
         />
       </View>
       <View style={[styles.row, { paddingBottom: 64 }]}>
-        <Checkbox
-          iconStyle={styles.icon}
-          value={session["seed-queue-enabled"]}
-          onPress={onUpdate("seed-queue-enabled")}
-          label="Seed queue"
-        />
+        <View style={styles.label}>
+          <Checkbox
+            iconStyle={styles.icon}
+            value={session["seed-queue-enabled"]}
+            onPress={onUpdate("seed-queue-enabled")}
+            label="Seed queue"
+          />
+        </View>
         <TextInput
           containerStyle={[styles.input]}
           editable={session["seed-queue-enabled"]}
           keyboardType="numeric"
-          onSubmitEditing={onSubmitEditing("seed-queue-size")}
+          onEndEditing={onEndEditing("seed-queue-size")}
           defaultValue={String(session["seed-queue-size"])}
         />
       </View>
@@ -198,17 +200,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   row: {
-    flexDirection: "column",
     marginBottom: 20,
   },
-  left: {
+  label: {
     marginBottom: 12,
   },
-  input: {
-    flexGrow: 1,
-  },
+  input: {},
   icon: {
     paddingLeft: 0,
-    paddingBottom: 8,
   },
 });

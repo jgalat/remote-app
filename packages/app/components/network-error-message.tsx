@@ -8,20 +8,20 @@ import View, { ViewProps } from "./view";
 import Text from "./text";
 import Button from "./button";
 import { useTheme } from "../hooks/use-theme-color";
-import { useTorrents } from "../hooks/use-transmission";
 
 export type NetworkErrorMessageProps = {
   error: Error;
+  refetch: () => void;
 } & ViewProps;
 
 export default React.memo(function NetworkErrorMessage({
   error,
+  refetch,
   style,
   ...props
 }: NetworkErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
-  const { refetch } = useTorrents();
 
   let title = "Failed to connect";
   let message = error.message;
@@ -54,7 +54,7 @@ export default React.memo(function NetworkErrorMessage({
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
           title="Network Settings"
         />
-        <Button onPress={() => refetch()} title="Retry" />
+        <Button onPress={refetch} title="Retry" />
       </View>
     </View>
   );

@@ -4,10 +4,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import Text from "../components/text";
+import View from "../components/view";
 import Screen from "../components/screen";
 import TextInput from "../components/text-input";
 import Button from "../components/button";
-import useThemeColor from "../hooks/use-theme-color";
+import { useTheme } from "../hooks/use-theme-color";
 import useSettings from "../hooks/use-settings";
 import type { RootStackParamList } from "../types";
 import type { Server } from "../store/settings";
@@ -24,7 +25,7 @@ export default function ConnectionScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { settings, store } = useSettings();
   const { server } = settings;
-  const red = useThemeColor("red");
+  const { red } = useTheme();
 
   const [form, updateForm] = React.useReducer(
     (prev: Form, f: Partial<Form>) => ({ ...prev, ...f }),
@@ -66,33 +67,41 @@ export default function ConnectionScreen() {
 
   return (
     <Screen variant="scroll">
-      <TextInput
-        style={styles.input}
-        value={form.name}
-        onChangeText={(t) => updateForm({ name: t })}
-        placeholder="Server name (required)"
-      />
-      <TextInput
-        style={styles.input}
-        value={form.url}
-        autoCorrect={false}
-        keyboardType={"url"}
-        onChangeText={(t) => updateForm({ url: t })}
-        placeholder="RPC URL (required)"
-      />
-      <TextInput
-        style={styles.input}
-        value={form.username}
-        onChangeText={(t) => updateForm({ username: t })}
-        placeholder="Username (optional)"
-      />
-      <TextInput
-        style={styles.input}
-        secureTextEntry
-        value={form.password}
-        onChangeText={(t) => updateForm({ password: t })}
-        placeholder="Password (optional)"
-      />
+      <View style={styles.row}>
+        <Text style={styles.label}>Server name (required)</Text>
+        <TextInput
+          style={styles.input}
+          value={form.name}
+          onChangeText={(t) => updateForm({ name: t })}
+        />
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>RPC URL (required)</Text>
+        <TextInput
+          style={styles.input}
+          value={form.url}
+          autoCorrect={false}
+          keyboardType={"url"}
+          onChangeText={(t) => updateForm({ url: t })}
+        />
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Username (optional)</Text>
+        <TextInput
+          style={styles.input}
+          value={form.username}
+          onChangeText={(t) => updateForm({ username: t })}
+        />
+      </View>
+      <View style={[styles.row, { marginBottom: 32 }]}>
+        <Text style={styles.label}>Password (optional)</Text>
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          value={form.password}
+          onChangeText={(t) => updateForm({ password: t })}
+        />
+      </View>
       <Button
         title="Save"
         disabled={form.name === "" || form.url === ""}
@@ -115,9 +124,13 @@ export default function ConnectionScreen() {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    marginBottom: 24,
+  row: {
+    marginBottom: 20,
   },
+  label: {
+    marginBottom: 12,
+  },
+  input: {},
   error: {
     textAlign: "center",
     marginVertical: 16,
