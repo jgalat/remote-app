@@ -89,7 +89,8 @@ export function useTorrents() {
     },
     {
       enabled: Boolean(client),
-      refetchInterval: 5000,
+      refetchInterval: (_, query) =>
+        query.state.status === "error" ? false : 5000,
       retry: 3,
     }
   );
@@ -120,7 +121,6 @@ export function useSession() {
     },
     {
       enabled: Boolean(client),
-      refetchInterval: 5000,
       retry: 3,
     }
   );
@@ -173,7 +173,11 @@ export function useSessionSet() {
 
 export function useFreeSpace() {
   const client = useTransmission();
-  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const session = queryClient.getQueryData<SessionGetResponse>([
+    "session",
+    client,
+  ]);
   return useQuery<FreeSpaceResponse | undefined, HookError>(
     ["free-space", client, session?.["download-dir"]],
     async () => {
@@ -192,7 +196,6 @@ export function useFreeSpace() {
     },
     {
       enabled: Boolean(client && session?.["download-dir"]),
-      refetchInterval: 5000,
       retry: 3,
     }
   );
@@ -211,7 +214,8 @@ export function useSessionStats() {
     },
     {
       enabled: Boolean(client),
-      refetchInterval: 5000,
+      refetchInterval: (_, query) =>
+        query.state.status === "error" ? false : 5000,
       retry: 3,
     }
   );

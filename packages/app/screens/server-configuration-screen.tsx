@@ -16,7 +16,7 @@ import { useSession, useSessionSet } from "../hooks/use-transmission";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
 export default function ServerConfigurationScreen() {
-  const { data: session, isLoading, error } = useSession();
+  const { data: session, isLoading, error, refetch } = useSession();
   const { mutate } = useSessionSet();
 
   const onEndEditing = React.useCallback(
@@ -74,7 +74,7 @@ export default function ServerConfigurationScreen() {
   );
 
   if (error) {
-    return <NetworkErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
   if (isLoading || !session) {

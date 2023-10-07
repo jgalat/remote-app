@@ -13,12 +13,12 @@ export function LoadingScreen() {
   );
 }
 
-export type ErrorScreenProps = { error: Error };
+export type ErrorScreenProps = { error: Error; refetch: () => void };
 
-export function NetworkErrorScreen({ error }: ErrorScreenProps) {
+export function NetworkErrorScreen({ error, refetch }: ErrorScreenProps) {
   return (
     <Screen style={styles.message}>
-      <NetworkErrorMessage error={error} />
+      <NetworkErrorMessage error={error} refetch={refetch} />
     </Screen>
   );
 }

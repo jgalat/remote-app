@@ -25,7 +25,7 @@ export default function TorrentDetails() {
     >();
   const navigation = useNavigation();
 
-  const { data: torrents, error, isLoading } = useTorrent(id);
+  const { data: torrents, error, isLoading, refetch } = useTorrent(id);
   const { text } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
 
@@ -144,7 +144,7 @@ export default function TorrentDetails() {
   }, [torrents]);
 
   if (error) {
-    return <NetworkErrorScreen error={error} />;
+    return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
   if (isLoading || !torrents || torrents.length !== 1) {
