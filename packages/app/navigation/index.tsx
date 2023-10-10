@@ -15,7 +15,7 @@ import {
 
 import ActionIcon from "../components/action-icon";
 import { useColorScheme, useServer } from "../hooks/use-settings";
-import useThemeColor from "../hooks/use-theme-color";
+import  { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
 import NotFoundScreen from "../screens/not-found-screen";
@@ -157,8 +157,7 @@ function useNavigationOptions(): (props: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigation: any;
 }) => NativeStackNavigationOptions {
-  const text = useThemeColor("text");
-  const background = useThemeColor("background");
+  const { text, background } = useTheme();
   return ({ navigation }) => ({
     headerTitleStyle: {
       fontFamily: "RobotoMono-Medium",
