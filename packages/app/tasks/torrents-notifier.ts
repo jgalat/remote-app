@@ -71,7 +71,7 @@ export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
 
 export async function registerTorrentsNotifierTask(): Promise<void> {
   return BackgroundFetch.registerTaskAsync(TORRENTS_NOTIFIER_TASK, {
-    minimumInterval: 60 * 5,
+    minimumInterval: 5 * 60,
     stopOnTerminate: false,
     startOnBoot: true,
   });

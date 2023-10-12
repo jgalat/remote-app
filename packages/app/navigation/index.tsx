@@ -200,7 +200,7 @@ function useNavigationContainerProps() {
       }
 
       const subscription = Linking.addEventListener("url", ({ url }) => {
-        if (url?.startsWith("magnet:")) {
+        if (url.startsWith("magnet:")) {
           ref.navigate("AddTorrentMagnet", { uri: url });
         }
         listener(url);
@@ -222,7 +222,7 @@ function useNavigationContainerProps() {
         TorrentDetails: {
           path: "/torrents/:id",
           parse: {
-            id: (s: string) => +s,
+            id: (s: string) => Number(s),
           },
         },
         AddTorrentFile: {

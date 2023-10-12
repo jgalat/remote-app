@@ -173,11 +173,7 @@ export function useSessionSet() {
 
 export function useFreeSpace() {
   const client = useTransmission();
-  const queryClient = useQueryClient();
-  const session = queryClient.getQueryData<SessionGetResponse>([
-    "session",
-    client,
-  ]);
+  const { data: session } = useSession();
   return useQuery<FreeSpaceResponse | undefined, HookError>(
     ["free-space", client, session?.["download-dir"]],
     async () => {
