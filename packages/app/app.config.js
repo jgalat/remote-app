@@ -50,7 +50,6 @@ export default {
         "expo-build-properties",
         {
           android: {
-            enableProguardInReleaseBuilds: true,
             usesCleartextTraffic: true,
           },
         },
