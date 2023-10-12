@@ -15,19 +15,19 @@ import {
 
 import ActionIcon from "../components/action-icon";
 import { useColorScheme, useServer } from "../hooks/use-settings";
-import useThemeColor from "../hooks/use-theme-color";
+import  { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
-import NotFoundScreen from "../screens/not-found-screen";
-import TorrentsScreen from "../screens/torrents-screen";
-import SettingsScreen from "../screens/settings-screen";
-import AboutScreen from "../screens/about-screen";
-import AddTorrentMagnetScreen from "../screens/add-torrent-magnet-screen";
-import AddTorrentFileScreen from "../screens/add-torrent-file-screen";
-import ConnectionSetupScreen from "../screens/connection-setup-screen";
-import ServerConfigurationScreen from "../screens/server-configuration-screen";
-import ThemeScreen from "../screens/theme-screen";
-import TorrentDetails from "../screens/torrent-details";
+import NotFoundScreen from "../screens/not-found";
+import TorrentsScreen from "../screens/torrents";
+import SettingsScreen from "../screens/settings";
+import AboutScreen from "../screens/about";
+import AddTorrentMagnetScreen from "../screens/add-torrent-magnet";
+import AddTorrentFileScreen from "../screens/add-torrent-file";
+import ConnectionSetupScreen from "../screens/connection-setup";
+import ServerConfigurationScreen from "../screens/server-configuration";
+import ThemeScreen from "../screens/theme";
+import TorrentDetailsScreen from "../screens/torrent-details";
 
 export function NavigationContainer({
   children,
@@ -73,7 +73,7 @@ export function RootNavigator() {
           <>
             <Stack.Screen
               name="TorrentDetails"
-              component={TorrentDetails}
+              component={TorrentDetailsScreen}
               options={{ title: "Details" }}
             />
 
@@ -157,8 +157,7 @@ function useNavigationOptions(): (props: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigation: any;
 }) => NativeStackNavigationOptions {
-  const text = useThemeColor("text");
-  const background = useThemeColor("background");
+  const { text, background } = useTheme();
   return ({ navigation }) => ({
     headerTitleStyle: {
       fontFamily: "RobotoMono-Medium",
@@ -201,7 +200,7 @@ function useNavigationContainerProps() {
       }
 
       const subscription = Linking.addEventListener("url", ({ url }) => {
-        if (url?.startsWith("magnet:")) {
+        if (url.startsWith("magnet:")) {
           ref.navigate("AddTorrentMagnet", { uri: url });
         }
         listener(url);
@@ -223,7 +222,7 @@ function useNavigationContainerProps() {
         TorrentDetails: {
           path: "/torrents/:id",
           parse: {
-            id: (s: string) => +s,
+            id: (s: string) => Number(s),
           },
         },
         AddTorrentFile: {

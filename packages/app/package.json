@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@ctrl/magnet-link": "3.1.2",
+    "@expo-google-fonts/roboto-mono": "^0.2.3",
     "@expo/vector-icons": "^13.0.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-navigation/native": "^6.0.13",

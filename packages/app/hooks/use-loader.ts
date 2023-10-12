@@ -1,6 +1,10 @@
 import * as React from "react";
-import { Feather } from "@expo/vector-icons";
 import * as Font from "expo-font";
+import {
+  RobotoMono_400Regular,
+  RobotoMono_500Medium,
+} from "@expo-google-fonts/roboto-mono";
+import { Feather } from "@expo/vector-icons";
 
 import useSettings from "./use-settings";
 import {
@@ -17,8 +21,8 @@ export default function useLoader() {
       try {
         await Font.loadAsync({
           ...Feather.font,
-          "RobotoMono-Regular": require("../assets/fonts/RobotoMono-Regular.ttf"),
-          "RobotoMono-Medium": require("../assets/fonts/RobotoMono-Medium.ttf"),
+          "RobotoMono-Regular": RobotoMono_400Regular,
+          "RobotoMono-Medium": RobotoMono_500Medium,
         });
 
         await loadSettings();

@@ -16,7 +16,7 @@ import KeyValue, { KeyValueProps } from "../components/key-value";
 import { formatSize, formatStatus } from "../utils/formatters";
 import { NetworkErrorScreen, LoadingScreen } from "./utils";
 
-export default function TorrentDetails() {
+export default function TorrentDetailsScreen() {
   const {
     params: { id },
   } =
