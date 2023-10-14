@@ -43,6 +43,7 @@ function App() {
       <TorrentSelectionProvider>
         <SheetProvider>
           <RootNavigator />
+          <StatusBar />
         </SheetProvider>
       </TorrentSelectionProvider>
     </NavigationContainer>
@@ -57,7 +58,6 @@ export default function Providers() {
       <SettingsProvider>
         <ClientProvider>
           <App />
-          <StatusBar />
         </ClientProvider>
       </SettingsProvider>
     </QueryClientProvider>

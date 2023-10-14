@@ -4,7 +4,7 @@ import {
   RobotoMono_400Regular,
   RobotoMono_500Medium,
 } from "@expo-google-fonts/roboto-mono";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 
 import useSettings from "./use-settings";
 import {
@@ -21,6 +21,7 @@ export default function useLoader() {
       try {
         await Font.loadAsync({
           ...Feather.font,
+          ...FontAwesome.font,
           "RobotoMono-Regular": RobotoMono_400Regular,
           "RobotoMono-Medium": RobotoMono_500Medium,
         });

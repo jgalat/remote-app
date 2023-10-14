@@ -36,6 +36,12 @@ export default function SettingsScreen() {
 
     const appOptions: OptionProps[] = [
       {
+        left: "lock",
+        label: "Security",
+        onPress: () => linkTo("/settings/security"),
+        right: "chevron-right",
+      },
+      {
         left: colorScheme === "dark" ? "moon" : "sun",
         label: "Theme",
         onPress: () => linkTo("/settings/theme"),

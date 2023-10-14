@@ -26,6 +26,7 @@ import AddTorrentMagnetScreen from "../screens/add-torrent-magnet";
 import AddTorrentFileScreen from "../screens/add-torrent-file";
 import ConnectionSetupScreen from "../screens/connection-setup";
 import ServerConfigurationScreen from "../screens/server-configuration";
+import SecurityScreen from "../screens/security";
 import ThemeScreen from "../screens/theme";
 import TorrentDetailsScreen from "../screens/torrent-details";
 
@@ -132,6 +133,13 @@ function SettingsStackNavigator() {
           component={ServerConfigurationScreen}
           options={{
             title: "Server configuration",
+          }}
+        />
+        <SettingsStack.Screen
+          name="Security"
+          component={SecurityScreen}
+          options={{
+            title: "Security",
           }}
         />
         <SettingsStack.Screen
@@ -246,6 +254,9 @@ function useNavigationContainerProps() {
             },
             Theme: {
               path: "/theme",
+            },
+            Security: {
+              path: "/security",
             },
             About: {
               path: "/about",
