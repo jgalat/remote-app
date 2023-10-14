@@ -34,6 +34,7 @@ export type Filter =
 export type Settings = {
   server?: Server;
   colorScheme: ColorScheme;
+  authentication: boolean;
   listing: {
     sort: Sort;
     direction: Direction;
@@ -44,6 +45,7 @@ export type Settings = {
 export const defaultSettings: Settings = {
   server: undefined,
   colorScheme: "system",
+  authentication: false,
   listing: {
     sort: "queue",
     direction: "asc",

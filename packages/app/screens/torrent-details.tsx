@@ -29,7 +29,7 @@ export default function TorrentDetailsScreen() {
   const { text } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     navigation.setOptions({
       headerRight: () =>
         error || !torrents ? null : (

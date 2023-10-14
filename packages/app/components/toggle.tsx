@@ -19,17 +19,22 @@ export default React.memo(function Toggle({
   onPress,
   style,
   iconStyle,
+  disabled,
 }: ToggleProps) {
-  const { text, tint } = useTheme();
+  const { text, gray, tint, red } = useTheme();
 
   return (
-    <Pressable onPress={() => onPress?.(!value)} style={[styles.toggle, style]}>
-      <Text>{label}</Text>
+    <Pressable
+      onPress={() => (disabled ? null : onPress?.(!value))}
+      style={[styles.toggle, style]}
+      disabled={disabled}
+    >
+      <Text style={{ color: disabled ? gray : text }}>{label}</Text>
       <FontAwesome
         style={iconStyle}
-        name={value ? "toggle-on" : "toggle-off"}
-        color={value ? tint : text}
-        size={32}
+        name={disabled ? "warning" : value ? "toggle-on" : "toggle-off"}
+        color={disabled ? red : value ? tint : text}
+        size={disabled ? 24 : 32}
       />
     </Pressable>
   );
