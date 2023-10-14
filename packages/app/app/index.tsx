@@ -1,11 +1,11 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
-import { useLinkTo, useNavigation } from "@react-navigation/native";
+import { Link, useNavigation } from "expo-router";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
 import Text from "../components/text";
 import View from "../components/view";
-import Screen from "../components/screen";
+import { Screen } from "../components/screen";
 import Button from "../components/button";
 import ActionList from "../components/action-list";
 import ActionIcon from "../components/action-icon";
@@ -24,10 +24,9 @@ import {
 import useTorrentSelection from "../hooks/use-torrent-selection";
 import compare from "../utils/sort";
 import predicate from "../utils/filter";
-import { NetworkErrorScreen, LoadingScreen } from "./utils";
+import { NetworkErrorScreen, LoadingScreen } from "../screens/utils";
 
-export default function TorrentsScreen() {
-  const linkTo = useLinkTo();
+export default function Index() {
   const navigation = useNavigation();
   const server = useServer();
   const { sort, direction, filter } = useListing();
@@ -86,7 +85,9 @@ export default function TorrentsScreen() {
         return (
           <ActionList>
             {actions}
-            <ActionIcon onPress={() => linkTo("/settings")} name="settings" />
+            <Link href="/settings" asChild>
+              <ActionIcon name="settings" />
+            </Link>
           </ActionList>
         );
       },
@@ -96,7 +97,6 @@ export default function TorrentsScreen() {
     addTorrentSheet,
     clear,
     filterSheet,
-    linkTo,
     navigation,
     selection,
     server,
@@ -115,10 +115,9 @@ export default function TorrentsScreen() {
     return (
       <Screen style={styles.message}>
         <Text style={styles.title}>No connection found :(</Text>
-        <Button
-          title="Setup connection"
-          onPress={() => linkTo("/settings/connection")}
-        />
+        <Link href="/settings/connection" asChild>
+          <Button title="Setup connection" />
+        </Link>
       </Screen>
     );
   }

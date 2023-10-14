@@ -9,16 +9,15 @@ export type ButtonProps = {
   title: string;
 } & PressableProps;
 
-export default React.memo(function Button({
-  style,
-  title,
-  disabled,
-  ...props
-}: ButtonProps) {
+export default React.forwardRef<
+  React.ComponentRef<typeof Pressable>,
+  ButtonProps
+>(function Button({ style, title, disabled, ...props }, ref) {
   const { text, gray, background } = useTheme();
 
   return (
     <Pressable
+      ref={ref}
       style={[styles.button, { backgroundColor: text }, style]}
       disabled={disabled}
       {...props}

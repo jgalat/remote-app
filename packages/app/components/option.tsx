@@ -15,19 +15,22 @@ export type OptionProps = {
   color?: string;
 } & PressableProps;
 
-export default React.memo(function Option({
-  label,
-  left,
-  right,
-  onPress,
-  style,
-  color,
-  ...props
-}: OptionProps) {
+export default React.forwardRef<
+  React.ComponentRef<typeof Pressable>,
+  OptionProps
+>(function Option(
+  { label, left, right, onPress, style, color, ...props },
+  ref
+) {
   const { text } = useTheme();
   const optionColor = color ? color : text;
   return (
-    <Pressable style={[styles.container, style]} onPress={onPress} {...props}>
+    <Pressable
+      ref={ref}
+      style={[styles.container, style]}
+      onPress={onPress}
+      {...props}
+    >
       <View style={{ width: typeof left === "number" ? "15%" : "auto" }}>
         {typeof left === "number" ? (
           <Badge label={left} />

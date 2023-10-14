@@ -8,16 +8,13 @@ import Pressable, { PressableProps } from "./pressable";
 export type ActionIconProps = React.ComponentProps<typeof Feather> &
   Omit<PressableProps, "style">;
 
-export default React.memo(function ActionIcon({
-  onPress,
-  name,
-  color,
-  size = 24,
-  style,
-}: ActionIconProps) {
+export default React.forwardRef<
+  React.ComponentRef<typeof Pressable>,
+  ActionIconProps
+>(function ActionIcon({ onPress, name, color, size = 24, style }, ref) {
   const { text } = useTheme();
   return (
-    <Pressable onPress={onPress}>
+    <Pressable ref={ref} onPress={onPress}>
       <Feather
         style={[styles.icon, style]}
         name={name}

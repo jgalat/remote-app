@@ -46,6 +46,7 @@ export default {
       ],
     },
     plugins: [
+      "expo-router",
       [
         "expo-build-properties",
         {

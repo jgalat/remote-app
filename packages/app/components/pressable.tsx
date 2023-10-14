@@ -10,13 +10,13 @@ export type PressableProps = {
   style?: StyleProp<ViewStyle>;
 } & Omit<_PressableProps, "style">;
 
-export default React.memo(function Pressable({
-  style,
-  disabled,
-  ...props
-}: PressableProps) {
+export default React.forwardRef<
+  React.ComponentRef<typeof _Pressable>,
+  PressableProps
+>(function Pressable({ style, disabled, ...props }, ref) {
   return (
     <_Pressable
+      ref={ref}
       style={({ pressed }) => [
         style,
         {

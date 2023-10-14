@@ -1,46 +1,39 @@
 import * as React from "react";
 import {
-  View as _View,
+  View,
   ViewProps,
-  ScrollView as _ScrollView,
+  ScrollView,
   ScrollViewProps,
-  KeyboardAvoidingView as _KeyboardAvoidingView,
-  KeyboardAvoidingViewProps,
   StyleSheet,
 } from "react-native";
 
 import useThemeColor from "../hooks/use-theme-color";
 
-type Variant = "view" | "scroll" | "keyboardavoiding";
-
-export type ScreenProps = {
-  variant?: Variant;
-} & ViewProps &
-  ScrollViewProps &
-  KeyboardAvoidingViewProps;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function view(variant: Variant): any {
-  switch (variant) {
-    case "view":
-      return _View;
-    case "scroll":
-      return _ScrollView;
-    case "keyboardavoiding":
-      return _KeyboardAvoidingView;
-  }
-}
-
-export default React.memo(function Screen({
-  style,
-  variant = "view",
-  ...props
-}: ScreenProps) {
+export const Screen = React.forwardRef<
+  React.ComponentRef<typeof View>,
+  ViewProps
+>(function Screen(props, ref) {
   const backgroundColor = useThemeColor("background");
-  const Component = view(variant);
-
   return (
-    <Component style={[styles.screen, { backgroundColor }, style]} {...props} />
+    <View
+      ref={ref}
+      style={[styles.screen, { backgroundColor }, props.style]}
+      {...props}
+    />
+  );
+});
+
+export const ScrollScreen = React.forwardRef<
+  React.ComponentRef<typeof ScrollView>,
+  ScrollViewProps
+>(function ScrollScreen(props, ref) {
+  const backgroundColor = useThemeColor("background");
+  return (
+    <ScrollView
+      ref={ref}
+      style={[styles.screen, { backgroundColor }, props.style]}
+      {...props}
+    />
   );
 });
 
