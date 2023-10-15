@@ -19,6 +19,7 @@ export function SettingsProvider({ children }: React.PropsWithChildren) {
     (p: Settings, s: Partial<Settings>) => ({ ...p, ...s }),
     defaultSettings
   );
+  const [loaded, setLoaded] = React.useState(false);
 
   const load = React.useCallback(async () => {
     const settings = await loadSettings();
@@ -34,6 +35,13 @@ export function SettingsProvider({ children }: React.PropsWithChildren) {
     [settings]
   );
 
+  React.useEffect(() => {
+    (async function () {
+      await load();
+      setLoaded(true);
+    })();
+  }, [load]);
+
   const value: AppSettings = {
     settings,
     load,
@@ -42,7 +50,7 @@ export function SettingsProvider({ children }: React.PropsWithChildren) {
 
   return (
     <SettingsContext.Provider value={value}>
-      {children}
+      {loaded ? children : null}
     </SettingsContext.Provider>
   );
 }

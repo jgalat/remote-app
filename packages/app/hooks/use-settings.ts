@@ -29,3 +29,7 @@ export function useServer(): Settings["server"] {
 export function useListing(): Settings["listing"] {
   return useSettings().settings.listing;
 }
+
+export function useAuthentication(): Settings["authentication"] {
+  return useSettings().settings.authentication;
+}

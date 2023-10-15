@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Pressable, { PressableProps } from "./pressable";
-import Text from "./text";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type CheckboxProps = {
@@ -15,7 +14,6 @@ export type CheckboxProps = {
 
 export default React.memo(function Checkbox({
   value = false,
-  label,
   onPress,
   style,
   iconStyle,
@@ -33,7 +31,6 @@ export default React.memo(function Checkbox({
         color={value ? tint : text}
         size={24}
       />
-      {label ? <Text>{label}</Text> : null}
     </Pressable>
   );
 });

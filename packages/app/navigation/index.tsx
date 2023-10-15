@@ -15,7 +15,7 @@ import {
 
 import ActionIcon from "../components/action-icon";
 import { useColorScheme, useServer } from "../hooks/use-settings";
-import  { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
 import NotFoundScreen from "../screens/not-found";
@@ -26,6 +26,7 @@ import AddTorrentMagnetScreen from "../screens/add-torrent-magnet";
 import AddTorrentFileScreen from "../screens/add-torrent-file";
 import ConnectionSetupScreen from "../screens/connection-setup";
 import ServerConfigurationScreen from "../screens/server-configuration";
+import SecurityScreen from "../screens/security";
 import ThemeScreen from "../screens/theme";
 import TorrentDetailsScreen from "../screens/torrent-details";
 
@@ -135,6 +136,13 @@ function SettingsStackNavigator() {
           }}
         />
         <SettingsStack.Screen
+          name="Security"
+          component={SecurityScreen}
+          options={{
+            title: "Security",
+          }}
+        />
+        <SettingsStack.Screen
           name="Theme"
           component={ThemeScreen}
           options={{
@@ -218,7 +226,9 @@ function useNavigationContainerProps() {
     prefixes: [Linking.createURL("/")],
     config: {
       screens: {
-        Root: "/",
+        Root: {
+          path: "/",
+        },
         TorrentDetails: {
           path: "/torrents/:id",
           parse: {
@@ -246,6 +256,9 @@ function useNavigationContainerProps() {
             },
             Theme: {
               path: "/theme",
+            },
+            Security: {
+              path: "/security",
             },
             About: {
               path: "/about",

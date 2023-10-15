@@ -4,9 +4,8 @@ import {
   RobotoMono_400Regular,
   RobotoMono_500Medium,
 } from "@expo-google-fonts/roboto-mono";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 
-import useSettings from "./use-settings";
 import {
   isTorrentsNotifierTaskRegistered,
   registerTorrentsNotifierTask,
@@ -14,18 +13,16 @@ import {
 
 export default function useLoader() {
   const [loaded, setLoaded] = React.useState(false);
-  const { load: loadSettings } = useSettings();
 
   React.useEffect(() => {
     (async function () {
       try {
         await Font.loadAsync({
           ...Feather.font,
+          ...FontAwesome.font,
           "RobotoMono-Regular": RobotoMono_400Regular,
           "RobotoMono-Medium": RobotoMono_500Medium,
         });
-
-        await loadSettings();
 
         if (!(await isTorrentsNotifierTaskRegistered())) {
           await registerTorrentsNotifierTask();
@@ -36,7 +33,7 @@ export default function useLoader() {
         setLoaded(true);
       }
     })();
-  }, [loadSettings]);
+  }, []);
 
   return loaded;
 }

@@ -23,6 +23,7 @@ export type SettingsStackParamList = {
   ConnectionSetup: undefined;
   ServerConfiguration: undefined;
   Theme: undefined;
+  Security: undefined;
   About: undefined;
 };
 

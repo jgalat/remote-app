@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { SessionGetResponse } from "@remote-app/transmission-client";
 
-import Checkbox from "../components/checkbox";
+import Toggle from "../components/toggle";
 import Text from "../components/text";
 import View from "../components/view";
 import TextInput from "../components/text-input";
@@ -87,15 +87,13 @@ export default function ServerConfigurationScreen() {
 
       <View style={styles.row}>
         <View style={styles.label}>
-          <Checkbox
-            iconStyle={styles.icon}
+          <Toggle
             value={session["speed-limit-down-enabled"]}
             onPress={onUpdate("speed-limit-down-enabled")}
             label="Download (kB/s)"
           />
         </View>
         <TextInput
-          containerStyle={styles.input}
           editable={session["speed-limit-down-enabled"]}
           keyboardType="numeric"
           onEndEditing={onEndEditing("speed-limit-down")}
@@ -105,15 +103,13 @@ export default function ServerConfigurationScreen() {
 
       <View style={styles.row}>
         <View style={styles.label}>
-          <Checkbox
-            iconStyle={styles.icon}
+          <Toggle
             value={session["speed-limit-up-enabled"]}
             onPress={onUpdate("speed-limit-up-enabled")}
             label="Upload (kB/s)"
           />
         </View>
         <TextInput
-          containerStyle={styles.input}
           editable={session["speed-limit-up-enabled"]}
           keyboardType="numeric"
           onEndEditing={onEndEditing("speed-limit-up")}
@@ -124,8 +120,7 @@ export default function ServerConfigurationScreen() {
       <Text style={styles.title}>Alternative speed limits</Text>
 
       <View style={styles.row}>
-        <Checkbox
-          iconStyle={styles.icon}
+        <Toggle
           value={session["alt-speed-enabled"]}
           onPress={onUpdate("alt-speed-enabled")}
           label="Enable alternative speed limits"
@@ -135,7 +130,6 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <Text style={styles.label}>Download (kB/s)</Text>
         <TextInput
-          containerStyle={styles.input}
           keyboardType="numeric"
           onEndEditing={onEndEditing("alt-speed-down")}
           defaultValue={String(session["alt-speed-down"])}
@@ -145,7 +139,6 @@ export default function ServerConfigurationScreen() {
       <View style={styles.row}>
         <Text style={styles.label}>Upload (kB/s)</Text>
         <TextInput
-          containerStyle={styles.input}
           keyboardType="numeric"
           onEndEditing={onEndEditing("alt-speed-up")}
           defaultValue={String(session["alt-speed-up"])}
@@ -156,15 +149,13 @@ export default function ServerConfigurationScreen() {
 
       <View style={styles.row}>
         <View style={styles.label}>
-          <Checkbox
-            iconStyle={styles.icon}
+          <Toggle
             value={session["download-queue-enabled"]}
             onPress={onUpdate("download-queue-enabled")}
             label="Download queue"
           />
         </View>
         <TextInput
-          containerStyle={styles.input}
           editable={session["download-queue-enabled"]}
           keyboardType="numeric"
           onEndEditing={onEndEditing("download-queue-size")}
@@ -173,15 +164,13 @@ export default function ServerConfigurationScreen() {
       </View>
       <View style={[styles.row, { paddingBottom: 64 }]}>
         <View style={styles.label}>
-          <Checkbox
-            iconStyle={styles.icon}
+          <Toggle
             value={session["seed-queue-enabled"]}
             onPress={onUpdate("seed-queue-enabled")}
             label="Seed queue"
           />
         </View>
         <TextInput
-          containerStyle={[styles.input]}
           editable={session["seed-queue-enabled"]}
           keyboardType="numeric"
           onEndEditing={onEndEditing("seed-queue-size")}
@@ -200,13 +189,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   row: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   label: {
-    marginBottom: 12,
-  },
-  input: {},
-  icon: {
-    paddingLeft: 0,
+    marginBottom: 16,
   },
 });
