@@ -15,7 +15,7 @@ import {
 
 import ActionIcon from "../components/action-icon";
 import { useColorScheme, useServer } from "../hooks/use-settings";
-import  { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "../hooks/use-theme-color";
 import { RootStackParamList, SettingsStackParamList } from "../types";
 
 import NotFoundScreen from "../screens/not-found";
@@ -226,7 +226,9 @@ function useNavigationContainerProps() {
     prefixes: [Linking.createURL("/")],
     config: {
       screens: {
-        Root: "/",
+        Root: {
+          path: "/",
+        },
         TorrentDetails: {
           path: "/torrents/:id",
           parse: {

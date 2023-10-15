@@ -21,7 +21,7 @@ export default React.memo(function Toggle({
   iconStyle,
   disabled,
 }: ToggleProps) {
-  const { text, gray, tint, red } = useTheme();
+  const { text, gray, tint, yellow } = useTheme();
 
   return (
     <Pressable
@@ -33,7 +33,7 @@ export default React.memo(function Toggle({
       <FontAwesome
         style={iconStyle}
         name={disabled ? "warning" : value ? "toggle-on" : "toggle-off"}
-        color={disabled ? red : value ? tint : text}
+        color={disabled ? yellow : value ? tint : text}
         size={disabled ? 24 : 32}
       />
     </Pressable>

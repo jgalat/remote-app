@@ -19,17 +19,23 @@ export default function SecurityScreen() {
   }, []);
 
   const onUpdate = async () => {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    if (!hasHardware) {
-      return;
-    }
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      if (!hasHardware) {
+        return;
+      }
 
-    const { success } = await LocalAuthentication.authenticateAsync();
-    if (!success) {
-      return;
-    }
+      const { success } = await LocalAuthentication.authenticateAsync({
+        promptMessage: authentication ? "Disable" : "Enable",
+      });
+      if (!success) {
+        return;
+      }
 
-    await store({ authentication: !authentication });
+      await store({ authentication: !authentication });
+    } catch {
+      //ignore
+    }
   };
 
   return (

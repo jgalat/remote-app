@@ -193,7 +193,6 @@ export default function TorrentsScreen() {
 
 const styles = StyleSheet.create({
   message: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
