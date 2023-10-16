@@ -17,6 +17,10 @@ export default function useAuth() {
   }, []);
 
   React.useEffect(() => {
+    if (!authentication) {
+      return;
+    }
+
     const sub = AppState.addEventListener("change", (state) => {
       if (/background|inactive/.test(state)) {
         setLocked(true);
@@ -25,7 +29,7 @@ export default function useAuth() {
     return () => {
       sub.remove();
     };
-  }, []);
+  }, [authentication]);
 
   return { locked, onAuth };
 }
