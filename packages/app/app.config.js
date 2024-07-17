@@ -61,6 +61,8 @@ export default {
           color: "#ffffff",
         },
       ],
+      "expo-asset",
+      "expo-font",
     ],
     packagerOpts: {
       config: "metro.config.js",
