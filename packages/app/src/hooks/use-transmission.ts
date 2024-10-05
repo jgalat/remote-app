@@ -16,10 +16,21 @@ import TransmissionClient, {
   TorrentStatus,
 } from "@remote-app/transmission-client";
 
-import { ClientContext } from "../contexts/transmission-client";
+import { useServer } from "./use-settings";
 
 function useTransmission(): TransmissionClient | null {
-  return React.useContext(ClientContext);
+  const server = useServer();
+  return React.useMemo(() => {
+    if (!server) {
+      return null;
+    }
+
+    return new TransmissionClient({
+      url: server.url,
+      username: server.username,
+      password: server.password,
+    });
+  }, [server]);
 }
 
 const fields = [
@@ -143,7 +154,7 @@ export function useSessionSet() {
       });
     },
     onMutate: async (params: SessionSetRequest) => {
-      await queryClient.cancelQueries(["session-get", client]);
+      await queryClient.cancelQueries(["session-get"]);
       const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
         ["session-get", client]
       );
@@ -166,7 +177,7 @@ export function useSessionSet() {
       queryClient.setQueryData(["session-get", client], context?.previous);
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["session-get", client]);
+      queryClient.invalidateQueries(["session-get"]);
     },
   });
 }
@@ -237,10 +248,10 @@ export function useAddTorrent() {
       return response?.arguments;
     },
     onMutate: async () => {
-      await queryClient.cancelQueries(["torrent-get", client]);
+      await queryClient.cancelQueries(["torrent-get"]);
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["torrent-get", client]);
+      queryClient.invalidateQueries(["torrent-get"]);
     },
   });
 }
@@ -272,7 +283,7 @@ export function useTorrentAction<
       });
     },
     onMutate: async (params: TorrentActionMutationParams<T>) => {
-      await queryClient.cancelQueries(["torrent-get", client]);
+      await queryClient.cancelQueries(["torrent-get"]);
 
       const previous = queryClient.getQueryData<Torrent[] | undefined>([
         "torrent-get",
@@ -316,7 +327,7 @@ export function useTorrentAction<
     },
     onSettled: () => {
       setTimeout(() => {
-        queryClient.invalidateQueries(["torrent-get", client]);
+        queryClient.invalidateQueries(["torrent-get"]);
       }, 500);
     },
   });

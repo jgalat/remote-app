@@ -1,19 +1,25 @@
 import * as React from "react";
 import { AppState } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
+import { router } from "expo-router";
 
-import { useAuthentication } from "./use-settings";
+import { useAuthentication } from "~/hooks/use-settings";
 
-export default function useAuth() {
+export type Auth = {
+  lock: boolean;
+  signIn: () => void;
+};
+
+export const AuthContext = React.createContext<Auth | null>(null);
+
+export function AuthProvider({ children }: React.PropsWithChildren) {
   const authentication = useAuthentication();
   const [locked, setLocked] = React.useState(authentication);
 
-  const onAuth = React.useCallback(async () => {
+  const signIn = React.useCallback(async () => {
     const { success } = await LocalAuthentication.authenticateAsync();
-    if (!success) {
-      return;
-    }
-    setLocked(false);
+    setLocked(!success);
+    router.replace("/");
   }, []);
 
   React.useEffect(() => {
@@ -31,5 +37,9 @@ export default function useAuth() {
     };
   }, [authentication]);
 
-  return { locked, onAuth };
+  return (
+    <AuthContext.Provider value={{ lock: locked, signIn }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

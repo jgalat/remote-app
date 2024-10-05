@@ -3,7 +3,7 @@ import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import Option, { OptionProps } from "../components/option";
+import Option, { type OptionProps } from "../components/option";
 import Screen from "../components/screen";
 import useSettings from "../hooks/use-settings";
 import type { ColorScheme } from "../store/settings";
@@ -17,7 +17,7 @@ export default function ThemeScreen() {
 
   const select = React.useCallback(
     (option: ColorScheme) => async () => {
-      await store({ colorScheme: option });
+      store({ colorScheme: option });
       navigation.popToTop();
     },
     [store, navigation]

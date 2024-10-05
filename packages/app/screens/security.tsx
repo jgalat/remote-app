@@ -32,9 +32,9 @@ export default function SecurityScreen() {
         return;
       }
 
-      await store({ authentication: !authentication });
+      store({ authentication: !authentication });
     } catch {
-      //ignore
+      // ignore
     }
   };
 

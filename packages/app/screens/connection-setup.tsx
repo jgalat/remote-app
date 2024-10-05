@@ -49,7 +49,8 @@ export default function ConnectionScreen() {
         username: form.username === "" ? undefined : form.username,
         password: form.password === "" ? undefined : form.password,
       };
-      await store({ server });
+
+      store({ server });
       navigation.popToTop();
     } catch (e) {
       let message = "Something went wrong";
@@ -61,7 +62,7 @@ export default function ConnectionScreen() {
   }, [form, navigation, store]);
 
   const remove = React.useCallback(async () => {
-    await store({ server: undefined });
+    store({ server: undefined });
     navigation.popToTop();
   }, [store, navigation]);
 

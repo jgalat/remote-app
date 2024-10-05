@@ -61,12 +61,17 @@ export async function loadSettings(): Promise<Settings> {
     return defaultSettings;
   }
 
-  const settings = JSON.parse(value) as Settings;
-  return {
-    ...defaultSettings,
-    ...settings,
-    listing: { ...defaultSettings.listing, ...settings.listing },
-  };
+  try {
+    const settings = JSON.parse(value) as Settings;
+    return {
+      ...defaultSettings,
+      ...settings,
+      listing: { ...defaultSettings.listing, ...settings.listing },
+    };
+  } catch {
+    await storeSettings(defaultSettings);
+    return defaultSettings;
+  }
 }
 
 export async function storeSettings(settings: Settings): Promise<void> {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SheetManager } from "react-native-actions-sheet";
 
-import type { Payload } from "../sheets/torrent-actions";
+import type { Payload } from "~/sheets/torrent-actions";
 
 export function useAddTorrentSheet() {
   return React.useCallback(() => SheetManager.show("add-torrent"), []);

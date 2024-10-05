@@ -1,13 +1,13 @@
 import * as React from "react";
 import { Feather } from "@expo/vector-icons";
 
-import ActionSheet, { SheetProps } from "../components/action-sheet";
-import useSettings from "../hooks/use-settings";
-import { useTorrents } from "../hooks/use-transmission";
-import predicate from "../utils/filter";
+import ActionSheet, { SheetProps } from "~/components/action-sheet";
+import useSettings from "~/hooks/use-settings";
+import { useTorrents } from "~/hooks/use-transmission";
+import predicate from "~/utils/filter";
 
-import type { Filter } from "../store/settings";
-import type { OptionProps } from "../components/option";
+import type { Filter } from "~/store/settings";
+import type { OptionProps } from "~/components/option";
 
 function FilterSheet(props: SheetProps) {
   const { data: torrents } = useTorrents();
@@ -15,9 +15,9 @@ function FilterSheet(props: SheetProps) {
   const { filter } = settings.listing;
 
   const update = React.useCallback(
-    (f: Filter): (() => Promise<void>) => {
-      return async () => {
-        return await store({
+    (f: Filter): (() => void) => {
+      return () => {
+        store({
           listing: {
             ...settings.listing,
             filter: f,

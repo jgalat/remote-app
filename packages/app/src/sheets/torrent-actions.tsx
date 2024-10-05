@@ -4,13 +4,13 @@ import { useLinkTo } from "@react-navigation/native";
 import { SheetManager } from "react-native-actions-sheet";
 import type { Torrent } from "@remote-app/transmission-client";
 
-import ActionSheet, { SheetProps } from "../components/action-sheet";
-import { useTorrentActions } from "../hooks/use-transmission";
-import { useTheme } from "../hooks/use-theme-color";
-import useTorrentSelection from "../hooks/use-torrent-selection";
+import ActionSheet, { SheetProps } from "~/components/action-sheet";
+import { useTorrentActions } from "~/hooks/use-transmission";
+import { useTheme } from "~/hooks/use-theme-color";
+import useTorrentSelection from "~/hooks/use-torrent-selection";
 import RemoveConfirmSheet from "./remove-confirm";
 
-import type { OptionProps } from "../components/option";
+import type { OptionProps } from "~/components/option";
 
 export type Payload = {
   torrents: Torrent[];

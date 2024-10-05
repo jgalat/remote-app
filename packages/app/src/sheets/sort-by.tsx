@@ -1,28 +1,28 @@
 import * as React from "react";
 import { Feather } from "@expo/vector-icons";
 
-import ActionSheet, { SheetProps } from "../components/action-sheet";
-import useSettings from "../hooks/use-settings";
+import ActionSheet, { SheetProps } from "~/components/action-sheet";
+import useSettings from "~/hooks/use-settings";
 
-import type { Sort } from "../store/settings";
-import type { OptionProps } from "../components/option";
+import type { Sort } from "~/store/settings";
+import type { OptionProps } from "~/components/option";
 
 function SortBySheet(props: SheetProps) {
   const { settings, store } = useSettings();
   const { sort, direction } = settings.listing;
 
   const update = React.useCallback(
-    (s: Sort): (() => Promise<void>) => {
-      return async () => {
+    (s: Sort): (() => void) => {
+      return () => {
         if (s === sort) {
-          return await store({
+          return store({
             listing: {
               ...settings.listing,
               direction: direction === "desc" ? "asc" : "desc",
             },
           });
         }
-        return await store({
+        return store({
           listing: {
             ...settings.listing,
             direction: "desc",

@@ -1,6 +1,6 @@
 import type { Torrent } from "@remote-app/transmission-client";
 
-import type { Direction, Sort } from "../store/settings";
+import type { Direction, Sort } from "~/store/settings";
 
 type Compare = (t1: Torrent, t2: Torrent) => number;
 

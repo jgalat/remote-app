@@ -1,22 +1,22 @@
-import {
-  useColorScheme as _useColorScheme,
-  ColorSchemeName,
-} from "react-native";
+import { useColorScheme as _useColorScheme } from "react-native";
 
-import { SettingsContext } from "../contexts/settings";
-import { Settings } from "../store/settings";
+import { SettingsContext } from "~/contexts/settings";
+import { Settings } from "~/store/settings";
 import useNonNullContext from "./use-non-null-context";
 
 export default function useSettings() {
-  return useNonNullContext(SettingsContext)
+  return useNonNullContext(SettingsContext);
 }
 
 export function useColorScheme(): "light" | "dark" {
   const {
     settings: { colorScheme },
   } = useSettings();
-  const systemColorScheme = _useColorScheme() as NonNullable<ColorSchemeName>;
-  if (colorScheme == "system") {
+  const systemColorScheme = _useColorScheme();
+  if (colorScheme === "system") {
+    if (!systemColorScheme) {
+      return "light";
+    }
     return systemColorScheme;
   }
   return colorScheme;

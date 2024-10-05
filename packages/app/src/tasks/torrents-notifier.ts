@@ -4,8 +4,8 @@ import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
 import TransmissionClient from "@remote-app/transmission-client";
 
-import { loadSettings } from "../store/settings";
-import { loadState, storeState } from "../store/task-torrents-notifier";
+import { loadSettings } from "~/store/settings";
+import { loadState, storeState } from "~/store/task-torrents-notifier";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
