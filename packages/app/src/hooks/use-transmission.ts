@@ -17,6 +17,7 @@ import TransmissionClient, {
 } from "@remote-app/transmission-client";
 
 import { useServer } from "./use-settings";
+import useTorrentSelection from "./use-torrent-selection";
 
 function useTransmission(): TransmissionClient | null {
   const server = useServer();
@@ -273,6 +274,8 @@ export function useTorrentAction<
 >(action: T) {
   const queryClient = useQueryClient();
   const client = useTransmission();
+  const { clear } = useTorrentSelection();
+
   return useMutation({
     mutationFn: async (
       params: TorrentActionMutationParams<T>
@@ -326,6 +329,7 @@ export function useTorrentAction<
       ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
     },
     onSettled: () => {
+      clear();
       setTimeout(() => {
         queryClient.invalidateQueries(["torrent-get"]);
       }, 500);

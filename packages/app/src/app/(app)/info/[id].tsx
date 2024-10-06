@@ -1,31 +1,26 @@
 import * as React from "react";
 import { SectionList, StyleSheet } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 
-import Text from "../components/text";
-import Screen from "../components/screen";
-import TorrentItem from "../components/torrent-item";
-import ActionList from "../components/action-list";
-import ActionIcon from "../components/action-icon";
-import { useTorrent } from "../hooks/use-transmission";
-import { useTheme } from "../hooks/use-theme-color";
-import { RootStackParamList } from "../types";
-import { useTorrentActionsSheet } from "../hooks/use-action-sheet";
-import KeyValue, { KeyValueProps } from "../components/key-value";
-import { formatSize, formatStatus } from "../utils/formatters";
-import { NetworkErrorScreen, LoadingScreen } from "./utils";
+import Text from "~/components/text";
+import Screen from "~/components/screen";
+import TorrentItem from "~/components/torrent-item";
+import ActionList from "~/components/action-list";
+import ActionIcon from "~/components/action-icon";
+import { useTorrent } from "~/hooks/use-transmission";
+import { useTheme } from "~/hooks/use-theme-color";
+import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
+import KeyValue, { KeyValueProps } from "~/components/key-value";
+import { formatSize, formatStatus } from "~/utils/formatters";
+import {
+  NetworkErrorScreen,
+  LoadingScreen,
+} from "~/components/utility-screens";
 
 export default function TorrentDetailsScreen() {
-  const {
-    params: { id },
-  } =
-    useRoute<
-      NativeStackScreenProps<RootStackParamList, "TorrentDetails">["route"]
-    >();
   const navigation = useNavigation();
-
-  const { data: torrents, error, isLoading, refetch } = useTorrent(id);
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
   const { text } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
 

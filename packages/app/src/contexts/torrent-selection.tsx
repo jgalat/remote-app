@@ -34,6 +34,7 @@ function reducer(state: State, action: Action) {
       return { active: s.size > 0, selection: s };
     }
     case "clear":
+      console.log("cleared??");
       return initState;
   }
 }

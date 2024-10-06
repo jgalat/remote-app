@@ -25,6 +25,14 @@ export default function AppLayout() {
         <Stack initialRouteName="index" screenOptions={opts}>
           <Stack.Screen name="index" />
           <Stack.Screen
+            name="info/[id]"
+            options={{
+              title: "Details",
+              presentation: "modal",
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen
             name="add/file"
             options={{
               title: "Import torrent file",

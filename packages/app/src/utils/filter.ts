@@ -1,5 +1,5 @@
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
-import type { Filter } from "../store/settings";
+import type { Filter } from "~/store/settings";
 
 type Predicate = (t: Torrent) => boolean;
 

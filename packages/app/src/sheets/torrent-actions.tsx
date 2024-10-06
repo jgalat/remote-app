@@ -1,13 +1,12 @@
 import * as React from "react";
 import { Share, ToastAndroid } from "react-native";
-import { useLinkTo } from "@react-navigation/native";
 import { SheetManager } from "react-native-actions-sheet";
 import type { Torrent } from "@remote-app/transmission-client";
+import { router } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions } from "~/hooks/use-transmission";
 import { useTheme } from "~/hooks/use-theme-color";
-import useTorrentSelection from "~/hooks/use-torrent-selection";
 import RemoveConfirmSheet from "./remove-confirm";
 
 import type { OptionProps } from "~/components/option";
@@ -23,19 +22,6 @@ function TorrentActionsSheet({
 }: SheetProps<Payload>) {
   const { red } = useTheme();
   const actions = useTorrentActions();
-  const linkTo = useLinkTo();
-  const { clear } = useTorrentSelection();
-
-  const wrap = React.useCallback(
-    (
-        action: ReturnType<typeof useTorrentActions>["start"],
-        ids: Torrent["id"][]
-      ) =>
-      () => {
-        action.mutate({ ids }, { onSettled: clear });
-      },
-    [clear]
-  );
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
@@ -43,27 +29,27 @@ function TorrentActionsSheet({
     {
       label: "Start",
       left: "play",
-      onPress: wrap(actions.start, ids),
+      onPress: () => actions.start.mutate({ ids }),
     },
     {
       label: "Start now",
       left: "play",
-      onPress: wrap(actions.startNow, ids),
+      onPress: () => actions.startNow.mutate({ ids }),
     },
     {
       label: "Stop",
       left: "pause",
-      onPress: wrap(actions.stop, ids),
+      onPress: () => actions.stop.mutate({ ids }),
     },
     {
       label: "Verify",
       left: "check-circle",
-      onPress: wrap(actions.verify, ids),
+      onPress: () => actions.verify.mutate({ ids }),
     },
     {
       label: "Reannounce",
       left: "radio",
-      onPress: wrap(actions.reannounce, ids),
+      onPress: () => actions.reannounce.mutate({ ids }),
     },
   ];
 
@@ -99,7 +85,7 @@ function TorrentActionsSheet({
       {
         label: "Details",
         left: "info",
-        onPress: () => linkTo(`/torrents/${id}`),
+        onPress: () => router.push(`/info/${id}`),
       },
       ...options,
     ];

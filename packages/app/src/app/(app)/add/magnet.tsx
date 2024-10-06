@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { MagnetData, magnetDecode } from "@ctrl/magnet-link";
 
 import Text from "~/components/text";
@@ -22,25 +22,17 @@ export default function AddTorrentMagnetScreen() {
   const { red } = useTheme();
   const addTorrent = useAddTorrent();
   const freeSpace = useFreeSpace();
+  const { uri } = useLocalSearchParams<{ uri?: string }>();
   const [state, setState] = React.useReducer(
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
-    {}
+    { uri }
   );
-
-  // React.useEffect(() => {
-  //   if (uri) {
-  //     setState({
-  //       uri,
-  //       error: undefined,
-  //       data: magnetDecode(uri),
-  //     });
-  //   }
-  // }, [uri]);
 
   const onPaste = React.useCallback(async () => {
     const text = await Clipboard.getStringAsync();
     if (text.startsWith("magnet:")) {
       setState({ uri: text, error: undefined, data: magnetDecode(text) });
+      router.setParams({ uri: text });
     } else {
       setState({ error: "Invalid Magnet URL" });
     }
