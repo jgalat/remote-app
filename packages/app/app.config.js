@@ -39,6 +39,14 @@ export default {
           data: [{ scheme: "magnet" }],
           category: ["BROWSABLE", "DEFAULT"],
         },
+        {
+          action: "VIEW",
+          data: [
+            { scheme: "http", pathPattern: ".*\\.torrent$" },
+            { scheme: "https", pathPattern: ".*\\.torrent$" },
+          ],
+          category: ["BROWSABLE", "DEFAULT"],
+        },
       ],
     },
     plugins: [
@@ -47,6 +55,9 @@ export default {
         {
           android: {
             usesCleartextTraffic: true,
+            compileSdkVersion: 34,
+            targetSdkVersion: 34,
+            buildToolsVersion: "34.0.0",
           },
         },
       ],

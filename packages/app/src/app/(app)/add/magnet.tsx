@@ -25,7 +25,7 @@ export default function AddTorrentMagnetScreen() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
   const [state, setState] = React.useReducer(
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
-    { uri }
+    { uri, data: uri ? magnetDecode(uri) : undefined }
   );
 
   const onPaste = React.useCallback(async () => {

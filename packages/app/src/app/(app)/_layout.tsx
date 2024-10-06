@@ -25,8 +25,13 @@ export default function AppLayout() {
     }
 
     const handle = ({ url }: { url: string }) => {
-      if (url.startsWith("magnet:")) {
-        router.push({ pathname: "/add/magnet", params: { uri: url } });
+      switch (true) {
+        case url.startsWith("magnet:"):
+          router.push({ pathname: "/add/magnet", params: { uri: url } });
+          break;
+        case url.endsWith(".torrent"):
+          router.push({ pathname: "/add/file", params: { uri: url } });
+          break;
       }
     };
 
