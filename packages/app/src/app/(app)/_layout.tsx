@@ -16,13 +16,35 @@ export default function AppLayout() {
   }, []);
 
   if (lock) {
-    return <Redirect href="sign-in" />;
+    return <Redirect href="/sign-in" />;
   }
 
   return (
     <TorrentSelectionProvider>
       <SheetProvider>
-        <Stack screenOptions={opts} />
+        <Stack initialRouteName="index" screenOptions={opts}>
+          <Stack.Screen name="index" />
+          <Stack.Screen
+            name="add/file"
+            options={{
+              title: "Import torrent file",
+              presentation: "modal",
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen
+            name="add/magnet"
+            options={{
+              title: "Import magnet URL",
+              presentation: "modal",
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{ headerShown: false, animation: "slide_from_bottom" }}
+          />
+        </Stack>
       </SheetProvider>
     </TorrentSelectionProvider>
   );

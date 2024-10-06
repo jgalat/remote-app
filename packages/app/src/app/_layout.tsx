@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
+import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
 
 import StatusBar from "~/components/status-bar";
 import Screen from "~/components/screen";
@@ -34,13 +34,20 @@ function Root() {
   return (
     <AuthProvider>
       <Stack
+        initialRouteName="(app)"
         screenOptions={{
           headerShown: false,
-          animationTypeForReplace: "pop",
           animation: "slide_from_bottom",
-          navigationBarHidden: true,
         }}
-      />
+      >
+        <Stack.Screen
+          name="(app)"
+          options={{
+            animationTypeForReplace: "pop",
+          }}
+        />
+        <Stack.Screen name="sign-in" />
+      </Stack>
     </AuthProvider>
   );
 }
@@ -52,7 +59,6 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <SettingsProvider>
-          <StatusBar />
           <Root />
         </SettingsProvider>
       </SafeAreaProvider>

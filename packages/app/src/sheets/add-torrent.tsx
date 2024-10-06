@@ -1,10 +1,9 @@
 import * as React from "react";
-import { useLinkTo } from "@react-navigation/native";
+import { router } from "expo-router";
 
-import ActionSheet, { SheetProps } from "../components/action-sheet";
+import ActionSheet, { SheetProps } from "~/components/action-sheet";
 
 function AddTorrentSheet(props: SheetProps) {
-  const linkTo = useLinkTo();
   return (
     <ActionSheet
       title="Add a torrent"
@@ -12,12 +11,12 @@ function AddTorrentSheet(props: SheetProps) {
         {
           label: "File",
           left: "file",
-          onPress: () => linkTo("/add-file"),
+          onPress: () => router.push("/add/file"),
         },
         {
           label: "Magnet URL",
           left: "link",
-          onPress: () => linkTo("/add-magnet"),
+          onPress: () => router.push("/add/magnet"),
         },
       ]}
       {...props}

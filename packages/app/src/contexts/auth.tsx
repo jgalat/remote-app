@@ -18,8 +18,10 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
 
   const signIn = React.useCallback(async () => {
     const { success } = await LocalAuthentication.authenticateAsync();
-    setLocked(!success);
-    router.replace("/");
+    if (success) {
+      setLocked(false);
+      router.replace("/");
+    }
   }, []);
 
   React.useEffect(() => {
