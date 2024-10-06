@@ -1,19 +1,48 @@
 import * as React from "react";
 import * as SplashScreen from "expo-splash-screen";
+import * as Linking from "expo-linking";
 import { Redirect, Stack } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
+import { router } from "expo-router";
 
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
 import useAuth from "~/hooks/use-auth";
 import useScreenOptions from "~/hooks/use-screen-options";
+import { useServer } from "~/hooks/use-settings";
 
 export default function AppLayout() {
   const { lock } = useAuth();
+  const server = useServer();
   const opts = useScreenOptions();
 
   React.useEffect(() => {
     SplashScreen.hideAsync().catch(() => undefined);
   }, []);
+
+  React.useEffect(() => {
+    if (lock || !server) {
+      return;
+    }
+
+    const handle = ({ url }: { url: string }) => {
+      if (url.startsWith("magnet:")) {
+        router.push({ pathname: "/add/magnet", params: { uri: url } });
+      }
+    };
+
+    const sub = Linking.addEventListener("url", handle);
+
+    (async () => {
+      const initial = await Linking.getInitialURL();
+      if (initial) {
+        handle({ url: initial });
+      }
+    })();
+
+    return () => {
+      sub.remove();
+    };
+  }, [lock, server]);
 
   if (lock) {
     return <Redirect href="/sign-in" />;

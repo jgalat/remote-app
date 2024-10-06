@@ -36,11 +36,7 @@ export default {
       intentFilters: [
         {
           action: "VIEW",
-          data: [
-            {
-              scheme: "magnet",
-            },
-          ],
+          data: [{ scheme: "magnet" }],
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
