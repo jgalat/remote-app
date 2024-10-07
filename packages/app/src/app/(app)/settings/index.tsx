@@ -8,7 +8,7 @@ import Screen from "~/components/screen";
 import { useColorScheme } from "~/hooks/use-settings";
 import { useSession } from "~/hooks/use-transmission";
 
-import packageJson from "../../../../package.json";
+import packageJson from "~/../package.json";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();

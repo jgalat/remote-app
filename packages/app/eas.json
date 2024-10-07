@@ -5,9 +5,7 @@
   "build": {
     "development": {
       "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
+      "developmentClient": true,
       "env": {
         "APP_ENV": "development",
         "NODE_ENV": "development"

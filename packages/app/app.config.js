@@ -42,9 +42,35 @@ export default {
         {
           action: "VIEW",
           data: [
-            { scheme: "http", pathPattern: ".*\\.torrent$" },
-            { scheme: "https", pathPattern: ".*\\.torrent$" },
+            {
+              scheme: "http",
+              host: "*",
+              pathPattern: ".*\\.torrent$",
+              mimeType: "application/x-bittorrent",
+            },
+            {
+              scheme: "https",
+              host: "*",
+              pathPattern: ".*\\.torrent$",
+              mimeType: "application/x-bittorrent",
+            },
           ],
+          category: ["BROWSABLE", "DEFAULT"],
+        },
+        {
+          action: "VIEW",
+          data: {
+            scheme: "content",
+            mimeType: "application/x-bittorrent",
+          },
+          category: ["BROWSABLE", "DEFAULT"],
+        },
+        {
+          action: "VIEW",
+          data: {
+            scheme: "file",
+            mimeType: "application/x-bittorrent",
+          },
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],

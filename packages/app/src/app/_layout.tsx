@@ -5,8 +5,6 @@ import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import StatusBar from "~/components/status-bar";
-import Screen from "~/components/screen";
 import useLoader from "~/hooks/use-loader";
 import { SettingsProvider } from "~/contexts/settings";
 import { AuthProvider } from "~/contexts/auth";
@@ -27,8 +25,14 @@ Notifications.setNotificationHandler({
 function Root() {
   const loaded = useLoader();
 
+  React.useEffect(() => {
+    if (loaded) {
+      setTimeout(() => SplashScreen.hideAsync().catch(() => undefined), 50);
+    }
+  }, [loaded]);
+
   if (!loaded) {
-    return <Screen />;
+    return null;
   }
 
   return (

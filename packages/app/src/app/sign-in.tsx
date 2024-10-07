@@ -7,13 +7,13 @@ import Button from "~/components/button";
 import useAuth from "~/hooks/use-auth";
 
 export default function SignIn() {
-  const { signIn } = useAuth();
+  const { unlock } = useAuth();
 
   return (
     <Screen style={styles.container}>
       <Text style={styles.title}>Remote for Transmission</Text>
       <Text style={styles.text}>Unlock to continue</Text>
-      <Button onPress={signIn} title="Authenticate" />
+      <Button onPress={unlock} title="Authenticate" />
     </Screen>
   );
 }

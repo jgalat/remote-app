@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
-import { MagnetData, magnetDecode } from "@ctrl/magnet-link";
+import { magnetDecode } from "@ctrl/magnet-link";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -14,24 +14,22 @@ import { formatSize } from "~/utils/formatters";
 
 type State = {
   error?: string;
-  uri?: string;
-  data?: MagnetData;
 };
 
 export default function AddTorrentMagnetScreen() {
   const { red } = useTheme();
   const addTorrent = useAddTorrent();
   const freeSpace = useFreeSpace();
+
   const { uri } = useLocalSearchParams<{ uri?: string }>();
   const [state, setState] = React.useReducer(
     (prev: State, s: Partial<State>) => ({ ...prev, ...s }),
-    { uri, data: uri ? magnetDecode(uri) : undefined }
+    {}
   );
 
   const onPaste = React.useCallback(async () => {
     const text = await Clipboard.getStringAsync();
     if (text.startsWith("magnet:")) {
-      setState({ uri: text, error: undefined, data: magnetDecode(text) });
       router.setParams({ uri: text });
     } else {
       setState({ error: "Invalid Magnet URL" });
@@ -39,12 +37,12 @@ export default function AddTorrentMagnetScreen() {
   }, []);
 
   const onAdd = React.useCallback(async () => {
-    if (!state.uri) {
+    if (!uri) {
       return;
     }
 
     try {
-      await addTorrent.mutateAsync({ filename: state.uri });
+      await addTorrent.mutateAsync({ filename: uri });
       router.dismiss();
     } catch (e) {
       let message = "Something went wrong";
@@ -53,10 +51,12 @@ export default function AddTorrentMagnetScreen() {
       }
       setState({ error: message });
     }
-  }, [addTorrent, state.uri]);
+  }, [addTorrent, uri]);
 
   const magnet = React.useMemo(() => {
-    const { dn, xt, tr, xl } = state.data ?? {};
+    const { dn, xt, tr, xl } = uri
+      ? magnetDecode(uri)
+      : { dn: "", xt: "", tr: "", xl: "" };
 
     return [
       {
@@ -76,7 +76,7 @@ export default function AddTorrentMagnetScreen() {
         value: tr ? (typeof tr === "string" ? 1 : tr.length) : "...",
       },
     ];
-  }, [state.data]);
+  }, [uri]);
 
   return (
     <View style={styles.container}>
@@ -87,7 +87,7 @@ export default function AddTorrentMagnetScreen() {
       </View>
       <Button title="Paste URL" onPress={onPaste} />
       <Button
-        disabled={!state.uri || freeSpace.isError}
+        disabled={!uri || freeSpace.isError}
         title={addTorrent.isLoading ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
