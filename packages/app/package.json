@@ -2,19 +2,20 @@
   "name": "@remote-app/app",
   "version": "0.7.0",
   "description": "A transmission remote session app",
-  "main": "index.js",
+  "main": "expo-router/entry",
   "repository": {
     "type": "git",
     "url": "https://github.com/jgalat/remote-app",
     "directory": "packages/app"
   },
   "scripts": {
-    "dev": "npx expo start",
+    "dev": "EXPO_USE_METRO_WORKSPACE_ROOT=1 npx expo start",
     "dev:android": "npx expo start --android",
-    "dev:ios": "npx expo start --ios",
     "build:android:development": "npx eas build --platform android --local --profile development",
     "build:android:production": "npx eas build --platform android --local --profile production",
-    "lint": "eslint --max-warnings=0 ."
+    "lint": "eslint --max-warnings=0 .",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@ctrl/magnet-link": "3.1.2",
@@ -32,6 +33,7 @@
     "expo-build-properties": "~0.12.5",
     "expo-clipboard": "~6.0.3",
     "expo-constants": "~16.0.2",
+    "expo-dev-client": "~4.0.27",
     "expo-document-picker": "~12.0.2",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
@@ -40,8 +42,10 @@
     "expo-local-authentication": "~14.0.1",
     "expo-network": "~6.0.1",
     "expo-notifications": "~0.28.18",
+    "expo-router": "^3.5.23",
     "expo-splash-screen": "~0.27.6",
     "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "^3.0.7",
     "expo-task-manager": "~11.8.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",

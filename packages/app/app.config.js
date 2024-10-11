@@ -36,11 +36,7 @@ export default {
       intentFilters: [
         {
           action: "VIEW",
-          data: [
-            {
-              scheme: "magnet",
-            },
-          ],
+          data: [{ scheme: "magnet" }],
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
@@ -51,6 +47,9 @@ export default {
         {
           android: {
             usesCleartextTraffic: true,
+            compileSdkVersion: 34,
+            targetSdkVersion: 34,
+            buildToolsVersion: "34.0.0",
           },
         },
       ],
