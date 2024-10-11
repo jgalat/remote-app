@@ -18,12 +18,17 @@ import TransmissionClient, {
 
 import { useServer } from "./use-settings";
 import useTorrentSelection from "./use-torrent-selection";
+import MockTransmissionClient from "~/utils/mock-transmission-client";
 
 function useTransmission(): TransmissionClient | null {
   const server = useServer();
   return React.useMemo(() => {
     if (!server) {
       return null;
+    }
+
+    if (server.name === "app" && server.url === "app-testing-url") {
+      return new MockTransmissionClient() as TransmissionClient;
     }
 
     return new TransmissionClient({
@@ -112,7 +117,7 @@ export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
 }
 
 export function useTorrent(id: number) {
-  const torrents = useTorrents({ stale: true });
+  const torrents = useTorrents();
   if (!torrents.data) {
     return torrents;
   }
