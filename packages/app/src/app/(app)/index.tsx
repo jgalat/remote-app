@@ -66,11 +66,15 @@ export default function TorrentsScreen() {
           return (
             <ActionList>
               <ActionIcon
-                onPress={() =>
+                onPress={() => {
+                  if (selection.size === 0) {
+                    return;
+                  }
+
                   torrentActionsSheet({
                     torrents: torrents.filter((t) => selection.has(t.id)),
-                  })
-                }
+                  });
+                }}
                 name="more-vertical"
               />
             </ActionList>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet, FlatList, GestureResponderEvent } from "react-native";
 import _ActionSheet, {
-  SheetProps as _SheetProps,
+  SheetProps,
   SheetManager,
 } from "react-native-actions-sheet";
 
@@ -10,12 +10,12 @@ import View from "./view";
 import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 
-export type SheetProps<T = never> = _SheetProps<T> & { payload: T };
+export { SheetProps } from "react-native-actions-sheet";
 
 export type ActionSheetProps = {
   title?: string;
   options?: OptionProps[];
-} & _SheetProps;
+} & SheetProps;
 
 export default function ActionSheet({
   title,
@@ -49,8 +49,8 @@ export default function ActionSheet({
           renderItem={({ item: { style, onPress, ...props } }) => (
             <Option
               {...props}
-              onPress={(event: GestureResponderEvent) => {
-                SheetManager.hide(sheetId);
+              onPress={async (event: GestureResponderEvent) => {
+                await SheetManager.hide(sheetId);
                 onPress?.(event);
               }}
               style={[styles.option, style]}
