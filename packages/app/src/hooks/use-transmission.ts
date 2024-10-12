@@ -98,9 +98,9 @@ type QueryProps = { stale?: boolean };
 
 export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
   const client = useTransmission();
-  return useQuery<Torrent[] | undefined, HookError>(
-    ["torrent-get", client],
-    async () => {
+  return useQuery<Torrent[] | undefined, HookError>({
+    queryKey: ["torrent-get", client],
+    queryFn: async () => {
       const response = await client?.request({
         method: "torrent-get",
         arguments: { fields: [...fields] },
@@ -108,14 +108,11 @@ export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
 
       return response?.arguments?.torrents;
     },
-    {
-      enabled: Boolean(client) && !stale,
-      refetchInterval: (_, query) =>
-        query.state.status === "error" ? false : 5000,
-      staleTime: 5000,
-      retry: 3,
-    }
-  );
+    enabled: Boolean(client) && !stale,
+    refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
+    staleTime: 5000,
+    retry: 3,
+  });
 }
 
 export function useTorrent(id: number) {
@@ -132,21 +129,19 @@ export function useTorrent(id: number) {
 
 export function useSession({ stale = false }: QueryProps = { stale: false }) {
   const client = useTransmission();
-  return useQuery<SessionGetResponse | undefined, HookError>(
-    ["session-get", client],
-    async () => {
+  return useQuery<SessionGetResponse | undefined, HookError>({
+    queryKey: ["session-get", client],
+    queryFn: async () => {
       const response = await client?.request({
         method: "session-get",
       });
 
       return response?.arguments;
     },
-    {
-      enabled: Boolean(client) && !stale,
-      staleTime: 5000,
-      retry: 3,
-    }
-  );
+    enabled: Boolean(client) && !stale,
+    staleTime: 5000,
+    retry: 3,
+  });
 }
 
 export function useSessionSet() {
@@ -166,7 +161,7 @@ export function useSessionSet() {
       });
     },
     onMutate: async (params: SessionSetRequest) => {
-      await queryClient.cancelQueries(["session-get"]);
+      await queryClient.cancelQueries({ queryKey: ["session-get"] });
       const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
         ["session-get", client]
       );
@@ -189,7 +184,7 @@ export function useSessionSet() {
       queryClient.setQueryData(["session-get", client], context?.previous);
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["session-get"]);
+      queryClient.invalidateQueries({ queryKey: ["session-get"] });
     },
   });
 }
@@ -197,9 +192,9 @@ export function useSessionSet() {
 export function useFreeSpace() {
   const client = useTransmission();
   const { data: session } = useSession({ stale: true });
-  return useQuery<FreeSpaceResponse | undefined, HookError>(
-    ["free-space", client, session?.["download-dir"]],
-    async () => {
+  return useQuery<FreeSpaceResponse | undefined, HookError>({
+    queryKey: ["free-space", client, session?.["download-dir"]],
+    queryFn: async () => {
       if (!session?.["download-dir"]) {
         return;
       }
@@ -213,35 +208,30 @@ export function useFreeSpace() {
 
       return response?.arguments;
     },
-    {
-      enabled: Boolean(client && session?.["download-dir"]),
-      staleTime: 5000,
-      retry: 3,
-    }
-  );
+    enabled: Boolean(client && session?.["download-dir"]),
+    staleTime: 5000,
+    retry: 3,
+  });
 }
 
 export function useSessionStats(
   { stale = false }: QueryProps = { stale: false }
 ) {
   const client = useTransmission();
-  return useQuery<SessionStatsResponse | undefined, HookError>(
-    ["session-stats", client],
-    async () => {
+  return useQuery<SessionStatsResponse | undefined, HookError>({
+    queryKey: ["session-stats", client],
+    queryFn: async () => {
       const response = await client?.request({
         method: "session-stats",
       });
 
       return response?.arguments;
     },
-    {
-      enabled: Boolean(client) && !stale,
-      refetchInterval: (_, query) =>
-        query.state.status === "error" ? false : 5000,
-      staleTime: 5000,
-      retry: 3,
-    }
-  );
+    enabled: Boolean(client) && !stale,
+    refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
+    staleTime: 5000,
+    retry: 3,
+  });
 }
 
 export function useAddTorrent() {
@@ -264,10 +254,10 @@ export function useAddTorrent() {
       return response?.arguments;
     },
     onMutate: async () => {
-      await queryClient.cancelQueries(["torrent-get"]);
+      await queryClient.cancelQueries({ queryKey: ["torrent-get"] });
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["torrent-get"]);
+      queryClient.invalidateQueries({ queryKey: ["torrent-get"] });
     },
   });
 }
@@ -301,7 +291,7 @@ export function useTorrentAction<
       });
     },
     onMutate: async (params: TorrentActionMutationParams<T>) => {
-      await queryClient.cancelQueries(["torrent-get"]);
+      await queryClient.cancelQueries({ queryKey: ["torrent-get"] });
 
       const previous = queryClient.getQueryData<Torrent[] | undefined>([
         "torrent-get",
@@ -346,7 +336,7 @@ export function useTorrentAction<
     onSettled: () => {
       clear();
       setTimeout(() => {
-        queryClient.invalidateQueries(["torrent-get"]);
+        queryClient.invalidateQueries({ queryKey: ["torrent-get"] });
       }, 500);
     },
   });
