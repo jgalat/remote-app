@@ -1,5 +1,6 @@
 import * as React from "react";
 import { StyleSheet, FlatList } from "react-native";
+import * as Application from "expo-application";
 import { router } from "expo-router";
 
 import Text from "~/components/text";
@@ -7,8 +8,6 @@ import Option, { OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
 import { useColorScheme } from "~/hooks/use-settings";
 import { useSession } from "~/hooks/use-transmission";
-
-import packageJson from "~/../package.json";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
@@ -68,7 +67,9 @@ export default function SettingsScreen() {
         renderItem={({ item }) => <Option {...item} />}
         keyExtractor={(item) => item.label}
       />
-      <Text style={styles.text}>Version {packageJson.version}</Text>
+      <Text style={styles.text}>
+        Version {Application.nativeApplicationVersion}
+      </Text>
     </Screen>
   );
 }
