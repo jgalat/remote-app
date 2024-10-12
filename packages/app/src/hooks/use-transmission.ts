@@ -18,7 +18,9 @@ import TransmissionClient, {
 
 import { useServer } from "./use-settings";
 import useTorrentSelection from "./use-torrent-selection";
-import MockTransmissionClient from "~/utils/mock-transmission-client";
+import MockTransmissionClient, {
+  isTestingServer,
+} from "~/utils/mock-transmission-client";
 
 function useTransmission(): TransmissionClient | null {
   const server = useServer();
@@ -27,7 +29,7 @@ function useTransmission(): TransmissionClient | null {
       return null;
     }
 
-    if (server.name === "app" && server.url === "app-testing-url") {
+    if (isTestingServer(server)) {
       return new MockTransmissionClient() as TransmissionClient;
     }
 

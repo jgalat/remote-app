@@ -6,6 +6,7 @@ import TransmissionClient from "@remote-app/transmission-client";
 
 import { loadSettings } from "~/store/settings";
 import { loadState, storeState } from "~/store/task-torrents-notifier";
+import { isTestingServer } from "~/utils/mock-transmission-client";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
@@ -17,6 +18,10 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
 
   const { server } = await loadSettings();
   if (!server) {
+    return BackgroundFetch.BackgroundFetchResult.NoData;
+  }
+
+  if (isTestingServer(server)) {
     return BackgroundFetch.BackgroundFetchResult.NoData;
   }
 

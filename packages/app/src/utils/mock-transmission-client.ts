@@ -6,6 +6,7 @@ import {
   TorrentStatus,
   TorrentRemoveRequest,
 } from "@remote-app/transmission-client";
+import { Server } from "~/store/settings";
 
 const storage = {
   torrents: [
@@ -248,12 +249,17 @@ const storage = {
     torrentCount: 2,
     uploadSpeed: 0,
   },
-  freeSpace: { path: "/downloads/complete", "size-bytes": 64 * 1024 * 1024 * 1024 },
+  freeSpace: {
+    path: "/downloads/complete",
+    "size-bytes": 64 * 1024 * 1024 * 1024,
+  },
 };
 
-export default class MockTransmissionClient {
-  constructor() {}
+export function isTestingServer(server: Server): boolean {
+  return server.name === "app" && server.url === "app-testing-url";
+}
 
+export default class MockTransmissionClient {
   async request({
     method,
     arguments: args,
