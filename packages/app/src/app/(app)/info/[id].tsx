@@ -30,9 +30,7 @@ export default function TorrentDetailsScreen() {
         error || !torrents ? null : (
           <ActionList>
             <ActionIcon
-              onPress={() =>
-                torrentActionsSheet({ torrents, individual: true })
-              }
+              onPress={() => torrentActionsSheet({ torrents, info: true })}
               name="more-vertical"
             />
           </ActionList>

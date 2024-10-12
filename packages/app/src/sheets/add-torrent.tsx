@@ -3,7 +3,9 @@ import { router } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 
-function AddTorrentSheet(props: SheetProps) {
+const sheetId = "add-torrent" as const;
+
+function AddTorrentSheet(props: SheetProps<typeof sheetId>) {
   return (
     <ActionSheet
       title="Add a torrent"
@@ -24,6 +26,6 @@ function AddTorrentSheet(props: SheetProps) {
   );
 }
 
-AddTorrentSheet.sheetId = "add-torrent";
+AddTorrentSheet.sheetId = sheetId;
 
 export default AddTorrentSheet;

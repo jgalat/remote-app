@@ -1,14 +1,18 @@
 import * as React from "react";
-import { Torrent } from "@remote-app/transmission-client";
+import { type Torrent } from "@remote-app/transmission-client";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentAction } from "~/hooks/use-transmission";
 
+export type Payload = Torrent["id"][];
+
+const sheetId = "remove-confirm" as const;
+
 function RemoveConfirmSheet({
   payload: ids,
   ...props
-}: SheetProps<Torrent["id"][]>) {
+}: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
   const remove = useTorrentAction("torrent-remove");
 
@@ -20,13 +24,14 @@ function RemoveConfirmSheet({
           label: "Remove",
           left: "trash",
           color: red,
-          onPress: () => remove.mutate({ ids }),
+          onPress: () => (ids ? remove.mutate({ ids }) : undefined),
         },
         {
           label: "Remove & Trash data",
           left: "trash-2",
           color: red,
-          onPress: () => remove.mutate({ ids, "delete-local-data": true }),
+          onPress: () =>
+            ids ? remove.mutate({ ids, "delete-local-data": true }) : undefined,
         },
       ]}
       {...props}
@@ -34,6 +39,6 @@ function RemoveConfirmSheet({
   );
 }
 
-RemoveConfirmSheet.sheetId = "remove-confirm";
+RemoveConfirmSheet.sheetId = sheetId;
 
 export default RemoveConfirmSheet;

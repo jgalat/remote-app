@@ -9,7 +9,9 @@ import predicate from "~/utils/filter";
 import type { Filter } from "~/store/settings";
 import type { OptionProps } from "~/components/option";
 
-function FilterSheet(props: SheetProps) {
+const sheetId = "filter" as const;
+
+function FilterSheet(props: SheetProps<typeof sheetId>) {
   const { data: torrents } = useTorrents();
   const { settings, store } = useSettings();
   const { filter } = settings.listing;
@@ -90,6 +92,6 @@ function FilterSheet(props: SheetProps) {
   return <ActionSheet title="Filter" options={options} {...props} />;
 }
 
-FilterSheet.sheetId = "filter";
+FilterSheet.sheetId = sheetId;
 
 export default FilterSheet;

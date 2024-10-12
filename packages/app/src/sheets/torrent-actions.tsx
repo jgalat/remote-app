@@ -8,19 +8,25 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions } from "~/hooks/use-transmission";
 import { useTheme } from "~/hooks/use-theme-color";
 import RemoveConfirmSheet from "./remove-confirm";
-
+import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { OptionProps } from "~/components/option";
 
 export type Payload = {
   torrents: Torrent[];
-  individual?: boolean;
+  info?: boolean;
 };
 
+const sheetId = "torrent-actions" as const;
+
 function TorrentActionsSheet({
-  payload: { torrents, individual = false },
+  payload: { torrents, info = false } = {
+    torrents: [],
+    info: false,
+  },
   ...props
-}: SheetProps<Payload>) {
+}: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
+  const { clear } = useTorrentSelection();
   const actions = useTorrentActions();
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
@@ -79,29 +85,33 @@ function TorrentActionsSheet({
     ];
   }
 
-  if (torrents.length === 1 && !individual) {
+  if (torrents.length === 1 && !info) {
     const [{ id }] = torrents;
     options = [
       {
         label: "Details",
         left: "info",
-        onPress: () => router.push(`/info/${id}`),
+        onPress: () => {
+          router.push(`/info/${id}`);
+          clear();
+        },
       },
       ...options,
     ];
   }
 
-  if (!individual) {
+  if (!info) {
     options = [
       ...options,
       {
         label: "Remove",
         left: "trash",
         color: red,
-        onPress: () =>
+        onPress: () => {
           SheetManager.show(RemoveConfirmSheet.sheetId, {
             payload: ids,
-          }),
+          });
+        },
       },
     ];
   }
@@ -109,6 +119,6 @@ function TorrentActionsSheet({
   return <ActionSheet title="Action" options={options} {...props} />;
 }
 
-TorrentActionsSheet.sheetId = "torrent-actions";
+TorrentActionsSheet.sheetId = sheetId;
 
 export default TorrentActionsSheet;

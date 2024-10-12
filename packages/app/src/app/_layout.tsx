@@ -4,6 +4,7 @@ import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import useLoader from "~/hooks/use-loader";
 import { SettingsProvider } from "~/contexts/settings";
@@ -62,9 +63,11 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <SettingsProvider>
-          <Root />
-        </SettingsProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <SettingsProvider>
+            <Root />
+          </SettingsProvider>
+        </GestureHandlerRootView>
       </SafeAreaProvider>
     </QueryClientProvider>
   );
