@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,8 +12,6 @@ import { AuthProvider } from "~/contexts/auth";
 import "~/tasks";
 import "~/sheets";
 
-SplashScreen.preventAutoHideAsync().catch(() => undefined);
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -23,14 +20,11 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// StatusBar.setStatusBarStyle(colorScheme === "dark" ? "light" : "dark");
+// await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
+
 function Root() {
   const loaded = useLoader();
-
-  React.useEffect(() => {
-    if (loaded) {
-      setTimeout(() => SplashScreen.hideAsync().catch(() => undefined), 50);
-    }
-  }, [loaded]);
 
   if (!loaded) {
     return null;

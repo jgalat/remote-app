@@ -1,11 +1,5 @@
-import * as Font from "expo-font";
 import * as SystemUI from "expo-system-ui";
 import * as StatusBar from "expo-status-bar";
-import {
-  RobotoMono_400Regular,
-  RobotoMono_500Medium,
-} from "@expo-google-fonts/roboto-mono";
-import { Feather, FontAwesome } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 
 import {
@@ -13,21 +7,21 @@ import {
   registerTorrentsNotifierTask,
 } from "~/tasks/torrents-notifier";
 import { useColorScheme } from "./use-settings";
-import colors from "~/constants/colors";
+// import colors from "~/constants/colors";
 
 async function load(
   colorScheme: ReturnType<typeof useColorScheme>
 ): Promise<boolean> {
   try {
-    await Font.loadAsync({
-      ...Feather.font,
-      ...FontAwesome.font,
-      "RobotoMono-Regular": RobotoMono_400Regular,
-      "RobotoMono-Medium": RobotoMono_500Medium,
-    });
+    // await Font.loadAsync({
+    //   ...Feather.font,
+    //   ...FontAwesome.font,
+    //   "RobotoMono-Regular": RobotoMono_400Regular,
+    //   "RobotoMono-Medium": RobotoMono_500Medium,
+    // });
 
-    StatusBar.setStatusBarStyle(colorScheme === "dark" ? "light" : "dark");
-    await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
+    // StatusBar.setStatusBarStyle(colorScheme === "dark" ? "light" : "dark");
+    // await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
 
     if (!(await isTorrentsNotifierTaskRegistered())) {
       await registerTorrentsNotifierTask();

@@ -11,11 +11,6 @@ export default {
     icon: "./assets/images/icon.png",
     scheme: "remote",
     userInterfaceStyle: "automatic",
-    splash: {
-      image: "./assets/images/splash.png",
-      resizeMode: "contain",
-      backgroundColor: "#ffffff",
-    },
     updates: {
       fallbackToCacheTimeout: 0,
     },
@@ -42,6 +37,29 @@ export default {
       ],
     },
     plugins: [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/splash-icon.png",
+          dark: {
+            image: "./assets/images/splash-icon-dark.png",
+            backgroundColor: "#000000",
+          },
+          imageWidth: 200,
+          resizeMode: "contain",
+          backgroundColor: "#ffffff",
+        },
+      ],
+      [
+        "expo-font",
+        {
+          fonts: [
+            "./assets/fonts/RobotoMono-Regular.ttf",
+            "./assets/fonts/RobotoMono-Medium.ttf",
+          ],
+        },
+      ],
       [
         "expo-build-properties",
         {
