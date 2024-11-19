@@ -16,7 +16,7 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
     return BackgroundFetch.BackgroundFetchResult.NoData;
   }
 
-  const { server } = await loadSettings();
+  const { server } = loadSettings();
   if (!server) {
     return BackgroundFetch.BackgroundFetchResult.NoData;
   }
@@ -44,11 +44,11 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
 
-    const { lastUpdate } = await loadState();
+    const { lastUpdate } = loadState();
     const done = torrents.filter((t) => t.doneDate > lastUpdate);
 
     const now = Math.floor(Date.now() / 1000);
-    await storeState({ lastUpdate: now });
+    storeState({ lastUpdate: now });
 
     if (done.length === 0 || lastUpdate === 0) {
       return BackgroundFetch.BackgroundFetchResult.NoData;

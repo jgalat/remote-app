@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "./storage";
 
 export type Server = {
   name: string;
@@ -53,11 +53,12 @@ export const defaultSettings: Settings = {
   },
 };
 
-const SETTINGS_KEY = "@settings";
+const KEY = "user.settings";
 
-export async function loadSettings(): Promise<Settings> {
-  const value = await AsyncStorage.getItem(SETTINGS_KEY);
-  if (value == null) {
+export function loadSettings(): Settings {
+  const value = storage.getString(KEY);
+
+  if (value === undefined) {
     return defaultSettings;
   }
 
@@ -69,12 +70,12 @@ export async function loadSettings(): Promise<Settings> {
       listing: { ...defaultSettings.listing, ...settings.listing },
     };
   } catch {
-    await storeSettings(defaultSettings);
+    storeSettings(defaultSettings);
     return defaultSettings;
   }
 }
 
-export async function storeSettings(settings: Settings): Promise<void> {
+export function storeSettings(settings: Settings): void {
   const value = JSON.stringify(settings);
-  return await AsyncStorage.setItem(SETTINGS_KEY, value);
+  return storage.set(KEY, value);
 }

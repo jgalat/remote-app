@@ -2,15 +2,17 @@ import * as React from "react";
 import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 
 import useLoader from "~/hooks/use-loader";
+import { useColorScheme } from "~/hooks/use-settings";
 import { SettingsProvider } from "~/contexts/settings";
 import { AuthProvider } from "~/contexts/auth";
 
 import "~/tasks";
 import "~/sheets";
+import { LoadingScreen } from "~/components/utility-screens";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -20,34 +22,33 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// StatusBar.setStatusBarStyle(colorScheme === "dark" ? "light" : "dark");
-// await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
-
 function Root() {
+  const colorScheme = useColorScheme();
   const loaded = useLoader();
 
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <AuthProvider>
-      <Stack
-        initialRouteName="(app)"
-        screenOptions={{
-          headerShown: false,
-          animation: "slide_from_bottom",
-        }}
-      >
-        <Stack.Screen
-          name="(app)"
-          options={{
-            animationTypeForReplace: "pop",
+    <>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      {loaded ? (
+        <Stack
+          initialRouteName="(app)"
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_bottom",
           }}
-        />
-        <Stack.Screen name="sign-in" />
-      </Stack>
-    </AuthProvider>
+        >
+          <Stack.Screen
+            name="(app)"
+            options={{
+              animationTypeForReplace: "pop",
+            }}
+          />
+          <Stack.Screen name="sign-in" />
+        </Stack>
+      ) : (
+        <LoadingScreen />
+      )}
+    </>
   );
 }
 
@@ -56,13 +57,13 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <SettingsProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SettingsProvider>
+          <AuthProvider>
             <Root />
-          </SettingsProvider>
-        </GestureHandlerRootView>
-      </SafeAreaProvider>
+          </AuthProvider>
+        </SettingsProvider>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }

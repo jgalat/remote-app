@@ -9,7 +9,7 @@
     "directory": "packages/app"
   },
   "scripts": {
-    "dev": "EXPO_USE_METRO_WORKSPACE_ROOT=1 npx expo start",
+    "dev": "npx expo start",
     "dev:android": "npx expo start --android",
     "build:android:development": "npx eas build --platform android --local --profile development",
     "build:android:production": "npx eas build --platform android --local --profile production",
@@ -20,7 +20,6 @@
   "dependencies": {
     "@ctrl/magnet-link": "3.1.2",
     "@expo/vector-icons": "^14.0.4",
-    "@react-native-async-storage/async-storage": "1.23.1",
     "@remote-app/transmission-client": "*",
     "@tanstack/react-query": "^5.59.13",
     "expo": "^52.0.7",
@@ -49,6 +48,7 @@
     "react-native": "0.76.2",
     "react-native-actions-sheet": "^0.9.7",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-mmkv": "^3.1.0",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "^4.0.0"
   },
@@ -60,9 +60,7 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": [
-          "expo-background-fetch"
-        ],
+        "exclude": ["expo-background-fetch"],
         "listUnknownPackages": false
       }
     }

@@ -1,14 +1,14 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 
-import Text from "~/components/text";
 import Screen from "~/components/screen";
+import ActivityIndicator from "~/components/activity-indicator";
 import NetworkErrorMessage from "~/components/network-error-message";
 
 export function LoadingScreen() {
   return (
     <Screen style={styles.message}>
-      <Text style={styles.title}>Retrieving...</Text>
+      <ActivityIndicator />
     </Screen>
   );
 }
@@ -28,10 +28,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  },
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 24,
-    marginBottom: 24,
   },
 });

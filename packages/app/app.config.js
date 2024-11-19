@@ -11,12 +11,14 @@ export default {
     icon: "./assets/images/icon.png",
     scheme: "remote",
     userInterfaceStyle: "automatic",
+    newArchEnabled: true,
     updates: {
       fallbackToCacheTimeout: 0,
     },
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "ar.jg.remote",
     },
     android: {
       adaptiveIcon: {
@@ -46,7 +48,7 @@ export default {
             image: "./assets/images/splash-icon-dark.png",
             backgroundColor: "#000000",
           },
-          imageWidth: 200,
+          imageWidth: 240,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
         },
@@ -83,6 +85,9 @@ export default {
     ],
     packagerOpts: {
       config: "metro.config.js",
+    },
+    experimentas: {
+      typedRoutes: true,
     },
     extra: {
       eas: {
