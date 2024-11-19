@@ -27,7 +27,7 @@ export default function useLoader() {
   const colorScheme = useColorScheme();
 
   const { isLoading } = useQuery({
-    queryKey: ["app-resources"],
+    queryKey: ["app-resources"] as const,
     queryFn: () => load(colorScheme),
   });
 
