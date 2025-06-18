@@ -82,6 +82,7 @@ export default {
       ],
       "expo-asset",
       "expo-font",
+      "expo-background-task",
     ],
     packagerOpts: {
       config: "metro.config.js",
