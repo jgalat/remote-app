@@ -22,10 +22,11 @@
     "@expo/vector-icons": "^14.1.0",
     "@remote-app/transmission-client": "*",
     "@tanstack/react-query": "^5.59.13",
+    "buffer": "^6.0.3",
     "expo": "^53.0.0",
     "expo-application": "~6.1.4",
     "expo-asset": "~11.1.5",
-    "expo-background-fetch": "~13.1.5",
+    "expo-background-task": "~0.2.7",
     "expo-build-properties": "~0.14.6",
     "expo-clipboard": "~7.1.4",
     "expo-constants": "~17.1.6",
@@ -50,8 +51,7 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-mmkv": "^3.1.0",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.11.1",
-    "expo-background-task": "~0.2.7"
+    "react-native-screens": "~4.11.1"
   },
   "expo": {
     "doctor": {

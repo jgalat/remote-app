@@ -8,13 +8,11 @@
       "distribution": "internal",
       "developmentClient": true,
       "env": {
-        "APP_ENV": "development",
         "NODE_ENV": "development"
       }
     },
     "production": {
       "env": {
-        "APP_ENV": "production",
         "NODE_ENV": "production"
       }
     }

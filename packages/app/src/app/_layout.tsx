@@ -16,6 +16,8 @@ import useAuth from "~/hooks/use-auth";
 import "~/tasks";
 import "~/sheets";
 
+global.Buffer = require("buffer").Buffer;
+
 SplashScreen.preventAutoHideAsync();
 
 SplashScreen.setOptions({
@@ -25,7 +27,6 @@ SplashScreen.setOptions({
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
     shouldPlaySound: true,

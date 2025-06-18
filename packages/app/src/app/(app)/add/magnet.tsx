@@ -89,7 +89,7 @@ export default function AddTorrentMagnetScreen() {
       <Button title="Paste URL" onPress={onPaste} />
       <Button
         disabled={!uri || freeSpace.isError}
-        title={addTorrent.isLoading ? "Sending..." : "Add Torrent"}
+        title={addTorrent.isPending ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
       {state.error || freeSpace.isError ? (

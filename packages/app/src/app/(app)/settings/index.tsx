@@ -8,6 +8,7 @@ import Option, { OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
 import { useColorScheme } from "~/hooks/use-settings";
 import { useSession } from "~/hooks/use-transmission";
+import { isDev } from "~/utils/env";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
@@ -53,10 +54,20 @@ export default function SettingsScreen() {
       },
     ];
 
+    const devOptions: OptionProps[] = [
+      {
+        left: "code",
+        label: "Development",
+        onPress: () => router.push("/settings/development"),
+        right: "chevron-right",
+      },
+    ];
+
     return [
       ...connection,
       ...(!session || error ? [] : serverOptions),
       ...appOptions,
+      ...(isDev() ? devOptions : []),
     ];
   }, [colorScheme, session, error]);
 
