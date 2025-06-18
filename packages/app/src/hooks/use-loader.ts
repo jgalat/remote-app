@@ -1,5 +1,6 @@
 import * as SystemUI from "expo-system-ui";
 import { useQuery } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 
 import {
   isTorrentsNotifierTaskRegistered,
@@ -13,6 +14,7 @@ async function load(
 ): Promise<boolean> {
   try {
     await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
+    await Notifications.requestPermissionsAsync();
     if (!(await isTorrentsNotifierTaskRegistered())) {
       await registerTorrentsNotifierTask();
     }

@@ -16,7 +16,7 @@ import useAuth from "~/hooks/use-auth";
 import "~/tasks";
 import "~/sheets";
 
-global.Buffer = require("buffer").Buffer;
+globalThis.Buffer = require("buffer").Buffer;
 
 SplashScreen.preventAutoHideAsync();
 
