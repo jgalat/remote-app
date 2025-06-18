@@ -18,11 +18,10 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@ctrl/magnet-link": "3.1.2",
+    "@ctrl/magnet-link": "4.0.2",
     "@expo/vector-icons": "^14.1.0",
     "@remote-app/transmission-client": "*",
     "@tanstack/react-query": "^5.59.13",
-    "buffer": "6.0.3",
     "expo": "^53.0.12",
     "expo-application": "~6.1.4",
     "expo-asset": "~11.1.5",

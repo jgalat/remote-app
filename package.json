@@ -5,10 +5,6 @@
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",
   "workspaces": ["./packages/*"],
-  "scripts": {
-    "postinstall": "patch-package"
-  },
-  "devDependencies": {
-    "patch-package": "^7.0.2"
-  }
+  "scripts": {},
+  "devDependencies": {}
 }
