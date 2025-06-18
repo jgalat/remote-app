@@ -122,7 +122,7 @@ export default function TorrentsScreen() {
   if (!server) {
     return (
       <Screen style={styles.message}>
-        <Text style={styles.title}>No connection found :(</Text>
+        <Text style={styles.title}>No connection found</Text>
         <Button
           title="Setup connection"
           onPress={() => router.push("/settings/connection")}
@@ -143,7 +143,7 @@ export default function TorrentsScreen() {
     return (
       <Screen>
         <View style={styles.message}>
-          <Text style={styles.title}>No torrents found :(</Text>
+          <Text style={styles.title}>No torrents found</Text>
           <Button title="Add a torrent" onPress={addTorrentSheet} />
         </View>
         <Stats />

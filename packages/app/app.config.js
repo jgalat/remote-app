@@ -12,6 +12,7 @@ export default {
     scheme: "remote",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
+    platforms: ["android", "ios"],
     updates: {
       fallbackToCacheTimeout: 0,
     },
@@ -37,6 +38,7 @@ export default {
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
+      edgeToEdgeEnabled: true,
     },
     plugins: [
       "expo-router",

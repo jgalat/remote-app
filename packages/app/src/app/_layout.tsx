@@ -19,11 +19,13 @@ SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({
   duration: 1_000,
   fade: true,
-})
+});
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
