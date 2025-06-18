@@ -1,22 +1,20 @@
 import * as React from "react";
 import * as Linking from "expo-linking";
-import { Redirect, Stack, router, type Href } from "expo-router";
+import { Stack, router, type Href } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
-import useAuth from "~/hooks/use-auth";
 import useScreenOptions from "~/hooks/use-screen-options";
 import { useServer } from "~/hooks/use-settings";
 
 export default function AppLayout() {
-  const { locked } = useAuth();
   const server = useServer();
   const opts = useScreenOptions();
 
   const url = Linking.useURL();
 
   React.useEffect(() => {
-    if (locked || !server || url === null) {
+    if (!server || url === null) {
       return;
     }
 
@@ -34,11 +32,7 @@ export default function AppLayout() {
     }
 
     return router.push(href);
-  }, [url, locked, server]);
-
-  if (locked) {
-    return <Redirect href="/sign-in" />;
-  }
+  }, [url, server]);
 
   return (
     <TorrentSelectionProvider>

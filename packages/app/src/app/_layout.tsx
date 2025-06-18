@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
+
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -10,6 +11,7 @@ import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
 import { SettingsProvider } from "~/contexts/settings";
 import { AuthProvider } from "~/contexts/auth";
+import useAuth from "~/hooks/use-auth";
 
 import "~/tasks";
 import "~/sheets";
@@ -34,6 +36,7 @@ Notifications.setNotificationHandler({
 function Root() {
   const colorScheme = useColorScheme();
   const loaded = useLoader();
+  const { locked } = useAuth();
 
   React.useEffect(() => {
     if (loaded) {
@@ -45,19 +48,22 @@ function Root() {
     <>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack
-        initialRouteName="(app)"
         screenOptions={{
           headerShown: false,
           animation: "slide_from_bottom",
         }}
       >
-        <Stack.Screen
-          name="(app)"
-          options={{
-            animationTypeForReplace: "pop",
-          }}
-        />
-        <Stack.Screen name="sign-in" />
+        <Stack.Protected guard={!locked}>
+          <Stack.Screen
+            name="(app)"
+            options={{
+              animationTypeForReplace: "pop",
+            }}
+          />
+        </Stack.Protected>
+        <Stack.Protected guard={locked}>
+          <Stack.Screen name="sign-in" />
+        </Stack.Protected>
       </Stack>
     </>
   );
