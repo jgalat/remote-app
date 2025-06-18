@@ -3,7 +3,7 @@ import packageJson from "./package.json";
 export default {
   expo: {
     name:
-      process.env.NODE_ENV === "development" ? "Remote (development)" : "Remote",
+      process.env.APP_ENV === "development" ? "Remote (development)" : "Remote",
     slug: "remote",
     owner: "jgalat",
     version: packageJson.version,
@@ -27,7 +27,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package:
-        process.env.NODE_ENV === "development"
+        process.env.APP_ENV === "development"
           ? "ar.jg.remote.dev"
           : "ar.jg.remote",
       versionCode: +packageJson.version.replaceAll(".", ""),
