@@ -2,7 +2,6 @@ import * as React from "react";
 import { Stack } from "expo-router";
 
 import useScreenOptions from "~/hooks/use-screen-options";
-import { isDev } from "~/utils/env";
 
 export default function SettingsLayout() {
   const opts = useScreenOptions();
@@ -23,7 +22,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="security" options={{ title: "Security" }} />
       <Stack.Screen name="theme" options={{ title: "Theme" }} />
       <Stack.Screen name="about" options={{ title: "About" }} />
-      {isDev() && (
+      {__DEV__ && (
         <Stack.Screen name="development" options={{ title: "Development" }} />
       )}
     </Stack>

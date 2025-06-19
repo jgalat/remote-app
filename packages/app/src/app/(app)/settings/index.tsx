@@ -67,7 +67,7 @@ export default function SettingsScreen() {
       ...connection,
       ...(!session || error ? [] : serverOptions),
       ...appOptions,
-      ...(isDev() ? devOptions : []),
+      ...(__DEV__ ? devOptions : []),
     ];
   }, [colorScheme, session, error]);
 
