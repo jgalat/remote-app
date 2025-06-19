@@ -1,4 +1,4 @@
-import * as BackgroundFetch from "expo-background-fetch";
+import * as BackgroundTask from "expo-background-task";
 import * as TaskManager from "expo-task-manager";
 import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
@@ -10,19 +10,19 @@ import { isTestingServer } from "~/utils/mock-transmission-client";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
-export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.BackgroundFetchResult> {
+export default async function TorrentsNotifierTask(): Promise<BackgroundTask.BackgroundTaskResult> {
   const state = await Network.getNetworkStateAsync();
   if (!state.isConnected || !state.isInternetReachable) {
-    return BackgroundFetch.BackgroundFetchResult.NoData;
+    return BackgroundTask.BackgroundTaskResult.Success;
   }
 
-  const { server } = await loadSettings();
+  const { server } = loadSettings();
   if (!server) {
-    return BackgroundFetch.BackgroundFetchResult.NoData;
+    return BackgroundTask.BackgroundTaskResult.Success;
   }
 
   if (isTestingServer(server)) {
-    return BackgroundFetch.BackgroundFetchResult.NoData;
+    return BackgroundTask.BackgroundTaskResult.Success;
   }
 
   const client = new TransmissionClient({
@@ -41,17 +41,17 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
 
     const torrents = response.arguments?.torrents;
     if (!torrents) {
-      return BackgroundFetch.BackgroundFetchResult.NoData;
+      return BackgroundTask.BackgroundTaskResult.Success;
     }
 
-    const { lastUpdate } = await loadState();
+    const { lastUpdate } = loadState();
     const done = torrents.filter((t) => t.doneDate > lastUpdate);
 
     const now = Math.floor(Date.now() / 1000);
-    await storeState({ lastUpdate: now });
+    storeState({ lastUpdate: now });
 
     if (done.length === 0 || lastUpdate === 0) {
-      return BackgroundFetch.BackgroundFetchResult.NoData;
+      return BackgroundTask.BackgroundTaskResult.Success;
     }
 
     await Notifications.scheduleNotificationAsync({
@@ -64,10 +64,10 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundFetch.Ba
       trigger: null,
     });
   } catch {
-    return BackgroundFetch.BackgroundFetchResult.Failed;
+    return BackgroundTask.BackgroundTaskResult.Success;
   }
 
-  return BackgroundFetch.BackgroundFetchResult.NewData;
+  return BackgroundTask.BackgroundTaskResult.Success;
 }
 
 export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
@@ -75,13 +75,11 @@ export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
 }
 
 export async function registerTorrentsNotifierTask(): Promise<void> {
-  return BackgroundFetch.registerTaskAsync(TORRENTS_NOTIFIER_TASK, {
-    minimumInterval: 5 * 60,
-    stopOnTerminate: false,
-    startOnBoot: true,
+  return BackgroundTask.registerTaskAsync(TORRENTS_NOTIFIER_TASK, {
+    minimumInterval: 15,
   });
 }
 
 export async function unregisterTorrentsNotifierTask(): Promise<void> {
-  return BackgroundFetch.unregisterTaskAsync(TORRENTS_NOTIFIER_TASK);
+  return BackgroundTask.unregisterTaskAsync(TORRENTS_NOTIFIER_TASK);
 }

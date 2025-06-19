@@ -108,9 +108,13 @@ function TorrentActionsSheet({
         left: "trash",
         color: red,
         onPress: () => {
-          SheetManager.show(RemoveConfirmSheet.sheetId, {
-            payload: ids,
-          });
+          setTimeout(
+            () =>
+              SheetManager.show(RemoveConfirmSheet.sheetId, {
+                payload: ids,
+              }),
+            100
+          );
         },
       },
     ];

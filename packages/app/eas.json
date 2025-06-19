@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 12.5.1",
+    "version": ">= 16.10.1",
     "appVersionSource": "local"
   },
   "build": {
@@ -8,14 +8,12 @@
       "distribution": "internal",
       "developmentClient": true,
       "env": {
-        "APP_ENV": "development",
-        "NODE_ENV": "development"
+        "APP_ENV": "development"
       }
     },
     "production": {
       "env": {
-        "APP_ENV": "production",
-        "NODE_ENV": "production"
+        "APP_ENV": "production"
       }
     }
   },

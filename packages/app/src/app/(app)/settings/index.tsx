@@ -53,10 +53,20 @@ export default function SettingsScreen() {
       },
     ];
 
+    const devOptions: OptionProps[] = [
+      {
+        left: "code",
+        label: "Development",
+        onPress: () => router.push("/settings/development"),
+        right: "chevron-right",
+      },
+    ];
+
     return [
       ...connection,
       ...(!session || error ? [] : serverOptions),
       ...appOptions,
+      ...(__DEV__ ? devOptions : []),
     ];
   }, [colorScheme, session, error]);
 

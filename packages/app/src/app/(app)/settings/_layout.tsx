@@ -15,10 +15,16 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" options={{ title: "Settings" }} />
       <Stack.Screen name="connection" options={{ title: "Connection" }} />
-      <Stack.Screen name="configuration" options={{ title: "Server Configuration" }} />
+      <Stack.Screen
+        name="configuration"
+        options={{ title: "Server Configuration" }}
+      />
       <Stack.Screen name="security" options={{ title: "Security" }} />
       <Stack.Screen name="theme" options={{ title: "Theme" }} />
       <Stack.Screen name="about" options={{ title: "About" }} />
+      {__DEV__ && (
+        <Stack.Screen name="development" options={{ title: "Development" }} />
+      )}
     </Stack>
   );
 }

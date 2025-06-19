@@ -29,7 +29,7 @@ export function SettingsProvider({ children }: React.PropsWithChildren) {
       }
 
       const settings = { ...current, ...diff };
-      await storeSettings(settings);
+      storeSettings(settings);
       return settings;
     },
     onSettled: (settings) => {

@@ -58,7 +58,7 @@ export default function AddTorrentFileScreen() {
       });
 
       await addTorrent.mutateAsync({ metainfo: content });
-      router.dismiss();
+      router.dismissTo("/");
     } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
@@ -76,7 +76,7 @@ export default function AddTorrentFileScreen() {
       <Button title="Choose a file" onPress={onPick} />
       <Button
         disabled={!uri || freeSpace.isError}
-        title={addTorrent.isLoading ? "Sending..." : "Add Torrent"}
+        title={addTorrent.isPending ? "Sending..." : "Add Torrent"}
         onPress={onAdd}
       />
       {state.error || freeSpace.isError ? (

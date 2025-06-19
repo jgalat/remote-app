@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "./storage";
 
 type TorrentsNotifierState = {
   lastUpdate: number;
@@ -8,18 +8,28 @@ const initState: TorrentsNotifierState = {
   lastUpdate: 0,
 };
 
-const KEY = "@torrents-notifier";
+const KEY = "internal.torrents-notifier";
 
-export async function loadState(): Promise<TorrentsNotifierState> {
-  const value = await AsyncStorage.getItem(KEY);
-  if (value == null) {
+export function loadState(): TorrentsNotifierState {
+  const value = storage.getString(KEY);
+
+  if (value === undefined) {
     return initState;
   }
 
-  return JSON.parse(value) as TorrentsNotifierState;
+  try {
+    const state = JSON.parse(value) as TorrentsNotifierState;
+    return {
+      ...initState,
+      ...state,
+    };
+  } catch {
+    storeState(initState);
+    return initState;
+  }
 }
 
-export async function storeState(state: TorrentsNotifierState): Promise<void> {
+export function storeState(state: TorrentsNotifierState): void {
   const value = JSON.stringify(state);
-  return await AsyncStorage.setItem(KEY, value);
+  return storage.set(KEY, value);
 }

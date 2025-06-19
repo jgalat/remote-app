@@ -1,7 +1,6 @@
 import { FlatList, useColorScheme } from "react-native";
 import * as React from "react";
 import * as SystemUI from "expo-system-ui";
-import * as StatusBar from "expo-status-bar";
 
 import Option, { type OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
@@ -23,7 +22,6 @@ export default function ThemeScreen() {
         scheme = "light";
       }
 
-      StatusBar.setStatusBarStyle(scheme === "dark" ? "light" : "dark");
       await SystemUI.setBackgroundColorAsync(colors[scheme].background);
     },
     [store, systemColorScheme]

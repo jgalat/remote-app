@@ -49,7 +49,7 @@ export const TorrentSelectionContext =
 export function TorrentSelectionProvider({
   children,
 }: React.PropsWithChildren) {
-  const [state, dispatch] = React.useReducer<typeof reducer>(
+  const [state, dispatch] = React.useReducer(
     reducer,
     initState
   );
