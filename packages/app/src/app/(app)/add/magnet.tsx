@@ -44,7 +44,7 @@ export default function AddTorrentMagnetScreen() {
 
     try {
       await addTorrent.mutateAsync({ filename: uri });
-      router.dismiss();
+      router.dismissTo("/");
     } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {

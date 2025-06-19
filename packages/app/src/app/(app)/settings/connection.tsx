@@ -47,7 +47,7 @@ export default function ConnectionScreen() {
       };
 
       store({ server });
-      router.dismiss();
+      router.dismissTo("/settings");
     } catch (e) {
       let message = "Something went wrong";
       if (e instanceof Error) {
@@ -59,7 +59,7 @@ export default function ConnectionScreen() {
 
   const remove = React.useCallback(async () => {
     store({ server: undefined });
-    router.dismiss();
+    router.dismissTo("/settings");
   }, [store]);
 
   return (
