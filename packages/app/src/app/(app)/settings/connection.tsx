@@ -6,6 +6,11 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import TransmissionClient, {
+  HTTPError,
+  TransmissionError,
+} from "@remote-app/transmission-client";
+import { useMutation } from "@tanstack/react-query";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -19,11 +24,6 @@ import type { Server } from "~/store/settings";
 import { isTestingServer } from "~/utils/mock-transmission-client";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
-import TransmissionClient, {
-  HTTPError,
-  TransmissionError,
-} from "@remote-app/transmission-client";
-import { useMutation } from "@tanstack/react-query";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -169,7 +169,7 @@ export default function ConnectionScreen() {
     defaultValues: defaultValues(server),
   });
 
-  const form = watch();
+  const useAuth = watch("useAuth");
   const scroll = React.useRef<ScrollView>(null);
 
   const navigation = useNavigation();
@@ -200,7 +200,7 @@ export default function ConnectionScreen() {
     [store]
   );
 
-  const { data, isPending, mutateAsync } = useMutation({
+  const { data, isPending, mutate } = useMutation({
     mutationFn: testConnection,
   });
 
@@ -212,10 +212,18 @@ export default function ConnectionScreen() {
         ? green
         : red;
 
-  const onTest = React.useCallback(async (f: Form) => {
-    await mutateAsync(f);
-    scroll.current?.scrollToEnd({ animated: true });
-  }, []);
+  const onTest = React.useCallback(
+    (f: Form) => {
+      mutate(f, {
+        onSettled: () => {
+          scroll.current?.scrollToEnd({ animated: true });
+        },
+      });
+    },
+    [mutate]
+  );
+
+  console.log("render");
 
   return (
     <Screen>
@@ -320,7 +328,7 @@ export default function ConnectionScreen() {
           {errors.useAuth?.message}
         </Text>
 
-        {form.useAuth && (
+        {useAuth && (
           <>
             <View style={styles.row}>
               <Text style={styles.label}>
@@ -377,7 +385,6 @@ export default function ConnectionScreen() {
           title="save"
           onPress={handleSubmit(onSubmit)}
           style={{ marginTop: 8 }}
-          disabled={status !== "Connected"}
         />
       </KeyboardAwareScrollView>
     </Screen>

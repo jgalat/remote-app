@@ -71,7 +71,7 @@ export default function SettingsScreen() {
   }, [colorScheme, session, error]);
 
   return (
-    <Screen>
+    <Screen style={{ paddingTop: 16 }}>
       <FlatList
         data={options}
         renderItem={({ item }) => <Option {...item} />}

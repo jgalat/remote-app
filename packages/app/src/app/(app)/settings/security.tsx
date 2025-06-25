@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 20,
-    marginBottom: 16,
+    marginBottom: 12,
     marginTop: 24,
   },
   row: {
