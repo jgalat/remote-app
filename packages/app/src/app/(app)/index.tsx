@@ -156,7 +156,7 @@ export default function TorrentsScreen() {
     .filter(predicate(filter));
 
   return (
-    <Screen>
+    <Screen style={{ paddingTop: 16 }}>
       <FlatList
         fadingEdgeLength={64}
         data={render}

@@ -3,24 +3,30 @@ import {
   View,
   TextInput as _TextInput,
   TextInputProps as _TextInputProps,
-  TextStyle,
+  ViewStyle,
   StyleSheet,
   StyleProp,
 } from "react-native";
+import { Control, Path, useController } from "react-hook-form";
 
 import { useTheme } from "../hooks/use-theme-color";
 
 export type TextInputProps = {
-  containerStyle?: StyleProp<TextStyle>;
+  name: Path<any>;
+  control: Control<any, any, any>;
+  containerStyle?: StyleProp<ViewStyle>;
 } & _TextInputProps;
 
 export default React.memo(function TextInput({
+  name,
+  control,
   style,
   editable = true,
   containerStyle,
   ...props
 }: TextInputProps) {
-  const { background, text, lightGray } = useTheme();
+  const { background, text, lightGray, gray } = useTheme();
+  const { field } = useController({ name, control });
 
   return (
     <View pointerEvents={editable ? undefined : "none"} style={containerStyle}>
@@ -35,6 +41,9 @@ export default React.memo(function TextInput({
           },
           style,
         ]}
+        value={field.value.toString()}
+        onChangeText={field.onChange}
+        placeholderTextColor={gray}
         {...props}
       />
     </View>
@@ -47,5 +56,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 8,
     height: 48,
+    borderRadius: 8,
   },
 });

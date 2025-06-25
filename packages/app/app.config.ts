@@ -41,6 +41,7 @@ export default {
       },
     ],
     edgeToEdgeEnabled: true,
+    softwareKeyboardLayoutMode: "pan",
   },
   plugins: [
     "expo-router",

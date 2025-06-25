@@ -13,17 +13,22 @@ export default React.memo(function Button({
   style,
   title,
   disabled,
+  onPress,
   ...props
 }: ButtonProps) {
-  const { text, gray, background } = useTheme();
-
+  const { text, lightGray, background, gray } = useTheme();
   return (
     <Pressable
-      style={[styles.button, { backgroundColor: text }, style]}
+      style={[
+        styles.button,
+        { backgroundColor: disabled ? gray : text },
+        style,
+      ]}
       disabled={disabled}
+      onPress={disabled ? undefined : onPress}
       {...props}
     >
-      <Text color={disabled ? gray : background} style={styles.buttonText}>
+      <Text color={disabled ? lightGray : background} style={styles.buttonText}>
         {title}
       </Text>
     </Pressable>
@@ -36,12 +41,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 0,
     padding: 8,
+    paddingHorizontal: 16,
     height: 48,
     marginBottom: 24,
+    borderRadius: 8,
   },
   buttonText: {
     fontFamily: "RobotoMono-Medium",
-    textTransform: "uppercase",
+    textTransform: "lowercase",
     fontSize: 16,
   },
 });

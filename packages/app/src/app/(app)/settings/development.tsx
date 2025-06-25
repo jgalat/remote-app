@@ -14,7 +14,7 @@ import {
 
 export default function Development() {
   return (
-    <Screen variant="scroll">
+    <Screen>
       <Text style={[styles.title, { marginTop: 0 }]}>Task</Text>
       <View style={styles.row}>
         <Button

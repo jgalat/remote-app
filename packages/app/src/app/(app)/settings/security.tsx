@@ -39,7 +39,7 @@ export default function SecurityScreen() {
   };
 
   return (
-    <Screen variant="scroll">
+    <Screen>
       <Text style={[styles.title, { marginTop: 0 }]}>Authentication</Text>
 
       <View style={styles.row}>

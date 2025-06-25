@@ -4,20 +4,17 @@ import {
   ViewProps,
   ScrollView as _ScrollView,
   ScrollViewProps,
-  KeyboardAvoidingView as _KeyboardAvoidingView,
-  KeyboardAvoidingViewProps,
   StyleSheet,
 } from "react-native";
 
 import useThemeColor from "../hooks/use-theme-color";
 
-type Variant = "view" | "scroll" | "keyboardavoiding";
+type Variant = "view" | "scroll";
 
 export type ScreenProps = {
   variant?: Variant;
 } & ViewProps &
-  ScrollViewProps &
-  KeyboardAvoidingViewProps;
+  ScrollViewProps;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function view(variant: Variant): any {
@@ -26,8 +23,6 @@ function view(variant: Variant): any {
       return _View;
     case "scroll":
       return _ScrollView;
-    case "keyboardavoiding":
-      return _KeyboardAvoidingView;
   }
 }
 
@@ -48,5 +43,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: 16,
+    paddingTop: 0,
   },
 });

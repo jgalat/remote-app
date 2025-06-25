@@ -8,7 +8,7 @@ import { useTheme } from "../hooks/use-theme-color";
 
 export type ToggleProps = {
   value: boolean;
-  label: string;
+  label?: string;
   onPress?: (checked: boolean) => void;
   iconStyle?: React.ComponentProps<typeof FontAwesome>["style"];
 } & Omit<PressableProps, "onPress">;
@@ -29,7 +29,7 @@ export default React.memo(function Toggle({
       style={[styles.toggle, style]}
       disabled={disabled}
     >
-      <Text style={{ color: disabled ? gray : text }}>{label}</Text>
+      {label && <Text style={{ color: disabled ? gray : text }}>{label}</Text>}
       <FontAwesome
         style={iconStyle}
         name={disabled ? "warning" : value ? "toggle-on" : "toggle-off"}

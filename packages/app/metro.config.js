@@ -1,4 +1,7 @@
 const { getDefaultConfig } = require("expo/metro-config");
+const {
+  wrapWithReanimatedMetroConfig,
+} = require("react-native-reanimated/metro-config");
 const path = require("path");
 
 const projectRoot = __dirname;
@@ -13,4 +16,4 @@ config.resolver.nodeModulesPaths = [
 ];
 config.resolver.disableHierarchicalLookup = true;
 
-module.exports = config;
+module.exports = wrapWithReanimatedMetroConfig(config);

@@ -34,10 +34,12 @@ const styles = StyleSheet.create({
   foreground: {
     height: 8,
     position: "absolute",
+    borderRadius: 2,
   },
   background: {
     height: 8,
     width: "100%",
     position: "absolute",
+    borderRadius: 2,
   },
 });

@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
-
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
@@ -74,11 +74,13 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <SettingsProvider>
-          <AuthProvider>
-            <Root />
-          </AuthProvider>
-        </SettingsProvider>
+        <KeyboardProvider>
+          <SettingsProvider>
+            <AuthProvider>
+              <Root />
+            </AuthProvider>
+          </SettingsProvider>
+        </KeyboardProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
