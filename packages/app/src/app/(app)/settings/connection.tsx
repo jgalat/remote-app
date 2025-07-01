@@ -185,7 +185,7 @@ export default function ConnectionScreen() {
         <ActionIcon onPress={remove} name="trash-2" color={red} />
       ),
     });
-  }, [server, remove, navigation]);
+  }, [server, remove, navigation, red]);
 
   const onSubmit = React.useCallback(
     (f: Form) => {
@@ -222,8 +222,6 @@ export default function ConnectionScreen() {
     },
     [mutate]
   );
-
-  console.log("render");
 
   return (
     <Screen>

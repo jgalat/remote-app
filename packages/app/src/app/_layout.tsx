@@ -68,7 +68,24 @@ function Root() {
   );
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: (failureCount, error) => {
+        if (error instanceof Error && error.message.includes('401')) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      refetchOnWindowFocus: false, // Disable for mobile
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      retry: false, // Don't retry mutations by default
+    },
+  },
+});
 
 export default function RootLayout() {
   return (

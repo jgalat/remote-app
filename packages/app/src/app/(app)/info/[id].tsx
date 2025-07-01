@@ -36,7 +36,7 @@ export default function TorrentDetailsScreen() {
           </ActionList>
         ),
     });
-  }, [id, text, torrents, error, torrentActionsSheet, navigation]);
+  }, [torrents, error, torrentActionsSheet, navigation]);
 
   const data = React.useMemo<
     {

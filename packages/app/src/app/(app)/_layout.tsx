@@ -31,7 +31,7 @@ export default function AppLayout() {
       return;
     }
 
-    return router.push(href);
+    router.push(href);
   }, [url, server]);
 
   return (

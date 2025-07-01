@@ -21,6 +21,7 @@ import useTorrentSelection from "./use-torrent-selection";
 import MockTransmissionClient, {
   isTestingServer,
 } from "~/utils/mock-transmission-client";
+import { queryKeys, queryMatchers } from "./query-keys";
 
 function useTransmission(): TransmissionClient | null {
   const server = useServer();
@@ -98,8 +99,9 @@ type QueryProps = { stale?: boolean };
 
 export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
   const client = useTransmission();
+  const server = useServer();
   return useQuery<Torrent[] | undefined, HookError>({
-    queryKey: ["torrent-get", client],
+    queryKey: queryKeys.torrentGet(server),
     queryFn: async () => {
       const response = await client?.request({
         method: "torrent-get",
@@ -111,7 +113,6 @@ export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
     enabled: Boolean(client) && !stale,
     refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
     staleTime: 5000,
-    retry: 3,
   });
 }
 
@@ -129,8 +130,9 @@ export function useTorrent(id: number) {
 
 export function useSession({ stale = false }: QueryProps = { stale: false }) {
   const client = useTransmission();
+  const server = useServer();
   return useQuery<SessionGetResponse | undefined, HookError>({
-    queryKey: ["session-get", client],
+    queryKey: queryKeys.sessionGet(server),
     queryFn: async () => {
       const response = await client?.request({
         method: "session-get",
@@ -140,13 +142,13 @@ export function useSession({ stale = false }: QueryProps = { stale: false }) {
     },
     enabled: Boolean(client) && !stale,
     staleTime: 5000,
-    retry: 3,
   });
 }
 
 export function useSessionSet() {
   const queryClient = useQueryClient();
   const client = useTransmission();
+  const server = useServer();
 
   return useMutation<
     void,
@@ -161,13 +163,13 @@ export function useSessionSet() {
       });
     },
     onMutate: async (params: SessionSetRequest) => {
-      await queryClient.cancelQueries({ queryKey: ["session-get"] });
+      await queryClient.cancelQueries(queryMatchers.session(server));
       const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
-        ["session-get", client]
+        queryKeys.sessionGet(server)
       );
 
       queryClient.setQueryData(
-        ["session-get", client],
+        queryKeys.sessionGet(server),
         (
           old: SessionGetResponse | undefined
         ): SessionGetResponse | undefined => {
@@ -181,19 +183,20 @@ export function useSessionSet() {
       return { previous };
     },
     onError: (_err, _params, context) => {
-      queryClient.setQueryData(["session-get", client], context?.previous);
+      queryClient.setQueryData(queryKeys.sessionGet(server), context?.previous);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["session-get"] });
+      queryClient.invalidateQueries(queryMatchers.session(server));
     },
   });
 }
 
 export function useFreeSpace() {
   const client = useTransmission();
+  const server = useServer();
   const { data: session } = useSession({ stale: true });
   return useQuery<FreeSpaceResponse | undefined, HookError>({
-    queryKey: ["free-space", client, session?.["download-dir"]],
+    queryKey: queryKeys.freeSpace(server, session?.["download-dir"]),
     queryFn: async () => {
       if (!session?.["download-dir"]) {
         return;
@@ -210,7 +213,6 @@ export function useFreeSpace() {
     },
     enabled: Boolean(client && session?.["download-dir"]),
     staleTime: 5000,
-    retry: 3,
   });
 }
 
@@ -218,8 +220,9 @@ export function useSessionStats(
   { stale = false }: QueryProps = { stale: false }
 ) {
   const client = useTransmission();
+  const server = useServer();
   return useQuery<SessionStatsResponse | undefined, HookError>({
-    queryKey: ["session-stats", client],
+    queryKey: queryKeys.sessionStats(server),
     queryFn: async () => {
       const response = await client?.request({
         method: "session-stats",
@@ -229,14 +232,14 @@ export function useSessionStats(
     },
     enabled: Boolean(client) && !stale,
     refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
-    staleTime: 5000,
-    retry: 3,
+    staleTime: 5000, // Override global for real-time data
   });
 }
 
 export function useAddTorrent() {
   const queryClient = useQueryClient();
   const client = useTransmission();
+  const server = useServer();
 
   return useMutation<
     TorrentAddResponse | undefined,
@@ -254,10 +257,10 @@ export function useAddTorrent() {
       return response?.arguments;
     },
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["torrent-get"] });
+      await queryClient.cancelQueries(queryMatchers.torrents(server));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["torrent-get"] });
+      queryClient.invalidateQueries(queryMatchers.torrents(server));
     },
   });
 }
@@ -279,6 +282,7 @@ export function useTorrentAction<
 >(action: T) {
   const queryClient = useQueryClient();
   const client = useTransmission();
+  const server = useServer();
   const { clear } = useTorrentSelection();
 
   return useMutation({
@@ -291,12 +295,11 @@ export function useTorrentAction<
       });
     },
     onMutate: async (params: TorrentActionMutationParams<T>) => {
-      await queryClient.cancelQueries({ queryKey: ["torrent-get"] });
+      await queryClient.cancelQueries(queryMatchers.torrents(server));
 
-      const previous = queryClient.getQueryData<Torrent[] | undefined>([
-        "torrent-get",
-        client,
-      ]);
+      const previous = queryClient.getQueryData<Torrent[] | undefined>(
+        queryKeys.torrentGet(server)
+      );
 
       const ids = (
         Array.isArray(params.ids)
@@ -307,7 +310,7 @@ export function useTorrentAction<
       ).map(Number);
 
       queryClient.setQueryData(
-        ["torrent-get", client],
+        queryKeys.torrentGet(server),
         (old: Torrent[] | undefined): Torrent[] | undefined => {
           if (!old) {
             return;
@@ -330,14 +333,15 @@ export function useTorrentAction<
       return { previous };
     },
     onError: (_error, _params, context) => {
-      queryClient.setQueryData(["torrent-get", client], context?.previous);
+      queryClient.setQueryData(queryKeys.torrentGet(server), context?.previous);
       ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
     },
     onSettled: () => {
       clear();
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["torrent-get"] });
-      }, 500);
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        500
+      );
     },
   });
 }
