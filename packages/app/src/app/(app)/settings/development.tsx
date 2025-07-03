@@ -2,6 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as BackgroundTask from "expo-background-task";
+import * as TaskManager from "expo-task-manager";
 
 import View from "~/components/view";
 import Text from "~/components/text";
@@ -22,6 +23,7 @@ export default function Development() {
           onPress={async () => {
             await unregisterTorrentsNotifierTask();
             await registerTorrentsNotifierTask();
+            console.log(await TaskManager.getRegisteredTasksAsync());
           }}
         />
         <Button
