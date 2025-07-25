@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
 
 import Text from "~/components/text";
@@ -31,6 +31,7 @@ import predicate from "~/utils/filter";
 
 export default function TorrentsScreen() {
   const navigation = useNavigation();
+  const router = useRouter();
   const server = useServer();
   const { sort, direction, filter } = useListing();
   const { data: torrents, refetch, error, isLoading } = useTorrents();
@@ -101,6 +102,7 @@ export default function TorrentsScreen() {
       },
     });
   }, [
+    router,
     activeSelection,
     addTorrentSheet,
     clear,

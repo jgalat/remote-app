@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet, FlatList } from "react-native";
 import * as Application from "expo-application";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 
 import Text from "~/components/text";
 import Option, { OptionProps } from "~/components/option";
@@ -12,6 +12,7 @@ import { useSession } from "~/hooks/use-transmission";
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const { data: session, error } = useSession({ stale: true });
+  const router = useRouter();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
     const connection: OptionProps[] = [
@@ -68,7 +69,7 @@ export default function SettingsScreen() {
       ...appOptions,
       ...(__DEV__ ? devOptions : []),
     ];
-  }, [colorScheme, session, error]);
+  }, [colorScheme, session, error, router]);
 
   return (
     <Screen style={{ paddingTop: 16 }}>

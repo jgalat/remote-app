@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -17,6 +17,7 @@ type State = {
 };
 
 export default function AddTorrentFileScreen() {
+  const router = useRouter();
   const { red } = useTheme();
   const addTorrent = useAddTorrent();
   const freeSpace = useFreeSpace();
@@ -45,7 +46,7 @@ export default function AddTorrentFileScreen() {
 
     setState({ error: undefined });
     router.setParams({ uri: file.uri, filename: file.name });
-  }, []);
+  }, [router]);
 
   const onAdd = React.useCallback(async () => {
     if (!uri) {
@@ -66,7 +67,7 @@ export default function AddTorrentFileScreen() {
       }
       setState({ error: message });
     }
-  }, [uri, addTorrent]);
+  }, [router, uri, addTorrent]);
 
   return (
     <View style={styles.container}>

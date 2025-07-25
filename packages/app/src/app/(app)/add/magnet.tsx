@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { router, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { magnetDecode } from "@ctrl/magnet-link";
 
 import Text from "~/components/text";
@@ -17,6 +17,7 @@ type State = {
 };
 
 export default function AddTorrentMagnetScreen() {
+  const router = useRouter()
   const { red } = useTheme();
   const addTorrent = useAddTorrent();
   const freeSpace = useFreeSpace();
@@ -35,7 +36,7 @@ export default function AddTorrentMagnetScreen() {
     } else {
       setState({ error: "Invalid Magnet URL" });
     }
-  }, []);
+  }, [router]);
 
   const onAdd = React.useCallback(async () => {
     if (!uri) {
@@ -52,7 +53,7 @@ export default function AddTorrentMagnetScreen() {
       }
       setState({ error: message });
     }
-  }, [addTorrent, uri]);
+  }, [router, addTorrent, uri]);
 
   const magnet = React.useMemo(() => {
     const { dn, xt, tr, xl } = uri

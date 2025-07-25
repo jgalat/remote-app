@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -150,6 +150,7 @@ function Required() {
 }
 
 export default function ConnectionScreen() {
+  const router = useRouter();
   const {
     settings: { server },
     store,
@@ -176,7 +177,7 @@ export default function ConnectionScreen() {
   const remove = React.useCallback(async () => {
     store({ server: undefined });
     router.dismissTo("/settings");
-  }, [store]);
+  }, [router, store]);
 
   React.useEffect(() => {
     if (!server) return;
@@ -197,7 +198,7 @@ export default function ConnectionScreen() {
       });
       router.dismissAll();
     },
-    [store]
+    [router, store]
   );
 
   const { data, isPending, mutate } = useMutation({
@@ -209,8 +210,8 @@ export default function ConnectionScreen() {
     status === "Not connected" || status === "Connecting..."
       ? gray
       : status === "Connected"
-        ? green
-        : red;
+      ? green
+      : red;
 
   const onTest = React.useCallback(
     (f: Form) => {

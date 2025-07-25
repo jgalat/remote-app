@@ -37,7 +37,7 @@ export default function AppLayout() {
   return (
     <TorrentSelectionProvider>
       <SheetProvider>
-        <Stack initialRouteName="index" screenOptions={{ ...opts }}>
+        <Stack initialRouteName="index" screenOptions={opts}>
           <Stack.Screen name="index" />
           <Stack.Screen
             name="info/[id]"
