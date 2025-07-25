@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  NativeSyntheticEvent,
-  StyleSheet,
-  TextInputEndEditingEventData,
-  ToastAndroid,
-} from "react-native";
-import { SessionGetResponse } from "@remote-app/transmission-client";
+import { StyleSheet, ToastAndroid } from "react-native";
 import { z } from "zod";
 
 import Toggle from "~/components/toggle";

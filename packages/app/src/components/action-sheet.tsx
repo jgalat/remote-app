@@ -9,6 +9,7 @@ import Text from "./text";
 import View from "./view";
 import { useTheme } from "../hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export { SheetProps } from "react-native-actions-sheet";
 
@@ -23,6 +24,7 @@ export default function ActionSheet({
   sheetId,
 }: ActionSheetProps) {
   const { background, text } = useTheme();
+  const insets = useSafeAreaInsets()
 
   return (
     <_ActionSheet
@@ -42,7 +44,7 @@ export default function ActionSheet({
       closeAnimationConfig={{ speed: 50, bounciness: 0 }}
       gestureEnabled
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
         {title ? <Text style={styles.title}>{title}</Text> : null}
         <FlatList
           data={options}
@@ -66,7 +68,6 @@ export default function ActionSheet({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 32,
-    paddingBottom: 16,
   },
   title: {
     fontSize: 24,

@@ -6,6 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+  SafeAreaView,
+} from "react-native-safe-area-context";
 
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
@@ -44,7 +49,7 @@ function Root() {
   }, [loaded]);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }} edges={["right", "bottom", "left"]}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack
         screenOptions={{
@@ -64,7 +69,7 @@ function Root() {
           <Stack.Screen name="sign-in" />
         </Stack.Protected>
       </Stack>
-    </>
+    </SafeAreaView>
   );
 }
 
@@ -73,7 +78,7 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000,
       retry: (failureCount, error) => {
-        if (error instanceof Error && error.message.includes('401')) {
+        if (error instanceof Error && error.message.includes("401")) {
           return false;
         }
         return failureCount < 3;
@@ -94,7 +99,9 @@ export default function RootLayout() {
         <KeyboardProvider>
           <SettingsProvider>
             <AuthProvider>
-              <Root />
+              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <Root />
+              </SafeAreaProvider>
             </AuthProvider>
           </SettingsProvider>
         </KeyboardProvider>
