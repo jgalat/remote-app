@@ -7,12 +7,7 @@ export default function SettingsLayout() {
   const opts = useScreenOptions();
 
   return (
-    <Stack
-      screenOptions={{
-        ...opts,
-        animation: "slide_from_right",
-      }}
-    >
+    <Stack screenOptions={opts}>
       <Stack.Screen name="index" options={{ title: "Settings" }} />
       <Stack.Screen name="connection" options={{ title: "Connection" }} />
       <Stack.Screen

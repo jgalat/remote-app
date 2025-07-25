@@ -11,7 +11,7 @@ export default function AppLayout() {
   const server = useServer();
   const opts = useScreenOptions();
 
-  const url = Linking.useURL();
+  const url = Linking.useLinkingURL();
 
   React.useEffect(() => {
     if (!server || url === null) {
@@ -37,30 +37,24 @@ export default function AppLayout() {
   return (
     <TorrentSelectionProvider>
       <SheetProvider>
-        <Stack
-          initialRouteName="index"
-          screenOptions={{ ...opts, animation: "slide_from_bottom" }}
-        >
+        <Stack initialRouteName="index" screenOptions={{ ...opts }}>
           <Stack.Screen name="index" />
           <Stack.Screen
             name="info/[id]"
             options={{
               title: "Details",
-              presentation: "modal",
             }}
           />
           <Stack.Screen
             name="add/file"
             options={{
               title: "Import torrent file",
-              presentation: "modal",
             }}
           />
           <Stack.Screen
             name="add/magnet"
             options={{
               title: "Import magnet URL",
-              presentation: "modal",
             }}
           />
           <Stack.Screen name="settings" options={{ headerShown: false }} />

@@ -11,6 +11,11 @@ import {
   SafeAreaProvider,
   SafeAreaView,
 } from "react-native-safe-area-context";
+import {
+  ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from "@react-navigation/native";
 
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
@@ -49,27 +54,32 @@ function Root() {
   }, [loaded]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["right", "bottom", "left"]}>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "slide_from_bottom",
-        }}
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: "transparent" }}
+        edges={["right", "bottom", "left"]}
       >
-        <Stack.Protected guard={!locked}>
-          <Stack.Screen
-            name="(app)"
-            options={{
-              animationTypeForReplace: "pop",
-            }}
-          />
-        </Stack.Protected>
-        <Stack.Protected guard={locked}>
-          <Stack.Screen name="sign-in" />
-        </Stack.Protected>
-      </Stack>
-    </SafeAreaView>
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_bottom",
+          }}
+        >
+          <Stack.Protected guard={!locked}>
+            <Stack.Screen
+              name="(app)"
+              options={{
+                animationTypeForReplace: "pop",
+              }}
+            />
+          </Stack.Protected>
+          <Stack.Protected guard={locked}>
+            <Stack.Screen name="sign-in" />
+          </Stack.Protected>
+        </Stack>
+      </SafeAreaView>
+    </ThemeProvider>
   );
 }
 
@@ -83,11 +93,11 @@ const queryClient = new QueryClient({
         }
         return failureCount < 3;
       },
-      refetchOnWindowFocus: false, // Disable for mobile
+      refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     },
     mutations: {
-      retry: false, // Don't retry mutations by default
+      retry: false,
     },
   },
 });
@@ -96,15 +106,15 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardProvider>
-          <SettingsProvider>
-            <AuthProvider>
-              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+          <KeyboardProvider>
+            <SettingsProvider>
+              <AuthProvider>
                 <Root />
-              </SafeAreaProvider>
-            </AuthProvider>
-          </SettingsProvider>
-        </KeyboardProvider>
+              </AuthProvider>
+            </SettingsProvider>
+          </KeyboardProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
