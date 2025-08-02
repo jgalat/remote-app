@@ -49,10 +49,7 @@ export const TorrentSelectionContext =
 export function TorrentSelectionProvider({
   children,
 }: React.PropsWithChildren) {
-  const [state, dispatch] = React.useReducer(
-    reducer,
-    initState
-  );
+  const [state, dispatch] = React.useReducer(reducer, initState);
 
   const toggle = React.useCallback(
     (id: Torrent["id"]) => dispatch({ type: "toggle", payload: id }),

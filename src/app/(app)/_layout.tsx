@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as Linking from "expo-linking";
+import * as DevClient from "expo-dev-client";
 import { Stack, useRouter, type Href } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 
@@ -38,8 +39,8 @@ export default function AppLayout() {
   return (
     <TorrentSelectionProvider>
       <SheetProvider>
-        <Stack initialRouteName="index" screenOptions={opts}>
-          <Stack.Screen name="index" />
+        <Stack screenOptions={opts}>
+          <Stack.Screen name="index" options={{ title: "Remote" }} />
           <Stack.Screen
             name="info/[id]"
             options={{
@@ -52,7 +53,27 @@ export default function AppLayout() {
               title: "Add torrent",
             }}
           />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
+          <Stack.Screen name="settings/index" options={{ title: "Settings" }} />
+          <Stack.Screen
+            name="settings/connection"
+            options={{ title: "Connection" }}
+          />
+          <Stack.Screen
+            name="settings/configuration"
+            options={{ title: "Server Configuration" }}
+          />
+          <Stack.Screen
+            name="settings/security"
+            options={{ title: "Security" }}
+          />
+          <Stack.Screen name="settings/theme" options={{ title: "Theme" }} />
+          <Stack.Screen name="settings/about" options={{ title: "About" }} />
+          {DevClient.isDevelopmentBuild() && (
+            <Stack.Screen
+              name="settings/development"
+              options={{ title: "Development" }}
+            />
+          )}
         </Stack>
       </SheetProvider>
     </TorrentSelectionProvider>

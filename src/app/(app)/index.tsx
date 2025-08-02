@@ -49,7 +49,7 @@ export default function TorrentsScreen() {
   } = useTorrentSelection();
 
   React.useEffect(() => {
-    const title = !server || server.name === "" ? "remote" : server.name;
+    const title = !server || server.name === "" ? "Remote" : server.name;
     navigation.setOptions({
       title: activeSelection ? "" : title,
       headerLeft: () =>

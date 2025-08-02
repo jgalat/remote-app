@@ -18,6 +18,7 @@ import { useColorScheme } from "~/hooks/use-settings";
 import { SettingsProvider } from "~/contexts/settings";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
+import { BackHandler } from "react-native";
 
 import "~/tasks";
 import "~/sheets";

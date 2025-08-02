@@ -87,6 +87,7 @@ export default {
     ],
     "expo-asset",
     "expo-background-task",
+    "./plugins/disable-predictive-back.ts",
   ],
   experiments: {
     typedRoutes: true,
