@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Linking from "expo-linking";
-import { Stack, router, type Href } from "expo-router";
+import { Stack, useRouter, type Href } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
@@ -8,6 +8,7 @@ import useScreenOptions from "~/hooks/use-screen-options";
 import { useServer } from "~/hooks/use-settings";
 
 export default function AppLayout() {
+  const router = useRouter();
   const server = useServer();
   const opts = useScreenOptions();
 
@@ -20,10 +21,10 @@ export default function AppLayout() {
 
     let href: Href | null = null;
 
-    const params = { uri: url } as const;
+    const params = { magnet: url } as const;
     switch (true) {
       case url.startsWith("magnet:"):
-        href = { pathname: "/add/magnet", params };
+        href = { pathname: "/add", params };
         break;
     }
 
@@ -32,7 +33,7 @@ export default function AppLayout() {
     }
 
     router.push(href);
-  }, [url, server]);
+  }, [router, url, server]);
 
   return (
     <TorrentSelectionProvider>
@@ -46,15 +47,9 @@ export default function AppLayout() {
             }}
           />
           <Stack.Screen
-            name="add/file"
+            name="add"
             options={{
-              title: "Import torrent file",
-            }}
-          />
-          <Stack.Screen
-            name="add/magnet"
-            options={{
-              title: "Import magnet URL",
+              title: "Add torrent",
             }}
           />
           <Stack.Screen name="settings" options={{ headerShown: false }} />

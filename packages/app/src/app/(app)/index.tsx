@@ -20,7 +20,6 @@ import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentActions, useTorrents } from "~/hooks/use-transmission";
 import { useServer, useListing } from "~/hooks/use-settings";
 import {
-  useAddTorrentSheet,
   useFilterSheet,
   useSortBySheet,
   useTorrentActionsSheet,
@@ -38,7 +37,6 @@ export default function TorrentsScreen() {
   const [refreshing, setRefreshing] = React.useState(false);
   const { lightGray } = useTheme();
   const { start, stop } = useTorrentActions();
-  const addTorrentSheet = useAddTorrentSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
   const sortBySheet = useSortBySheet();
   const filterSheet = useFilterSheet();
@@ -84,7 +82,11 @@ export default function TorrentsScreen() {
 
         const actions = torrents
           ? [
-              <ActionIcon key="add" onPress={addTorrentSheet} name="plus" />,
+              <ActionIcon
+                key="add"
+                onPress={() => router.push("/add")}
+                name="plus"
+              />,
               <ActionIcon key="sort" onPress={sortBySheet} name="align-left" />,
               <ActionIcon key="filter" onPress={filterSheet} name="filter" />,
             ]
@@ -104,7 +106,6 @@ export default function TorrentsScreen() {
   }, [
     router,
     activeSelection,
-    addTorrentSheet,
     clear,
     filterSheet,
     navigation,

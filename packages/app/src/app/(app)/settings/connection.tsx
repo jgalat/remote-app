@@ -159,12 +159,7 @@ export default function ConnectionScreen() {
 
   const inset = useSafeAreaInsets();
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
     defaultValues: defaultValues(server),
@@ -201,7 +196,11 @@ export default function ConnectionScreen() {
     [router, store]
   );
 
-  const { data, isPending, mutate } = useMutation({
+  const {
+    data,
+    isPending,
+    mutate: test,
+  } = useMutation({
     mutationFn: testConnection,
   });
 
@@ -215,13 +214,13 @@ export default function ConnectionScreen() {
 
   const onTest = React.useCallback(
     (f: Form) => {
-      mutate(f, {
+      test(f, {
         onSettled: () => {
           scroll.current?.scrollToEnd({ animated: true });
         },
       });
     },
-    [mutate]
+    [test]
   );
 
   return (
@@ -237,95 +236,142 @@ export default function ConnectionScreen() {
           <Text style={styles.label}>
             Name <Required />
           </Text>
-          <TextInput
+          <Controller
             name="name"
             control={control}
-            placeholder="remote server"
-            style={[styles.input, errors.name ? { borderColor: red } : {}]}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  placeholder="remote server"
+                  style={[
+                    styles.input,
+                    fieldState.error ? { borderColor: red } : {},
+                  ]}
+                  onChangeText={field.onChange}
+                  value={field.value?.toString() || ""}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors.name?.message}
-          </Text>
         </View>
 
         <View style={styles.row}>
           <Text style={styles.label}>
             HOST / IP ADDRESS <Required />
           </Text>
-          <TextInput
+          <Controller
             name="host"
             control={control}
-            placeholder="192.168.1.100"
-            style={[styles.input, errors.host ? { borderColor: red } : {}]}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  placeholder="192.168.1.100"
+                  style={[
+                    styles.input,
+                    fieldState.error ? { borderColor: red } : {},
+                  ]}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors.host?.message}
-          </Text>
         </View>
 
         <View style={styles.row}>
           <Text style={styles.label}>PORT</Text>
-          <TextInput
+          <Controller
             name="port"
             control={control}
-            placeholder="9091"
-            style={[styles.input, errors.port ? { borderColor: red } : {}]}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  placeholder="9091"
+                  keyboardType="numeric"
+                  style={[
+                    styles.input,
+                    fieldState.error ? { borderColor: red } : {},
+                  ]}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors.port?.message}
-          </Text>
         </View>
 
         <View style={styles.row}>
           <Text style={styles.label}>PATH</Text>
-          <TextInput
+          <Controller
             name="path"
             control={control}
-            placeholder="/transmission/rpc"
-            style={[styles.input, errors.path ? { borderColor: red } : {}]}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  placeholder="/transmission/rpc"
+                  style={[
+                    styles.input,
+                    fieldState.error ? { borderColor: red } : {},
+                  ]}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors.path?.message}
-          </Text>
         </View>
 
-        <View style={[styles.row, styles.toggle]}>
-          <View>
-            <Text style={[styles.label, { marginBottom: 4 }]}>
-              Use SSL/HTTPS
-            </Text>
-            <Text style={{ color: gray }}>Enable secure connection</Text>
-          </View>
+        <View style={[styles.row]}>
           <Controller
             name="useSSL"
             control={control}
-            render={({ field }) => (
-              <Toggle value={field.value} onPress={field.onChange} />
+            render={({ field, fieldState }) => (
+              <>
+                <Toggle
+                  label="USE SSL/HTTPS"
+                  description="Enable secure connection"
+                  value={field.value}
+                  onPress={field.onChange}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
             )}
           />
         </View>
-        <Text style={[styles.error, { color: red }]}>
-          {errors.useSSL?.message}
-        </Text>
 
-        <View style={[styles.row, styles.toggle]}>
-          <View>
-            <Text style={[styles.label, { marginBottom: 4 }]}>
-              AUTHENTICATION
-            </Text>
-            <Text style={{ color: gray }}>Username and password required</Text>
-          </View>
+        <View style={[styles.row]}>
           <Controller
             name="useAuth"
             control={control}
-            render={({ field }) => (
-              <Toggle value={field.value} onPress={field.onChange} />
+            render={({ field, fieldState }) => (
+              <>
+                <Toggle
+                  label="AUTHENTICATION"
+                  description="Username and password required"
+                  value={field.value}
+                  onPress={field.onChange}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
             )}
           />
         </View>
-        <Text style={[styles.error, { color: red }]}>
-          {errors.useAuth?.message}
-        </Text>
 
         {useAuth && (
           <>
@@ -333,37 +379,51 @@ export default function ConnectionScreen() {
               <Text style={styles.label}>
                 USERNAME <Required />
               </Text>
-              <TextInput
+              <Controller
                 name="username"
                 control={control}
-                placeholder=""
-                style={[
-                  styles.input,
-                  errors.username ? { borderColor: red } : {},
-                ]}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        fieldState.error ? { borderColor: red } : {},
+                      ]}
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
               />
-              <Text style={[styles.error, { color: red }]}>
-                {errors.username?.message}
-              </Text>
             </View>
 
             <View style={styles.row}>
               <Text style={styles.label}>
                 PASSWORD <Required />
               </Text>
-              <TextInput
+              <Controller
                 name="password"
                 control={control}
-                placeholder=""
-                secureTextEntry={true}
-                style={[
-                  styles.input,
-                  errors.password ? { borderColor: red } : {},
-                ]}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        fieldState.error ? { borderColor: red } : {},
+                      ]}
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      secureTextEntry
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
               />
-              <Text style={[styles.error, { color: red }]}>
-                {errors.password?.message}
-              </Text>
             </View>
           </>
         )}
@@ -383,7 +443,7 @@ export default function ConnectionScreen() {
         <Button
           title="save"
           onPress={handleSubmit(onSubmit)}
-          style={{ marginTop: 8 }}
+          style={{ marginTop: 8, marginBottom: 16 }}
         />
       </KeyboardAwareScrollView>
     </Screen>
@@ -393,11 +453,6 @@ export default function ConnectionScreen() {
 const styles = StyleSheet.create({
   row: {
     marginBottom: 12,
-  },
-  toggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
   },
   label: {
     fontSize: 16,

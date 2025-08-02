@@ -70,12 +70,7 @@ export default function ServerConfigurationScreen() {
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     mode: "onBlur",
     resolver: zodResolver(Form),
     defaultValues: session,
@@ -135,17 +130,25 @@ export default function ServerConfigurationScreen() {
               )}
             />
           </View>
-          <TextInput
+          <Controller
             name="speed-limit-down"
             control={control}
-            editable={watch("speed-limit-down-enabled")}
-            keyboardType="numeric"
-            style={errors["speed-limit-down"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("speed-limit-down-enabled")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["speed-limit-down"]?.message}
-          </Text>
         </View>
 
         <View style={styles.row}>
@@ -165,17 +168,25 @@ export default function ServerConfigurationScreen() {
               )}
             />
           </View>
-          <TextInput
+          <Controller
             name="speed-limit-up"
             control={control}
-            editable={watch("speed-limit-up-enabled")}
-            keyboardType="numeric"
-            style={errors["speed-limit-up"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("speed-limit-up-enabled")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["speed-limit-up"]?.message}
-          </Text>
         </View>
 
         <Text style={styles.title}>Alternative speed limits</Text>
@@ -199,30 +210,46 @@ export default function ServerConfigurationScreen() {
 
         <View style={styles.row}>
           <Text style={styles.label}>Download (kB/s)</Text>
-          <TextInput
+          <Controller
             name="alt-speed-down"
             control={control}
-            keyboardType="numeric"
-            style={errors["alt-speed-down"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["alt-speed-down"]?.message}
-          </Text>
         </View>
 
         <View style={styles.row}>
           <Text style={styles.label}>Upload (kB/s)</Text>
-          <TextInput
+          <Controller
             name="alt-speed-up"
             control={control}
-            keyboardType="numeric"
-            style={errors["alt-speed-up"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["alt-speed-up"]?.message}
-          </Text>
         </View>
 
         <Text style={styles.title}>Queue</Text>
@@ -239,23 +266,32 @@ export default function ServerConfigurationScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="DOWNLOAD QUEUE"
+                  label="DOWNLOAD QUEUE SIZE"
                 />
               )}
             />
           </View>
-          <TextInput
+          <Controller
             name="download-queue-size"
             control={control}
-            editable={watch("download-queue-enabled")}
-            keyboardType="numeric"
-            style={errors["download-queue-size"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("download-queue-enabled")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["download-queue-size"]?.message}
-          </Text>
         </View>
+
         <View style={[styles.row]}>
           <View style={styles.label}>
             <Controller
@@ -268,22 +304,30 @@ export default function ServerConfigurationScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="SEED QUEUE"
+                  label="SEED QUEUE SIZE"
                 />
               )}
             />
           </View>
-          <TextInput
+          <Controller
             name="seed-queue-size"
             control={control}
-            editable={watch("seed-queue-enabled")}
-            keyboardType="numeric"
-            style={errors["seed-queue-size"] ? { borderColor: red } : {}}
-            onEndEditing={onSubmit}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("seed-queue-enabled")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
           />
-          <Text style={[styles.error, { color: red }]}>
-            {errors["seed-queue-size"]?.message}
-          </Text>
         </View>
       </KeyboardAwareScrollView>
     </Screen>

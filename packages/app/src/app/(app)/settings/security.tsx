@@ -40,13 +40,12 @@ export default function SecurityScreen() {
 
   return (
     <Screen>
-      <Text style={[styles.title, { marginTop: 0 }]}>Authentication</Text>
-
       <View style={styles.row}>
         <Toggle
           value={authentication}
           onPress={onUpdate}
-          label="Enable local authentication"
+          label="AUTHENTICATION"
+          description="Enable local authentication"
           disabled={!available}
         />
       </View>
@@ -55,12 +54,6 @@ export default function SecurityScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
-    marginBottom: 12,
-    marginTop: 24,
-  },
   row: {
     marginBottom: 24,
   },

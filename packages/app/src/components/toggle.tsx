@@ -3,12 +3,14 @@ import { StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 import Text from "./text";
+import View from "./view";
 import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type ToggleProps = {
   value: boolean;
   label?: string;
+  description?: string;
   onPress?: (checked: boolean) => void;
   iconStyle?: React.ComponentProps<typeof FontAwesome>["style"];
 } & Omit<PressableProps, "onPress">;
@@ -16,6 +18,7 @@ export type ToggleProps = {
 export default React.memo(function Toggle({
   value = false,
   label,
+  description,
   onPress,
   style,
   iconStyle,
@@ -29,7 +32,21 @@ export default React.memo(function Toggle({
       style={[styles.toggle, style]}
       disabled={disabled}
     >
-      {label && <Text style={{ color: disabled ? gray : text }}>{label}</Text>}
+      <View>
+        {label && (
+          <Text
+            style={[
+              label && description ? styles.composed : styles.label,
+              { color: disabled ? gray : text },
+            ]}
+          >
+            {label}
+          </Text>
+        )}
+        {description && (
+          <Text style={[styles.label, { color: gray }]}>{description}</Text>
+        )}
+      </View>
       <FontAwesome
         style={iconStyle}
         name={disabled ? "warning" : value ? "toggle-on" : "toggle-off"}
@@ -45,5 +62,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  label: {
+    fontSize: 14,
+  },
+  composed: {
+    fontSize: 16,
+    marginBottom: 4,
+    textTransform: "uppercase",
   },
 });
