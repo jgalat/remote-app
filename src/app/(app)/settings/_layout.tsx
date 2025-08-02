@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as DevClient from "expo-dev-client";
 import { Stack } from "expo-router";
 
 import useScreenOptions from "~/hooks/use-screen-options";
@@ -17,7 +18,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="security" options={{ title: "Security" }} />
       <Stack.Screen name="theme" options={{ title: "Theme" }} />
       <Stack.Screen name="about" options={{ title: "About" }} />
-      {__DEV__ && (
+      {DevClient.isDevelopmentBuild() && (
         <Stack.Screen name="development" options={{ title: "Development" }} />
       )}
     </Stack>

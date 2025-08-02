@@ -3,19 +3,15 @@ import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import {
-  initialWindowMetrics,
-  SafeAreaProvider,
-  SafeAreaView,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ThemeProvider,
   DarkTheme,
   DefaultTheme,
 } from "@react-navigation/native";
+import "react-native-reanimated";
 
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
@@ -105,17 +101,13 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          <KeyboardProvider>
-            <SettingsProvider>
-              <AuthProvider>
-                <Root />
-              </AuthProvider>
-            </SettingsProvider>
-          </KeyboardProvider>
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
+      <KeyboardProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <Root />
+          </AuthProvider>
+        </SettingsProvider>
+      </KeyboardProvider>
     </QueryClientProvider>
   );
 }

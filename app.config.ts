@@ -86,7 +86,6 @@ export default {
       },
     ],
     "expo-asset",
-    "expo-font",
     "expo-background-task",
   ],
   experiments: {
