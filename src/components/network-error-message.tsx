@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   buttons: {
+    gap: 16,
     marginTop: 20,
   },
 });
