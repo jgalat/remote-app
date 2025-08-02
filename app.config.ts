@@ -1,3 +1,4 @@
+import "tsx/cjs";
 import { ExpoConfig } from "expo/config";
 
 import packageJson from "./package.json";
