@@ -147,7 +147,7 @@ export default function TorrentsScreen() {
       <Screen>
         <View style={styles.message}>
           <Text style={styles.title}>No torrents found</Text>
-          <Button title="Add a torrent" onPress={addTorrentSheet} />
+          <Button title="Add a torrent" onPress={() => router.push("/add")} />
         </View>
         <Stats />
       </Screen>
