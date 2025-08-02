@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   row: {
+    gap: 16,
     marginBottom: 16,
   },
 });
