@@ -1,6 +1,5 @@
 import { registerSheet, SheetDefinition } from "react-native-actions-sheet";
 
-import AddTorrentSheet from "./add-torrent";
 import TorrentActionsSheet, {
   type Payload as TorrentActionsPayload,
 } from "./torrent-actions";
@@ -12,7 +11,6 @@ import FilterSheet from "./filter";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
-    [AddTorrentSheet.sheetId]: SheetDefinition;
     [TorrentActionsSheet.sheetId]: SheetDefinition<{
       payload: TorrentActionsPayload;
     }>;
@@ -24,7 +22,6 @@ declare module "react-native-actions-sheet" {
   }
 }
 
-registerSheet(AddTorrentSheet.sheetId, AddTorrentSheet);
 registerSheet(TorrentActionsSheet.sheetId, TorrentActionsSheet);
 registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
 registerSheet(SortBySheet.sheetId, SortBySheet);

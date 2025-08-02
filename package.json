@@ -20,7 +20,6 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@ctrl/magnet-link": "4.0.2",
     "@expo/vector-icons": "^14.1.0",
     "@hookform/resolvers": "^5.1.1",
     "@remote-app/transmission-client": "*",
