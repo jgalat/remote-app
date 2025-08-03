@@ -77,7 +77,7 @@ function values(
 
 export default function AddTorrentScreen() {
   const router = useRouter();
-  const { red } = useTheme();
+  const { red, text } = useTheme();
   const { data: session } = useSession();
   const inset = useSafeAreaInsets();
 
@@ -226,7 +226,8 @@ export default function AddTorrentScreen() {
                       ? field.value.slice(0, 24) + "..."
                       : field.value || "or select a .torrent file"
                   }
-                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  style={fieldState.error ? { borderColor: red } : {}}
+                  titleStyle={field.value ? { color: text } : {}}
                   onPress={onPickDocument}
                 />
                 <Text style={[styles.error, { color: red }]}>

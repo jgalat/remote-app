@@ -1,13 +1,14 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TextStyle } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Text from "./text";
 import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
-export type ButtonProps = {
+export type FileInputProps = {
   title: string;
+  titleStyle?: TextStyle;
 } & PressableProps;
 
 export default React.memo(function FileInput({
@@ -15,8 +16,9 @@ export default React.memo(function FileInput({
   title,
   disabled,
   onPress,
+  titleStyle,
   ...props
-}: ButtonProps) {
+}: FileInputProps) {
   const { text, lightGray, background, gray } = useTheme();
   return (
     <Pressable
@@ -34,7 +36,7 @@ export default React.memo(function FileInput({
       {...props}
     >
       <Feather color={gray} size={16} name="share" />
-      <Text color={gray} style={styles.buttonText}>
+      <Text color={gray} style={[styles.buttonText, titleStyle]}>
         {title}
       </Text>
     </Pressable>

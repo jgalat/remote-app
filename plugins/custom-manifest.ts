@@ -5,7 +5,7 @@ const plugin: ConfigPlugin = (config) => {
     const app = config.modResults.manifest.application?.[0];
     if (!app) return config;
 
-    app.$["android:launchMode"] = "singleInstance";
+    app.$["android:launchMode"] = "singleTask";
     app.$["android:enableOnBackInvokedCallback"] = "false";
 
     const activity = app.activity?.[0];

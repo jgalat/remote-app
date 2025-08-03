@@ -30,7 +30,7 @@ export default React.memo(function Button({
             ? text
             : background,
         },
-        variant === "primary" ? {} : { borderWidth: 2 },
+        variant === "primary" ? {} : { borderWidth: 2, borderColor: text },
         style,
       ]}
       disabled={disabled}
