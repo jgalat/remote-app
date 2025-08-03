@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Haptics from "expo-haptics";
 import { FlatList, StyleSheet } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
@@ -97,6 +96,7 @@ export default function TorrentsScreen() {
           <ActionList>
             {actions}
             <ActionIcon
+              style={{ paddingRight: 0 }}
               onPress={() => router.push("/settings")}
               name="settings"
             />
