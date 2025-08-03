@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Haptics from "expo-haptics";
 import { FlatList, StyleSheet } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";

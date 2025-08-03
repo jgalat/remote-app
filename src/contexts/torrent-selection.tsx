@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Haptics from "expo-haptics";
 import { BackHandler } from "react-native";
 import type { Torrent } from "@remote-app/transmission-client";
 
@@ -51,10 +52,10 @@ export function TorrentSelectionProvider({
 }: React.PropsWithChildren) {
   const [state, dispatch] = React.useReducer(reducer, initState);
 
-  const toggle = React.useCallback(
-    (id: Torrent["id"]) => dispatch({ type: "toggle", payload: id }),
-    []
-  );
+  const toggle = React.useCallback(async (id: Torrent["id"]) => {
+    await Haptics.selectionAsync();
+    dispatch({ type: "toggle", payload: id });
+  }, []);
 
   const clear = React.useCallback(() => dispatch({ type: "clear" }), []);
 
