@@ -73,7 +73,7 @@ export default function ServerConfigurationScreen() {
   const { control, handleSubmit, watch } = useForm({
     mode: "onBlur",
     resolver: zodResolver(Form),
-    defaultValues: session,
+    values: session,
   });
 
   const onSubmit = handleSubmit(

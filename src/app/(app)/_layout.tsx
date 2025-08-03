@@ -6,6 +6,10 @@ import { SheetProvider } from "react-native-actions-sheet";
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
 import useScreenOptions from "~/hooks/use-screen-options";
 
+export const unstable_settings = {
+  initialRouteName: "index",
+};
+
 export default function AppLayout() {
   const opts = useScreenOptions();
 

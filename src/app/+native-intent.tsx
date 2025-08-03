@@ -9,18 +9,18 @@ export async function redirectSystemPath({
 }) {
   const { server, authentication } = loadSettings();
 
-  let redirect = "/";
-
   if (!server) {
-    return redirect;
+    return path;
   }
+
+  let redirect = "/";
 
   switch (true) {
     case path.startsWith("magnet:"):
       redirect = "/add?magnet=" + encodeURIComponent(path);
       break;
-    case path.startsWith("file:"):
-      redirect = "/add?magnet=" + encodeURIComponent(path);
+    case path.startsWith("file:") || path.startsWith("content:"):
+      redirect = "/add?file=" + encodeURIComponent(path);
       break;
   }
 

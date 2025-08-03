@@ -35,7 +35,7 @@ const Form = z
       ),
 
     file: z.string().optional(),
-    uri: z.string().optional(),
+    content: z.string().optional(),
 
     path: z
       .string()
@@ -65,11 +65,11 @@ function values(
   session?: SessionGetResponse,
   magnet?: string
 ): Form | undefined {
-  if (!session || !magnet) {
+  if (!session) {
     return undefined;
   }
   return {
-    magnet: magnet,
+    magnet: magnet || "",
     path: session["download-dir"],
     start: true,
   };
@@ -81,8 +81,9 @@ export default function AddTorrentScreen() {
   const { data: session } = useSession();
   const inset = useSafeAreaInsets();
 
-  const { magnet } = useLocalSearchParams<{
+  const { magnet, file } = useLocalSearchParams<{
     magnet?: string;
+    file?: string;
   }>();
 
   const { control, handleSubmit, setValue, reset } = useForm({
@@ -90,6 +91,25 @@ export default function AddTorrentScreen() {
     resolver: zodResolver(Form),
     values: values(session, magnet),
   });
+
+  React.useEffect(() => {
+    async function read() {
+      if (!file) return;
+      const dst = FileSystem.cacheDirectory + "shared.torrent";
+      await FileSystem.copyAsync({
+        from: file,
+        to: dst,
+      });
+      const content = await FileSystem.readAsStringAsync(dst, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      setValue("file", "file.torrent");
+      setValue("content", content);
+    }
+
+    read();
+  }, [file, setValue]);
 
   const addTorrent = useAddTorrent();
 
@@ -105,16 +125,21 @@ export default function AddTorrentScreen() {
     }
 
     const [file] = result.assets;
+
+    const content = await FileSystem.readAsStringAsync(file.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
     reset();
     setValue("file", file.name);
-    setValue("uri", file.uri);
+    setValue("content", content);
     setValue("magnet", "");
   }, [setValue, reset]);
 
   const onSubmit = React.useCallback(
     async (f: Form) => {
       try {
-        if (!f.magnet && !f.file && !f.uri) {
+        if (!f.magnet && !f.file && !f.content) {
           return;
         }
 
@@ -127,11 +152,8 @@ export default function AddTorrentScreen() {
 
         if (f.magnet) {
           params = { filename: f.magnet.trim(), ...options };
-        } else if (f.file && f.uri) {
-          const content = await FileSystem.readAsStringAsync(f.uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-          params = { metainfo: content, ...options };
+        } else if (f.file && f.content) {
+          params = { metainfo: f.content, ...options };
         }
 
         if (params === null) {
@@ -145,7 +167,6 @@ export default function AddTorrentScreen() {
         if (e instanceof Error) {
           message = e.message;
         }
-
         ToastAndroid.show(
           `Failed to add torrent: ${message}`,
           ToastAndroid.SHORT
@@ -179,7 +200,8 @@ export default function AddTorrentScreen() {
                   ]}
                   value={field.value?.toString() || ""}
                   onChangeText={(v) => {
-                    reset({ file: undefined, uri: undefined });
+                    setValue("file", undefined);
+                    setValue("content", undefined);
                     field.onChange(v);
                   }}
                 />

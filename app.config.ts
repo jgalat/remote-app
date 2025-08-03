@@ -34,13 +34,6 @@ export default {
         ? "ar.jg.remote.dev"
         : "ar.jg.remote",
     versionCode: +packageJson.version.replaceAll(".", ""),
-    intentFilters: [
-      {
-        action: "VIEW",
-        data: [{ scheme: "magnet" }],
-        category: ["BROWSABLE", "DEFAULT"],
-      },
-    ],
     edgeToEdgeEnabled: true,
     softwareKeyboardLayoutMode: "pan",
   },
@@ -88,7 +81,7 @@ export default {
     ],
     "expo-asset",
     "expo-background-task",
-    "./plugins/disable-predictive-back.ts",
+    "./plugins/custom-manifest.ts",
   ],
   experiments: {
     typedRoutes: true,
