@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as BackgroundTask from "expo-background-task";
 import * as TaskManager from "expo-task-manager";
+import { useRouter } from "expo-router";
 
 import View from "~/components/view";
 import Text from "~/components/text";
@@ -14,9 +15,19 @@ import {
 } from "~/tasks/torrents-notifier";
 
 export default function Development() {
+  const router = useRouter();
   return (
     <Screen>
-      <Text style={[styles.title, { marginTop: 0 }]}>Task</Text>
+      <Text style={[styles.title]}>Navigation</Text>
+      <View style={styles.row}>
+        <Button
+          title="Go to _sitemap"
+          onPress={async () => {
+            router.push("/_sitemap");
+          }}
+        />
+      </View>
+      <Text style={[styles.title]}>Task</Text>
       <View style={styles.row}>
         <Button
           title="Unregister/Register background task"
@@ -33,7 +44,7 @@ export default function Development() {
           }}
         />
       </View>
-      <Text style={[styles.title, { marginTop: 0 }]}>Notifications</Text>
+      <Text style={[styles.title]}>Notifications</Text>
       <View style={styles.row}>
         <Button
           title="Trigger test notification"
@@ -58,6 +69,7 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMono-Medium",
     fontSize: 20,
     marginBottom: 16,
+    marginTop: 0,
   },
   row: {
     gap: 16,

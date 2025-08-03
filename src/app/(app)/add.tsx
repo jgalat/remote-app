@@ -61,16 +61,15 @@ const Form = z
     }
   });
 
-function defaultValues(session?: SessionGetResponse, magnet?: string): Form {
-  if (!session) {
-    return {
-      magnet: "",
-      path: "/downloads/complete",
-      start: true,
-    };
+function values(
+  session?: SessionGetResponse,
+  magnet?: string
+): Form | undefined {
+  if (!session || !magnet) {
+    return undefined;
   }
   return {
-    magnet: magnet || "",
+    magnet: magnet,
     path: session["download-dir"],
     start: true,
   };
@@ -89,7 +88,7 @@ export default function AddTorrentScreen() {
   const { control, handleSubmit, setValue, reset } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
-    defaultValues: defaultValues(session, magnet),
+    values: values(session, magnet),
   });
 
   const addTorrent = useAddTorrent();
