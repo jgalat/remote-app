@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Haptics from "expo-haptics";
 import { FlatList, StyleSheet } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
@@ -44,6 +45,7 @@ export default function TorrentsScreen() {
   const {
     active: activeSelection,
     selection,
+    select,
     toggle,
     clear,
   } = useTorrentSelection();
@@ -51,19 +53,28 @@ export default function TorrentsScreen() {
   React.useEffect(() => {
     const title = !server || server.name === "" ? "Remote" : server.name;
     navigation.setOptions({
-      title: activeSelection ? "" : title,
+      title: activeSelection ? selection.size.toString() : title,
       headerLeft: () =>
         activeSelection ? (
           <ActionIcon
             name="arrow-left"
             onPress={() => clear()}
-            style={{ paddingLeft: 0 }}
+            style={{ paddingLeft: 0, paddingRight: 32 }}
           />
         ) : null,
       headerRight: () => {
         if (activeSelection && torrents) {
           return (
             <ActionList>
+              <ActionIcon
+                onPress={() => {
+                  if (selection.size === 0) {
+                    return;
+                  }
+                  select(...torrents.map((t) => t.id));
+                }}
+                name="list"
+              />
               <ActionIcon
                 onPress={() => {
                   if (selection.size === 0) {
@@ -110,6 +121,7 @@ export default function TorrentsScreen() {
     clear,
     filterSheet,
     navigation,
+    select,
     selection,
     server,
     sortBySheet,
@@ -171,7 +183,12 @@ export default function TorrentsScreen() {
                 ? toggle(torrent.id)
                 : torrentActionsSheet({ torrents: [torrent] })
             }
-            onLongPress={() => toggle(torrent.id)}
+            onLongPress={async () => {
+              await Haptics.performAndroidHapticsAsync(
+                Haptics.AndroidHaptics.Long_Press
+              );
+              toggle(torrent.id);
+            }}
             torrent={torrent}
             left={
               activeSelection ? (

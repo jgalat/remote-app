@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Haptics from "expo-haptics";
 import { BackHandler } from "react-native";
 import type { Torrent } from "@remote-app/transmission-client";
 
@@ -7,6 +6,10 @@ type Action =
   | {
       type: "toggle";
       payload: Torrent["id"];
+    }
+  | {
+      type: "select";
+      payload: Torrent["id"][];
     }
   | {
       type: "clear";
@@ -23,24 +26,31 @@ const initState: State = {
 };
 
 function reducer(state: State, action: Action) {
+  const s = new Set(state.selection);
   switch (action.type) {
     case "toggle": {
-      const s = new Set(state.selection);
       if (s.has(action.payload)) {
         s.delete(action.payload);
       } else {
         s.add(action.payload);
       }
-
-      return { active: s.size > 0, selection: s };
+      break;
+    }
+    case "select": {
+      for (const id of action.payload) {
+        s.add(id);
+      }
+      break;
     }
     case "clear":
       return initState;
   }
+  return { active: s.size > 0, selection: s };
 }
 
 type TorrentSelection = {
   toggle: (id: Torrent["id"]) => void;
+  select: (...ids: Torrent["id"][]) => void;
   clear: () => void;
 } & State;
 
@@ -52,10 +62,16 @@ export function TorrentSelectionProvider({
 }: React.PropsWithChildren) {
   const [state, dispatch] = React.useReducer(reducer, initState);
 
-  const toggle = React.useCallback(async (id: Torrent["id"]) => {
-    await Haptics.selectionAsync();
-    dispatch({ type: "toggle", payload: id });
-  }, []);
+  const toggle = React.useCallback(
+    async (id: Torrent["id"]) => dispatch({ type: "toggle", payload: id }),
+    []
+  );
+
+  const select = React.useCallback(
+    async (...ids: Torrent["id"][]) =>
+      dispatch({ type: "select", payload: ids }),
+    []
+  );
 
   const clear = React.useCallback(() => dispatch({ type: "clear" }), []);
 
@@ -73,7 +89,7 @@ export function TorrentSelectionProvider({
     return () => handler.remove();
   }, [state.active, clear]);
 
-  const value: TorrentSelection = { ...state, toggle, clear };
+  const value: TorrentSelection = { ...state, toggle, select, clear };
 
   return (
     <TorrentSelectionContext.Provider value={value}>
