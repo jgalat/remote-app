@@ -8,7 +8,6 @@ import TorrentItem from "~/components/torrent-item";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import { useTorrent } from "~/hooks/use-transmission";
-import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
 import KeyValue, { KeyValueProps } from "~/components/key-value";
 import { formatSize, formatStatus } from "~/utils/formatters";
@@ -21,7 +20,6 @@ export default function TorrentDetailsScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
-  const { text } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
 
   React.useEffect(() => {

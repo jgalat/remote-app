@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 
 import Toggle from "~/components/toggle";
-import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
 import useSettings from "~/hooks/use-settings";

@@ -9,11 +9,11 @@ const direction = (d: Direction, compare: Compare): Compare => {
 };
 
 const id: Compare = (t1: Torrent, t2: Torrent) => {
-  return t2.id - t1.id;
+  return t1.id - t2.id;
 };
 
 const queue: Compare = (t1: Torrent, t2: Torrent) => {
-  return t2.queuePosition - t1.queuePosition;
+  return t1.queuePosition - t2.queuePosition;
 };
 
 const activity: Compare = (t1: Torrent, t2: Torrent) => {
@@ -25,15 +25,17 @@ const age: Compare = (t1: Torrent, t2: Torrent) => {
 };
 
 const name: Compare = (t1: Torrent, t2: Torrent) => {
-  return t2.name.toLowerCase().localeCompare(t1.name.toLowerCase()) || id(t1, t2);
+  return (
+    t1.name.toLowerCase().localeCompare(t2.name.toLowerCase()) || id(t1, t2)
+  );
 };
 
 const progress: Compare = (t1: Torrent, t2: Torrent) => {
-  return t2.percentDone - t1.percentDone || ratio(t1, t2);
+  return t1.percentDone - t2.percentDone || ratio(t1, t2);
 };
 
 const size: Compare = (t1: Torrent, t2: Torrent) => {
-  return t2.totalSize - t1.totalSize || name(t1, t2);
+  return t1.totalSize - t2.totalSize || name(t1, t2);
 };
 
 const status: Compare = (t1: Torrent, t2: Torrent) => {
@@ -41,17 +43,21 @@ const status: Compare = (t1: Torrent, t2: Torrent) => {
 };
 
 const time: Compare = (t1: Torrent, t2: Torrent) => {
-  if (!(t1.leftUntilDone <= 0 && t1.sizeWhenDone > 0)) {
-    return 1;
-  }
-  if (!(t2.leftUntilDone <= 0 && t2.sizeWhenDone > 0)) {
+  const t1Complete = t1.leftUntilDone <= 0 && t1.sizeWhenDone > 0;
+  const t2Complete = t2.leftUntilDone <= 0 && t2.sizeWhenDone > 0;
+
+  if (!t1Complete && t2Complete) {
     return -1;
   }
-  if (t1.eta < 0) {
-    return -1;
-  }
-  if (t2.eta < 0) {
+  if (t1Complete && !t2Complete) {
     return 1;
+  }
+
+  if (t1.eta < 0 && t2.eta >= 0) {
+    return 1;
+  }
+  if (t2.eta < 0 && t1.eta >= 0) {
+    return -1;
   }
 
   return t1.eta - t2.eta;

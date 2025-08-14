@@ -7,7 +7,6 @@ import {
   StyleSheet,
   StyleProp,
 } from "react-native";
-import { Control, Path, useController } from "react-hook-form";
 import { Feather } from "@expo/vector-icons";
 
 import { useTheme } from "~/hooks/use-theme-color";

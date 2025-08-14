@@ -27,7 +27,7 @@ function SortBySheet(props: SheetProps<typeof sheetId>) {
         return store({
           listing: {
             ...settings.listing,
-            direction: "desc",
+            direction: "asc",
             sort: s,
           },
         });
