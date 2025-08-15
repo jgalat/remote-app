@@ -3,6 +3,7 @@ import type {
   SessionGetResponse,
   SessionSetRequest,
   SessionStatsResponse,
+  SessionCloseRequest,
   FreeSpaceRequest,
   FreeSpaceResponse,
   TorrentStartRequest,
@@ -17,12 +18,26 @@ import type {
   TorrentAddResponse,
   TorrentRemoveRequest,
   TorrentSetLocationRequest,
+  TorrentRenamePathRequest,
+  TorrentRenamePathResponse,
+  QueueMoveTopRequest,
+  QueueMoveUpRequest,
+  QueueMoveDownRequest,
+  QueueMoveBottomRequest,
+  BlocklistUpdateRequest,
+  BlocklistUpdateResponse,
+  PortTestRequest,
+  PortTestResponse,
+  GroupGetRequest,
+  GroupGetResponse,
+  GroupSetRequest,
 } from "./rpc-calls";
 
 type SessionMethods =
   | "session-get"
   | "session-set"
   | "session-stats"
+  | "session-close"
   | "free-space";
 
 type TorrentMethods =
@@ -35,9 +50,22 @@ type TorrentMethods =
   | "torrent-get"
   | "torrent-add"
   | "torrent-remove"
-  | "torrent-set-location";
+  | "torrent-set-location"
+  | "torrent-rename-path";
 
-export type Methods = SessionMethods | TorrentMethods;
+type QueueMethods =
+  | "queue-move-top"
+  | "queue-move-up"
+  | "queue-move-down"
+  | "queue-move-bottom";
+
+type OtherMethods =
+  | "blocklist-update"
+  | "port-test"
+  | "group-get"
+  | "group-set";
+
+export type Methods = SessionMethods | TorrentMethods | QueueMethods | OtherMethods;
 
 export type RPCRequest<M, T> = {
   method: M;
@@ -59,6 +87,7 @@ export type MethodRequest = {
   "session-get": SessionGetRequest;
   "session-set": SessionSetRequest;
   "session-stats": never;
+  "session-close": SessionCloseRequest;
   "free-space": FreeSpaceRequest;
   "torrent-start": TorrentStartRequest;
   "torrent-start-now": TorrentStartNowRequest;
@@ -70,12 +99,22 @@ export type MethodRequest = {
   "torrent-get": TorrentGetRequest;
   "torrent-add": TorrentAddRequest;
   "torrent-set": TorrentSetRequest;
+  "torrent-rename-path": TorrentRenamePathRequest;
+  "queue-move-top": QueueMoveTopRequest;
+  "queue-move-up": QueueMoveUpRequest;
+  "queue-move-down": QueueMoveDownRequest;
+  "queue-move-bottom": QueueMoveBottomRequest;
+  "blocklist-update": BlocklistUpdateRequest;
+  "port-test": PortTestRequest;
+  "group-get": GroupGetRequest;
+  "group-set": GroupSetRequest;
 };
 
 export type MethodResponse = {
   "session-get": SessionGetResponse;
   "session-set": void;
   "session-stats": SessionStatsResponse;
+  "session-close": void;
   "free-space": FreeSpaceResponse;
   "torrent-start": void;
   "torrent-start-now": void;
@@ -87,6 +126,15 @@ export type MethodResponse = {
   "torrent-get": TorrentGetResponse;
   "torrent-add": TorrentAddResponse;
   "torrent-set": void;
+  "torrent-rename-path": TorrentRenamePathResponse;
+  "queue-move-top": void;
+  "queue-move-up": void;
+  "queue-move-down": void;
+  "queue-move-bottom": void;
+  "blocklist-update": BlocklistUpdateResponse;
+  "port-test": PortTestResponse;
+  "group-get": GroupGetResponse;
+  "group-set": void;
 };
 
 export type Calls = {

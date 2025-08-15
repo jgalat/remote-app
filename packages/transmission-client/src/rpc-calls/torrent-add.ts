@@ -3,6 +3,7 @@ import type { Response as TorrentGetResponse } from "./torrent-get";
 type optionals = {
   cookies?: string;
   "download-dir"?: string;
+  labels?: string[];
   paused?: boolean;
   "peer-limit"?: number;
   bandwidthPriority?: number;
@@ -11,6 +12,7 @@ type optionals = {
   "priority-high"?: number[];
   "priority-low"?: number[];
   "priority-normal"?: number[];
+  "sequential-download"?: boolean;
 };
 
 export type Request = ({ filename: string } | { metainfo: string }) & optionals;

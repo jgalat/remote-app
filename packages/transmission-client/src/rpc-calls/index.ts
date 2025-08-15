@@ -4,6 +4,7 @@ export type {
 } from "./session-get";
 export type { Request as SessionSetRequest } from "./session-set";
 export type { Response as SessionStatsResponse } from "./session-stats";
+export type { Request as SessionCloseRequest } from "./session-close";
 export type {
   Request as FreeSpaceRequest,
   Response as FreeSpaceResponse,
@@ -24,3 +25,25 @@ export type {
 } from "./torrent-add";
 export type { Request as TorrentRemoveRequest } from "./torrent-remove";
 export type { Request as TorrentSetLocationRequest } from "./torrent-set-location";
+export type {
+  Request as TorrentRenamePathRequest,
+  Response as TorrentRenamePathResponse,
+} from "./torrent-rename-path";
+export type { Request as QueueMoveTopRequest } from "./queue-move-top";
+export type { Request as QueueMoveUpRequest } from "./queue-move-up";
+export type { Request as QueueMoveDownRequest } from "./queue-move-down";
+export type { Request as QueueMoveBottomRequest } from "./queue-move-bottom";
+export type {
+  Request as BlocklistUpdateRequest,
+  Response as BlocklistUpdateResponse,
+} from "./blocklist-update";
+export type {
+  Request as PortTestRequest,
+  Response as PortTestResponse,
+} from "./port-test";
+export type {
+  Request as GroupGetRequest,
+  Response as GroupGetResponse,
+  BandwidthGroup,
+} from "./group-get";
+export type { Request as GroupSetRequest } from "./group-set";

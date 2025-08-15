@@ -4,6 +4,8 @@ type File = {
   bytesCompleted: number;
   length: number;
   name: string;
+  beginPiece?: number;
+  endPiece?: number;
 };
 
 type FileStats = {
@@ -12,9 +14,6 @@ type FileStats = {
   priority: number;
 };
 
-type Label = {
-  label: string;
-};
 
 type Peer = {
   address: string;
@@ -49,6 +48,7 @@ type Tracker = {
   announce: string;
   id: number;
   scrape: string;
+  sitename?: string;
   tier: number;
 };
 
@@ -78,12 +78,10 @@ type TrackerStats = {
   scrape: string;
   scrapeState: number;
   seederCount: number;
+  sitename?: string;
   tier: number;
 };
 
-type WebSeed = {
-  webseed: string;
-};
 
 export enum TorrentStatus {
   STOPPED,
@@ -96,82 +94,92 @@ export enum TorrentStatus {
 }
 
 export type Torrent = {
-  activityDate: number;
-  addedDate: number;
-  bandwidthPriority: number;
-  comment: string;
-  corruptEver: number;
-  creator: string;
-  dateCreated: number;
-  desiredAvailable: number;
-  doneDate: number;
-  downloadDir: string;
-  downloadedEver: number;
-  downloadLimit: number;
-  downloadLimited: boolean;
-  editDate: number;
-  error: number;
-  errorString: string;
-  eta: number;
-  etaIdle: number;
-  "file-count": number;
-  files: File[];
-  fileStats: FileStats[];
-  hashString: string;
-  haveUnchecked: number;
-  haveValid: number;
-  honorsSessionLimits: boolean;
-  id: number;
-  isFinished: boolean;
-  isPrivate: boolean;
-  isStalled: boolean;
-  labels: Label[];
-  leftUntilDone: number;
-  magnetLink: string;
-  manualAnnounceTime: number;
-  maxConnectedPeers: number;
-  metadataPercentComplete: number;
-  name: string;
-  peerLimit: number;
-  peers: Peer[];
-  peersConnected: number;
-  peersFrom: PeersFrom;
-  peersGettingFromUs: number;
-  peersSendingToUs: number;
-  percentDone: number;
-  pieces: string;
-  pieceCount: number;
-  pieceSize: number;
-  priorities: any[];
-  "primary-mime-type": string;
-  queuePosition: number;
-  rateDownload: number;
-  rateUpload: number;
-  recheckProgress: number;
-  secondsDownloading: number;
-  secondsSeeding: number;
-  seedIdleLimit: number;
-  seedIdleMode: number;
-  seedRatioLimit: number;
-  seedRatioMode: number;
-  sizeWhenDone: number;
-  startDate: number;
-  status: TorrentStatus;
-  trackers: Tracker[];
-  trackerStats: TrackerStats[];
-  totalSize: number;
-  torrentFile: string;
-  uploadedEver: number;
-  uploadLimit: number;
-  uploadLimited: boolean;
-  uploadRatio: number;
-  wanted: boolean[];
-  webseeds: WebSeed[];
-  webseedsSendingToUs: number;
+  activityDate?: number;
+  addedDate?: number;
+  availability?: number[];
+  bandwidthPriority?: number;
+  comment?: string;
+  corruptEver?: number;
+  creator?: string;
+  dateCreated?: number;
+  desiredAvailable?: number;
+  doneDate?: number;
+  downloadDir?: string;
+  downloadedEver?: number;
+  downloadLimit?: number;
+  downloadLimited?: boolean;
+  editDate?: number;
+  error?: number;
+  errorString?: string;
+  eta?: number;
+  etaIdle?: number;
+  "file-count"?: number;
+  files?: File[];
+  fileStats?: FileStats[];
+  group?: string;
+  hashString?: string;
+  haveUnchecked?: number;
+  haveValid?: number;
+  honorsSessionLimits?: boolean;
+  id?: number;
+  isFinished?: boolean;
+  isPrivate?: boolean;
+  isStalled?: boolean;
+  labels?: string[];
+  leftUntilDone?: number;
+  magnetLink?: string;
+  manualAnnounceTime?: number;
+  maxConnectedPeers?: number;
+  metadataPercentComplete?: number;
+  name?: string;
+  "peer-limit"?: number;
+  peers?: Peer[];
+  peersConnected?: number;
+  peersFrom?: PeersFrom;
+  peersGettingFromUs?: number;
+  peersSendingToUs?: number;
+  percentComplete?: number;
+  percentDone?: number;
+  pieces?: string;
+  pieceCount?: number;
+  pieceSize?: number;
+  priorities?: number[];
+  "primary-mime-type"?: string;
+  queuePosition?: number;
+  rateDownload?: number;
+  rateUpload?: number;
+  recheckProgress?: number;
+  secondsDownloading?: number;
+  secondsSeeding?: number;
+  seedIdleLimit?: number;
+  seedIdleMode?: number;
+  seedRatioLimit?: number;
+  seedRatioMode?: number;
+  sequentialDownload?: boolean;
+  sizeWhenDone?: number;
+  startDate?: number;
+  status?: TorrentStatus;
+  trackers?: Tracker[];
+  trackerList?: string;
+  trackerStats?: TrackerStats[];
+  totalSize?: number;
+  torrentFile?: string;
+  uploadedEver?: number;
+  uploadLimit?: number;
+  uploadLimited?: boolean;
+  uploadRatio?: number;
+  wanted?: number[];
+  webseeds?: string[];
+  webseedsSendingToUs?: number;
 };
+
+export type TorrentFormat = "objects" | "table";
 
 export type Response = {
   torrents: Torrent[];
+  removed?: number[];
 };
 
-export type Request = Identifiers & Fields<keyof Torrent>;
+export type Request = Identifiers & Fields<keyof Torrent> & {
+  format?: TorrentFormat;
+};

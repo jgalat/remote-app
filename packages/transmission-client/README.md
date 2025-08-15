@@ -30,7 +30,7 @@ $ npm install @remote-app/transmission-client
 - Move torrent
   - [x] torrent-set-location
 - Renaming torrent
-  - [ ] torrent-rename-path
+  - [x] torrent-rename-path
 
 ### Session methods
 - Session accessor
@@ -40,15 +40,20 @@ $ npm install @remote-app/transmission-client
 - Session statistics
   - [x] session-stats
 - Session shutdown
-  - [ ] session-close
+  - [x] session-close
+- Queue movement
+  - [x] queue-move-top
+  - [x] queue-move-up
+  - [x] queue-move-down
+  - [x] queue-move-bottom
 
 ### Blocklist
 - Mutator
-  - [ ] blocklist-update
+  - [x] blocklist-update
 
 ### Port
 - Check
-  - [ ] port-test
+  - [x] port-test
 
 ### Space
 - Check
@@ -56,6 +61,6 @@ $ npm install @remote-app/transmission-client
 
 ### Groups
 - Group accessor
-  - [ ] group-get
+  - [x] group-get
 - Group mutator
-  - [ ] group-set
+  - [x] group-set

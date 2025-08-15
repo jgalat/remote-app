@@ -3,6 +3,7 @@ export type {
   SessionGetResponse,
   SessionSetRequest,
   SessionStatsResponse,
+  SessionCloseRequest,
   FreeSpaceRequest,
   FreeSpaceResponse,
   TorrentStartRequest,
@@ -17,6 +18,20 @@ export type {
   TorrentAddResponse,
   TorrentRemoveRequest,
   TorrentSetLocationRequest,
+  TorrentRenamePathRequest,
+  TorrentRenamePathResponse,
+  QueueMoveTopRequest,
+  QueueMoveUpRequest,
+  QueueMoveDownRequest,
+  QueueMoveBottomRequest,
+  BlocklistUpdateRequest,
+  BlocklistUpdateResponse,
+  PortTestRequest,
+  PortTestResponse,
+  GroupGetRequest,
+  GroupGetResponse,
+  BandwidthGroup,
+  GroupSetRequest,
 } from "./rpc-calls";
 
 export { TorrentStatus } from "./rpc-calls/torrent-get";
