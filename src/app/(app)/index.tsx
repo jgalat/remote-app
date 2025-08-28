@@ -211,7 +211,7 @@ export default function TorrentsScreen() {
             }
           />
         )}
-        keyExtractor={({ id }) => id.toString()}
+        keyExtractor={({ id }) => id!.toString()}
         ItemSeparatorComponent={() => (
           <View style={[styles.separator, { backgroundColor: lightGray }]} />
         )}
