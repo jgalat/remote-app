@@ -45,7 +45,7 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundTask.Bac
     }
 
     const { lastUpdate } = loadState();
-    const done = torrents.filter((t) => t.doneDate > lastUpdate);
+    const done = torrents.filter((t) => t.doneDate! > lastUpdate);
 
     const now = Math.floor(Date.now() / 1000);
     storeState({ lastUpdate: now });

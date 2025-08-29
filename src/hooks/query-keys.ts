@@ -1,44 +1,47 @@
 import type { Server } from "~/store/settings";
 
 export const queryKeys = {
-  torrents: (server: Server | undefined) => 
+  torrents: (server: Server | undefined) =>
     ["torrents", server?.url, server?.username] as const,
-  
-  session: (server: Server | undefined) => 
+
+  session: (server: Server | undefined) =>
     ["session", server?.url, server?.username] as const,
-  
-  sessionStats: (server: Server | undefined) => 
+
+  sessionStats: (server: Server | undefined) =>
     ["session-stats", server?.url, server?.username] as const,
-  
-  freeSpace: (server: Server | undefined, downloadDir?: string) => 
+
+  freeSpace: (server: Server | undefined, downloadDir?: string) =>
     ["free-space", server?.url, server?.username, downloadDir] as const,
 
-  torrentGet: (server: Server | undefined) => 
-    [...queryKeys.torrents(server), "get"] as const,
-  
-  sessionGet: (server: Server | undefined) => 
+  torrentGet: (server: Server | undefined, id?: number | undefined) =>
+    [
+      ...queryKeys.torrents(server),
+      "get",
+      ...(typeof id === "number" ? [id] : []),
+    ] as const,
+
+  sessionGet: (server: Server | undefined) =>
     [...queryKeys.session(server), "get"] as const,
 
-  serverScope: (server: Server | undefined) => 
+  serverScope: (server: Server | undefined) =>
     [server?.url, server?.username] as const,
 
-  all: (server: Server | undefined) => 
-    queryKeys.serverScope(server),
+  all: (server: Server | undefined) => queryKeys.serverScope(server),
 } as const;
 
 export const queryMatchers = {
   torrents: (server: Server | undefined) => ({
     queryKey: queryKeys.torrents(server),
   }),
-  
+
   session: (server: Server | undefined) => ({
     queryKey: queryKeys.session(server),
   }),
-  
+
   sessionStats: (server: Server | undefined) => ({
     queryKey: queryKeys.sessionStats(server),
   }),
-  
+
   freeSpace: (server: Server | undefined) => ({
     queryKey: queryKeys.freeSpace(server),
   }),

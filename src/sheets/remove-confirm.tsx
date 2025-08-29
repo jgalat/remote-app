@@ -1,9 +1,8 @@
 import * as React from "react";
-import { type Torrent } from "@remote-app/transmission-client";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useTorrentAction } from "~/hooks/use-transmission";
+import { useTorrentAction, Torrent } from "~/hooks/use-transmission";
 
 export type Payload = Torrent["id"][];
 

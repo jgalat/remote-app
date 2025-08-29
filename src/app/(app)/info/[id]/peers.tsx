@@ -1,0 +1,109 @@
+import * as React from "react";
+import { FlatList, StyleSheet } from "react-native";
+import { useGlobalSearchParams } from "expo-router";
+
+import Text from "~/components/text";
+import View from "~/components/view";
+import Screen from "~/components/screen";
+import { useTorrent } from "~/hooks/use-transmission";
+import {
+  LoadingScreen,
+  NetworkErrorScreen,
+} from "~/components/utility-screens";
+import PeerItem from "~/components/peer-item";
+import { useTheme } from "~/hooks/use-theme-color";
+const peer = [
+  {
+    address: "2.201.199.46",
+    clientIsChoked: true,
+    clientIsInterested: false,
+    clientName: "qBittorrent 5.1.2",
+    flagStr: "EH",
+    isDownloadingFrom: false,
+    isEncrypted: true,
+    isIncoming: false,
+    isUTP: false,
+    isUploadingTo: false,
+    peerIsChoked: true,
+    peerIsInterested: false,
+    port: 5965,
+    progress: 0.5,
+    rateToClient: 10,
+    rateToPeer: 50,
+  },
+  {
+    address: "38.88.124.109",
+    clientIsChoked: true,
+    clientIsInterested: false,
+    clientName: "qBittorrent 5.1.2",
+    flagStr: "EH",
+    isDownloadingFrom: false,
+    isEncrypted: true,
+    isIncoming: false,
+    isUTP: false,
+    isUploadingTo: false,
+    peerIsChoked: true,
+    peerIsInterested: false,
+    port: 41315,
+    progress: 0.5,
+    rateToClient: 0,
+    rateToPeer: 0,
+  },
+];
+
+export default function TorrentDetailsScreen() {
+  const { id } = useGlobalSearchParams<{ id: string }>();
+  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { lightGray } = useTheme();
+
+  if (error) {
+    return <NetworkErrorScreen error={error} refetch={refetch} />;
+  }
+
+  if (isLoading || !torrents || torrents.length !== 1) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <Screen style={styles.container}>
+      <FlatList
+        fadingEdgeLength={64}
+        data={torrents[0].peers}
+        renderItem={({ item: peer }) => <PeerItem data={peer} />}
+        keyExtractor={({ isUTP, address, port }) =>
+          `${isUTP ? "utp" : "tcp"}://${address}:${port}`
+        }
+        ItemSeparatorComponent={() => (
+          <View style={[styles.separator, { backgroundColor: lightGray }]} />
+        )}
+        ListEmptyComponent={
+          <View style={styles.message}>
+            <Text style={styles.title}>No peers found</Text>
+          </View>
+        }
+      />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "stretch",
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  title: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 24,
+  },
+  separator: {
+    marginVertical: 16,
+    height: 1,
+    width: "100%",
+  },
+  message: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

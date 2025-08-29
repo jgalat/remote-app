@@ -1,10 +1,11 @@
 import * as React from "react";
 import * as DevClient from "expo-dev-client";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
 import useScreenOptions from "~/hooks/use-screen-options";
+import ActionIcon from "~/components/action-icon";
 
 export const unstable_settings = {
   initialRouteName: "index",
@@ -12,6 +13,7 @@ export const unstable_settings = {
 
 export default function AppLayout() {
   const opts = useScreenOptions();
+  const router = useRouter();
 
   return (
     <TorrentSelectionProvider>
@@ -22,6 +24,13 @@ export default function AppLayout() {
             name="info/[id]"
             options={{
               title: "Details",
+              headerLeft: () => (
+                <ActionIcon
+                  name="arrow-left"
+                  onPress={() => router.dismissTo("/")}
+                  style={{ paddingLeft: 0, paddingRight: 32 }}
+                />
+              ),
             }}
           />
           <Stack.Screen

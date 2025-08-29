@@ -1,11 +1,10 @@
 import * as React from "react";
 import { Share, ToastAndroid } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
-import type { Torrent } from "@remote-app/transmission-client";
 import { router } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
-import { useTorrentActions } from "~/hooks/use-transmission";
+import { useTorrentActions, Torrent } from "~/hooks/use-transmission";
 import { useTheme } from "~/hooks/use-theme-color";
 import RemoveConfirmSheet from "./remove-confirm";
 import useTorrentSelection from "~/hooks/use-torrent-selection";

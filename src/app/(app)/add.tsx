@@ -62,7 +62,7 @@ const Form = z
   });
 
 function values(
-  session?: SessionGetResponse,
+  session?: Required<SessionGetResponse>,
   magnet?: string
 ): Form | undefined {
   if (!session) {

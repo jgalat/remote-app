@@ -2,7 +2,8 @@ import * as React from "react";
 import * as Haptics from "expo-haptics";
 import { FlatList, StyleSheet } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
-import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus } from "@remote-app/transmission-client";
+import { useIsFocused } from "@react-navigation/native";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -18,7 +19,7 @@ import {
   LoadingScreen,
 } from "~/components/utility-screens";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useTorrentActions, useTorrents } from "~/hooks/use-transmission";
+import { useTorrentActions, useTorrents, Torrent } from "~/hooks/use-transmission";
 import { useServer, useListing } from "~/hooks/use-settings";
 import {
   useFilterSheet,
@@ -32,9 +33,15 @@ import predicate from "~/utils/filter";
 export default function TorrentsScreen() {
   const navigation = useNavigation();
   const router = useRouter();
+  const isFocused = useIsFocused();
   const server = useServer();
   const { sort, direction, filter } = useListing();
-  const { data: torrents, refetch, error, isLoading } = useTorrents();
+  const {
+    data: torrents,
+    refetch,
+    error,
+    isLoading,
+  } = useTorrents({ stale: !isFocused });
   const [refreshing, setRefreshing] = React.useState(false);
   const { lightGray } = useTheme();
   const { start, stop } = useTorrentActions();
@@ -242,7 +249,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     marginVertical: 16,
-    height: 2,
+    height: 1,
     width: "100%",
   },
 });

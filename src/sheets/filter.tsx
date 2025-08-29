@@ -12,7 +12,7 @@ import type { OptionProps } from "~/components/option";
 const sheetId = "filter" as const;
 
 function FilterSheet(props: SheetProps<typeof sheetId>) {
-  const { data: torrents } = useTorrents();
+  const { data: torrents } = useTorrents({ stale: true });
   const { settings, store } = useSettings();
   const { filter } = settings.listing;
 

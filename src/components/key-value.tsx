@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, ToastAndroid } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Feather } from "@expo/vector-icons";
 
-import View from "./view";
+import View, { ViewProps } from "./view";
 import Text from "./text";
 import Pressable from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
@@ -12,12 +12,13 @@ export type KeyValueProps = {
   field: string;
   value: string | number;
   copy?: boolean;
-};
+} & ViewProps;
 
 export default React.memo(function KeyValue({
   field,
   value,
   copy,
+  style
 }: KeyValueProps) {
   const { gray, tint } = useTheme();
 
@@ -27,7 +28,7 @@ export default React.memo(function KeyValue({
   }, [value]);
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, style]}>
       <Text style={styles.field}>{field}</Text>
 
       <ScrollView horizontal fadingEdgeLength={64}>

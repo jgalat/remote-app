@@ -1,12 +1,17 @@
 import * as React from "react";
 import { ToastAndroid } from "react-native";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import TransmissionClient, {
   Methods,
   SessionGetResponse,
   SessionSetRequest,
   TorrentRemoveRequest,
-  Torrent,
+  Torrent as _Torrent,
   TransmissionError,
   HTTPError,
   TorrentAddRequest,
@@ -52,9 +57,7 @@ const fields = [
   "errorString",
   "eta",
   "isFinished",
-  "isStalled",
   "leftUntilDone",
-  "metadataPercentComplete",
   "peersConnected",
   "peersGettingFromUs",
   "peersSendingToUs",
@@ -63,52 +66,68 @@ const fields = [
   "rateDownload",
   "rateUpload",
   "recheckProgress",
-  "seedRatioMode",
-  "seedRatioLimit",
   "sizeWhenDone",
   "status",
-  "trackers",
-  "downloadDir",
   "uploadedEver",
   "uploadRatio",
   "webseedsSendingToUs",
   "activityDate",
-  "corruptEver",
-  "desiredAvailable",
-  "downloadedEver",
-  "fileStats",
-  "haveUnchecked",
-  "haveValid",
-  "peers",
-  "startDate",
-  "trackerStats",
-  "comment",
-  "creator",
-  "dateCreated",
+  "magnetLink",
+] as const;
+
+const selectFields = [
+  ...fields,
   "files",
-  "hashString",
-  "isPrivate",
+  "peers",
+  "trackers",
+  "downloadDir",
+  "downloadedEver",
   "pieceCount",
   "pieceSize",
-  "magnetLink",
+  "pieces",
 ] as const;
 
 type HookError = TransmissionError | HTTPError;
 
 type QueryProps = { stale?: boolean };
 
-export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
+type RequiredFields<T, Arr extends readonly (keyof T)[]> = Omit<
+  T,
+  Arr[number]
+> & {
+  [K in Arr[number]]-?: NonNullable<T[K]>;
+};
+
+export type Torrent = RequiredFields<_Torrent, typeof fields>;
+export type ExtTorrent = RequiredFields<_Torrent, typeof selectFields>;
+
+export function useTorrents<T extends number | undefined = undefined>(
+  { stale = false, id }: QueryProps & { id?: T } = { stale: false }
+): UseQueryResult<
+  T extends number ? ExtTorrent[] | undefined : Torrent[] | undefined,
+  HookError
+> {
   const client = useTransmission();
   const server = useServer();
-  return useQuery<Torrent[] | undefined, HookError>({
-    queryKey: queryKeys.torrentGet(server),
+  return useQuery({
+    queryKey: queryKeys.torrentGet(server, id),
     queryFn: async () => {
+      const select = typeof id === "number";
       const response = await client?.request({
         method: "torrent-get",
-        arguments: { fields: [...fields] },
+        arguments: {
+          fields: select ? [...selectFields] : [...fields],
+          ids: select ? [id] : undefined,
+        },
       });
 
-      return response?.arguments?.torrents;
+      const torrents = response?.arguments?.torrents;
+      if (!torrents) return torrents;
+      return (
+        select
+          ? (torrents as unknown as ExtTorrent[])
+          : (torrents as unknown as Torrent[])
+      ) as T extends number ? ExtTorrent[] : Torrent[];
     },
     enabled: Boolean(client) && !stale,
     refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
@@ -117,28 +136,22 @@ export function useTorrents({ stale = false }: QueryProps = { stale: false }) {
 }
 
 export function useTorrent(id: number) {
-  const torrents = useTorrents();
-  if (!torrents.data) {
-    return torrents;
-  }
-
-  return {
-    ...torrents,
-    data: torrents.data.filter((torrent) => torrent.id === id),
-  };
+  return useTorrents({ id });
 }
 
 export function useSession({ stale = false }: QueryProps = { stale: false }) {
   const client = useTransmission();
   const server = useServer();
-  return useQuery<SessionGetResponse | undefined, HookError>({
+  return useQuery<Required<SessionGetResponse> | undefined, HookError>({
     queryKey: queryKeys.sessionGet(server),
     queryFn: async () => {
       const response = await client?.request({
         method: "session-get",
       });
 
-      return response?.arguments;
+      const session = response?.arguments;
+      if (!session) return session;
+      return session as Required<SessionGetResponse>
     },
     enabled: Boolean(client) && !stale,
     staleTime: 5000,
@@ -317,11 +330,11 @@ export function useTorrentAction<
           }
 
           if (action === "torrent-remove") {
-            return old.filter((torrent) => !ids.includes(torrent.id));
+            return old.filter((torrent) => !ids.includes(torrent.id!));
           }
 
           return old.map((torrent) => {
-            if (ids.includes(torrent.id)) {
+            if (ids.includes(torrent.id!)) {
               return { ...torrent, status: getStatus(action, torrent) };
             }
 

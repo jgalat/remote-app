@@ -1,4 +1,5 @@
-import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus } from "@remote-app/transmission-client";
+import type { Torrent } from "~/hooks/use-transmission";
 import type { Filter } from "~/store/settings";
 
 type Predicate = (t: Torrent) => boolean;

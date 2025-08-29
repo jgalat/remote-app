@@ -1,19 +1,20 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { Torrent, TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus } from "@remote-app/transmission-client";
 import { Feather } from "@expo/vector-icons";
 
 import View from "./view";
 import Text from "./text";
 import ProgressBar from "./progress-bar";
 import Pressable, { PressableProps } from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
+import { Torrent } from "~/hooks/use-transmission";
 import {
   formatSize,
   formatSpeed,
   formatETA,
   formatStatus,
-} from "../utils/formatters";
+} from "~/utils/formatters";
 
 export type TorrentItemProps = {
   torrent: Torrent;
@@ -48,14 +49,14 @@ export default React.memo(function TorrentItem({
   }
 
   let size = `${formatSize(
-    torrent.percentDone * torrent.totalSize
-  )} / ${formatSize(torrent.totalSize)} (${
-    torrent.uploadRatio < 0 ? "0.00" : torrent.uploadRatio.toFixed(2)
+    torrent.percentDone! * torrent.totalSize!
+  )} / ${formatSize(torrent.totalSize!)} (${
+    torrent.uploadRatio! < 0 ? "0.00" : torrent.uploadRatio!.toFixed(2)
   })`;
   if (torrent.percentDone == 1) {
-    size = `${formatSize(torrent.totalSize)} - ${formatSize(
-      torrent.uploadedEver
-    )} (${torrent.uploadRatio.toFixed(2)})`;
+    size = `${formatSize(torrent.totalSize!)} - ${formatSize(
+      torrent.uploadedEver!
+    )} (${torrent.uploadRatio!.toFixed(2)})`;
   }
 
   return (
