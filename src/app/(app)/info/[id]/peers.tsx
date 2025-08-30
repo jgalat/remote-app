@@ -12,44 +12,6 @@ import {
 } from "~/components/utility-screens";
 import PeerItem from "~/components/peer-item";
 import { useTheme } from "~/hooks/use-theme-color";
-const peer = [
-  {
-    address: "2.201.199.46",
-    clientIsChoked: true,
-    clientIsInterested: false,
-    clientName: "qBittorrent 5.1.2",
-    flagStr: "EH",
-    isDownloadingFrom: false,
-    isEncrypted: true,
-    isIncoming: false,
-    isUTP: false,
-    isUploadingTo: false,
-    peerIsChoked: true,
-    peerIsInterested: false,
-    port: 5965,
-    progress: 0.5,
-    rateToClient: 10,
-    rateToPeer: 50,
-  },
-  {
-    address: "38.88.124.109",
-    clientIsChoked: true,
-    clientIsInterested: false,
-    clientName: "qBittorrent 5.1.2",
-    flagStr: "EH",
-    isDownloadingFrom: false,
-    isEncrypted: true,
-    isIncoming: false,
-    isUTP: false,
-    isUploadingTo: false,
-    peerIsChoked: true,
-    peerIsInterested: false,
-    port: 41315,
-    progress: 0.5,
-    rateToClient: 0,
-    rateToPeer: 0,
-  },
-];
 
 export default function TorrentDetailsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -94,7 +56,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "RobotoMono-Medium",
-    fontSize: 24,
+    fontSize: 16,
   },
   separator: {
     marginVertical: 16,

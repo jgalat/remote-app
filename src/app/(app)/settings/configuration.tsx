@@ -32,6 +32,10 @@ const Form = z
     "download-queue-size": z.coerce.number({ message: "Expected a number" }),
     "seed-queue-enabled": z.boolean(),
     "seed-queue-size": z.coerce.number({ message: "Expected a number" }),
+
+    "dht-enabled": z.boolean(),
+    "lpd-enabled": z.boolean(),
+    "pex-enabled": z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data["speed-limit-down-enabled"] && !data["speed-limit-down"]) {
@@ -326,6 +330,53 @@ export default function ServerConfigurationScreen() {
                   {fieldState.error?.message}
                 </Text>
               </>
+            )}
+          />
+        </View>
+
+        <Text style={styles.title}>Peer discovery</Text>
+
+        <View style={[styles.row, { gap: 16 }]}>
+          <Controller
+            name="dht-enabled"
+            control={control}
+            render={({ field }) => (
+              <Toggle
+                value={field.value}
+                onPress={(v) => {
+                  field.onChange(v);
+                  onSubmit();
+                }}
+                label="Enable Distributed Hash Table"
+              />
+            )}
+          />
+          <Controller
+            name="lpd-enabled"
+            control={control}
+            render={({ field }) => (
+              <Toggle
+                value={field.value}
+                onPress={(v) => {
+                  field.onChange(v);
+                  onSubmit();
+                }}
+                label="Enable Local Peer Discovery"
+              />
+            )}
+          />
+          <Controller
+            name="pex-enabled"
+            control={control}
+            render={({ field }) => (
+              <Toggle
+                value={field.value}
+                onPress={(v) => {
+                  field.onChange(v);
+                  onSubmit();
+                }}
+                label="Enable Peer Exchange"
+              />
             )}
           />
         </View>

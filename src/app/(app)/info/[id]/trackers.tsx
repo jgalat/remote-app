@@ -26,32 +26,11 @@ export default function TorrentDetailsScreen() {
     return <LoadingScreen />;
   }
 
-  const trackers = [
-    {
-      announce: "https://tracker1.example.org:443/announce",
-      id: 0,
-      scrape: "https://tracker1.example.org:443/scrape",
-      tier: 0,
-    },
-    {
-      announce: "udp://tracker2.example.net:6969/announce",
-      id: 1,
-      scrape: "udp://tracker2.example.net:6969/scrape",
-      tier: 0,
-    },
-    {
-      announce: "https://tracker3.example.com/announce",
-      id: 2,
-      scrape: "https://tracker3.example.com/scrape",
-      tier: 1,
-    },
-  ];
-
   return (
     <Screen style={styles.container}>
       <FlatList
         fadingEdgeLength={64}
-        data={trackers}
+        data={torrents[0].trackers}
         renderItem={({ item: tracker }) => (
           <View>
             <Text style={styles.title}>Tracker #{tracker.id}</Text>
