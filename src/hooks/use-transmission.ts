@@ -16,7 +16,6 @@ import TransmissionClient, {
   HTTPError,
   TorrentAddRequest,
   TorrentAddResponse,
-  FreeSpaceResponse,
   SessionStatsResponse,
   TorrentStatus,
 } from "@remote-app/transmission-client";
@@ -151,7 +150,7 @@ export function useSession({ stale = false }: QueryProps = { stale: false }) {
 
       const session = response?.arguments;
       if (!session) return session;
-      return session as Required<SessionGetResponse>
+      return session as Required<SessionGetResponse>;
     },
     enabled: Boolean(client) && !stale,
     staleTime: 5000,
@@ -204,31 +203,6 @@ export function useSessionSet() {
   });
 }
 
-export function useFreeSpace() {
-  const client = useTransmission();
-  const server = useServer();
-  const { data: session } = useSession({ stale: true });
-  return useQuery<FreeSpaceResponse | undefined, HookError>({
-    queryKey: queryKeys.freeSpace(server, session?.["download-dir"]),
-    queryFn: async () => {
-      if (!session?.["download-dir"]) {
-        return;
-      }
-
-      const response = await client?.request({
-        method: "free-space",
-        arguments: {
-          path: session["download-dir"],
-        },
-      });
-
-      return response?.arguments;
-    },
-    enabled: Boolean(client && session?.["download-dir"]),
-    staleTime: 5000,
-  });
-}
-
 export function useSessionStats(
   { stale = false }: QueryProps = { stale: false }
 ) {
@@ -245,7 +219,7 @@ export function useSessionStats(
     },
     enabled: Boolean(client) && !stale,
     refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
-    staleTime: 5000, // Override global for real-time data
+    staleTime: 5000,
   });
 }
 
