@@ -7,7 +7,7 @@ import Text from "./text";
 import ProgressBar from "./progress-bar";
 import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "~/hooks/use-theme-color";
-import { getPriority, getWanted, type File } from "~/utils/file";
+import { getPriority, type File } from "~/utils/file";
 import { formatSize } from "~/utils/formatters";
 
 export type RenderFile = {
