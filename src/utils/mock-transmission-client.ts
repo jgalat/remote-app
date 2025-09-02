@@ -5,54 +5,13 @@ import {
   SessionGetRequest,
   TorrentStatus,
   TorrentRemoveRequest,
+  TorrentSetRequest,
+  Priority,
 } from "@remote-app/transmission-client";
 import { Server } from "~/store/settings";
 
 const storage = {
   torrents: [
-    {
-      activityDate: 1756588422,
-      addedDate: 1756588151,
-      doneDate: 0,
-      downloadDir: "/downloads/complete",
-      downloadedEver: 910753792,
-      error: 0,
-      errorString: "",
-      eta: -1,
-      files: [
-        {
-          bytesCompleted: 910753792,
-          length: 1378795520,
-          name: "archlinux-2025.08.01-x86_64.iso",
-        },
-      ],
-      id: 3,
-      isFinished: false,
-      leftUntilDone: 468041728,
-      magnetLink:
-        "magnet:?xt=urn:btih:ffb48118162732c8f56ad3e5a5612f2dd1a2be72&dn=archlinux-2025.08.01-x86_64.iso",
-      name: "archlinux-2025.08.01-x86_64.iso",
-      peers: [],
-      peersConnected: 0,
-      peersGettingFromUs: 0,
-      peersSendingToUs: 0,
-      percentDone: 0.6605,
-      pieceCount: 2630,
-      pieceSize: 524288,
-      pieces:
-        "////////////////////////////////////////////////////7p3////L/4P7/+/////////////8C//8P///////////////////B//P/////////6/////5v/////v/+1///CAB////////3//9+8f//////6v//50/8AF//f+fz/+QAgv+D/////+j//8GQB+D////hH/gIF+D/////////6YA/h4p/iP/oBAQ//7///+AQA/pf5/4ASGb6L/wf0hf9AL4P+///9EB+D/3D/4cB+F/r/////gA//wACPgAAwB//+pgfRUEBS7/8QAAPyCgCA4IAVVARAMPwhAfBIP+qQAPpCCA78EQQBB8AAPyAgh/IACUIDgQAIUwAQAADoAAAAAQAAhUQBAAAg4AECBAAAAAAQBAhAgSAAYAEAAgAAGAEAQ=",
-      queuePosition: 0,
-      rateDownload: 0,
-      rateUpload: 0,
-      recheckProgress: 0,
-      sizeWhenDone: 1378795520,
-      status: 0,
-      totalSize: 1378795520,
-      trackers: [],
-      uploadRatio: 0,
-      uploadedEver: 0,
-      webseedsSendingToUs: 0,
-    },
     {
       activityDate: 1756588440,
       addedDate: 1756588407,
@@ -62,6 +21,10 @@ const storage = {
       error: 0,
       errorString: "",
       eta: -1,
+      fileStats: [
+        { bytesCompleted: 2922, priority: 1, wanted: true },
+        { bytesCompleted: 618539008, priority: -1, wanted: true },
+      ],
       files: [
         {
           bytesCompleted: 2922,
@@ -74,7 +37,7 @@ const storage = {
           name: "Fedora-i3-Live-x86_64-42/Fedora-i3-Live-x86_64-42-1.1.iso",
         },
       ],
-      id: 5,
+      id: 2,
       isFinished: false,
       leftUntilDone: 1058144256,
       magnetLink:
@@ -89,7 +52,7 @@ const storage = {
       pieceSize: 262144,
       pieces:
         "//91+v///////////////4f////////////7f//8MAAf//////////////f//////////98/////+oAP/////////////////gD//////9/+H//////////////////////+BAB///////////////////+/////////////////+h////x///////A/8AQCP////////////////////////8AQA///////4D////9/////3////////////+AAAQf////////AhAAwACACCB9/E///////f/////+AAEADAAAg///8IIAAB//L///7/wAAAAAQIAAAAD//+AQswAfv////4HQAAQAp//wT/gf/x/////+gH/sAAAAIIH/xD/8H/f///7/+EAP//wAAAP//wAP/+A///3////gAP/gAAAEH/8CfyP///8AgAAIA/wAAAAH//P/v////AEAAAAAAEAAX//j//QH/wf7ACAAAACB4AAAAf/44AMR8CAAAAEAAAwH/gAAEEAZAAAAAAAAAAABAAVwAB9UABAAAAAAAAAABAQAAAAAAAAAAAABACCAAAAAAAQAAAQAAAAgAAAUAAAEAAAAAAAAAAEAABAAAQAAAAAAAAQQCIAAAAAAAAAIAAABAEAABAAIAAACAAAAAgAAAABABAAACAAQAABAAAAIAAAIAAAAAAgAEAAAAAAAAQEAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAQAAAAQAQAAAAAAAAAEAAAwAAEAAAAAgAAEAAAAAQAAAAAAEAAAAABAAAARAAAAEAAgAAAAAAAAAAQAAAAAAAEAEIAAAAAAAgAAAAAAQAAAAAAAAAgAAAAAAAIBAAAAAAAAgAAAgAAAECAAAEAAAAACAAIAAAAAAAAAAAAAAACAAAAAAAQAAAAAAAAAAAACAAAAIAAAAAAAAAAAAEEAAAAAAAAAAAAABAAEAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAQAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAg=",
-      queuePosition: 1,
+      queuePosition: 0,
       rateDownload: 0,
       rateUpload: 0,
       recheckProgress: 0,
@@ -99,12 +62,56 @@ const storage = {
       trackers: [
         {
           announce: "http://torrent.fedoraproject.org:6969/announce",
-          id: 1,
+          id: 0,
           scrape: "http://torrent.fedoraproject.org:6969/scrape",
           sitename: "fedoraproject",
           tier: 0,
         },
       ],
+      uploadRatio: 0,
+      uploadedEver: 0,
+      webseedsSendingToUs: 0,
+    },
+    {
+      activityDate: 1756848778,
+      addedDate: 1756848746,
+      doneDate: 0,
+      downloadDir: "/downloads/complete",
+      downloadedEver: 442695680,
+      error: 0,
+      errorString: "",
+      eta: -1,
+      fileStats: [{ bytesCompleted: 442695680, priority: 0, wanted: true }],
+      files: [
+        {
+          bytesCompleted: 442695680,
+          length: 1378795520,
+          name: "archlinux-2025.08.01-x86_64.iso",
+        },
+      ],
+      id: 5,
+      isFinished: false,
+      leftUntilDone: 936099840,
+      magnetLink:
+        "magnet:?xt=urn:btih:ffb48118162732c8f56ad3e5a5612f2dd1a2be72&dn=archlinux-2025.08.01-x86_64.iso",
+      name: "archlinux-2025.08.01-x86_64.iso",
+      peers: [],
+      peersConnected: 0,
+      peersGettingFromUs: 0,
+      peersSendingToUs: 0,
+      percentDone: 0.3211,
+      pieceCount: 2630,
+      pieceSize: 524288,
+      pieces:
+        "////////////3f//7///////b7/f+0Ff////////////v8v/oBA//////zn//h/j/8Pv/n/+D/g///D/5///4P/IAf5/Bf/gAEAfgwAz/5+AOAlAH/zgX+BAFv48AOMAAAP/5/Af///5/gAACfzgA//+/gAgAAH/AAA7nxgZ5fwAAQPgAAABAAAAAAAAAH4CE4AAAAAIAAA/BAAAACAAAAAAAAAAAEAAAAAAICAQQIABAASAAARABAAAEACQAIAAAAACAAAAAUBAAAAACQAQAAAAAAAAAAAAAIEAAAACAAAEQAIMiAAAgAMAAACAAAAYAAAAAAAQAAAAAACAAAAAACAAAZAAIAAAAACAARQAAgCEAABAQAAAAgAAAAAAQAAAAIAAAAAAAAAAAQABAAAgAWAAACAAAAAQAAAAAAAAAACABEAABAAAAAQ=",
+      queuePosition: 1,
+      rateDownload: 0,
+      rateUpload: 0,
+      recheckProgress: 0,
+      sizeWhenDone: 1378795520,
+      status: 0,
+      totalSize: 1378795520,
+      trackers: [],
       uploadRatio: 0,
       uploadedEver: 0,
       webseedsSendingToUs: 0,
@@ -231,6 +238,10 @@ export default class MockTransmissionClient {
 
         return { result: "success", arguments: data };
       }
+      case "torrent-set": {
+        torrentSet(args);
+        break;
+      }
       case "torrent-start": {
         torrentStatus(TorrentStatus.DOWNLOADING, args);
         break;
@@ -272,6 +283,40 @@ export default class MockTransmissionClient {
 
 function torrentGet() {
   return { torrents: storage.torrents };
+}
+
+function torrentSet(params: TorrentSetRequest) {
+  const id = Array.isArray(params.ids) ? params.ids[0] : -1;
+  if (typeof id !== "number") return;
+  storage.torrents = storage.torrents.map((torrent) => {
+    if (torrent.id !== id) {
+      return torrent;
+    }
+
+    const fs = [...torrent.fileStats];
+
+    for (const i of params["files-wanted"] ?? []) {
+      fs[i] = { ...fs[i], wanted: true };
+    }
+
+    for (const i of params["files-unwanted"] ?? []) {
+      fs[i] = { ...fs[i], wanted: false };
+    }
+
+    for (const i of params["priority-low"] ?? []) {
+      fs[i] = { ...fs[i], priority: Priority.LOW };
+    }
+
+    for (const i of params["priority-normal"] ?? []) {
+      fs[i] = { ...fs[i], priority: Priority.NORMAL };
+    }
+
+    for (const i of params["priority-high"] ?? []) {
+      fs[i] = { ...fs[i], priority: Priority.HIGH };
+    }
+
+    return { ...torrent, fileStats: fs };
+  });
 }
 
 function torrentStatus(
