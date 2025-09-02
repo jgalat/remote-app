@@ -35,7 +35,7 @@ export default React.memo(function PeerItem({ data }: Props) {
   }, [address]);
 
   return (
-    <Pressable onPress={share}>
+    <Pressable onLongPress={share}>
       <View style={styles.container}>
         <View style={styles.stats}>
           <Text numberOfLines={1} style={styles.name}>

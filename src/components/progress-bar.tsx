@@ -13,6 +13,7 @@ export default React.memo(function ProgressBar({
   style,
 }: ProgressBarProps) {
   const { lightGray } = useTheme();
+  progress = Math.max(0, Math.min(progress, 100));
   return (
     <View style={[style, styles.root]}>
       <View style={[styles.background, { backgroundColor: lightGray }]} />

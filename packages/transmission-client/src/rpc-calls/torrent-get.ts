@@ -14,7 +14,6 @@ type FileStats = {
   priority: number;
 };
 
-
 type Peer = {
   address: string;
   clientName: string;
@@ -82,7 +81,6 @@ type TrackerStats = {
   tier: number;
 };
 
-
 export enum TorrentStatus {
   STOPPED,
   QUEUED_TO_VERIFY_LOCAL_DATA,
@@ -91,6 +89,12 @@ export enum TorrentStatus {
   DOWNLOADING,
   QUEUED_TO_SEED,
   SEEDING,
+}
+
+export enum Priority {
+  LOW = -1,
+  NORMAL = 0,
+  HIGH = 1,
 }
 
 export type Torrent = {
@@ -143,7 +147,7 @@ export type Torrent = {
   pieces?: string;
   pieceCount?: number;
   pieceSize?: number;
-  priorities?: number[];
+  priorities?: Priority[];
   "primary-mime-type"?: string;
   queuePosition?: number;
   rateDownload?: number;
@@ -180,6 +184,7 @@ export type Response = {
   removed?: number[];
 };
 
-export type Request = Identifiers & Fields<keyof Torrent> & {
-  format?: TorrentFormat;
-};
+export type Request = Identifiers &
+  Fields<keyof Torrent> & {
+    format?: TorrentFormat;
+  };

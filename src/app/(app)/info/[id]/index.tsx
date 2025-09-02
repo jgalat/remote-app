@@ -106,7 +106,7 @@ export default function TorrentDetailsScreen() {
             field: "Last activity",
             value: new Date(torrent.activityDate * 1000).toLocaleString(),
           },
-          ...(torrent.doneDate == 0
+          ...(torrent.doneDate !== 0
             ? [
                 {
                   field: "Completed",

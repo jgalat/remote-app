@@ -82,6 +82,12 @@ export default function Layout() {
         }}
       />
       <MaterialTopTabs.Screen
+        name="files"
+        options={{
+          title: "Files",
+        }}
+      />
+      <MaterialTopTabs.Screen
         name="trackers"
         options={{
           title: "Trackers",

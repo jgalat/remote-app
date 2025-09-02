@@ -49,14 +49,14 @@ export default React.memo(function TorrentItem({
   }
 
   let size = `${formatSize(
-    torrent.percentDone! * torrent.totalSize!
-  )} / ${formatSize(torrent.totalSize!)} (${
-    torrent.uploadRatio! < 0 ? "0.00" : torrent.uploadRatio!.toFixed(2)
+    torrent.percentDone * torrent.totalSize
+  )} / ${formatSize(torrent.totalSize)} (${
+    torrent.uploadRatio < 0 ? "0.00" : torrent.uploadRatio.toFixed(2)
   })`;
   if (torrent.percentDone == 1) {
-    size = `${formatSize(torrent.totalSize!)} - ${formatSize(
-      torrent.uploadedEver!
-    )} (${torrent.uploadRatio!.toFixed(2)})`;
+    size = `${formatSize(torrent.totalSize)} - ${formatSize(
+      torrent.uploadedEver
+    )} (${torrent.uploadRatio.toFixed(2)})`;
   }
 
   return (

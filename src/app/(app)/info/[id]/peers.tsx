@@ -13,7 +13,7 @@ import {
 import PeerItem from "~/components/peer-item";
 import { useTheme } from "~/hooks/use-theme-color";
 
-export default function TorrentDetailsScreen() {
+export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
   const { lightGray } = useTheme();

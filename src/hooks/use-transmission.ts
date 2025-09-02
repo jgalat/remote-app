@@ -18,6 +18,8 @@ import TransmissionClient, {
   TorrentAddResponse,
   SessionStatsResponse,
   TorrentStatus,
+  TorrentSetRequest,
+  Priority,
 } from "@remote-app/transmission-client";
 
 import { useServer } from "./use-settings";
@@ -77,6 +79,7 @@ const fields = [
 const selectFields = [
   ...fields,
   "files",
+  "fileStats",
   "peers",
   "trackers",
   "downloadDir",
@@ -367,4 +370,80 @@ export function useTorrentActions() {
   const remove = useTorrentAction("torrent-remove");
 
   return { start, startNow, stop, verify, reannounce, remove };
+}
+
+export function useTorrentSet(id: number) {
+  const queryClient = useQueryClient();
+  const client = useTransmission();
+  const server = useServer();
+
+  return useMutation({
+    mutationFn: async (params: TorrentSetRequest): Promise<void> => {
+      await client?.request({
+        method: "torrent-set",
+        arguments: { ids: [id], ...params },
+      });
+    },
+    onMutate: async (params: TorrentSetRequest) => {
+      await queryClient.cancelQueries(queryMatchers.torrents(server));
+
+      const previous = queryClient.getQueryData<ExtTorrent[] | undefined>(
+        queryKeys.torrentGet(server, id)
+      );
+
+      queryClient.setQueryData(
+        queryKeys.torrentGet(server, id),
+        (old: ExtTorrent[] | undefined): ExtTorrent[] | undefined => {
+          if (!old) {
+            return;
+          }
+
+          return old.map((torrent) => {
+            if (torrent.id !== id) {
+              return torrent;
+            }
+
+            const fs = [...torrent.fileStats];
+
+            for (const i of params["files-wanted"] ?? []) {
+              fs[i] = { ...fs[i], wanted: true };
+            }
+
+            for (const i of params["files-unwanted"] ?? []) {
+              fs[i] = { ...fs[i], wanted: false };
+            }
+
+            for (const i of params["priority-low"] ?? []) {
+              fs[i] = { ...fs[i], priority: Priority.LOW };
+            }
+
+            for (const i of params["priority-normal"] ?? []) {
+              fs[i] = { ...fs[i], priority: Priority.NORMAL };
+            }
+
+            for (const i of params["priority-high"] ?? []) {
+              fs[i] = { ...fs[i], priority: Priority.HIGH };
+            }
+
+            return { ...torrent, fileStats: fs };
+          });
+        }
+      );
+
+      return { previous };
+    },
+    onError: (_error, _params, context) => {
+      queryClient.setQueryData(
+        queryKeys.torrentGet(server, id),
+        context?.previous
+      );
+      ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
+    },
+    onSettled: () => {
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        500
+      );
+    },
+  });
 }

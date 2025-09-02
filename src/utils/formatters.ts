@@ -12,8 +12,8 @@ function formatBytes(units: string[]): (bytes: number) => string {
   };
 }
 
-export const formatSpeed = formatBytes(["kB/s", "MB/s", "GB/s", "TB/s"]);
-export const formatSize = formatBytes(["kB", "MB", "GB", "TB"]);
+export const formatSpeed = formatBytes(["kB/s", "MB/s", "GB/s", "TB/s", "PB/s"]);
+export const formatSize = formatBytes(["kB", "MB", "GB", "TB", "PB"]);
 
 export const formatETA = (eta: number): string => {
   if (eta < 0) {

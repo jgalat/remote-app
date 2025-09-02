@@ -13,7 +13,7 @@ import {
 import { useTheme } from "~/hooks/use-theme-color";
 import KeyValue from "~/components/key-value";
 
-export default function TorrentDetailsScreen() {
+export default function TrackersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
   const { lightGray } = useTheme();
@@ -42,7 +42,7 @@ export default function TorrentDetailsScreen() {
             <KeyValue style={styles.kv} field="Scrape" value={tracker.scrape} />
           </View>
         )}
-        keyExtractor={({ announce }) => announce}
+        keyExtractor={({ announce, scrape }) => announce + scrape}
         ItemSeparatorComponent={() => (
           <View style={[styles.separator, { backgroundColor: lightGray }]} />
         )}
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 16,
+    marginBottom: 8,
   },
   kv: {
     marginBottom: 0,
