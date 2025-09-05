@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
+import { View } from "react-native";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
@@ -24,11 +25,6 @@ import "~/sheets";
 
 SplashScreen.preventAutoHideAsync();
 
-SplashScreen.setOptions({
-  duration: 1_000,
-  fade: true,
-});
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -43,11 +39,13 @@ function Root() {
   const loaded = useLoader();
   const { locked } = useAuth();
 
-  React.useEffect(() => {
+  const onRootLayout = React.useCallback(() => {
     if (loaded) {
       SplashScreen.hide();
     }
   }, [loaded]);
+
+  if (!loaded) return null;
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -56,24 +54,25 @@ function Root() {
         edges={["right", "bottom", "left"]}
       >
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: "slide_from_bottom",
-          }}
-        >
-          <Stack.Protected guard={!locked}>
-            <Stack.Screen
-              name="(app)"
-              options={{
-                animationTypeForReplace: "pop",
-              }}
-            />
-          </Stack.Protected>
-          <Stack.Protected guard={locked}>
-            <Stack.Screen name="sign-in" />
-          </Stack.Protected>
-        </Stack>
+        <View style={{ flex: 1 }} onLayout={onRootLayout}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Protected guard={!locked}>
+              <Stack.Screen
+                name="(app)"
+                options={{
+                  animationTypeForReplace: "pop",
+                }}
+              />
+            </Stack.Protected>
+            <Stack.Protected guard={locked}>
+              <Stack.Screen name="sign-in" />
+            </Stack.Protected>
+          </Stack>
+        </View>
       </SafeAreaView>
     </ThemeProvider>
   );
@@ -83,11 +82,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
-      retry: (failureCount, error) => {
+      retry: (failures, error) => {
         if (error instanceof Error && error.message.includes("401")) {
           return false;
         }
-        return failureCount < 3;
+        return failures < 3;
       },
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,

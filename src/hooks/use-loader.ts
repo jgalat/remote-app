@@ -28,10 +28,10 @@ async function load(
 export default function useLoader() {
   const colorScheme = useColorScheme();
 
-  const { isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["app-resources"] as const,
     queryFn: () => load(colorScheme),
   });
 
-  return !isLoading;
+  return !!data;
 }
