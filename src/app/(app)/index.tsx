@@ -19,7 +19,11 @@ import {
   LoadingScreen,
 } from "~/components/utility-screens";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useTorrentActions, useTorrents, Torrent } from "~/hooks/use-transmission";
+import {
+  useTorrentActions,
+  useTorrents,
+  Torrent,
+} from "~/hooks/use-transmission";
 import { useServer, useListing } from "~/hooks/use-settings";
 import {
   useFilterSheet,
