@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as Application from "expo-application";
-import * as DevClient from "expo-dev-client";
 import { StyleSheet, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -68,7 +67,7 @@ export default function SettingsScreen() {
       ...connection,
       ...(!session || error ? [] : serverOptions),
       ...appOptions,
-      ...(DevClient.isDevelopmentBuild() ? devOptions : []),
+      ...(__DEV__ ? devOptions : []),
     ];
   }, [colorScheme, session, error, router]);
 

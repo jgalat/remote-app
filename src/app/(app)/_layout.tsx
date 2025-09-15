@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as DevClient from "expo-dev-client";
 import { Stack, useRouter } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
 
@@ -54,7 +53,7 @@ export default function AppLayout() {
           />
           <Stack.Screen name="settings/theme" options={{ title: "Theme" }} />
           <Stack.Screen name="settings/about" options={{ title: "About" }} />
-          {DevClient.isDevelopmentBuild() && (
+          {__DEV__ && (
             <Stack.Screen
               name="settings/development"
               options={{ title: "Development" }}
