@@ -14,7 +14,9 @@ async function load(
 ): Promise<boolean> {
   try {
     await SystemUI.setBackgroundColorAsync(colors[colorScheme].background);
-    await Notifications.requestPermissionsAsync();
+    if (!(await Notifications.getPermissionsAsync()).granted) {
+      await Notifications.requestPermissionsAsync();
+    }
     if (!(await isTorrentsNotifierTaskRegistered())) {
       await registerTorrentsNotifierTask();
     }

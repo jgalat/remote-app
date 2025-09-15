@@ -41,7 +41,7 @@ function Root() {
 
   const onRootLayout = React.useCallback(() => {
     if (loaded) {
-      SplashScreen.hide();
+      setTimeout(() => SplashScreen.hide(), 500);
     }
   }, [loaded]);
 
