@@ -185,7 +185,7 @@ export default function TorrentsScreen() {
   return (
     <Screen style={{ paddingTop: 16 }}>
       <FlatList
-        fadingEdgeLength={64}
+        // fadingEdgeLength={16}
         data={render}
         renderItem={({ item: torrent }) => (
           <TorrentItem

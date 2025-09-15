@@ -131,7 +131,7 @@ export default function TorrentDetailsScreen() {
     <Screen style={{ paddingTop: 16 }}>
       <TorrentItem disabled torrent={torrents[0]} />
       <SectionList
-        fadingEdgeLength={64}
+        // fadingEdgeLength={64}
         sections={data}
         renderSectionHeader={({ section }) => (
           <Text style={styles.title}>{section.section}</Text>

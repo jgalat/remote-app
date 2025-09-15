@@ -29,7 +29,7 @@ export default function PeersScreen() {
   return (
     <Screen style={styles.container}>
       <FlatList
-        fadingEdgeLength={64}
+        // fadingEdgeLength={64}
         data={torrents[0].peers}
         renderItem={({ item: peer }) => <PeerItem data={peer} />}
         keyExtractor={({ isUTP, address, port }) =>

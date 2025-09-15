@@ -67,7 +67,7 @@ export default function FilesScreen() {
         </Pressable>
       )}
       <FlatList
-        fadingEdgeLength={64}
+        // fadingEdgeLength={64}
         data={items}
         renderItem={({ item: file }) => (
           <FileItem

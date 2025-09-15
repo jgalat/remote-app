@@ -18,7 +18,7 @@ export default React.memo(function KeyValue({
   field,
   value,
   copy,
-  style
+  style,
 }: KeyValueProps) {
   const { gray, tint } = useTheme();
 
@@ -31,7 +31,10 @@ export default React.memo(function KeyValue({
     <View style={[styles.row, style]}>
       <Text style={styles.field}>{field}</Text>
 
-      <ScrollView horizontal fadingEdgeLength={64}>
+      <ScrollView
+        horizontal
+        // fadingEdgeLength={64}
+      >
         {copy ? (
           <Pressable style={styles.pressable} onPress={onCopy}>
             <Feather name="clipboard" color={tint} size={16} />

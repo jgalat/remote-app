@@ -29,7 +29,7 @@ export default function TrackersScreen() {
   return (
     <Screen style={styles.container}>
       <FlatList
-        fadingEdgeLength={64}
+        // fadingEdgeLength={64}
         data={torrents[0].trackers}
         renderItem={({ item: tracker }) => (
           <View>
