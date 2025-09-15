@@ -31,9 +31,9 @@ export default function TrackersScreen() {
       <FlatList
         // fadingEdgeLength={64}
         data={torrents[0].trackers}
-        renderItem={({ item: tracker }) => (
+        renderItem={({ item: tracker, index }) => (
           <View>
-            <Text style={styles.title}>Tracker #{tracker.id}</Text>
+            <Text style={styles.title}>Tracker #{index}</Text>
             <KeyValue
               style={styles.kv}
               field="Announce"

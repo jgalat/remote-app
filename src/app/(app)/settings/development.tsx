@@ -13,9 +13,11 @@ import {
   unregisterTorrentsNotifierTask,
   registerTorrentsNotifierTask,
 } from "~/tasks/torrents-notifier";
+import useSettings from "~/hooks/use-settings";
 
 export default function Development() {
   const router = useRouter();
+  const { store } = useSettings();
   return (
     <Screen>
       <Text style={[styles.title]}>Navigation</Text>
@@ -58,6 +60,28 @@ export default function Development() {
               trigger: null,
             });
           }}
+        />
+      </View>
+      <Text style={[styles.title]}>Servers</Text>
+      <View style={styles.row}>
+        <Button
+          title="Mock server"
+          onPress={async () =>
+            store({ server: { name: "app", url: "app-testing-url" } })
+          }
+        />
+        <Button
+          title="Local"
+          onPress={async () =>
+            store({
+              server: {
+                name: "app",
+                url: "http://192.168.0.201:9091/transmission/rpc",
+                username: "test",
+                password: "test",
+              },
+            })
+          }
         />
       </View>
     </Screen>
