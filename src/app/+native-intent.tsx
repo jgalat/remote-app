@@ -1,4 +1,5 @@
 import { loadSettings } from "~/store/settings";
+import { normalize } from "~/utils/magnet";
 
 export async function redirectSystemPath({
   path,
@@ -17,6 +18,7 @@ export async function redirectSystemPath({
 
   switch (true) {
     case path.startsWith("magnet:"):
+      path = normalize(path);
       redirect = "/add?magnet=" + encodeURIComponent(path);
       break;
     case path.startsWith("file:") || path.startsWith("content:"):
