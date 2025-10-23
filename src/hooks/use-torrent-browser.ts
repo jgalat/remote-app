@@ -69,7 +69,8 @@ export default function useTorrentBrowser(torrents: ExtTorrent[]) {
 
   const enterFolder = React.useCallback(
     (pathname: string) => {
-      const child = currentNode.children.get(pathname);
+      const p = normalize(pathname).split("/");
+      const child = currentNode.children.get(p[p.length - 1]);
       if (!child || child.isFile) return;
       setCurrent(child.path);
     },
