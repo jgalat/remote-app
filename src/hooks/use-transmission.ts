@@ -81,7 +81,7 @@ const selectFields = [
   "files",
   "fileStats",
   "peers",
-  "trackers",
+  "trackerStats",
   "downloadDir",
   "downloadedEver",
   "pieceCount",
