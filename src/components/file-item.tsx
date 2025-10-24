@@ -45,7 +45,7 @@ export default React.memo(function FileItem({ data, right, ...props }: Props) {
           />
         </View>
         <View style={styles.stats}>
-          <Text numberOfLines={1} style={styles.name}>
+          <Text style={styles.name}>
             {data.name}
           </Text>
           <ProgressBar
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   name: {
+    fontSize: 12,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 4,
   },

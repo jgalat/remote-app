@@ -38,7 +38,7 @@ export default React.memo(function KeyValue({
         {copy ? (
           <Pressable style={styles.pressable} onPress={onCopy}>
             <Feather name="clipboard" color={tint} size={16} />
-            <Text style={[styles.value, { color: tint }]}> {value}</Text>
+            <Text style={[styles.value, { color: tint }]}> Copy</Text>
           </Pressable>
         ) : (
           <Text style={[styles.value, { color: gray }]}>{value}</Text>
