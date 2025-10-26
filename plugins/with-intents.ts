@@ -1,15 +1,20 @@
-import { ConfigPlugin, withAndroidManifest } from "expo/config-plugins";
+import {
+  ConfigPlugin,
+  AndroidConfig,
+  withAndroidManifest,
+} from "expo/config-plugins";
 
 const plugin: ConfigPlugin = (config) => {
+  const { getMainApplicationOrThrow, getMainActivityOrThrow } =
+    AndroidConfig.Manifest;
+
   return withAndroidManifest(config, (config) => {
-    const app = config.modResults.manifest.application?.[0];
-    if (!app) return config;
+    const app = getMainApplicationOrThrow(config.modResults);
 
     app.$["android:launchMode"] = "singleTask";
     app.$["android:enableOnBackInvokedCallback"] = "false";
 
-    const activity = app.activity?.[0];
-    if (!activity) return config;
+    const activity = getMainActivityOrThrow(config.modResults);
 
     if (!activity["intent-filter"]) activity["intent-filter"] = [];
 

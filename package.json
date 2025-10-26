@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "npx expo start",
     "dev:android": "npx expo start --android",
+    "prebuild": "npx expo prebuild --clean --platform android",
     "build:android:development": "npx eas build --platform android --local --profile development",
     "build:android:production": "npx eas build --platform android --local --profile production",
     "lint": "eslint --max-warnings=0 .",

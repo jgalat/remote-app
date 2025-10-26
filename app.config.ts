@@ -81,7 +81,8 @@ export default {
     ],
     "expo-asset",
     "expo-background-task",
-    "./plugins/custom-manifest.ts",
+    "./plugins/with-intents.ts",
+    "./plugins/with-user-ca.ts",
   ],
   experiments: {
     typedRoutes: true,
