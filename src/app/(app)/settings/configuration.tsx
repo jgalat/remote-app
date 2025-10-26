@@ -28,6 +28,13 @@ const Form = z
     "alt-speed-enabled": z.boolean(),
     "alt-speed-down": z.coerce.number({ message: "Expected a number" }),
     "alt-speed-up": z.coerce.number({ message: "Expected a number" }),
+
+    "seedRatioLimited": z.boolean(),
+    "seedRatioLimit": z.coerce.number({ message: "Expected a number" }),
+
+    "idle-seeding-limit-enabled": z.boolean(),
+    "idle-seeding-limit": z.coerce.number({ message: "Expected a number" }),
+
     "download-queue-enabled": z.boolean(),
     "download-queue-size": z.coerce.number({ message: "Expected a number" }),
     "seed-queue-enabled": z.boolean(),
@@ -48,6 +55,20 @@ const Form = z
     if (data["speed-limit-up-enabled"] && !data["speed-limit-up"]) {
       ctx.addIssue({
         path: ["speed-limit-up"],
+        code: z.ZodIssueCode.custom,
+        message: "Field is required",
+      });
+    }
+    if (data["seedRatioLimited"] && !data["seedRatioLimit"]) {
+      ctx.addIssue({
+        path: ["seedRatioLimit"],
+        code: z.ZodIssueCode.custom,
+        message: "Field is required",
+      });
+    }
+    if (data["idle-seeding-limit-enabled"] && !data["idle-seeding-limit"]) {
+      ctx.addIssue({
+        path: ["idle-seeding-limit"],
         code: z.ZodIssueCode.custom,
         message: "Field is required",
       });
@@ -256,6 +277,84 @@ export default function ServerConfigurationScreen() {
           />
         </View>
 
+        <Text style={styles.title}>Seed</Text>
+
+        <View style={styles.row}>
+          <View style={styles.label}>
+            <Controller
+              name="seedRatioLimited"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  value={field.value}
+                  onPress={(v) => {
+                    field.onChange(v);
+                    onSubmit();
+                  }}
+                  label="SEED RATIO LIMIT"
+                />
+              )}
+            />
+          </View>
+          <Controller
+            name="seedRatioLimit"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("seedRatioLimited")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
+          />
+        </View>
+
+        <View style={styles.row}>
+          <View style={styles.label}>
+            <Controller
+              name="idle-seeding-limit-enabled"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  value={field.value}
+                  onPress={(v) => {
+                    field.onChange(v);
+                    onSubmit();
+                  }}
+                  label="IDLE SEEDING LIMIT (MINUTES)"
+                />
+              )}
+            />
+          </View>
+          <Controller
+            name="idle-seeding-limit"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <TextInput
+                  keyboardType="numeric"
+                  editable={watch("idle-seeding-limit-enabled")}
+                  value={field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                  onEndEditing={onSubmit}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
+          />
+        </View>
+
         <Text style={styles.title}>Queue</Text>
 
         <View style={styles.row}>
@@ -296,7 +395,7 @@ export default function ServerConfigurationScreen() {
           />
         </View>
 
-        <View style={[styles.row]}>
+        <View style={styles.row}>
           <View style={styles.label}>
             <Controller
               name="seed-queue-enabled"
