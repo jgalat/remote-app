@@ -95,6 +95,14 @@ function TorrentActionsSheet({
           clear();
         },
       },
+      {
+        label: "Settings",
+        left: "settings",
+        onPress: () => {
+          router.push(`/info/${id}/settings`);
+          clear();
+        },
+      },
       ...options,
     ];
   }

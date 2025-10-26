@@ -82,6 +82,12 @@ export default function Layout() {
         }}
       />
       <MaterialTopTabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+        }}
+      />
+      <MaterialTopTabs.Screen
         name="files"
         options={{
           title: "Files",
@@ -103,12 +109,6 @@ export default function Layout() {
         name="pieces"
         options={{
           title: "Pieces",
-        }}
-      />
-      <MaterialTopTabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
         }}
       />
     </MaterialTopTabs>
