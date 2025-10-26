@@ -1,7 +1,8 @@
+import { Mode, Priority } from "./torrent-get";
 import type { Identifiers } from "./utils";
 
 export type Request = Identifiers & {
-  bandwidthPriority?: number;
+  bandwidthPriority?: Priority;
   downloadLimit?: number;
   downloadLimited?: boolean;
   "files-wanted"?: number[];
@@ -15,12 +16,12 @@ export type Request = Identifiers & {
   "priority-normal"?: number[];
   queuePosition?: number;
   seedIdleLimit?: number;
-  seedIdleMode?: number;
+  seedIdleMode?: Mode;
   seedRatioLimit?: number;
-  seedRatioMode?: number;
+  seedRatioMode?: Mode;
   trackerAdd?: string[];
   trackerRemove?: number[];
-  trackerReplace?: Array<{id: number; announce: string}>;
+  trackerReplace?: Array<{ id: number; announce: string }>;
   trackerList?: string;
   group?: string;
   sequentialDownload?: boolean;

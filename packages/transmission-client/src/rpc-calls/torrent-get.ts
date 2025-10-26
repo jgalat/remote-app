@@ -11,7 +11,7 @@ type File = {
 type FileStats = {
   bytesCompleted: number;
   wanted: boolean;
-  priority: number;
+  priority: Priority;
 };
 
 type Peer = {
@@ -97,11 +97,17 @@ export enum Priority {
   HIGH = 1,
 }
 
+export enum Mode {
+  GLOBAL = 0,
+  SINGLE = 1,
+  UNLIMITED = 2,
+}
+
 export type Torrent = {
   activityDate?: number;
   addedDate?: number;
   availability?: number[];
-  bandwidthPriority?: number;
+  bandwidthPriority?: Priority;
   comment?: string;
   corruptEver?: number;
   creator?: string;
@@ -156,9 +162,9 @@ export type Torrent = {
   secondsDownloading?: number;
   secondsSeeding?: number;
   seedIdleLimit?: number;
-  seedIdleMode?: number;
+  seedIdleMode?: Mode;
   seedRatioLimit?: number;
-  seedRatioMode?: number;
+  seedRatioMode?: Mode;
   sequentialDownload?: boolean;
   sizeWhenDone?: number;
   startDate?: number;

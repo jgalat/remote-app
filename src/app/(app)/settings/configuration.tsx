@@ -291,7 +291,7 @@ export default function ServerConfigurationScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="SEED RATIO LIMIT"
+                  label="STOP SEEDING AT RATIO"
                 />
               )}
             />
@@ -329,7 +329,7 @@ export default function ServerConfigurationScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="IDLE SEEDING LIMIT (MINUTES)"
+                  label="STOP SEEDING IF IDLE (MINUTES)"
                 />
               )}
             />

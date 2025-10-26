@@ -105,6 +105,12 @@ export default function Layout() {
           title: "Pieces",
         }}
       />
+      <MaterialTopTabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+        }}
+      />
     </MaterialTopTabs>
   );
 }

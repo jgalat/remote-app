@@ -34,7 +34,7 @@ export type {
   GroupSetRequest,
 } from "./rpc-calls";
 
-export { TorrentStatus, Priority } from "./rpc-calls/torrent-get";
+export { TorrentStatus, Priority, Mode } from "./rpc-calls/torrent-get";
 export type { Torrent } from "./rpc-calls/torrent-get";
 
 export type { Methods } from "./rpc-call";

@@ -87,6 +87,16 @@ const selectFields = [
   "pieceCount",
   "pieceSize",
   "pieces",
+  "bandwidthPriority",
+  "honorsSessionLimits",
+  "downloadLimited",
+  "downloadLimit",
+  "uploadLimited",
+  "uploadLimit",
+  "seedRatioMode",
+  "seedRatioLimit",
+  "seedIdleMode",
+  "seedIdleLimit",
 ] as const;
 
 type HookError = TransmissionError | HTTPError;

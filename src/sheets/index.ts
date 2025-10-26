@@ -11,6 +11,7 @@ import RemoveConfirmSheet, {
 } from "./remove-confirm";
 import SortBySheet from "./sort-by";
 import FilterSheet from "./filter";
+import SelectSheet, { type Payload as SelectPayload } from "./select";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
@@ -25,14 +26,18 @@ declare module "react-native-actions-sheet" {
     }>;
     [SortBySheet.sheetId]: SheetDefinition;
     [FilterSheet.sheetId]: SheetDefinition;
-    [FilterSheet.sheetId]: SheetDefinition;
+    [SelectSheet.sheetId]: SheetDefinition<{
+      payload: SelectPayload;
+    }>;
   }
 }
 
 registerSheet(TorrentActionsSheet.sheetId, TorrentActionsSheet);
 registerSheet(TorrentPrioritySheet.sheetId, TorrentPrioritySheet);
+registerSheet(FilterSheet.sheetId, FilterSheet);
 registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
 registerSheet(SortBySheet.sheetId, SortBySheet);
 registerSheet(FilterSheet.sheetId, FilterSheet);
+registerSheet(SelectSheet.sheetId, SelectSheet);
 
 export {};
