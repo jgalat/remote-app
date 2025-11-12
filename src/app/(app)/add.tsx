@@ -27,16 +27,9 @@ import FileInput from "~/components/file-input";
 type Form = z.infer<typeof Form>;
 const Form = z
   .object({
-    magnet: z
-      .string()
-      .regex(
-        /^$|^magnet:\?xt=urn:btih:[a-fA-F0-9]{40,64}(&[a-z0-9]+=[^&\s]*)*$/,
-        "Invalid magnet URL"
-      ),
-
+    magnet: z.string().optional(),
     file: z.string().optional(),
     content: z.string().optional(),
-
     path: z
       .string()
       .min(1, "path cannot be empty")
@@ -69,7 +62,7 @@ function values(
     return undefined;
   }
   return {
-    magnet: magnet || "",
+    magnet: magnet,
     path: session["download-dir"],
     start: true,
   };
