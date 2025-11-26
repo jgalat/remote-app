@@ -13,7 +13,6 @@ services:
       - 51413:51413/udp
     volumes:
       - "data:/downloads"
-    restart: unless-stopped
 
 volumes:
   data:
