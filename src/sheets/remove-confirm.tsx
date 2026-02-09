@@ -3,7 +3,6 @@ import * as React from "react";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentAction, Torrent } from "~/hooks/use-transmission";
-import useTorrentSelection from "~/hooks/use-torrent-selection";
 
 export type Payload = Torrent["id"][];
 
@@ -14,9 +13,7 @@ function RemoveConfirmSheet({
   ...props
 }: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
-  const { clear } = useTorrentSelection();
   const remove = useTorrentAction("torrent-remove");
-  const settled = { onSettled: () => clear() };
 
   return (
     <ActionSheet
@@ -26,7 +23,7 @@ function RemoveConfirmSheet({
           label: "Remove",
           left: "trash",
           color: red,
-          onPress: () => (ids ? remove.mutate({ ids }, settled) : undefined),
+          onPress: () => (ids ? remove.mutate({ ids }) : undefined),
         },
         {
           label: "Remove & Trash data",
@@ -34,7 +31,7 @@ function RemoveConfirmSheet({
           color: red,
           onPress: () =>
             ids
-              ? remove.mutate({ ids, "delete-local-data": true }, settled)
+              ? remove.mutate({ ids, "delete-local-data": true })
               : undefined,
         },
       ]}
