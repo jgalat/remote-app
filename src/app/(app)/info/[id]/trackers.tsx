@@ -10,7 +10,7 @@ import {
   LoadingScreen,
   NetworkErrorScreen,
 } from "~/components/utility-screens";
-import { useTheme } from "~/hooks/use-theme-color";
+import Separator from "~/components/separator";
 import KeyValue from "~/components/key-value";
 
 function na(count: number) {
@@ -20,8 +20,6 @@ function na(count: number) {
 export default function TrackersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
-  const { lightGray } = useTheme();
-
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
@@ -123,9 +121,7 @@ export default function TrackersScreen() {
           );
         }}
         keyExtractor={({ announce, scrape }) => announce + scrape}
-        ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: lightGray }]} />
-        )}
+        ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
             <Text style={styles.title}>No trackers found</Text>
@@ -148,11 +144,6 @@ const styles = StyleSheet.create({
   },
   kv: {
     marginBottom: 0,
-  },
-  separator: {
-    marginVertical: 16,
-    height: 1,
-    width: "100%",
   },
   message: {
     flex: 1,

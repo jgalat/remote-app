@@ -28,7 +28,7 @@ export default React.memo(function Option({
   const optionColor = color ? color : text;
   return (
     <Pressable style={[styles.container, style]} onPress={onPress} {...props}>
-      <View style={{ width: typeof left === "number" ? "15%" : "auto" }}>
+      <View style={typeof left === "number" ? styles.leftBadge : styles.leftIcon}>
         {typeof left === "number" ? (
           <Badge label={left} />
         ) : (
@@ -53,6 +53,12 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     minHeight: 32,
     paddingVertical: 12,
+  },
+  leftBadge: {
+    width: "15%",
+  },
+  leftIcon: {
+    width: "auto",
   },
   label: {
     flex: 1,

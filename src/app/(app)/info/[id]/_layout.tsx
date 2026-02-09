@@ -28,6 +28,12 @@ const MaterialTopTabs = withLayoutContext<
   MaterialTopTabNavigationEventMap
 >(Navigator);
 
+const tabBarItemStyle = {
+  minHeight: 16,
+  maxHeight: 32,
+  width: 96,
+};
+
 export default function Layout() {
   const navigation = useNavigation();
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -49,32 +55,31 @@ export default function Layout() {
     });
   }, [torrentActionsSheet, navigation, error, torrents]);
 
+  const screenOptions = React.useMemo(
+    () => ({
+      tabBarLabelStyle: {
+        fontFamily: "RobotoMono-Medium" as const,
+        color: text,
+        fontSize: 14,
+        margin: 0,
+        padding: 0,
+        height: 24,
+      },
+      tabBarStyle: {
+        backgroundColor: background,
+        height: 32,
+        justifyContent: "center" as const,
+        elevation: 0,
+      },
+      tabBarItemStyle: tabBarItemStyle,
+      tabBarScrollEnabled: true,
+      tabBarIndicatorStyle: { backgroundColor: tint, height: 2 },
+    }),
+    [text, background, tint]
+  );
+
   return (
-    <MaterialTopTabs
-      screenOptions={{
-        tabBarLabelStyle: {
-          fontFamily: "RobotoMono-Medium",
-          color: text,
-          fontSize: 14,
-          margin: 0,
-          padding: 0,
-          height: 24,
-        },
-        tabBarStyle: {
-          backgroundColor: background,
-          height: 32,
-          justifyContent: "center",
-          elevation: 0,
-        },
-        tabBarItemStyle: {
-          minHeight: 16,
-          maxHeight: 32,
-          width: 96,
-        },
-        tabBarScrollEnabled: true,
-        tabBarIndicatorStyle: { backgroundColor: tint, height: 2 },
-      }}
-    >
+    <MaterialTopTabs screenOptions={screenOptions}>
       <MaterialTopTabs.Screen
         name="index"
         options={{

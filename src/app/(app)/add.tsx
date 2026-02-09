@@ -293,13 +293,6 @@ export default function AddTorrentScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  file: {
-    marginBottom: 40,
-  },
   free: {
     marginTop: 24,
     textAlign: "center",

@@ -32,9 +32,9 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     [router]
   );
 
+  const value = React.useMemo(() => ({ locked, unlock }), [locked, unlock]);
+
   return (
-    <AuthContext.Provider value={{ locked, unlock }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
 }

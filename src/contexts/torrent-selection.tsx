@@ -63,13 +63,12 @@ export function TorrentSelectionProvider({
   const [state, dispatch] = React.useReducer(reducer, initState);
 
   const toggle = React.useCallback(
-    async (id: Torrent["id"]) => dispatch({ type: "toggle", payload: id }),
+    (id: Torrent["id"]) => dispatch({ type: "toggle", payload: id }),
     []
   );
 
   const select = React.useCallback(
-    async (...ids: Torrent["id"][]) =>
-      dispatch({ type: "select", payload: ids }),
+    (...ids: Torrent["id"][]) => dispatch({ type: "select", payload: ids }),
     []
   );
 
@@ -89,7 +88,10 @@ export function TorrentSelectionProvider({
     return () => handler.remove();
   }, [state.active, clear]);
 
-  const value: TorrentSelection = { ...state, toggle, select, clear };
+  const value = React.useMemo(
+    () => ({ ...state, toggle, select, clear }),
+    [state, toggle, select, clear]
+  );
 
   return (
     <TorrentSelectionContext.Provider value={value}>

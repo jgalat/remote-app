@@ -10,6 +10,7 @@ import {
   LoadingScreen,
   NetworkErrorScreen,
 } from "~/components/utility-screens";
+import Separator from "~/components/separator";
 import { useTheme } from "~/hooks/use-theme-color";
 import Pressable from "~/components/pressable";
 import FileItem from "~/components/file-item";
@@ -25,7 +26,7 @@ export default function FilesScreen() {
   const prioritySheet = useTorrentPrioritySheet(+id);
   const torrentSet = useTorrentSet(+id);
   const isFocused = useIsFocused();
-  const { lightGray, text } = useTheme();
+  const { text } = useTheme();
 
   const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(
     torrents ?? []
@@ -90,9 +91,7 @@ export default function FilesScreen() {
           />
         )}
         keyExtractor={({ path }) => path}
-        ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: lightGray }]} />
-        )}
+        ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
             <Text style={styles.title}>No files found</Text>
@@ -117,11 +116,6 @@ const styles = StyleSheet.create({
   top: {
     flexDirection: "row",
     padding: 12,
-  },
-  separator: {
-    marginVertical: 16,
-    height: 1,
-    width: "100%",
   },
   message: {
     flex: 1,

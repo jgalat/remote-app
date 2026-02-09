@@ -30,31 +30,33 @@ function TorrentActionsSheet({
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
+  const settled = { onSettled: () => clear() };
+
   let options: OptionProps[] = [
     {
       label: "Start",
       left: "play",
-      onPress: () => actions.start.mutate({ ids }),
+      onPress: () => actions.start.mutate({ ids }, settled),
     },
     {
       label: "Start now",
       left: "play",
-      onPress: () => actions.startNow.mutate({ ids }),
+      onPress: () => actions.startNow.mutate({ ids }, settled),
     },
     {
       label: "Stop",
       left: "pause",
-      onPress: () => actions.stop.mutate({ ids }),
+      onPress: () => actions.stop.mutate({ ids }, settled),
     },
     {
       label: "Verify",
       left: "check-circle",
-      onPress: () => actions.verify.mutate({ ids }),
+      onPress: () => actions.verify.mutate({ ids }, settled),
     },
     {
       label: "Reannounce",
       left: "radio",
-      onPress: () => actions.reannounce.mutate({ ids }),
+      onPress: () => actions.reannounce.mutate({ ids }, settled),
     },
   ];
 

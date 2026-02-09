@@ -98,12 +98,12 @@ async function testConnection(f: Form): Promise<string> {
   try {
     await client.request({ method: "session-get" });
     return "Connected";
-  } catch (e: any) {
+  } catch (e) {
     if (e instanceof HTTPError) {
       return `HTTP Error: ${e.message}`;
     } else if (e instanceof TransmissionError) {
       return `Transmission Error: ${e.message}`;
-    } else if ("message" in e) {
+    } else if (e instanceof Error) {
       return `Error: ${e.message}`;
     }
     return "Unknown error";

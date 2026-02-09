@@ -109,21 +109,6 @@ export default function TorrentSettingsScreen() {
     return <LoadingScreen />;
   }
 
-  const options = [
-    {
-      label: "High",
-      left: "chevrons-up",
-    },
-    {
-      label: "Normal",
-      left: "minus",
-    },
-    {
-      label: "Low",
-      left: "chevrons-down",
-    },
-  ];
-
   return (
     <Screen style={styles.container}>
       <KeyboardAwareScrollView

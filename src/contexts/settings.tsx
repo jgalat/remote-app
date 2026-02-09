@@ -40,14 +40,14 @@ export function SettingsProvider({ children }: React.PropsWithChildren) {
     },
   });
 
-  if (isLoading || !settings) {
+  const value = React.useMemo(
+    () => (settings ? { settings, store } : null),
+    [settings, store]
+  );
+
+  if (isLoading || !value) {
     return null;
   }
-
-  const value: AppSettings = {
-    settings,
-    store,
-  };
 
   return (
     <SettingsContext.Provider value={value}>

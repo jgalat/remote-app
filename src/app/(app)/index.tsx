@@ -1,8 +1,6 @@
 import * as React from "react";
-import * as Haptics from "expo-haptics";
 import { FlatList, StyleSheet } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
-import { TorrentStatus } from "@remote-app/transmission-client";
 import { useIsFocused } from "@react-navigation/native";
 
 import Text from "~/components/text";
@@ -12,18 +10,13 @@ import Button from "~/components/button";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import TorrentItem from "~/components/torrent-item";
+import Separator from "~/components/separator";
 import Stats from "~/components/stats";
-import Checkbox from "~/components/checkbox";
 import {
   NetworkErrorScreen,
   LoadingScreen,
 } from "~/components/utility-screens";
-import { useTheme } from "~/hooks/use-theme-color";
-import {
-  useTorrentActions,
-  useTorrents,
-  Torrent,
-} from "~/hooks/use-transmission";
+import { useTorrentActions, useTorrents } from "~/hooks/use-transmission";
 import { useServer, useListing } from "~/hooks/use-settings";
 import {
   useFilterSheet,
@@ -47,7 +40,6 @@ export default function TorrentsScreen() {
     isLoading,
   } = useTorrents({ stale: !isFocused });
   const [refreshing, setRefreshing] = React.useState(false);
-  const { lightGray } = useTheme();
   const { start, stop } = useTorrentActions();
   const torrentActionsSheet = useTorrentActionsSheet();
   const sortBySheet = useSortBySheet();
@@ -146,6 +138,14 @@ export default function TorrentsScreen() {
     setRefreshing(false);
   }, [refetch]);
 
+  const render = React.useMemo(
+    () =>
+      torrents
+        ? [...torrents].sort(compare(direction, sort)).filter(predicate(filter))
+        : [],
+    [torrents, direction, sort, filter]
+  );
+
   if (!server) {
     return (
       <Screen style={styles.message}>
@@ -178,10 +178,6 @@ export default function TorrentsScreen() {
     );
   }
 
-  const render: Torrent[] = [...torrents]
-    .sort(compare(direction, sort))
-    .filter(predicate(filter));
-
   return (
     <Screen style={{ paddingTop: 16 }}>
       <FlatList
@@ -189,43 +185,17 @@ export default function TorrentsScreen() {
         data={render}
         renderItem={({ item: torrent }) => (
           <TorrentItem
-            onPress={() =>
-              activeSelection
-                ? toggle(torrent.id)
-                : torrentActionsSheet({ torrents: [torrent] })
-            }
-            onLongPress={async () => {
-              await Haptics.performAndroidHapticsAsync(
-                Haptics.AndroidHaptics.Long_Press
-              );
-              toggle(torrent.id);
-            }}
             torrent={torrent}
-            left={
-              activeSelection ? (
-                <Checkbox
-                  value={selection.has(torrent.id)}
-                  onPress={() => toggle(torrent.id)}
-                />
-              ) : (
-                <ActionIcon
-                  name={
-                    torrent.status === TorrentStatus.STOPPED ? "play" : "pause"
-                  }
-                  onPress={() =>
-                    torrent.status === TorrentStatus.STOPPED
-                      ? start.mutate({ ids: torrent.id })
-                      : stop.mutate({ ids: torrent.id })
-                  }
-                />
-              )
-            }
+            activeSelection={activeSelection}
+            selected={selection.has(torrent.id)}
+            onToggle={toggle}
+            onActions={torrentActionsSheet}
+            onStart={start.mutate}
+            onStop={stop.mutate}
           />
         )}
         keyExtractor={({ id }) => id.toString()}
-        ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: lightGray }]} />
-        )}
+        ItemSeparatorComponent={Separator}
         onRefresh={refresh}
         refreshing={refreshing}
       />
@@ -244,16 +214,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 24,
-  },
-  empty: {
-    alignSelf: "center",
-    marginTop: 48,
-    fontSize: 16,
-    fontFamily: "RobotoMono-Medium",
-  },
-  separator: {
-    marginVertical: 16,
-    height: 1,
-    width: "100%",
   },
 });

@@ -11,13 +11,11 @@ import {
   NetworkErrorScreen,
 } from "~/components/utility-screens";
 import PeerItem from "~/components/peer-item";
-import { useTheme } from "~/hooks/use-theme-color";
+import Separator from "~/components/separator";
 
 export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
-  const { lightGray } = useTheme();
-
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
@@ -35,9 +33,7 @@ export default function PeersScreen() {
         keyExtractor={({ isUTP, address, port }) =>
           `${isUTP ? "utp" : "tcp"}://${address}:${port}`
         }
-        ItemSeparatorComponent={() => (
-          <View style={[styles.separator, { backgroundColor: lightGray }]} />
-        )}
+        ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
             <Text style={styles.title}>No peers found</Text>
@@ -57,11 +53,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 16,
-  },
-  separator: {
-    marginVertical: 16,
-    height: 1,
-    width: "100%",
   },
   message: {
     flex: 1,

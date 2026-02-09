@@ -37,7 +37,6 @@ registerSheet(TorrentPrioritySheet.sheetId, TorrentPrioritySheet);
 registerSheet(FilterSheet.sheetId, FilterSheet);
 registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
 registerSheet(SortBySheet.sheetId, SortBySheet);
-registerSheet(FilterSheet.sheetId, FilterSheet);
 registerSheet(SelectSheet.sheetId, SelectSheet);
 
 export {};

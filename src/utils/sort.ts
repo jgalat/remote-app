@@ -46,10 +46,10 @@ const time: Compare = (t1: Torrent, t2: Torrent) => {
   const t1Complete = t1.leftUntilDone <= 0 && t1.sizeWhenDone > 0;
   const t2Complete = t2.leftUntilDone <= 0 && t2.sizeWhenDone > 0;
 
-  if (t1Complete && t2Complete) {
+  if (t1Complete && !t2Complete) {
     return -1;
   }
-  if (t1Complete && t2Complete) {
+  if (!t1Complete && t2Complete) {
     return 1;
   }
 

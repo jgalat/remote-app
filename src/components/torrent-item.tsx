@@ -2,11 +2,14 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { TorrentStatus } from "@remote-app/transmission-client";
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 import View from "./view";
 import Text from "./text";
 import ProgressBar from "./progress-bar";
-import Pressable, { PressableProps } from "./pressable";
+import Pressable from "./pressable";
+import ActionIcon from "./action-icon";
+import Checkbox from "./checkbox";
 import { useTheme } from "~/hooks/use-theme-color";
 import { Torrent } from "~/hooks/use-transmission";
 import {
@@ -18,13 +21,24 @@ import {
 
 export type TorrentItemProps = {
   torrent: Torrent;
-  left?: React.ReactNode;
-} & PressableProps;
+  disabled?: boolean;
+  activeSelection?: boolean;
+  selected?: boolean;
+  onToggle?: (id: number) => void;
+  onActions?: (payload: { torrents: Torrent[] }) => void;
+  onStart?: (params: { ids: number }) => void;
+  onStop?: (params: { ids: number }) => void;
+};
 
 export default React.memo(function TorrentItem({
   torrent,
-  left,
-  ...props
+  disabled,
+  activeSelection,
+  selected,
+  onToggle,
+  onActions,
+  onStart,
+  onStop,
 }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
 
@@ -59,8 +73,44 @@ export default React.memo(function TorrentItem({
     )} (${torrent.uploadRatio.toFixed(2)})`;
   }
 
+  const left = disabled ? null : activeSelection ? (
+    <Checkbox
+      value={selected ?? false}
+      onPress={() => onToggle?.(torrent.id)}
+    />
+  ) : (
+    <ActionIcon
+      name={torrent.status === TorrentStatus.STOPPED ? "play" : "pause"}
+      onPress={() =>
+        torrent.status === TorrentStatus.STOPPED
+          ? onStart?.({ ids: torrent.id })
+          : onStop?.({ ids: torrent.id })
+      }
+    />
+  );
+
   return (
-    <Pressable {...props}>
+    <Pressable
+      disabled={disabled}
+      onPress={
+        disabled
+          ? undefined
+          : () =>
+              activeSelection
+                ? onToggle?.(torrent.id)
+                : onActions?.({ torrents: [torrent] })
+      }
+      onLongPress={
+        disabled
+          ? undefined
+          : async () => {
+              await Haptics.performAndroidHapticsAsync(
+                Haptics.AndroidHaptics.Long_Press
+              );
+              onToggle?.(torrent.id);
+            }
+      }
+    >
       <View style={styles.container}>
         {left ? <View style={styles.left}>{left}</View> : null}
         <View style={styles.stats}>
@@ -68,7 +118,7 @@ export default React.memo(function TorrentItem({
             {torrent.name}
           </Text>
           <View style={styles.row}>
-            <View style={[styles.column, { flex: 1 }]}>
+            <View style={styles.columnFlex}>
               <Text
                 numberOfLines={1}
                 color={torrent.error ? red : gray}
@@ -134,6 +184,10 @@ const styles = StyleSheet.create({
   },
   column: {
     flexDirection: "column",
+  },
+  columnFlex: {
+    flexDirection: "column",
+    flex: 1,
   },
   name: {
     fontFamily: "RobotoMono-Medium",
