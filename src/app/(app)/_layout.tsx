@@ -38,10 +38,25 @@ export default function AppLayout() {
               title: "Add torrent",
             }}
           />
+          <Stack.Screen
+            name="search"
+            options={{ title: "Search" }}
+          />
+          <Stack.Screen
+            name="paywall"
+            options={{
+              presentation: "modal",
+              title: "Pro",
+            }}
+          />
           <Stack.Screen name="settings/index" options={{ title: "Settings" }} />
           <Stack.Screen
+            name="settings/servers"
+            options={{ title: "Servers" }}
+          />
+          <Stack.Screen
             name="settings/connection"
-            options={{ title: "Connection" }}
+            options={{ title: "Server" }}
           />
           <Stack.Screen
             name="settings/configuration"
@@ -53,6 +68,14 @@ export default function AppLayout() {
           />
           <Stack.Screen name="settings/theme" options={{ title: "Theme" }} />
           <Stack.Screen name="settings/about" options={{ title: "About" }} />
+          <Stack.Screen
+            name="settings/pro"
+            options={{ title: "Pro" }}
+          />
+          <Stack.Screen
+            name="settings/search"
+            options={{ title: "Search" }}
+          />
           {__DEV__ && (
             <Stack.Screen
               name="settings/development"

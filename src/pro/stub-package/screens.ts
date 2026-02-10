@@ -1,0 +1,12 @@
+export function PaywallScreen() {
+  return null;
+}
+export function SearchScreen() {
+  return null;
+}
+export function SearchConfigScreen() {
+  return null;
+}
+export function ProSettingsScreen() {
+  return null;
+}

@@ -1,13 +1,20 @@
 import * as React from "react";
 import { StyleSheet, ToastAndroid } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { z } from "zod";
+import { Feather } from "@expo/vector-icons";
+import TransmissionClient, {
+  SessionGetResponse,
+  SessionSetRequest,
+} from "@remote-app/transmission-client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import Toggle from "~/components/toggle";
 import Text from "~/components/text";
 import View from "~/components/view";
-import TextInput from "~/components/text-input";
+import Pressable from "~/components/pressable";
 import Screen from "~/components/screen";
-import { useSession, useSessionSet } from "~/hooks/use-transmission";
+import TextInput from "~/components/text-input";
 import {
   NetworkErrorScreen,
   LoadingScreen,
@@ -17,6 +24,67 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "~/hooks/use-theme-color";
+import { useServers } from "~/hooks/use-settings";
+import MockTransmissionClient, {
+  isTestingServer,
+} from "~/utils/mock-transmission-client";
+import type { Server } from "~/store/settings";
+
+function useServerClient(server: Server | undefined) {
+  return React.useMemo(() => {
+    if (!server) return null;
+    if (isTestingServer(server)) {
+      return new MockTransmissionClient() as unknown as TransmissionClient;
+    }
+    return new TransmissionClient({
+      url: server.url,
+      username: server.username,
+      password: server.password,
+    });
+  }, [server]);
+}
+
+function useServerSession(server: Server | undefined) {
+  const client = useServerClient(server);
+  return useQuery<Required<SessionGetResponse> | undefined>({
+    queryKey: ["config-session", server?.id, server?.url],
+    queryFn: async () => {
+      const response = await client?.request({ method: "session-get" });
+      const session = response?.arguments;
+      if (!session) return session;
+      return session as Required<SessionGetResponse>;
+    },
+    enabled: Boolean(client),
+    staleTime: 5_000,
+  });
+}
+
+function useServerSessionSet(server: Server | undefined) {
+  const queryClient = useQueryClient();
+  const client = useServerClient(server);
+  const key = ["config-session", server?.id, server?.url];
+
+  return useMutation<void, Error, SessionSetRequest, { previous?: SessionGetResponse }>({
+    mutationFn: async (params) => {
+      await client?.request({ method: "session-set", arguments: params });
+    },
+    onMutate: async (params) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(key);
+      queryClient.setQueryData(key, (old: SessionGetResponse | undefined) => {
+        if (!old) return;
+        return { ...old, ...params };
+      });
+      return { previous };
+    },
+    onError: (_err, _params, context) => {
+      queryClient.setQueryData(key, context?.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+    },
+  });
+}
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -89,9 +157,74 @@ const Form = z
     }
   });
 
-export default function ServerConfigurationScreen() {
-  const { data: session, isLoading, error, refetch } = useSession();
-  const { mutate } = useSessionSet();
+function extractHostPort(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
+    return `${parsed.hostname}:${port}`;
+  } catch {
+    return url;
+  }
+}
+
+function ServerPicker({
+  servers,
+  onSelect,
+}: {
+  servers: Server[];
+  onSelect: (id: string) => void;
+}) {
+  const { text } = useTheme();
+
+  return (
+    <Screen>
+      {servers.map((server) => (
+        <Pressable
+          key={server.id}
+          style={pickerStyles.row}
+          onPress={() => onSelect(server.id)}
+        >
+          <Feather name="server" size={20} color={text} />
+          <View style={pickerStyles.info}>
+            <Text style={pickerStyles.name} numberOfLines={1}>
+              {server.name}
+            </Text>
+            <Text style={pickerStyles.url} numberOfLines={1}>
+              {extractHostPort(server.url)}
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={text} />
+        </Pressable>
+      ))}
+    </Screen>
+  );
+}
+
+const pickerStyles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 4,
+  },
+  info: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  name: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 17,
+  },
+  url: {
+    fontSize: 13,
+    marginTop: 2,
+    opacity: 0.6,
+  },
+});
+
+function ConfigurationForm({ server }: { server: Server }) {
+  const { data: session, isLoading, error, refetch } = useServerSession(server);
+  const { mutate } = useServerSessionSet(server);
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
 
@@ -482,6 +615,38 @@ export default function ServerConfigurationScreen() {
       </KeyboardAwareScrollView>
     </Screen>
   );
+}
+
+export default function ServerConfigurationScreen() {
+  const { serverId } = useLocalSearchParams<{ serverId?: string }>();
+  const servers = useServers();
+
+  const [selectedId, setSelectedId] = React.useState<string | undefined>(serverId);
+
+  const server = selectedId
+    ? servers.find((s) => s.id === selectedId)
+    : servers.length === 1
+      ? servers[0]
+      : undefined;
+
+  if (!server && servers.length > 1) {
+    return (
+      <ServerPicker
+        servers={servers}
+        onSelect={(id) => setSelectedId(id)}
+      />
+    );
+  }
+
+  if (!server) {
+    return (
+      <Screen>
+        <Text>No server found</Text>
+      </Screen>
+    );
+  }
+
+  return <ConfigurationForm server={server} />;
 }
 
 const styles = StyleSheet.create({

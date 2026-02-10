@@ -8,7 +8,7 @@ import {
   TorrentSetRequest,
   Priority,
 } from "@remote-app/transmission-client";
-import { Server } from "~/store/settings";
+
 
 const storage = {
   torrents: [
@@ -254,7 +254,7 @@ const storage = {
   },
 };
 
-export function isTestingServer(server: Server): boolean {
+export function isTestingServer(server: { name: string; url: string }): boolean {
   return server.name === "app" && server.url === "app-testing-url";
 }
 

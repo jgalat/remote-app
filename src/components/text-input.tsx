@@ -32,6 +32,8 @@ export default React.memo(function TextInput({
     >
       <_TextInput
         autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="off"
         style={[
           styles.input,
           {
@@ -57,7 +59,6 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   input: {
-    flex: 1,
     fontFamily: "RobotoMono-Regular",
     borderWidth: 2,
     padding: 8,

@@ -9,6 +9,10 @@ import TorrentActionsSheet, {
 import TorrentPrioritySheet, {
   type Payload as TorrentPriorityPayload,
 } from "~/sheets/torrent-priority";
+import ServerSelectorSheet from "~/sheets/server-selector";
+import ServerDeleteConfirmSheet, {
+  type Payload as ServerDeleteConfirmPayload,
+} from "~/sheets/server-delete-confirm";
 
 export function useTorrentActionsSheet() {
   return React.useCallback(
@@ -36,4 +40,19 @@ export function useSortBySheet() {
 
 export function useFilterSheet() {
   return React.useCallback(() => SheetManager.show(FilterSheet.sheetId), []);
+}
+
+export function useServerSelectorSheet() {
+  return React.useCallback(
+    () => SheetManager.show(ServerSelectorSheet.sheetId),
+    []
+  );
+}
+
+export function useServerDeleteConfirmSheet() {
+  return React.useCallback(
+    (payload: ServerDeleteConfirmPayload) =>
+      SheetManager.show(ServerDeleteConfirmSheet.sheetId, { payload }),
+    []
+  );
 }

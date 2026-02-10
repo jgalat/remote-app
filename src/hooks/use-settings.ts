@@ -1,7 +1,7 @@
 import { useColorScheme as _useColorScheme } from "react-native";
 
 import { SettingsContext } from "~/contexts/settings";
-import { Settings } from "~/store/settings";
+import { Settings, getActiveServer } from "~/store/settings";
 import useNonNullContext from "./use-non-null-context";
 
 export default function useSettings() {
@@ -22,8 +22,17 @@ export function useColorScheme(): "light" | "dark" {
   return colorScheme;
 }
 
-export function useServer(): Settings["server"] {
-  return useSettings().settings.server;
+export function useServer() {
+  const { settings } = useSettings();
+  return getActiveServer(settings);
+}
+
+export function useServers() {
+  return useSettings().settings.servers;
+}
+
+export function useActiveServerId() {
+  return useSettings().settings.activeServerId;
 }
 
 export function useListing(): Settings["listing"] {

@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
-import { View } from "react-native";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
@@ -12,11 +11,14 @@ import {
   DarkTheme,
   DefaultTheme,
 } from "@react-navigation/native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
+import View from "~/components/view";
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
 import { SettingsProvider } from "~/contexts/settings";
+import { ProProvider } from "@remote-app/pro";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
 
@@ -81,7 +83,7 @@ function Root() {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
+      staleTime: 5 * 60 * 1_000,
       retry: (failures, error) => {
         if (error instanceof Error && error.message.includes("401")) {
           return false;
@@ -99,15 +101,19 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <KeyboardProvider>
-        <SettingsProvider>
-          <AuthProvider>
-            <Root />
-          </AuthProvider>
-        </SettingsProvider>
-      </KeyboardProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <KeyboardProvider>
+          <SettingsProvider>
+            <ProProvider>
+              <AuthProvider>
+                <Root />
+              </AuthProvider>
+            </ProProvider>
+          </SettingsProvider>
+        </KeyboardProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 

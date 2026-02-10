@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import Toggle from "~/components/toggle";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import useSettings from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
+import { generateServerId } from "~/store/settings";
 import { isTestingServer } from "~/utils/mock-transmission-client";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
@@ -76,7 +77,7 @@ function renderUrl(form: Form): string {
 
   const protocol = form.useSSL ? "https" : "http";
   const port =
-    (form.useSSL && form.port === 443) || (!form.useSSL && form.port === 80)
+    !form.port || (form.useSSL && form.port === 443) || (!form.useSSL && form.port === 80)
       ? ""
       : `:${form.port}`;
   const path = form.path?.startsWith("/") ? form.path : `/${form.path}`;
@@ -151,49 +152,86 @@ function Required() {
 
 export default function ConnectionScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const {
-    settings: { server },
+    settings: { servers, activeServerId },
     store,
   } = useSettings();
   const { red, gray, green } = useTheme();
 
+  const editServer = id ? servers.find((s) => s.id === id) : undefined;
+  const isEdit = Boolean(editServer);
+
   const inset = useSafeAreaInsets();
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch, setValue } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
-    defaultValues: defaultValues(server),
+    defaultValues: defaultValues(editServer),
   });
 
   const useAuth = watch("useAuth");
+  const useSSL = watch("useSSL");
   const scroll = React.useRef<ScrollView>(null);
 
+  const onSSLChange = React.useCallback(
+    (enabled: boolean) => {
+      setValue("useSSL", enabled);
+      setValue("port", enabled ? ("" as unknown as number) : 9091);
+    },
+    [setValue]
+  );
+
   const navigation = useNavigation();
-  const remove = React.useCallback(async () => {
-    store({ server: undefined });
-    router.dismissTo("/settings");
-  }, [router, store]);
+
+  const remove = React.useCallback(() => {
+    if (!editServer) return;
+    const updated = servers.filter((s) => s.id !== editServer.id);
+    const newActiveId =
+      activeServerId === editServer.id ? updated[0]?.id : activeServerId;
+    store({ servers: updated, activeServerId: newActiveId });
+    router.dismissTo("/settings/servers");
+  }, [editServer, servers, activeServerId, router, store]);
 
   React.useEffect(() => {
-    if (!server) return;
+    if (!isEdit) return;
     navigation.setOptions({
       headerRight: () => (
         <ActionIcon onPress={remove} name="trash-2" color={red} />
       ),
     });
-  }, [server, remove, navigation, red]);
+  }, [isEdit, remove, navigation, red]);
 
   const onSubmit = React.useCallback(
     (f: Form) => {
-      store({
-        server: {
-          url: renderUrl(f),
-          ...f,
-        },
-      });
-      router.dismissAll();
+      const now = Date.now();
+      const url = renderUrl(f);
+
+      if (editServer) {
+        const updated = servers.map((s) =>
+          s.id === editServer.id
+            ? { ...s, name: f.name, url, username: f.username, password: f.password, updatedAt: now }
+            : s
+        );
+        store({ servers: updated });
+      } else {
+        const newServer: Server = {
+          id: generateServerId(),
+          name: f.name,
+          url,
+          username: f.username,
+          password: f.password,
+          createdAt: now,
+          updatedAt: now,
+        };
+        store({
+          servers: [...servers, newServer],
+          activeServerId: newServer.id,
+        });
+      }
+      router.back();
     },
-    [router, store]
+    [editServer, servers, router, store]
   );
 
   const {
@@ -292,7 +330,7 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <TextInput
-                  placeholder="9091"
+                  placeholder={useSSL ? "443" : "9091"}
                   keyboardType="numeric"
                   style={[
                     styles.input,
@@ -343,7 +381,7 @@ export default function ConnectionScreen() {
                   label="USE SSL/HTTPS"
                   description="Enable secure connection"
                   value={field.value}
-                  onPress={field.onChange}
+                  onPress={onSSLChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}

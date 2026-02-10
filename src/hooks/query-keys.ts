@@ -2,16 +2,16 @@ import type { Server } from "~/store/settings";
 
 export const queryKeys = {
   torrents: (server: Server | undefined) =>
-    ["torrents", server?.url, server?.username] as const,
+    ["torrents", server?.id, server?.url] as const,
 
   session: (server: Server | undefined) =>
-    ["session", server?.url, server?.username] as const,
+    ["session", server?.id, server?.url] as const,
 
   sessionStats: (server: Server | undefined) =>
-    ["session-stats", server?.url, server?.username] as const,
+    ["session-stats", server?.id, server?.url] as const,
 
   freeSpace: (server: Server | undefined, downloadDir?: string) =>
-    ["free-space", server?.url, server?.username, downloadDir] as const,
+    ["free-space", server?.id, server?.url, downloadDir] as const,
 
   torrentGet: (server: Server | undefined, id?: number | undefined) =>
     [
@@ -24,7 +24,7 @@ export const queryKeys = {
     [...queryKeys.session(server), "get"] as const,
 
   serverScope: (server: Server | undefined) =>
-    [server?.url, server?.username] as const,
+    [server?.id, server?.url] as const,
 
   all: (server: Server | undefined) => queryKeys.serverScope(server),
 } as const;

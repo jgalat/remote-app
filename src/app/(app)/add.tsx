@@ -154,7 +154,7 @@ export default function AddTorrentScreen() {
         }
 
         await addTorrent.mutateAsync(params);
-        router.dismissTo("/");
+        router.back();
       } catch (e) {
         let message = "Something went wrong";
         if (e instanceof Error) {

@@ -6,31 +6,43 @@ import { useRouter } from "expo-router";
 import Text from "~/components/text";
 import Option, { OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
-import { useColorScheme } from "~/hooks/use-settings";
-import { useSession } from "~/hooks/use-transmission";
+import useSettings, { useColorScheme } from "~/hooks/use-settings";
+
+import { usePro } from "@remote-app/pro";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
-  const { data: session, error } = useSession({ stale: true });
+  const { settings: { servers } } = useSettings();
+  const { isPro, available } = usePro();
   const router = useRouter();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
     const connection: OptionProps[] = [
       {
-        left: "wifi",
-        label: "Connection",
-        onPress: () => router.push("/settings/connection"),
+        left: "server",
+        label: "Servers",
+        onPress: () => router.push("/settings/servers"),
         right: "chevron-right",
       },
     ];
 
     const serverOptions: OptionProps[] = [
       {
-        left: "server",
+        left: "sliders",
         label: "Server Configuration",
         onPress: () => router.push("/settings/configuration"),
         right: "chevron-right",
       },
+      ...(available && isPro
+        ? [
+            {
+              left: "search" as const,
+              label: "Search",
+              onPress: () => router.push("/settings/search"),
+              right: "chevron-right" as const,
+            },
+          ]
+        : []),
     ];
 
     const appOptions: OptionProps[] = [
@@ -46,6 +58,23 @@ export default function SettingsScreen() {
         onPress: () => router.push("/settings/theme"),
         right: "chevron-right",
       },
+      ...(available
+        ? [
+            isPro
+              ? {
+                  left: "star" as const,
+                  label: "Pro (Active)",
+                  onPress: () => router.push("/settings/pro"),
+                  right: "chevron-right" as const,
+                }
+              : {
+                  left: "star" as const,
+                  label: "Pro",
+                  onPress: () => router.push("/paywall"),
+                  right: "chevron-right" as const,
+                },
+          ]
+        : []),
       {
         left: "info",
         label: "About",
@@ -65,11 +94,11 @@ export default function SettingsScreen() {
 
     return [
       ...connection,
-      ...(!session || error ? [] : serverOptions),
+      ...(servers.length > 0 ? serverOptions : []),
       ...appOptions,
       ...(__DEV__ ? devOptions : []),
     ];
-  }, [colorScheme, session, error, router]);
+  }, [colorScheme, servers, isPro, available, router]);
 
   return (
     <Screen style={{ paddingTop: 16 }}>

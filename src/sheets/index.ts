@@ -12,6 +12,10 @@ import RemoveConfirmSheet, {
 import SortBySheet from "./sort-by";
 import FilterSheet from "./filter";
 import SelectSheet, { type Payload as SelectPayload } from "./select";
+import ServerSelectorSheet from "./server-selector";
+import ServerDeleteConfirmSheet, {
+  type Payload as ServerDeleteConfirmPayload,
+} from "./server-delete-confirm";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
@@ -29,6 +33,10 @@ declare module "react-native-actions-sheet" {
     [SelectSheet.sheetId]: SheetDefinition<{
       payload: SelectPayload;
     }>;
+    [ServerSelectorSheet.sheetId]: SheetDefinition;
+    [ServerDeleteConfirmSheet.sheetId]: SheetDefinition<{
+      payload: ServerDeleteConfirmPayload;
+    }>;
   }
 }
 
@@ -38,5 +46,7 @@ registerSheet(FilterSheet.sheetId, FilterSheet);
 registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
 registerSheet(SortBySheet.sheetId, SortBySheet);
 registerSheet(SelectSheet.sheetId, SelectSheet);
+registerSheet(ServerSelectorSheet.sheetId, ServerSelectorSheet);
+registerSheet(ServerDeleteConfirmSheet.sheetId, ServerDeleteConfirmSheet);
 
 export {};

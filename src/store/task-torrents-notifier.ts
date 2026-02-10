@@ -1,11 +1,15 @@
+import { z } from "zod";
+
 import { storage } from "./storage";
 
-type TorrentsNotifierState = {
-  lastUpdate: number;
-};
+const StateSchema = z.object({
+  servers: z.record(z.string(), z.object({ lastUpdate: z.number() })),
+});
+
+type TorrentsNotifierState = z.infer<typeof StateSchema>;
 
 const initState: TorrentsNotifierState = {
-  lastUpdate: 0,
+  servers: {},
 };
 
 const KEY = "internal.torrents-notifier";
@@ -18,11 +22,15 @@ export function loadState(): TorrentsNotifierState {
   }
 
   try {
-    const state = JSON.parse(value) as TorrentsNotifierState;
-    return {
-      ...initState,
-      ...state,
-    };
+    const json: unknown = JSON.parse(value);
+    const result = StateSchema.safeParse(json);
+
+    if (result.success) {
+      return result.data;
+    }
+
+    // legacy or invalid format
+    return initState;
   } catch {
     storeState(initState);
     return initState;
@@ -32,4 +40,25 @@ export function loadState(): TorrentsNotifierState {
 export function storeState(state: TorrentsNotifierState): void {
   const value = JSON.stringify(state);
   return storage.set(KEY, value);
+}
+
+export function getServerLastUpdate(
+  state: TorrentsNotifierState,
+  serverId: string
+): number {
+  return state.servers[serverId]?.lastUpdate ?? 0;
+}
+
+export function setServerLastUpdate(
+  state: TorrentsNotifierState,
+  serverId: string,
+  lastUpdate: number
+): TorrentsNotifierState {
+  return {
+    ...state,
+    servers: {
+      ...state.servers,
+      [serverId]: { lastUpdate },
+    },
+  };
 }

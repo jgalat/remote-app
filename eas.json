@@ -13,7 +13,8 @@
     },
     "production": {
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_RC_ANDROID_API_KEY": "goog_uNXCRlvZBzcmvjaKZSuDvDUVlmm"
       }
     }
   },

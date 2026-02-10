@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 
 import {
-  isTorrentsNotifierTaskRegistered,
+  unregisterTorrentsNotifierTask,
   registerTorrentsNotifierTask,
 } from "~/tasks/torrents-notifier";
 import { useColorScheme } from "./use-settings";
@@ -17,9 +17,8 @@ async function load(
     if (!(await Notifications.getPermissionsAsync()).granted) {
       await Notifications.requestPermissionsAsync();
     }
-    if (!(await isTorrentsNotifierTaskRegistered())) {
-      await registerTorrentsNotifierTask();
-    }
+    await unregisterTorrentsNotifierTask();
+    await registerTorrentsNotifierTask();
   } catch {
     // ignore
   }

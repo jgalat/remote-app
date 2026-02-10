@@ -1,77 +1,78 @@
 import * as BackgroundTask from "expo-background-task";
-import * as TaskManager from "expo-task-manager";
 import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
 import TransmissionClient from "@remote-app/transmission-client";
 
 import { loadSettings } from "~/store/settings";
-import { loadState, storeState } from "~/store/task-torrents-notifier";
+import {
+  loadState,
+  storeState,
+  getServerLastUpdate,
+  setServerLastUpdate,
+} from "~/store/task-torrents-notifier";
 import { isTestingServer } from "~/utils/mock-transmission-client";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
 export default async function TorrentsNotifierTask(): Promise<BackgroundTask.BackgroundTaskResult> {
+  console.log("[torrents-notifier] Task started");
+
   const state = await Network.getNetworkStateAsync();
   if (!state.isConnected || !state.isInternetReachable) {
     return BackgroundTask.BackgroundTaskResult.Success;
   }
 
-  const { server } = loadSettings();
-  if (!server) {
+  const { servers } = loadSettings();
+  if (servers.length === 0) {
     return BackgroundTask.BackgroundTaskResult.Success;
   }
 
-  if (isTestingServer(server)) {
-    return BackgroundTask.BackgroundTaskResult.Success;
-  }
+  let notifierState = loadState();
 
-  const client = new TransmissionClient({
-    url: server.url,
-    username: server.username,
-    password: server.password,
-  });
+  for (const server of servers) {
+    if (isTestingServer(server)) continue;
 
-  try {
-    const response = await client.request({
-      method: "torrent-get",
-      arguments: {
-        fields: ["id", "doneDate"],
-      },
+    const client = new TransmissionClient({
+      url: server.url,
+      username: server.username,
+      password: server.password,
     });
 
-    const torrents = response.arguments?.torrents;
-    if (!torrents) {
-      return BackgroundTask.BackgroundTaskResult.Success;
+    try {
+      const response = await client.request({
+        method: "torrent-get",
+        arguments: {
+          fields: ["id", "doneDate"],
+        },
+      });
+
+      const torrents = response.arguments?.torrents;
+      if (!torrents) continue;
+
+      const lastUpdate = getServerLastUpdate(notifierState, server.id);
+      const done = torrents.filter((t) => t.doneDate! > lastUpdate);
+
+      const now = Math.floor(Date.now() / 1_000);
+      notifierState = setServerLastUpdate(notifierState, server.id, now);
+
+      if (done.length === 0 || lastUpdate === 0) continue;
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Finished torrents",
+          body: `${server.name}: ${done.length} ${
+            done.length === 1 ? "torrent has" : "torrents have"
+          } finished downloading`,
+        },
+        trigger: null,
+      });
+    } catch {
+      // continue to next server
     }
-
-    const { lastUpdate } = loadState();
-    const done = torrents.filter((t) => t.doneDate! > lastUpdate);
-
-    const now = Math.floor(Date.now() / 1000);
-    storeState({ lastUpdate: now });
-
-    if (done.length === 0 || lastUpdate === 0) {
-      return BackgroundTask.BackgroundTaskResult.Success;
-    }
-
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Finished torrents",
-        body: `${done.length} ${
-          done.length === 1 ? "torrent has" : "torrents have"
-        } finished downloading`,
-      },
-      trigger: null,
-    });
-  } catch {
-    return BackgroundTask.BackgroundTaskResult.Success;
   }
 
+  storeState(notifierState);
   return BackgroundTask.BackgroundTaskResult.Success;
-}
-
-export async function isTorrentsNotifierTaskRegistered(): Promise<boolean> {
-  return TaskManager.isTaskRegisteredAsync(TORRENTS_NOTIFIER_TASK);
 }
 
 export async function registerTorrentsNotifierTask(): Promise<void> {

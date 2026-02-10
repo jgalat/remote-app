@@ -1,5 +1,6 @@
 import * as React from "react";
 import { FlatList, StyleSheet } from "react-native";
+import Pressable from "~/components/pressable";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -17,13 +18,16 @@ import {
   LoadingScreen,
 } from "~/components/utility-screens";
 import { useTorrentActions, useTorrents } from "~/hooks/use-transmission";
-import { useServer, useListing } from "~/hooks/use-settings";
+import useSettings, { useServer, useListing, useServers } from "~/hooks/use-settings";
 import {
   useFilterSheet,
   useSortBySheet,
   useTorrentActionsSheet,
+  useServerSelectorSheet,
 } from "~/hooks/use-action-sheet";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
+import { usePro } from "@remote-app/pro";
+import { useTheme } from "~/hooks/use-theme-color";
 import compare from "~/utils/sort";
 import predicate from "~/utils/filter";
 
@@ -31,8 +35,11 @@ export default function TorrentsScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const isFocused = useIsFocused();
+  const { settings } = useSettings();
   const server = useServer();
+  const servers = useServers();
   const { sort, direction, filter } = useListing();
+  const { text: textColor } = useTheme();
   const {
     data: torrents,
     refetch,
@@ -43,7 +50,9 @@ export default function TorrentsScreen() {
   const { start, stop } = useTorrentActions();
   const torrentActionsSheet = useTorrentActionsSheet();
   const sortBySheet = useSortBySheet();
+  const { canUse, available } = usePro();
   const filterSheet = useFilterSheet();
+  const serverSelectorSheet = useServerSelectorSheet();
 
   const {
     active: activeSelection,
@@ -56,7 +65,22 @@ export default function TorrentsScreen() {
   React.useEffect(() => {
     const title = !server || server.name === "" ? "Remote" : server.name;
     navigation.setOptions({
-      title: activeSelection ? selection.size.toString() : title,
+      headerTitle: () =>
+        activeSelection ? (
+          <Text style={styles.headerTitle}>{selection.size.toString()}</Text>
+        ) : (
+          <Pressable
+            onPress={servers.length > 0 ? serverSelectorSheet : undefined}
+            style={styles.headerTitleRow}
+          >
+            <Text
+              style={[styles.headerTitle, { flexShrink: 1 }]}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          </Pressable>
+        ),
       headerLeft: () =>
         activeSelection ? (
           <ActionIcon
@@ -94,6 +118,16 @@ export default function TorrentsScreen() {
           );
         }
 
+        const onSearch = () => {
+          if (!canUse("search")) {
+            router.push("/paywall");
+          } else if (settings.searchConfig) {
+            router.push("/search");
+          } else {
+            router.push("/settings/search");
+          }
+        };
+
         const actions = torrents
           ? [
               <ActionIcon
@@ -101,13 +135,16 @@ export default function TorrentsScreen() {
                 onPress={() => router.push("/add")}
                 name="plus"
               />,
+              ...(available
+                ? [<ActionIcon key="search" onPress={onSearch} name="search" />]
+                : []),
               <ActionIcon key="sort" onPress={sortBySheet} name="align-left" />,
               <ActionIcon key="filter" onPress={filterSheet} name="filter" />,
             ]
           : [];
 
         return (
-          <ActionList>
+          <ActionList spacing={4}>
             {actions}
             <ActionIcon
               style={{ paddingRight: 0 }}
@@ -127,7 +164,13 @@ export default function TorrentsScreen() {
     select,
     selection,
     server,
+    servers,
+    settings,
+    available,
+    canUse,
+    serverSelectorSheet,
     sortBySheet,
+    textColor,
     torrentActionsSheet,
     torrents,
   ]);
@@ -146,7 +189,7 @@ export default function TorrentsScreen() {
     [torrents, direction, sort, filter]
   );
 
-  if (!server) {
+  if (servers.length === 0) {
     return (
       <Screen style={styles.message}>
         <Text style={styles.title}>No connection found</Text>
@@ -181,7 +224,6 @@ export default function TorrentsScreen() {
   return (
     <Screen style={{ paddingTop: 16 }}>
       <FlatList
-        // fadingEdgeLength={16}
         data={render}
         renderItem={({ item: torrent }) => (
           <TorrentItem
@@ -214,5 +256,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 24,
+  },
+  headerTitle: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 20,
+  },
+  headerTitleRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

@@ -14,5 +14,29 @@ services:
     volumes:
       - "data:/downloads"
 
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett-test
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 9117:9117
+    volumes:
+      - "jackett-config:/config"
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr-test
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 9696:9696
+    volumes:
+      - "prowlarr-config:/config"
+
 volumes:
   data:
+  jackett-config:
+  prowlarr-config:
