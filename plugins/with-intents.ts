@@ -11,10 +11,18 @@ const plugin: ConfigPlugin = (config) => {
   return withAndroidManifest(config, (config) => {
     const app = getMainApplicationOrThrow(config.modResults);
 
-    app.$["android:launchMode"] = "singleTask";
     app.$["android:enableOnBackInvokedCallback"] = "false";
 
+    if (!config.modResults.manifest["uses-permission"]) {
+      config.modResults.manifest["uses-permission"] = [];
+    }
+    config.modResults.manifest["uses-permission"].push({
+      $: { "android:name": "com.android.vending.BILLING" },
+    });
+
     const activity = getMainActivityOrThrow(config.modResults);
+
+    activity.$["android:launchMode"] = "singleTop";
 
     if (!activity["intent-filter"]) activity["intent-filter"] = [];
 
