@@ -13,13 +13,6 @@ const plugin: ConfigPlugin = (config) => {
 
     app.$["android:enableOnBackInvokedCallback"] = "false";
 
-    if (!config.modResults.manifest["uses-permission"]) {
-      config.modResults.manifest["uses-permission"] = [];
-    }
-    config.modResults.manifest["uses-permission"].push({
-      $: { "android:name": "com.android.vending.BILLING" },
-    });
-
     const activity = getMainActivityOrThrow(config.modResults);
 
     activity.$["android:launchMode"] = "singleTop";
