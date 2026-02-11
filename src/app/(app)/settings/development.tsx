@@ -9,13 +9,14 @@ import Screen from "~/components/screen";
 import Button from "~/components/button";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
 import useSettings from "~/hooks/use-settings";
-import { usePro } from "@remote-app/pro";
+import { usePro, getDeviceId, updateDeviceId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
 
 export default function Development() {
   const router = useRouter();
   const { store } = useSettings();
   const { devOverride, setDevOverride } = usePro();
+  const [deviceId, setDeviceId] = React.useState(() => getDeviceId());
   return (
     <Screen>
       <Text style={[styles.title]}>Navigation</Text>
@@ -58,6 +59,14 @@ export default function Development() {
         <Button
           title={devOverride ? "Disable Pro Override" : "Enable Pro Override"}
           onPress={() => setDevOverride(!devOverride)}
+        />
+      </View>
+      <Text style={[styles.title]}>Device ID</Text>
+      <View style={styles.row}>
+        <Text selectable style={styles.deviceId}>{deviceId}</Text>
+        <Button
+          title="Update Device ID"
+          onPress={() => setDeviceId(updateDeviceId())}
         />
       </View>
       <Text style={[styles.title]}>Servers</Text>
@@ -107,5 +116,9 @@ const styles = StyleSheet.create({
   row: {
     gap: 16,
     marginBottom: 16,
+  },
+  deviceId: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 12,
   },
 });

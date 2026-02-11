@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { randomUUID } from "expo-crypto";
 
 import { storage } from "./storage";
 
@@ -97,7 +98,7 @@ const LegacySettingsSchema = z.object({
 });
 
 function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return randomUUID();
 }
 
 function migrateLegacy(legacy: z.infer<typeof LegacySettingsSchema>): Settings {
