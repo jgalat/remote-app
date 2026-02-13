@@ -1,6 +1,6 @@
 {
   "name": "@remote-app/app",
-  "version": "0.19.9",
+  "version": "0.20.0",
   "description": "A transmission remote session app",
   "main": "expo-router/entry",
   "author": "Jorge Galat <jrgglt@gmail.com>",
