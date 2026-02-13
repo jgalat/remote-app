@@ -20,8 +20,7 @@ import {
 import { useTorrentActions, useTorrents } from "~/hooks/transmission";
 import useSettings, { useServer, useListing, useServers } from "~/hooks/use-settings";
 import {
-  useFilterSheet,
-  useSortBySheet,
+  useListingSheet,
   useTorrentActionsSheet,
   useServerSelectorSheet,
 } from "~/hooks/use-action-sheet";
@@ -49,9 +48,8 @@ export default function TorrentsScreen() {
   const [refreshing, setRefreshing] = React.useState(false);
   const { start, stop } = useTorrentActions();
   const torrentActionsSheet = useTorrentActionsSheet();
-  const sortBySheet = useSortBySheet();
+  const listingSheet = useListingSheet();
   const { canUse, available } = usePro();
-  const filterSheet = useFilterSheet();
   const serverSelectorSheet = useServerSelectorSheet();
 
   const {
@@ -138,8 +136,7 @@ export default function TorrentsScreen() {
               ...(available
                 ? [<ActionIcon key="search" onPress={onSearch} name="search" />]
                 : []),
-              <ActionIcon key="sort" onPress={sortBySheet} name="align-left" />,
-              <ActionIcon key="filter" onPress={filterSheet} name="filter" />,
+              <ActionIcon key="listing" onPress={listingSheet} name="sliders" />,
             ]
           : [];
 
@@ -159,7 +156,7 @@ export default function TorrentsScreen() {
     router,
     activeSelection,
     clear,
-    filterSheet,
+    listingSheet,
     navigation,
     select,
     selection,
@@ -169,7 +166,6 @@ export default function TorrentsScreen() {
     available,
     canUse,
     serverSelectorSheet,
-    sortBySheet,
     textColor,
     torrentActionsSheet,
     torrents,

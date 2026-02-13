@@ -1,8 +1,7 @@
 import * as React from "react";
 import { SheetManager } from "react-native-actions-sheet";
 
-import FilterSheet from "~/sheets/filter";
-import SortBySheet from "~/sheets/sort-by";
+import ListingSheet from "~/sheets/listing";
 import TorrentActionsSheet, {
   type Payload as TorrentActionsPayload,
 } from "~/sheets/torrent-actions";
@@ -34,12 +33,8 @@ export function useTorrentPrioritySheet(id: number) {
   );
 }
 
-export function useSortBySheet() {
-  return React.useCallback(() => SheetManager.show(SortBySheet.sheetId), []);
-}
-
-export function useFilterSheet() {
-  return React.useCallback(() => SheetManager.show(FilterSheet.sheetId), []);
+export function useListingSheet() {
+  return React.useCallback(() => SheetManager.show(ListingSheet.sheetId), []);
 }
 
 export function useServerSelectorSheet() {

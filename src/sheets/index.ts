@@ -9,8 +9,7 @@ import TorrentPrioritySheet, {
 import RemoveConfirmSheet, {
   type Payload as RemoveConfirmPayload,
 } from "./remove-confirm";
-import SortBySheet from "./sort-by";
-import FilterSheet from "./filter";
+import ListingSheet from "./listing";
 import SelectSheet, { type Payload as SelectPayload } from "./select";
 import ServerSelectorSheet from "./server-selector";
 import ServerDeleteConfirmSheet, {
@@ -28,8 +27,7 @@ declare module "react-native-actions-sheet" {
     [RemoveConfirmSheet.sheetId]: SheetDefinition<{
       payload: RemoveConfirmPayload;
     }>;
-    [SortBySheet.sheetId]: SheetDefinition;
-    [FilterSheet.sheetId]: SheetDefinition;
+    [ListingSheet.sheetId]: SheetDefinition;
     [SelectSheet.sheetId]: SheetDefinition<{
       payload: SelectPayload;
     }>;
@@ -42,9 +40,8 @@ declare module "react-native-actions-sheet" {
 
 registerSheet(TorrentActionsSheet.sheetId, TorrentActionsSheet);
 registerSheet(TorrentPrioritySheet.sheetId, TorrentPrioritySheet);
-registerSheet(FilterSheet.sheetId, FilterSheet);
+registerSheet(ListingSheet.sheetId, ListingSheet);
 registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
-registerSheet(SortBySheet.sheetId, SortBySheet);
 registerSheet(SelectSheet.sheetId, SelectSheet);
 registerSheet(ServerSelectorSheet.sheetId, ServerSelectorSheet);
 registerSheet(ServerDeleteConfirmSheet.sheetId, ServerDeleteConfirmSheet);
