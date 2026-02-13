@@ -1,8 +1,8 @@
 import * as React from "react";
 import { StyleSheet, ToastAndroid } from "react-native";
-import { useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Feather } from "@expo/vector-icons";
+import { SheetManager } from "react-native-actions-sheet";
 
 import Toggle from "~/components/toggle";
 import Text from "~/components/text";
@@ -19,8 +19,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useServers } from "~/hooks/use-settings";
+import { useServers, useActiveServerId } from "~/hooks/use-settings";
 import { useServerSession, useServerSessionSet } from "~/hooks/transmission";
+import SelectSheet from "~/sheets/select";
+import type { SelectOption } from "~/sheets/select";
 import type { Server } from "~/store/settings";
 
 type Form = z.infer<typeof Form>;
@@ -93,71 +95,6 @@ const Form = z
       });
     }
   });
-
-function extractHostPort(url: string): string {
-  try {
-    const parsed = new URL(url);
-    const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
-    return `${parsed.hostname}:${port}`;
-  } catch {
-    return url;
-  }
-}
-
-function ServerPicker({
-  servers,
-  onSelect,
-}: {
-  servers: Server[];
-  onSelect: (id: string) => void;
-}) {
-  const { text } = useTheme();
-
-  return (
-    <Screen>
-      {servers.map((server) => (
-        <Pressable
-          key={server.id}
-          style={pickerStyles.row}
-          onPress={() => onSelect(server.id)}
-        >
-          <Feather name="server" size={20} color={text} />
-          <View style={pickerStyles.info}>
-            <Text style={pickerStyles.name} numberOfLines={1}>
-              {server.name}
-            </Text>
-            <Text style={pickerStyles.url} numberOfLines={1}>
-              {extractHostPort(server.url)}
-            </Text>
-          </View>
-          <Feather name="chevron-right" size={20} color={text} />
-        </Pressable>
-      ))}
-    </Screen>
-  );
-}
-
-const pickerStyles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 4,
-  },
-  info: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  name: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 17,
-  },
-  url: {
-    fontSize: 13,
-    marginTop: 2,
-    opacity: 0.6,
-  },
-});
 
 function ConfigurationForm({ server }: { server: Server }) {
   const { data: session, isLoading, error, refetch } = useServerSession(server);
@@ -555,38 +492,71 @@ function ConfigurationForm({ server }: { server: Server }) {
 }
 
 export default function ServerConfigurationScreen() {
-  const { serverId } = useLocalSearchParams<{ serverId?: string }>();
   const servers = useServers();
+  const activeServerId = useActiveServerId();
+  const { text } = useTheme();
 
-  const [selectedId, setSelectedId] = React.useState<string | undefined>(serverId);
+  const [selectedId, setSelectedId] = React.useState<string | undefined>(
+    activeServerId ?? servers[0]?.id
+  );
 
   const server = selectedId
     ? servers.find((s) => s.id === selectedId)
-    : servers.length === 1
-      ? servers[0]
-      : undefined;
+    : undefined;
 
-  if (!server && servers.length > 1) {
-    return (
-      <ServerPicker
-        servers={servers}
-        onSelect={(id) => setSelectedId(id)}
-      />
-    );
-  }
+  const onPickServer = React.useCallback(() => {
+    const options: SelectOption[] = servers.map((s) => ({
+      id: s.id,
+      label: s.name,
+      value: s.id,
+      left: "server" as const,
+      right: s.id === selectedId ? ("check" as const) : undefined,
+    }));
 
-  if (!server) {
+    SheetManager.show(SelectSheet.sheetId, {
+      payload: {
+        title: "Select server",
+        options,
+        onSelect: (value) => setSelectedId(String(value)),
+      },
+    });
+  }, [servers, selectedId]);
+
+  if (servers.length === 0) {
     return (
       <Screen>
-        <Text>No server found</Text>
+        <Text>No servers configured</Text>
       </Screen>
     );
   }
 
-  return <ConfigurationForm server={server} />;
+  return (
+    <View style={{ flex: 1 }}>
+      {servers.length > 1 && (
+        <Pressable style={styles.serverSelector} onPress={onPickServer}>
+          <Feather name="server" size={16} color={text} />
+          <Text style={styles.serverName}>{server?.name ?? "Select server"}</Text>
+          <Feather name="chevron-down" size={16} color={text} />
+        </Pressable>
+      )}
+      {server && <ConfigurationForm server={server} />}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  serverSelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  serverName: {
+    flex: 1,
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 15,
+  },
   title: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 20,
