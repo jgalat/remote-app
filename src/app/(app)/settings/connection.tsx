@@ -22,6 +22,7 @@ import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
+import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { isTestingServer } from "~/utils/mock-transmission-client";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
@@ -153,11 +154,12 @@ function Required() {
 export default function ConnectionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { servers, activeServerId, store } = useServersStore();
+  const { servers, store } = useServersStore();
   const { red, gray, green } = useTheme();
 
   const editServer = id ? servers.find((s) => s.id === id) : undefined;
   const isEdit = Boolean(editServer);
+  const deleteSheet = useServerDeleteConfirmSheet();
 
   const inset = useSafeAreaInsets();
 
@@ -183,12 +185,14 @@ export default function ConnectionScreen() {
 
   const remove = React.useCallback(() => {
     if (!editServer) return;
-    const updated = servers.filter((s) => s.id !== editServer.id);
-    const newActiveId =
-      activeServerId === editServer.id ? updated[0]?.id : activeServerId;
-    store({ servers: updated, activeServerId: newActiveId });
-    router.dismissTo("/settings/servers");
-  }, [editServer, servers, activeServerId, router, store]);
+    deleteSheet({ ids: [editServer.id], label: editServer.name });
+  }, [editServer, deleteSheet]);
+
+  React.useEffect(() => {
+    if (id && !editServer) {
+      router.dismissTo("/settings/servers");
+    }
+  }, [id, editServer, router]);
 
   React.useEffect(() => {
     if (!isEdit) return;

@@ -4,7 +4,7 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore, useServer } from "~/hooks/use-settings";
 
-export type Payload = { id: string; name: string };
+export type Payload = { ids: string[]; label: string };
 
 const sheetId = "server-delete-confirm" as const;
 
@@ -18,15 +18,17 @@ function ServerDeleteConfirmSheet({
 
   const onDelete = React.useCallback(() => {
     if (!payload) return;
-    const remaining = servers.filter((s) => s.id !== payload.id);
-    const activeServerId =
-      active?.id === payload.id ? remaining[0]?.id : active?.id;
+    const ids = new Set(payload.ids);
+    const remaining = servers.filter((s) => !ids.has(s.id));
+    const activeServerId = ids.has(active?.id ?? "")
+      ? remaining[0]?.id
+      : active?.id;
     store({ servers: remaining, activeServerId });
   }, [payload, servers, active, store]);
 
   return (
     <ActionSheet
-      title={`Delete ${payload?.name ?? "server"}?`}
+      title={`Delete ${payload?.label ?? "server"}?`}
       options={[
         {
           label: "Delete",

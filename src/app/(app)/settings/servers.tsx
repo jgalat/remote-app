@@ -11,7 +11,7 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useServersStore, useServer } from "~/hooks/use-settings";
+import { useServersStore } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
 import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
@@ -91,10 +91,9 @@ function ServerRow({
 
 export default function ServersScreen() {
   const router = useRouter();
-  const { servers, store } = useServersStore();
+  const { servers } = useServersStore();
   const { canUse, available } = usePro();
   const { gray, red } = useTheme();
-  const active = useServer();
   const health = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
 
@@ -130,23 +129,13 @@ export default function ServersScreen() {
     if (selectedIds.size === 0) return;
 
     const ids = [...selectedIds];
-    if (ids.length === 1) {
-      const server = servers.find((s) => s.id === ids[0]);
-      if (server) {
-        deleteSheet({ id: server.id, name: server.name });
-      }
-      clearSelection();
-      return;
-    }
-
-    const remaining = servers.filter((s) => !selectedIds.has(s.id));
-    const activeId = active?.id;
-    const newActiveId = selectedIds.has(activeId ?? "")
-      ? remaining[0]?.id
-      : activeId;
-    store({ servers: remaining, activeServerId: newActiveId });
+    const label =
+      ids.length === 1
+        ? servers.find((s) => s.id === ids[0])?.name ?? "server"
+        : `${ids.length} servers`;
+    deleteSheet({ ids, label });
     clearSelection();
-  }, [selectedIds, servers, active, store, deleteSheet, clearSelection]);
+  }, [selectedIds, servers, deleteSheet, clearSelection]);
 
   const onAdd = React.useCallback(() => {
     if (servers.length === 0 || (available && canUse("multi-server"))) {
