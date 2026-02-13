@@ -20,6 +20,7 @@ import {
 } from "~/hooks/use-settings";
 import { useServerSessionSet } from "~/hooks/transmission";
 import { useTheme } from "~/hooks/use-theme-color";
+import { usePro } from "@remote-app/pro";
 
 type Form = z.infer<typeof Form>;
 const Form = z.object({
@@ -49,6 +50,9 @@ export default function DirectoryScreen() {
   const server = servers.find((s) => s.id === serverId);
   const { mutate: setSession } = useServerSessionSet(server);
   const { directories, store } = useDirectoriesStore();
+
+  const { canUse } = usePro();
+  const showGlobal = !isDefault && canUse("multi-server");
 
   const isDefaultDir = isDefault === "true";
   const isNew = !initialPath;
@@ -192,7 +196,7 @@ export default function DirectoryScreen() {
           />
         </View>
 
-        {!isDefaultDir && (
+        {showGlobal && (
           <View style={styles.row}>
             <Controller
               name="global"
