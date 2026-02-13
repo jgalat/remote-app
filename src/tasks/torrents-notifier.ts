@@ -3,7 +3,7 @@ import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
 import TransmissionClient from "@remote-app/transmission-client";
 
-import "~/store/settings";
+import "~/store/migrations";
 import { loadServers } from "~/store/servers";
 import {
   loadState,

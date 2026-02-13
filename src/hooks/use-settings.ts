@@ -1,4 +1,4 @@
-import "~/store/settings";
+import "~/store/migrations";
 
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useColorScheme as _useColorScheme } from "react-native";

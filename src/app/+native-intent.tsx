@@ -1,4 +1,4 @@
-import "~/store/settings";
+import "~/store/migrations";
 import { loadServers, getActiveServer } from "~/store/servers";
 import { loadPreferences } from "~/store/preferences";
 import { normalize } from "~/utils/magnet";
