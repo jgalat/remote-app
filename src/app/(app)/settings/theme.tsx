@@ -4,14 +4,13 @@ import * as SystemUI from "expo-system-ui";
 
 import Option, { type OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
-import useSettings from "~/hooks/use-settings";
+import { usePreferencesStore } from "~/hooks/use-settings";
 import colors from "~/constants/colors";
 import type { ColorScheme } from "~/store/settings";
 
 export default function ThemeScreen() {
-  const { settings, store } = useSettings();
+  const { colorScheme, store } = usePreferencesStore();
   const systemColorScheme = useColorScheme();
-  const { colorScheme } = settings;
 
   const select = React.useCallback(
     (option: ColorScheme) => async () => {

@@ -18,7 +18,7 @@ import {
   LoadingScreen,
 } from "~/components/utility-screens";
 import { useTorrentActions, useTorrents } from "~/hooks/transmission";
-import useSettings, { useServer, useListing, useServers } from "~/hooks/use-settings";
+import { useServer, useListing, useServers, useSearchConfig } from "~/hooks/use-settings";
 import {
   useListingSheet,
   useTorrentActionsSheet,
@@ -34,7 +34,7 @@ export default function TorrentsScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const isFocused = useIsFocused();
-  const { settings } = useSettings();
+  const searchConfig = useSearchConfig();
   const server = useServer();
   const servers = useServers();
   const { sort, direction, filter } = useListing();
@@ -119,7 +119,7 @@ export default function TorrentsScreen() {
         const onSearch = () => {
           if (!canUse("search")) {
             router.push("/paywall");
-          } else if (settings.searchConfig) {
+          } else if (searchConfig) {
             router.push("/search");
           } else {
             router.push("/settings/search");
@@ -162,7 +162,7 @@ export default function TorrentsScreen() {
     selection,
     server,
     servers,
-    settings,
+    searchConfig,
     available,
     canUse,
     serverSelectorSheet,

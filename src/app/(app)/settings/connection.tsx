@@ -19,7 +19,7 @@ import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
-import useSettings from "~/hooks/use-settings";
+import { useServersStore } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
 import { isTestingServer } from "~/utils/mock-transmission-client";
@@ -153,10 +153,7 @@ function Required() {
 export default function ConnectionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const {
-    settings: { servers, activeServerId },
-    store,
-  } = useSettings();
+  const { servers, activeServerId, store } = useServersStore();
   const { red, gray, green } = useTheme();
 
   const editServer = id ? servers.find((s) => s.id === id) : undefined;

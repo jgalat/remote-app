@@ -1,7 +1,18 @@
 import { z } from "zod";
-import { randomUUID } from "expo-crypto";
 
 import { storage } from "./storage";
+import { storeServers, generateServerId } from "./servers";
+import { storeListing } from "./listing";
+import { storeSearch } from "./search";
+import { storePreferences } from "./preferences";
+
+export type { Server } from "./servers";
+export type { Sort, Direction, Filter } from "./listing";
+export type { SearchConfig } from "./search";
+export type { ColorScheme } from "./preferences";
+export { getActiveServer, generateServerId } from "./servers";
+
+// -- Migration schemas (only used for parsing the old key) --
 
 const ServerSchema = z.object({
   id: z.string(),
@@ -13,52 +24,21 @@ const ServerSchema = z.object({
   updatedAt: z.number(),
 });
 
-export type Server = z.infer<typeof ServerSchema>;
-
 const ColorSchemeSchema = z.enum(["system", "dark", "light"]);
-export type ColorScheme = z.infer<typeof ColorSchemeSchema>;
 
-const SortSchema = z.enum([
-  "queue",
-  "activity",
-  "age",
-  "name",
-  "progress",
-  "size",
-  "status",
-  "time-remaining",
-  "ratio",
-]);
-export type Sort = z.infer<typeof SortSchema>;
-
-const DirectionSchema = z.enum(["asc", "desc"]);
-export type Direction = z.infer<typeof DirectionSchema>;
-
-const FilterSchema = z.enum([
-  "all",
-  "active",
-  "downloading",
-  "seeding",
-  "paused",
-  "completed",
-  "finished",
-]);
-export type Filter = z.infer<typeof FilterSchema>;
+const ListingSchema = z.object({
+  sort: z.enum(["queue", "activity", "age", "name", "progress", "size", "status", "time-remaining", "ratio"]),
+  direction: z.enum(["asc", "desc"]),
+  filter: z.enum(["all", "active", "downloading", "seeding", "paused", "completed", "finished"]),
+});
 
 const SearchConfigSchema = z.object({
   url: z.string(),
   apiKey: z.string(),
   type: z.enum(["jackett", "prowlarr"]).default("jackett"),
 });
-export type SearchConfig = z.infer<typeof SearchConfigSchema>;
 
-const ListingSchema = z.object({
-  sort: SortSchema,
-  direction: DirectionSchema,
-  filter: FilterSchema,
-});
-
-const SettingsSchema = z.object({
+const ModernSchema = z.object({
   servers: z.array(ServerSchema),
   activeServerId: z.string().optional(),
   colorScheme: ColorSchemeSchema,
@@ -67,22 +47,6 @@ const SettingsSchema = z.object({
   searchConfig: SearchConfigSchema.optional(),
 });
 
-export type Settings = z.infer<typeof SettingsSchema>;
-
-export const defaultSettings: Settings = {
-  servers: [],
-  activeServerId: undefined,
-  colorScheme: "system",
-  authentication: false,
-  listing: {
-    sort: "queue",
-    direction: "asc",
-    filter: "all",
-  },
-};
-
-const KEY = "user.settings";
-
 const LegacyServerSchema = z.object({
   name: z.string(),
   url: z.string(),
@@ -90,90 +54,73 @@ const LegacyServerSchema = z.object({
   password: z.string().optional(),
 });
 
-const LegacySettingsSchema = z.object({
+const LegacySchema = z.object({
   server: LegacyServerSchema.optional(),
   colorScheme: ColorSchemeSchema.optional(),
   authentication: z.boolean().optional(),
   listing: ListingSchema.partial().optional(),
 });
 
-function generateId(): string {
-  return randomUUID();
-}
+// -- Migration: runs once on module import --
 
-function migrateLegacy(legacy: z.infer<typeof LegacySettingsSchema>): Settings {
-  const servers: Server[] = [];
-  let activeServerId: string | undefined;
+const LEGACY_KEY = "user.settings";
 
-  if (legacy.server) {
-    const now = Date.now();
-    const id = generateId();
-    servers.push({
-      id,
-      name: legacy.server.name,
-      url: legacy.server.url,
-      username: legacy.server.username,
-      password: legacy.server.password,
-      createdAt: now,
-      updatedAt: now,
-    });
-    activeServerId = id;
-  }
-
-  return {
-    ...defaultSettings,
-    colorScheme: legacy.colorScheme ?? defaultSettings.colorScheme,
-    authentication: legacy.authentication ?? defaultSettings.authentication,
-    listing: { ...defaultSettings.listing, ...legacy.listing },
-    servers,
-    activeServerId,
-  };
-}
-
-export function loadSettings(): Settings {
-  const value = storage.getString(KEY);
-
-  if (value === undefined) {
-    return defaultSettings;
-  }
+(function migrate() {
+  const value = storage.getString(LEGACY_KEY);
+  if (value === undefined) return;
 
   try {
     const json: unknown = JSON.parse(value);
 
-    const modern = SettingsSchema.safeParse(json);
+    const modern = ModernSchema.safeParse(json);
     if (modern.success) {
-      return modern.data;
+      const d = modern.data;
+      storeServers({ servers: d.servers, activeServerId: d.activeServerId });
+      storeListing(d.listing);
+      storeSearch(d.searchConfig ?? null);
+      storePreferences({ colorScheme: d.colorScheme, authentication: d.authentication });
+      storage.delete(LEGACY_KEY);
+      return;
     }
 
-    const legacy = LegacySettingsSchema.safeParse(json);
+    const legacy = LegacySchema.safeParse(json);
     if (legacy.success) {
-      const migrated = migrateLegacy(legacy.data);
-      storeSettings(migrated);
-      return migrated;
+      const d = legacy.data;
+      const servers: z.infer<typeof ServerSchema>[] = [];
+      let activeServerId: string | undefined;
+
+      if (d.server) {
+        const now = Date.now();
+        const id = generateServerId();
+        servers.push({
+          id,
+          name: d.server.name,
+          url: d.server.url,
+          username: d.server.username,
+          password: d.server.password,
+          createdAt: now,
+          updatedAt: now,
+        });
+        activeServerId = id;
+      }
+
+      storeServers({ servers, activeServerId });
+      storeListing({
+        sort: d.listing?.sort ?? "queue",
+        direction: d.listing?.direction ?? "asc",
+        filter: d.listing?.filter ?? "all",
+      });
+      storeSearch(null);
+      storePreferences({
+        colorScheme: d.colorScheme ?? "system",
+        authentication: d.authentication ?? false,
+      });
+      storage.delete(LEGACY_KEY);
+      return;
     }
-
-    storeSettings(defaultSettings);
-    return defaultSettings;
   } catch {
-    storeSettings(defaultSettings);
-    return defaultSettings;
+    // corrupt data
   }
-}
 
-export function storeSettings(settings: Settings): void {
-  const value = JSON.stringify(settings);
-  return storage.set(KEY, value);
-}
-
-export function getActiveServer(settings: Settings): Server | undefined {
-  if (settings.servers.length === 0) return undefined;
-  if (!settings.activeServerId) return settings.servers[0];
-  return (
-    settings.servers.find((s) => s.id === settings.activeServerId) ??
-    settings.servers[0]
-  );
-}
-
-export function generateServerId(): string {
-  return generateId();
-}
+  storage.delete(LEGACY_KEY);
+})();

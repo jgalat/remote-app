@@ -6,13 +6,13 @@ import { useRouter } from "expo-router";
 import Text from "~/components/text";
 import Option, { OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
-import useSettings, { useColorScheme } from "~/hooks/use-settings";
+import { useColorScheme, useServers } from "~/hooks/use-settings";
 
 import { usePro } from "@remote-app/pro";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
-  const { settings: { servers } } = useSettings();
+  const servers = useServers();
   const { isPro, available } = usePro();
   const router = useRouter();
 

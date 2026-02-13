@@ -9,7 +9,7 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Option from "~/components/option";
 import { useTheme } from "~/hooks/use-theme-color";
-import useSettings from "~/hooks/use-settings";
+import { useListingStore } from "~/hooks/use-settings";
 import { useTorrents } from "~/hooks/transmission";
 import predicate from "~/utils/filter";
 
@@ -26,8 +26,8 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
   const { background, text, tint } = useTheme();
   const insets = useSafeAreaInsets();
   const { data: torrents } = useTorrents({ stale: true });
-  const { settings, store } = useSettings();
-  const { sort, direction, filter } = settings.listing;
+  const { listing, store } = useListingStore();
+  const { sort, direction, filter } = listing;
   const [tab, setTab] = React.useState<Tab>("sort");
 
   const updateSort = React.useCallback(
@@ -35,22 +35,16 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
       return () => {
         if (s === sort) {
           return store({
-            listing: {
-              ...settings.listing,
-              direction: direction === "desc" ? "asc" : "desc",
-            },
+            direction: direction === "desc" ? "asc" : "desc",
           });
         }
         return store({
-          listing: {
-            ...settings.listing,
-            direction: "asc",
-            sort: s,
-          },
+          direction: "asc",
+          sort: s,
         });
       };
     },
-    [sort, direction, settings.listing, store]
+    [sort, direction, store]
   );
 
   const sortRight = React.useCallback(
@@ -81,15 +75,10 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
   const updateFilter = React.useCallback(
     (f: Filter) => {
       return () => {
-        store({
-          listing: {
-            ...settings.listing,
-            filter: f,
-          },
-        });
+        store({ filter: f });
       };
     },
-    [store, settings.listing]
+    [store]
   );
 
   const filterRight = React.useCallback(

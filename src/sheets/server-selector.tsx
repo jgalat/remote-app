@@ -2,31 +2,29 @@ import * as React from "react";
 import { useRouter } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
-import useSettings from "~/hooks/use-settings";
+import { useServersStore, useServer } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
-import { getActiveServer } from "~/store/settings";
 import type { OptionProps } from "~/components/option";
 
 const sheetId = "server-selector" as const;
 
 function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
   const router = useRouter();
-  const { settings, store } = useSettings();
+  const { servers, store } = useServersStore();
   const { canUse, available } = usePro();
-  const active = getActiveServer(settings);
+  const active = useServer();
 
   const options = React.useMemo<OptionProps[]>(() => {
-    const serverOptions: OptionProps[] = settings.servers.map((server) => ({
+    const serverOptions: OptionProps[] = servers.map((server) => ({
       label: server.name,
       left: "server",
       right: server.id === active?.id ? "check" : undefined,
       onPress: () => store({ activeServerId: server.id }),
     }));
 
-    const canAdd =
-      settings.servers.length === 0 || canUse("multi-server");
+    const canAdd = servers.length === 0 || canUse("multi-server");
 
-    if (!available && settings.servers.length > 0) {
+    if (!available && servers.length > 0) {
       return serverOptions;
     }
 
@@ -41,7 +39,7 @@ function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
             : router.push("/paywall"),
       },
     ];
-  }, [settings.servers, active?.id, store, router, available, canUse]);
+  }, [servers, active?.id, store, router, available, canUse]);
 
   return <ActionSheet title="Servers" options={options} {...props} />;
 }

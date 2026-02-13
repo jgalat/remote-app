@@ -5,11 +5,10 @@ import * as LocalAuthentication from "expo-local-authentication";
 import Toggle from "~/components/toggle";
 import View from "~/components/view";
 import Screen from "~/components/screen";
-import useSettings from "~/hooks/use-settings";
+import { usePreferencesStore } from "~/hooks/use-settings";
 
 export default function SecurityScreen() {
-  const { settings, store } = useSettings();
-  const { authentication } = settings;
+  const { authentication, store } = usePreferencesStore();
 
   const [available, setAvailable] = React.useState(false);
 

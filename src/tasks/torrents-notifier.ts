@@ -3,7 +3,8 @@ import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
 import TransmissionClient from "@remote-app/transmission-client";
 
-import { loadSettings } from "~/store/settings";
+import "~/store/settings";
+import { loadServers } from "~/store/servers";
 import {
   loadState,
   storeState,
@@ -22,7 +23,7 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundTask.Bac
     return BackgroundTask.BackgroundTaskResult.Success;
   }
 
-  const { servers } = loadSettings();
+  const { servers } = loadServers();
   if (servers.length === 0) {
     return BackgroundTask.BackgroundTaskResult.Success;
   }

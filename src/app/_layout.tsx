@@ -17,7 +17,6 @@ import "react-native-reanimated";
 import View from "~/components/view";
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
-import { SettingsProvider } from "~/contexts/settings";
 import { ProProvider } from "@remote-app/pro";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
@@ -104,13 +103,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <KeyboardProvider>
-          <SettingsProvider>
-            <ProProvider>
-              <AuthProvider>
-                <Root />
-              </AuthProvider>
-            </ProProvider>
-          </SettingsProvider>
+          <ProProvider>
+            <AuthProvider>
+              <Root />
+            </AuthProvider>
+          </ProProvider>
         </KeyboardProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

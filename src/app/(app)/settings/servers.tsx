@@ -11,9 +11,8 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import { useTheme } from "~/hooks/use-theme-color";
-import useSettings, { useServers } from "~/hooks/use-settings";
+import { useServersStore, useServer } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
-import { getActiveServer } from "~/store/settings";
 import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { useHealthPing, type HealthStatus } from "~/hooks/transmission";
@@ -92,11 +91,10 @@ function ServerRow({
 
 export default function ServersScreen() {
   const router = useRouter();
-  const { settings, store } = useSettings();
-  const servers = useServers();
+  const { servers, store } = useServersStore();
   const { canUse, available } = usePro();
   const { gray, red } = useTheme();
-  const active = getActiveServer(settings);
+  const active = useServer();
   const health = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
 

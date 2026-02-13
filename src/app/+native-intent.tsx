@@ -1,4 +1,6 @@
-import { loadSettings, getActiveServer } from "~/store/settings";
+import "~/store/settings";
+import { loadServers, getActiveServer } from "~/store/servers";
+import { loadPreferences } from "~/store/preferences";
 import { normalize } from "~/utils/magnet";
 
 export async function redirectSystemPath({
@@ -8,8 +10,8 @@ export async function redirectSystemPath({
   path: string;
   initial: boolean;
 }) {
-  const settings = loadSettings();
-  const server = getActiveServer(settings);
+  const serversData = loadServers();
+  const server = getActiveServer(serversData);
 
   if (!server) {
     return path;
@@ -27,7 +29,7 @@ export async function redirectSystemPath({
       break;
   }
 
-  if (initial && settings.authentication) {
+  if (initial && loadPreferences().authentication) {
     redirect = "/sign-in?href=" + encodeURIComponent(redirect);
   }
 

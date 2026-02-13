@@ -8,13 +8,13 @@ import Text from "~/components/text";
 import Screen from "~/components/screen";
 import Button from "~/components/button";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
-import useSettings from "~/hooks/use-settings";
+import { useServersStore } from "~/hooks/use-settings";
 import { usePro, getDeviceId, updateDeviceId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
 
 export default function Development() {
   const router = useRouter();
-  const { store } = useSettings();
+  const { store } = useServersStore();
   const { devOverride, setDevOverride } = usePro();
   const [deviceId, setDeviceId] = React.useState(() => getDeviceId());
   return (

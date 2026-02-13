@@ -2,8 +2,7 @@ import * as React from "react";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
-import useSettings from "~/hooks/use-settings";
-import { getActiveServer } from "~/store/settings";
+import { useServersStore, useServer } from "~/hooks/use-settings";
 
 export type Payload = { id: string; name: string };
 
@@ -14,16 +13,16 @@ function ServerDeleteConfirmSheet({
   ...props
 }: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
-  const { settings, store } = useSettings();
+  const { servers, store } = useServersStore();
+  const active = useServer();
 
   const onDelete = React.useCallback(() => {
     if (!payload) return;
-    const servers = settings.servers.filter((s) => s.id !== payload.id);
-    const active = getActiveServer(settings);
+    const remaining = servers.filter((s) => s.id !== payload.id);
     const activeServerId =
-      active?.id === payload.id ? servers[0]?.id : active?.id;
-    store({ servers, activeServerId });
-  }, [payload, settings, store]);
+      active?.id === payload.id ? remaining[0]?.id : active?.id;
+    store({ servers: remaining, activeServerId });
+  }, [payload, servers, active, store]);
 
   return (
     <ActionSheet
