@@ -7,7 +7,7 @@ import Text from "./text";
 import ProgressBar from "./progress-bar";
 import Pressable from "./pressable";
 import { useTheme } from "~/hooks/use-theme-color";
-import { ExtTorrent } from "~/hooks/use-transmission";
+import { ExtTorrent } from "~/hooks/transmission";
 import { formatSpeed } from "~/utils/formatters";
 
 export type Props = {

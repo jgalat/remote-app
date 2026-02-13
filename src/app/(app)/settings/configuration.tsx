@@ -3,11 +3,6 @@ import { StyleSheet, ToastAndroid } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Feather } from "@expo/vector-icons";
-import TransmissionClient, {
-  SessionGetResponse,
-  SessionSetRequest,
-} from "@remote-app/transmission-client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import Toggle from "~/components/toggle";
 import Text from "~/components/text";
@@ -25,66 +20,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useServers } from "~/hooks/use-settings";
-import MockTransmissionClient, {
-  isTestingServer,
-} from "~/utils/mock-transmission-client";
+import { useServerSession, useServerSessionSet } from "~/hooks/transmission";
 import type { Server } from "~/store/settings";
-
-function useServerClient(server: Server | undefined) {
-  return React.useMemo(() => {
-    if (!server) return null;
-    if (isTestingServer(server)) {
-      return new MockTransmissionClient() as unknown as TransmissionClient;
-    }
-    return new TransmissionClient({
-      url: server.url,
-      username: server.username,
-      password: server.password,
-    });
-  }, [server]);
-}
-
-function useServerSession(server: Server | undefined) {
-  const client = useServerClient(server);
-  return useQuery<Required<SessionGetResponse> | undefined>({
-    queryKey: ["config-session", server?.id, server?.url],
-    queryFn: async () => {
-      const response = await client?.request({ method: "session-get" });
-      const session = response?.arguments;
-      if (!session) return session;
-      return session as Required<SessionGetResponse>;
-    },
-    enabled: Boolean(client),
-    staleTime: 5_000,
-  });
-}
-
-function useServerSessionSet(server: Server | undefined) {
-  const queryClient = useQueryClient();
-  const client = useServerClient(server);
-  const key = ["config-session", server?.id, server?.url];
-
-  return useMutation<void, Error, SessionSetRequest, { previous?: SessionGetResponse }>({
-    mutationFn: async (params) => {
-      await client?.request({ method: "session-set", arguments: params });
-    },
-    onMutate: async (params) => {
-      await queryClient.cancelQueries({ queryKey: key });
-      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(key);
-      queryClient.setQueryData(key, (old: SessionGetResponse | undefined) => {
-        if (!old) return;
-        return { ...old, ...params };
-      });
-      return { previous };
-    },
-    onError: (_err, _params, context) => {
-      queryClient.setQueryData(key, context?.previous);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: key });
-    },
-  });
-}
 
 type Form = z.infer<typeof Form>;
 const Form = z

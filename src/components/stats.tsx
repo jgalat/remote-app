@@ -10,7 +10,7 @@ import {
   useSession,
   useSessionSet,
   useSessionStats,
-} from "../hooks/use-transmission";
+} from "../hooks/transmission";
 import { formatSpeed } from "../utils/formatters";
 
 export type StatsProps = ViewProps;

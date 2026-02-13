@@ -7,7 +7,7 @@ import {
   type File,
   type Node,
 } from "~/utils/file";
-import { ExtTorrent } from "./use-transmission";
+import { ExtTorrent } from "./transmission";
 import { type RenderFile } from "~/components/file-item";
 
 export default function useTorrentBrowser(torrents: ExtTorrent[]) {

@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
-import { useTorrent, useTorrentSet } from "~/hooks/use-transmission";
+import { useTorrent, useTorrentSet } from "~/hooks/transmission";
 import {
   LoadingScreen,
   NetworkErrorScreen,

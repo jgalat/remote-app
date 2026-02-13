@@ -2,7 +2,7 @@ import * as React from "react";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import type { OptionProps } from "~/components/option";
-import { useTorrentSet } from "~/hooks/use-transmission";
+import { useTorrentSet } from "~/hooks/transmission";
 
 export type Payload = {
   id: number;

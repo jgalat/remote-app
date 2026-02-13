@@ -3,7 +3,7 @@ import { Feather } from "@expo/vector-icons";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import useSettings from "~/hooks/use-settings";
-import { useTorrents } from "~/hooks/use-transmission";
+import { useTorrents } from "~/hooks/transmission";
 import predicate from "~/utils/filter";
 
 import type { Filter } from "~/store/settings";

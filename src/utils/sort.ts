@@ -1,4 +1,4 @@
-import type { Torrent } from "~/hooks/use-transmission";
+import type { Torrent } from "~/hooks/transmission";
 import type { Direction, Sort } from "~/store/settings";
 
 

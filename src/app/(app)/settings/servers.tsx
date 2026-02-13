@@ -4,7 +4,6 @@ import ActivityIndicator from "~/components/activity-indicator";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import TransmissionClient from "@remote-app/transmission-client";
 
 import Screen from "~/components/screen";
 import Text from "~/components/text";
@@ -17,37 +16,7 @@ import { usePro } from "@remote-app/pro";
 import { getActiveServer } from "~/store/settings";
 import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
-import { isTestingServer } from "~/utils/mock-transmission-client";
-
-type HealthStatus = "pending" | "ok" | "error";
-
-function useHealthPing(servers: Server[]) {
-  const [statuses, setStatuses] = React.useState<Record<string, HealthStatus>>(
-    () => Object.fromEntries(servers.map((s) => [s.id, "pending"]))
-  );
-
-  React.useEffect(() => {
-    for (const server of servers) {
-      if (isTestingServer(server)) {
-        setStatuses((prev) => ({ ...prev, [server.id]: "ok" }));
-        continue;
-      }
-      const client = new TransmissionClient({
-        url: server.url,
-        username: server.username,
-        password: server.password,
-      });
-      client
-        .request({ method: "session-get" })
-        .then(() => setStatuses((prev) => ({ ...prev, [server.id]: "ok" })))
-        .catch(() =>
-          setStatuses((prev) => ({ ...prev, [server.id]: "error" }))
-        );
-    }
-  }, [servers]);
-
-  return statuses;
-}
+import { useHealthPing, type HealthStatus } from "~/hooks/transmission";
 
 function extractHostPort(url: string): string {
   try {

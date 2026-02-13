@@ -10,7 +10,7 @@ import View from "~/components/view";
 import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
-import { useTorrent, useTorrentSet } from "~/hooks/use-transmission";
+import { useTorrent, useTorrentSet } from "~/hooks/transmission";
 import {
   NetworkErrorScreen,
   LoadingScreen,

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useTorrentAction, Torrent } from "~/hooks/use-transmission";
+import { useTorrentAction, Torrent } from "~/hooks/transmission";
 
 export type Payload = Torrent["id"][];
 

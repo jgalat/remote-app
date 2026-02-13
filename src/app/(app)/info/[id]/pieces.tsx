@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
 
 import Screen from "~/components/screen";
-import { useTorrent } from "~/hooks/use-transmission";
+import { useTorrent } from "~/hooks/transmission";
 import {
   NetworkErrorScreen,
   LoadingScreen,

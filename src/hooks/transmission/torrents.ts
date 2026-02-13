@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ToastAndroid } from "react-native";
 import {
   useQuery,
@@ -6,47 +5,23 @@ import {
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
-import TransmissionClient, {
+import {
   Methods,
-  SessionGetResponse,
-  SessionSetRequest,
   TorrentRemoveRequest,
   Torrent as _Torrent,
   TransmissionError,
   HTTPError,
   TorrentAddRequest,
   TorrentAddResponse,
-  SessionStatsResponse,
   TorrentStatus,
   TorrentSetRequest,
   Priority,
 } from "@remote-app/transmission-client";
 
-import { useServer } from "./use-settings";
-import useTorrentSelection from "./use-torrent-selection";
-import MockTransmissionClient, {
-  isTestingServer,
-} from "~/utils/mock-transmission-client";
+import { useServer } from "../use-settings";
+import useTorrentSelection from "../use-torrent-selection";
+import { useTransmission } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
-
-function useTransmission(): TransmissionClient | null {
-  const server = useServer();
-  return React.useMemo(() => {
-    if (!server) {
-      return null;
-    }
-
-    if (isTestingServer(server)) {
-      return new MockTransmissionClient() as TransmissionClient;
-    }
-
-    return new TransmissionClient({
-      url: server.url,
-      username: server.username,
-      password: server.password,
-    });
-  }, [server]);
-}
 
 const fields = [
   "id",
@@ -149,91 +124,6 @@ export function useTorrents<T extends number | undefined = undefined>(
 
 export function useTorrent(id: number) {
   return useTorrents({ id });
-}
-
-export function useSession({ stale = false }: QueryProps = { stale: false }) {
-  const client = useTransmission();
-  const server = useServer();
-  return useQuery<Required<SessionGetResponse> | undefined, HookError>({
-    queryKey: queryKeys.sessionGet(server),
-    queryFn: async () => {
-      const response = await client?.request({
-        method: "session-get",
-      });
-
-      const session = response?.arguments;
-      if (!session) return session;
-      return session as Required<SessionGetResponse>;
-    },
-    enabled: Boolean(client) && !stale,
-    staleTime: 5000,
-  });
-}
-
-export function useSessionSet() {
-  const queryClient = useQueryClient();
-  const client = useTransmission();
-  const server = useServer();
-
-  return useMutation<
-    void,
-    HookError,
-    SessionSetRequest,
-    { previous?: SessionGetResponse }
-  >({
-    mutationFn: async (params: SessionSetRequest): Promise<void> => {
-      await client?.request({
-        method: "session-set",
-        arguments: params,
-      });
-    },
-    onMutate: async (params: SessionSetRequest) => {
-      await queryClient.cancelQueries(queryMatchers.session(server));
-      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
-        queryKeys.sessionGet(server)
-      );
-
-      queryClient.setQueryData(
-        queryKeys.sessionGet(server),
-        (
-          old: SessionGetResponse | undefined
-        ): SessionGetResponse | undefined => {
-          if (!old) {
-            return;
-          }
-          return { ...old, ...params };
-        }
-      );
-
-      return { previous };
-    },
-    onError: (_err, _params, context) => {
-      queryClient.setQueryData(queryKeys.sessionGet(server), context?.previous);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryMatchers.session(server));
-    },
-  });
-}
-
-export function useSessionStats(
-  { stale = false }: QueryProps = { stale: false }
-) {
-  const client = useTransmission();
-  const server = useServer();
-  return useQuery<SessionStatsResponse | undefined, HookError>({
-    queryKey: queryKeys.sessionStats(server),
-    queryFn: async () => {
-      const response = await client?.request({
-        method: "session-stats",
-      });
-
-      return response?.arguments;
-    },
-    enabled: Boolean(client) && !stale,
-    refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
-    staleTime: 5000,
-  });
 }
 
 export function useAddTorrent() {
