@@ -33,6 +33,12 @@ export default function SettingsScreen() {
         onPress: () => router.push("/settings/configuration"),
         right: "chevron-right",
       },
+      {
+        left: "folder",
+        label: "Download Directories",
+        onPress: () => router.push("/settings/directories"),
+        right: "chevron-right",
+      },
       ...(available && isPro
         ? [
             {

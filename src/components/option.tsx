@@ -9,6 +9,7 @@ import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
 
 export type OptionProps = {
+  id?: string;
   label: string;
   left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];

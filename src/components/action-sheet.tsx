@@ -58,7 +58,7 @@ export default function ActionSheet({
               style={[styles.option, style]}
             />
           )}
-          keyExtractor={(item) => item.label}
+          keyExtractor={(item) => item.id ?? item.label}
         />
       </View>
     </_ActionSheet>

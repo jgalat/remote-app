@@ -76,6 +76,14 @@ export default function AppLayout() {
             name="settings/search"
             options={{ title: "Search" }}
           />
+          <Stack.Screen
+            name="settings/directories"
+            options={{ title: "Download Directories" }}
+          />
+          <Stack.Screen
+            name="settings/directory"
+            options={{ title: "Directory" }}
+          />
           {__DEV__ && (
             <Stack.Screen
               name="settings/development"

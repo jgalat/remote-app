@@ -13,16 +13,22 @@ import {
 } from "@remote-app/transmission-client";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { SheetManager } from "react-native-actions-sheet";
+import { Feather } from "@expo/vector-icons";
 
 import Text from "~/components/text";
 import TextInput from "~/components/text-input";
 import View from "~/components/view";
+import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import Screen from "~/components/screen";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useAddTorrent, useSession } from "~/hooks/transmission";
+import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
+import SelectSheet from "~/sheets/select";
+import type { SelectOption } from "~/sheets/select";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -73,6 +79,8 @@ export default function AddTorrentScreen() {
   const { red, text } = useTheme();
   const { data: session } = useSession();
   const inset = useSafeAreaInsets();
+  const serverId = useActiveServerId();
+  const directories = useDirectories(serverId);
 
   const { magnet, file } = useLocalSearchParams<{
     magnet?: string;
@@ -103,6 +111,30 @@ export default function AddTorrentScreen() {
 
     read();
   }, [file, setValue]);
+
+  const onPickDirectory = React.useCallback(() => {
+    const defaultDir = session?.["download-dir"];
+    const allDirs = [
+      ...(defaultDir ? [defaultDir] : []),
+      ...directories,
+    ];
+    const unique = [...new Set(allDirs)];
+    if (unique.length === 0) return;
+
+    const options: SelectOption[] = unique.map((dir) => ({
+      label: dir,
+      value: dir,
+      left: "folder" as const,
+    }));
+
+    SheetManager.show(SelectSheet.sheetId, {
+      payload: {
+        title: "Select directory",
+        options,
+        onSelect: (value) => setValue("path", String(value)),
+      },
+    });
+  }, [session, directories, setValue]);
 
   const addTorrent = useAddTorrent();
 
@@ -238,16 +270,22 @@ export default function AddTorrentScreen() {
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
-                  placeholder="/downloads"
-                  icon="link"
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                />
+                <View style={styles.pathRow}>
+                  <TextInput
+                    placeholder="/downloads"
+                    icon="folder"
+                    style={[
+                      styles.input,
+                      fieldState.error ? { borderColor: red } : {},
+                    ]}
+                    containerStyle={{ flex: 1 }}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                  <Pressable style={styles.pickButton} onPress={onPickDirectory}>
+                    <Feather name="book" size={20} color={text} />
+                  </Pressable>
+                </View>
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
                 </Text>
@@ -307,6 +345,17 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   input: {},
+  pathRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  pickButton: {
+    height: 48,
+    width: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   error: {
     fontSize: 12,
     textTransform: "lowercase",

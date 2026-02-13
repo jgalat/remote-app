@@ -20,11 +20,17 @@ import {
   storePreferences,
   type ColorScheme,
 } from "~/store/preferences";
+import {
+  loadDirectories,
+  storeDirectories,
+  type DirectoriesData,
+} from "~/store/directories";
 
 const serversKey = ["settings", "servers"] as const;
 const listingKey = ["settings", "listing"] as const;
 const searchKey = ["settings", "search"] as const;
 const preferencesKey = ["settings", "preferences"] as const;
+const directoriesKey = ["settings", "directories"] as const;
 
 type ServersData = { servers: Server[]; activeServerId?: string };
 type PreferencesData = { colorScheme: ColorScheme; authentication: boolean };
@@ -63,6 +69,15 @@ function usePreferencesQuery() {
     queryKey: preferencesKey,
     queryFn: loadPreferences,
     initialData: loadPreferences,
+    ...queryOptions,
+  });
+}
+
+function useDirectoriesQuery() {
+  return useQuery({
+    queryKey: directoriesKey,
+    queryFn: loadDirectories,
+    initialData: loadDirectories,
     ...queryOptions,
   });
 }
@@ -141,6 +156,32 @@ export function useSearchStore() {
   });
 
   return { searchConfig, store };
+}
+
+export function useDirectoriesStore() {
+  const queryClient = useQueryClient();
+  const { data: directories } = useDirectoriesQuery();
+
+  const { mutate: store } = useMutation({
+    mutationFn: async (diff: Partial<DirectoriesData>) => {
+      const current = loadDirectories();
+      const updated = { ...current, ...diff };
+      storeDirectories(updated);
+      return updated;
+    },
+    onSettled: (data) => {
+      if (data !== undefined) queryClient.setQueryData(directoriesKey, data);
+    },
+  });
+
+  return { directories, store };
+}
+
+export function useDirectories(serverId: string | undefined) {
+  const { data } = useDirectoriesQuery();
+  const serverDirs = serverId ? data.servers[serverId] ?? [] : [];
+  const combined = [...new Set([...data.global, ...serverDirs])];
+  return combined;
 }
 
 // Read-only hooks

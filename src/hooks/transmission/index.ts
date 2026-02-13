@@ -4,6 +4,7 @@ export {
   useTorrentAction,
   useTorrentActions,
   useTorrentSet,
+  useTorrentSetLocation,
   useAddTorrent,
   type Torrent,
   type ExtTorrent,

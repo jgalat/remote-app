@@ -15,6 +15,9 @@ import ServerSelectorSheet from "./server-selector";
 import ServerDeleteConfirmSheet, {
   type Payload as ServerDeleteConfirmPayload,
 } from "./server-delete-confirm";
+import MoveTorrentSheet, {
+  type Payload as MoveTorrentPayload,
+} from "./move-torrent";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
@@ -35,6 +38,9 @@ declare module "react-native-actions-sheet" {
     [ServerDeleteConfirmSheet.sheetId]: SheetDefinition<{
       payload: ServerDeleteConfirmPayload;
     }>;
+    [MoveTorrentSheet.sheetId]: SheetDefinition<{
+      payload: MoveTorrentPayload;
+    }>;
   }
 }
 
@@ -45,5 +51,6 @@ registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
 registerSheet(SelectSheet.sheetId, SelectSheet);
 registerSheet(ServerSelectorSheet.sheetId, ServerSelectorSheet);
 registerSheet(ServerDeleteConfirmSheet.sheetId, ServerDeleteConfirmSheet);
+registerSheet(MoveTorrentSheet.sheetId, MoveTorrentSheet);
 
 export {};

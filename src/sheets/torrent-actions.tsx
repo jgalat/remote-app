@@ -7,6 +7,7 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions, Torrent } from "~/hooks/transmission";
 import { useTheme } from "~/hooks/use-theme-color";
 import RemoveConfirmSheet from "./remove-confirm";
+import MoveTorrentSheet from "./move-torrent";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { OptionProps } from "~/components/option";
 
@@ -55,6 +56,21 @@ function TorrentActionsSheet({
       label: "Reannounce",
       left: "radio",
       onPress: () => actions.reannounce.mutate({ ids }),
+    },
+    {
+      label: "Move",
+      left: "folder",
+      onPress: () => {
+        const downloadDir =
+          torrents.length === 1 ? torrents[0].downloadDir ?? undefined : undefined;
+        setTimeout(
+          () =>
+            SheetManager.show(MoveTorrentSheet.sheetId, {
+              payload: { ids, downloadDir },
+            }),
+          100
+        );
+      },
     },
   ];
 

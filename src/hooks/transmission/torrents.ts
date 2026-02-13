@@ -15,6 +15,7 @@ import {
   TorrentAddResponse,
   TorrentStatus,
   TorrentSetRequest,
+  TorrentSetLocationRequest,
   Priority,
 } from "@remote-app/transmission-client";
 
@@ -49,6 +50,7 @@ const fields = [
   "webseedsSendingToUs",
   "activityDate",
   "magnetLink",
+  "downloadDir",
 ] as const;
 
 const selectFields = [
@@ -57,7 +59,6 @@ const selectFields = [
   "fileStats",
   "peers",
   "trackerStats",
-  "downloadDir",
   "downloadedEver",
   "pieceCount",
   "pieceSize",
@@ -270,6 +271,32 @@ export function useTorrentActions() {
   const remove = useTorrentAction("torrent-remove");
 
   return { start, startNow, stop, verify, reannounce, remove };
+}
+
+export function useTorrentSetLocation() {
+  const queryClient = useQueryClient();
+  const client = useTransmission();
+  const server = useServer();
+  const { clear } = useTorrentSelection();
+
+  return useMutation({
+    mutationFn: async (params: TorrentSetLocationRequest): Promise<void> => {
+      await client?.request({
+        method: "torrent-set-location",
+        arguments: params,
+      });
+    },
+    onError: () => {
+      ToastAndroid.show("Failed to move torrent", ToastAndroid.SHORT);
+    },
+    onSettled: () => {
+      clear();
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        500
+      );
+    },
+  });
 }
 
 export function useTorrentSet(id: number) {
