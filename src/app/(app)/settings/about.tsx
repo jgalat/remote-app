@@ -1,47 +1,114 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { Image, Linking, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import Constants from "expo-constants";
 
 import Screen from "~/components/screen";
 import View from "~/components/view";
 import Text from "~/components/text";
-import Link from "~/components/link";
+import Pressable from "~/components/pressable";
+import { useTheme } from "~/hooks/use-theme-color";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const icon = require("../../../../assets/images/icon.png");
+
+const links = [
+  {
+    title: "Website",
+    description: "Official homepage",
+    url: "https://remote.jg.ar",
+  },
+  {
+    title: "Wiki",
+    description: "Documentation, setup guides, and troubleshooting",
+    url: "https://github.com/jgalat/remote-app/wiki",
+  },
+  {
+    title: "Repository",
+    description: "Browse the source code and track development",
+    url: "https://github.com/jgalat/remote-app",
+  },
+  {
+    title: "Issue Tracker",
+    description: "Report bugs and request features",
+    url: "https://github.com/jgalat/remote-app/issues",
+  },
+];
 
 export default function AboutScreen() {
+  const { tint, gray, lightGray } = useTheme();
+
   return (
-    <Screen style={styles.container}>
-      <Text style={styles.title}>Remote for Transmission</Text>
-      <View style={styles.link}>
-        <Link title="Website" to="https://remote.jg.ar" />
-      </View>
-      <View style={styles.link}>
-        <Link
-          title="Repository"
-          to="https://github.com/jgalat/remote-app"
+    <Screen variant="scroll" contentContainerStyle={styles.content}>
+      <View style={styles.header}>
+        <Image
+          source={icon}
+          style={styles.icon}
         />
+        <Text style={styles.title}>Remote for Transmission</Text>
+        <Text style={[styles.version, { color: lightGray }]}>
+          {Constants.expoConfig?.version}
+        </Text>
       </View>
-      <View style={styles.link}>
-        <Link
-          title="Wiki"
-          to="https://github.com/jgalat/remote-app/wiki"
-        />
-      </View>
+      {links.map((link) => (
+        <Pressable
+          key={link.url}
+          style={styles.card}
+          onPress={() => Linking.openURL(link.url).catch(() => undefined)}
+        >
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: tint }]}>
+              {link.title}{" "}
+            </Text>
+            <Feather name="external-link" color={tint} size={16} />
+          </View>
+          <Text style={[styles.cardDescription, { color: gray }]}>
+            {link.description}
+          </Text>
+        </Pressable>
+      ))}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  content: {
+    paddingTop: 32,
+  },
+  header: {
     alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 24,
+  },
+  icon: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    marginBottom: 16,
   },
   title: {
     fontFamily: "RobotoMono-Medium",
-    fontSize: 24,
-    marginBottom: 32,
+    fontSize: 20,
+    marginBottom: 4,
   },
-  link: {
-    marginBottom: 24,
+  version: {
+    fontFamily: "RobotoMono-Regular",
+    fontSize: 14,
+  },
+  card: {
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  cardTitle: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 16,
+  },
+  cardDescription: {
+    fontFamily: "RobotoMono-Regular",
+    fontSize: 13,
   },
 });
-
