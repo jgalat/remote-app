@@ -33,6 +33,7 @@ const ListingSchema = z.object({
   sort: SortSchema,
   direction: DirectionSchema,
   filter: FilterSchema,
+  pathFilter: z.string().default(""),
 });
 
 export type ListingData = z.infer<typeof ListingSchema>;
@@ -43,6 +44,7 @@ export const defaults: ListingData = {
   sort: "queue",
   direction: "asc",
   filter: "all",
+  pathFilter: "",
 };
 
 export function loadListing(): ListingData {

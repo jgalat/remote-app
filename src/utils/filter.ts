@@ -45,3 +45,8 @@ const map = {
 export default function (f: Filter): Predicate {
   return map[f];
 }
+
+export function pathPredicate(resolvedPath: string | null): Predicate {
+  if (resolvedPath == null) return all;
+  return (t) => t.downloadDir === resolvedPath;
+}

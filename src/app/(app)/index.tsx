@@ -28,7 +28,7 @@ import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { usePro } from "@remote-app/pro";
 import { useTheme } from "~/hooks/use-theme-color";
 import compare from "~/utils/sort";
-import predicate from "~/utils/filter";
+import predicate, { pathPredicate } from "~/utils/filter";
 
 export default function TorrentsScreen() {
   const navigation = useNavigation();
@@ -37,7 +37,7 @@ export default function TorrentsScreen() {
   const searchConfig = useSearchConfig();
   const server = useServer();
   const servers = useServers();
-  const { sort, direction, filter } = useListing();
+  const { sort, direction, filter, pathFilter } = useListing();
   const { text: textColor } = useTheme();
   const {
     data: torrents,
@@ -177,12 +177,17 @@ export default function TorrentsScreen() {
     setRefreshing(false);
   }, [refetch]);
 
+  const resolvedPath = pathFilter || null;
+
   const render = React.useMemo(
     () =>
       torrents
-        ? [...torrents].sort(compare(direction, sort)).filter(predicate(filter))
+        ? [...torrents]
+            .sort(compare(direction, sort))
+            .filter(predicate(filter))
+            .filter(pathPredicate(resolvedPath))
         : [],
-    [torrents, direction, sort, filter]
+    [torrents, direction, sort, filter, resolvedPath]
   );
 
   if (servers.length === 0) {
@@ -234,6 +239,12 @@ export default function TorrentsScreen() {
         )}
         keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={Separator}
+        ListEmptyComponent={
+          <View style={styles.message}>
+            <Text style={styles.noResults}>No results</Text>
+          </View>
+        }
+        contentContainerStyle={render.length === 0 && styles.emptyList}
         onRefresh={refresh}
         refreshing={refreshing}
       />
@@ -252,6 +263,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 24,
+  },
+  noResults: {
+    fontSize: 16,
+    fontFamily: "RobotoMono-Medium",
+  },
+  emptyList: {
+    flexGrow: 1,
   },
   headerTitle: {
     fontFamily: "RobotoMono-Medium",

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import _ActionSheet from "react-native-actions-sheet";
+import _ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -9,12 +9,13 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Option from "~/components/option";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useListingStore } from "~/hooks/use-settings";
-import { useTorrents } from "~/hooks/transmission";
+import { useListingStore, useActiveServerId, useDirectories } from "~/hooks/use-settings";
+import { useTorrents, useSession } from "~/hooks/transmission";
 import predicate from "~/utils/filter";
 
 import type { SheetProps } from "react-native-actions-sheet";
 import type { Sort, Filter } from "~/store/settings";
+import type { SelectOption } from "./select";
 import type { OptionProps } from "~/components/option";
 
 const sheetId = "listing" as const;
@@ -26,8 +27,11 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
   const { background, text, tint } = useTheme();
   const insets = useSafeAreaInsets();
   const { data: torrents } = useTorrents({ stale: true });
+  const { data: session } = useSession({ stale: true });
+  const activeServerId = useActiveServerId();
+  const savedDirs = useDirectories(activeServerId);
   const { listing, store } = useListingStore();
-  const { sort, direction, filter } = listing;
+  const { sort, direction, filter, pathFilter } = listing;
   const [tab, setTab] = React.useState<Tab>("sort");
 
   const updateSort = React.useCallback(
@@ -105,6 +109,47 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
     [filterLeft, updateFilter, filterRight]
   );
 
+  const defaultDir = session?.["download-dir"];
+  const pathLabel = pathFilter || "Path";
+
+  const openPathPicker = React.useCallback(() => {
+    const dirs = new Set<string>();
+    if (defaultDir) dirs.add(defaultDir);
+    for (const d of savedDirs) dirs.add(d);
+
+    const countByDir = new Map<string, number>();
+    if (torrents) {
+      for (const t of torrents) {
+        countByDir.set(t.downloadDir, (countByDir.get(t.downloadDir) ?? 0) + 1);
+      }
+    }
+
+    const options: SelectOption[] = [
+      {
+        value: "",
+        label: "All",
+        left: torrents?.length ?? 0,
+        right: pathFilter === "" ? "check" : undefined,
+      },
+      ...[...dirs].map((dir) => ({
+        value: dir,
+        label: dir,
+        left: countByDir.get(dir) ?? 0,
+        right: pathFilter === dir ? ("check" as const) : undefined,
+      })),
+    ];
+
+    SheetManager.show("select", {
+      payload: {
+        title: "Path",
+        options,
+        onSelect: (value: string | number) => {
+          store({ pathFilter: String(value) });
+        },
+      },
+    });
+  }, [pathFilter, defaultDir, savedDirs, torrents, store]);
+
   const options = tab === "sort" ? sortOptions : filterOptions;
 
   return (
@@ -144,6 +189,20 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
             </Pressable>
           ))}
         </View>
+        {tab === "filter" && (
+          <>
+            <Pressable style={styles.pathRow} onPress={openPathPicker}>
+              <View style={styles.pathIcon}>
+                <Feather name="folder" size={24} color={text} />
+              </View>
+              <View style={styles.pathLabel}>
+                <Text numberOfLines={1}>{pathLabel}</Text>
+              </View>
+              <Feather name="book" size={24} color={text} />
+            </Pressable>
+            <View style={[styles.separator, { backgroundColor: text, opacity: 0.15 }]} />
+          </>
+        )}
         {options.map((option) => (
           <Option key={option.label} {...option} style={styles.option} />
         ))}
@@ -178,6 +237,24 @@ const styles = StyleSheet.create({
   segmentText: {
     fontSize: 14,
     fontFamily: "RobotoMono-Medium",
+  },
+  pathRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  pathIcon: {
+    width: "15%",
+    alignItems: "center",
+  },
+  pathLabel: {
+    flex: 1,
+    marginLeft: 24,
+    marginRight: 16,
+  },
+  separator: {
+    height: 1,
+    marginVertical: 12,
   },
   option: {
     marginBottom: 4,
