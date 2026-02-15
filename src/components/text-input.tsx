@@ -16,43 +16,44 @@ export type TextInputProps = {
   icon?: React.ComponentProps<typeof Feather>["name"];
 } & _TextInputProps;
 
-export default React.memo(function TextInput({
-  style,
-  editable = true,
-  containerStyle,
-  icon,
-  ...props
-}: TextInputProps) {
-  const { background, text, lightGray, gray } = useTheme();
+export default React.memo(
+  React.forwardRef<_TextInput, TextInputProps>(function TextInput(
+    // eslint-disable-next-line react/prop-types
+    { style, editable = true, containerStyle, icon, ...props },
+    ref
+  ) {
+    const { background, text, lightGray, gray } = useTheme();
 
-  return (
-    <View
-      pointerEvents={editable ? undefined : "none"}
-      style={[styles.container, containerStyle]}
-    >
-      <_TextInput
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete="off"
-        style={[
-          styles.input,
-          {
-            backgroundColor: background,
-            color: editable ? text : lightGray,
-            borderColor: editable ? text : lightGray,
-          },
-          icon ? { paddingLeft: 40 } : {},
-          style,
-        ]}
-        placeholderTextColor={lightGray}
-        {...props}
-      />
-      {icon ? (
-        <Feather color={gray} size={16} name={icon} style={styles.icon} />
-      ) : null}
-    </View>
-  );
-});
+    return (
+      <View
+        pointerEvents={editable ? undefined : "none"}
+        style={[styles.container, containerStyle]}
+      >
+        <_TextInput
+          ref={ref}
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="off"
+          style={[
+            styles.input,
+            {
+              backgroundColor: background,
+              color: editable ? text : lightGray,
+              borderColor: editable ? text : lightGray,
+            },
+            icon ? { paddingLeft: 40 } : {},
+            style,
+          ]}
+          placeholderTextColor={lightGray}
+          {...props}
+        />
+        {icon ? (
+          <Feather color={gray} size={16} name={icon} style={styles.icon} />
+        ) : null}
+      </View>
+    );
+  })
+);
 
 const styles = StyleSheet.create({
   container: {

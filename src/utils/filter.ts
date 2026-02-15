@@ -50,3 +50,9 @@ export function pathPredicate(resolvedPath: string | null): Predicate {
   if (resolvedPath == null) return all;
   return (t) => t.downloadDir === resolvedPath;
 }
+
+export function searchPredicate(query: string): Predicate {
+  if (query === "") return all;
+  const lower = query.toLowerCase();
+  return (t) => t.name.toLowerCase().includes(lower);
+}
