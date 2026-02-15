@@ -16,9 +16,8 @@ export type TextInputProps = {
   icon?: React.ComponentProps<typeof Feather>["name"];
 } & _TextInputProps;
 
-export default React.memo(
-  React.forwardRef<_TextInput, TextInputProps>(function TextInput(
-    // eslint-disable-next-line react/prop-types
+export default React.forwardRef<_TextInput, TextInputProps>(
+  function TextInput(
     { style, editable = true, containerStyle, icon, ...props },
     ref
   ) {
@@ -52,7 +51,7 @@ export default React.memo(
         ) : null}
       </View>
     );
-  })
+  }
 );
 
 const styles = StyleSheet.create({
