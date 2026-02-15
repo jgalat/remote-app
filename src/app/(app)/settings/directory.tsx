@@ -14,6 +14,7 @@ import Button from "~/components/button";
 import Toggle from "~/components/toggle";
 import Screen from "~/components/screen";
 import ActionIcon from "~/components/action-icon";
+import Required from "~/components/required";
 import {
   useServers,
   useDirectoriesStore,
@@ -21,15 +22,16 @@ import {
 import { useServerSessionSet } from "~/hooks/transmission";
 import { useTheme } from "~/hooks/use-theme-color";
 import { usePro } from "@remote-app/pro";
+import { useTranslation } from "react-i18next";
 
 type Form = z.infer<typeof Form>;
 const Form = z.object({
   path: z
     .string()
-    .min(1, "path cannot be empty")
+    .min(1, "validation_path_empty")
     .regex(
       /^([a-zA-Z]:\\|\/)([^<>:"|?*\n\r]+(\/|\\)?)*$/,
-      "invalid path format"
+      "validation_path_format"
     ),
   global: z.boolean(),
 });
@@ -39,6 +41,7 @@ export default function DirectoryScreen() {
   const navigation = useNavigation();
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const { serverId, path: initialPath, isDefault } = useLocalSearchParams<{
     serverId: string;
@@ -104,11 +107,11 @@ export default function DirectoryScreen() {
           { "download-dir": trimmed },
           {
             onSuccess: () => {
-              ToastAndroid.show("Default directory updated", ToastAndroid.SHORT);
+              ToastAndroid.show(t("default_dir_updated"), ToastAndroid.SHORT);
               router.back();
             },
             onError: () => {
-              ToastAndroid.show("Failed to update", ToastAndroid.SHORT);
+              ToastAndroid.show(t("failed_to_update"), ToastAndroid.SHORT);
             },
           }
         );
@@ -155,13 +158,13 @@ export default function DirectoryScreen() {
 
       router.back();
     },
-    [isDefaultDir, isNew, serverId, initialPath, directories, store, setSession, router]
+    [isDefaultDir, isNew, serverId, initialPath, directories, store, setSession, router, t]
   );
 
   if (!server) {
     return (
       <Screen>
-        <Text>Server not found</Text>
+        <Text>{t("server_not_found")}</Text>
       </Screen>
     );
   }
@@ -175,7 +178,9 @@ export default function DirectoryScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.row}>
-          <Text style={styles.label}>PATH</Text>
+          <Text style={styles.label}>
+            {t("path")} <Required />
+          </Text>
           <Controller
             name="path"
             control={control}
@@ -189,7 +194,7 @@ export default function DirectoryScreen() {
                   style={fieldState.error ? { borderColor: red } : {}}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -203,8 +208,8 @@ export default function DirectoryScreen() {
               control={control}
               render={({ field }) => (
                 <Toggle
-                  label="GLOBAL"
-                  description="Shared across all servers"
+                  label={t("global_directory")}
+                  description={t("shared_across_servers")}
                   value={field.value}
                   onPress={field.onChange}
                 />
@@ -214,7 +219,7 @@ export default function DirectoryScreen() {
         )}
 
         <Button
-          title="save"
+          title={t("save")}
           onPress={handleSubmit(onSubmit)}
         />
       </KeyboardAwareScrollView>

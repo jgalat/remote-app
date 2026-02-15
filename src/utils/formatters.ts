@@ -1,4 +1,5 @@
 import { TorrentStatus } from "@remote-app/transmission-client";
+import i18n from "~/i18n";
 
 function formatBytes(units: string[]): (bytes: number) => string {
   return (bytes: number): string => {
@@ -8,7 +9,7 @@ function formatBytes(units: string[]): (bytes: number) => string {
         return `${(bytes / Math.pow(step, i + 1)).toFixed(2)} ${units[i]}`;
       }
     }
-    return `infinite`;
+    return i18n.t("infinite");
   };
 }
 
@@ -41,18 +42,18 @@ export const formatETA = (eta: number): string => {
 export const formatStatus = (status: TorrentStatus): string => {
   switch (status) {
     case TorrentStatus.STOPPED:
-      return "stopped";
+      return "status_stopped";
     case TorrentStatus.QUEUED_TO_VERIFY_LOCAL_DATA:
-      return "queued to verify local data";
+      return "status_queued_to_verify";
     case TorrentStatus.VERIFYING_LOCAL_DATA:
-      return "verifying local data";
+      return "status_verifying";
     case TorrentStatus.QUEUED_TO_DOWNLOAD:
-      return "queued to download";
+      return "status_queued_to_download";
     case TorrentStatus.DOWNLOADING:
-      return "downloading";
+      return "status_downloading";
     case TorrentStatus.QUEUED_TO_SEED:
-      return "queued to seed";
+      return "status_queued_to_seed";
     case TorrentStatus.SEEDING:
-      return "seeding";
+      return "status_seeding";
   }
 };

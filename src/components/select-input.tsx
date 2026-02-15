@@ -6,6 +6,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import Text from "./text";
 import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
+import { useTranslation } from "react-i18next";
 import type { SelectOption } from "../sheets/select";
 
 export type SelectInputProps = {
@@ -20,7 +21,7 @@ export type SelectInputProps = {
 export default React.memo(function SelectInput({
   style,
   title,
-  placeholder = "Select an option",
+  placeholder,
   value,
   options = [],
   onChange,
@@ -29,9 +30,10 @@ export default React.memo(function SelectInput({
   ...props
 }: SelectInputProps) {
   const { text, lightGray, background, gray } = useTheme();
+  const { t } = useTranslation();
 
   const selectedOption = options.find((opt) => opt.value === value);
-  const displayText = selectedOption?.label || placeholder;
+  const displayText = selectedOption?.label || placeholder || t("select_an_option");
 
   const handlePress = () => {
     SheetManager.show("select", {

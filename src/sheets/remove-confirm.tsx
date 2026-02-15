@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
@@ -14,19 +15,20 @@ function RemoveConfirmSheet({
 }: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
   const remove = useTorrentAction("torrent-remove");
+  const { t } = useTranslation();
 
   return (
     <ActionSheet
-      title="Are you sure?"
+      title={t("are_you_sure")}
       options={[
         {
-          label: "Remove",
+          label: t("remove_torrent"),
           left: "trash",
           color: red,
           onPress: () => (ids ? remove.mutate({ ids }) : undefined),
         },
         {
-          label: "Remove & Trash data",
+          label: t("remove_and_trash"),
           left: "trash-2",
           color: red,
           onPress: () =>

@@ -12,10 +12,12 @@ import {
 } from "~/components/utility-screens";
 import PeerItem from "~/components/peer-item";
 import Separator from "~/components/separator";
+import { useTranslation } from "react-i18next";
 
 export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { t } = useTranslation();
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
@@ -36,7 +38,7 @@ export default function PeersScreen() {
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
-            <Text style={styles.title}>No peers found</Text>
+            <Text style={styles.title}>{t("no_peers_found")}</Text>
           </View>
         }
       />

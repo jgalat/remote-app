@@ -2,6 +2,7 @@ import * as React from "react";
 import * as Application from "expo-application";
 import { StyleSheet, FlatList } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import Option, { OptionProps } from "~/components/option";
@@ -15,12 +16,13 @@ export default function SettingsScreen() {
   const servers = useServers();
   const { isPro, available } = usePro();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
     const connection: OptionProps[] = [
       {
         left: "server",
-        label: "Servers",
+        label: t("servers"),
         onPress: () => router.push("/settings/servers"),
         right: "chevron-right",
       },
@@ -29,13 +31,13 @@ export default function SettingsScreen() {
     const serverOptions: OptionProps[] = [
       {
         left: "sliders",
-        label: "Server Configuration",
+        label: t("server_configuration"),
         onPress: () => router.push("/settings/configuration"),
         right: "chevron-right",
       },
       {
         left: "folder",
-        label: "Download Directories",
+        label: t("download_directories"),
         onPress: () => router.push("/settings/directories"),
         right: "chevron-right",
       },
@@ -43,7 +45,7 @@ export default function SettingsScreen() {
         ? [
             {
               left: "search" as const,
-              label: "Search",
+              label: t("search"),
               onPress: () => router.push("/settings/search"),
               right: "chevron-right" as const,
             },
@@ -54,14 +56,20 @@ export default function SettingsScreen() {
     const appOptions: OptionProps[] = [
       {
         left: "lock",
-        label: "Security",
+        label: t("security"),
         onPress: () => router.push("/settings/security"),
         right: "chevron-right",
       },
       {
         left: colorScheme === "dark" ? "moon" : "sun",
-        label: "Theme",
+        label: t("theme"),
         onPress: () => router.push("/settings/theme"),
+        right: "chevron-right",
+      },
+      {
+        left: "globe",
+        label: t("language"),
+        onPress: () => router.push("/settings/language"),
         right: "chevron-right",
       },
       ...(available
@@ -69,13 +77,13 @@ export default function SettingsScreen() {
             isPro
               ? {
                   left: "star" as const,
-                  label: "Pro (Active)",
+                  label: t("pro_active"),
                   onPress: () => router.push("/settings/pro"),
                   right: "chevron-right" as const,
                 }
               : {
                   left: "star" as const,
-                  label: "Pro",
+                  label: t("pro"),
                   onPress: () => router.push("/paywall"),
                   right: "chevron-right" as const,
                 },
@@ -83,7 +91,7 @@ export default function SettingsScreen() {
         : []),
       {
         left: "info",
-        label: "About",
+        label: t("about"),
         onPress: () => router.push("/settings/about"),
         right: "chevron-right",
       },
@@ -92,7 +100,7 @@ export default function SettingsScreen() {
     const devOptions: OptionProps[] = [
       {
         left: "code",
-        label: "Development",
+        label: t("development"),
         onPress: () => router.push("/settings/development"),
         right: "chevron-right",
       },
@@ -104,7 +112,7 @@ export default function SettingsScreen() {
       ...appOptions,
       ...(__DEV__ ? devOptions : []),
     ];
-  }, [colorScheme, servers, isPro, available, router]);
+  }, [colorScheme, servers, isPro, available, router, t]);
 
   return (
     <Screen style={{ paddingTop: 16 }}>
@@ -114,7 +122,7 @@ export default function SettingsScreen() {
         keyExtractor={(item) => item.label}
       />
       <Text style={styles.text}>
-        Version {Application.nativeApplicationVersion}
+        {t("version", { version: Application.nativeApplicationVersion })}
       </Text>
     </Screen>
   );

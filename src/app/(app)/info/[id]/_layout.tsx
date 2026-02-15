@@ -18,6 +18,7 @@ import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import { useTorrent } from "~/hooks/transmission";
+import { useTranslation } from "react-i18next";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -38,6 +39,7 @@ export default function Layout() {
   const navigation = useNavigation();
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { tint, text, background } = useTheme();
+  const { t } = useTranslation();
   const torrentActionsSheet = useTorrentActionsSheet();
   const { data: torrents, error } = useTorrent(+id);
 
@@ -83,37 +85,37 @@ export default function Layout() {
       <MaterialTopTabs.Screen
         name="index"
         options={{
-          title: "Info",
+          title: t("info"),
         }}
       />
       <MaterialTopTabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("settings"),
         }}
       />
       <MaterialTopTabs.Screen
         name="files"
         options={{
-          title: "Files",
+          title: t("files"),
         }}
       />
       <MaterialTopTabs.Screen
         name="trackers"
         options={{
-          title: "Trackers",
+          title: t("trackers"),
         }}
       />
       <MaterialTopTabs.Screen
         name="peers"
         options={{
-          title: "Peers",
+          title: t("peers"),
         }}
       />
       <MaterialTopTabs.Screen
         name="pieces"
         options={{
-          title: "Pieces",
+          title: t("pieces"),
         }}
       />
     </MaterialTopTabs>

@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import TextInput from "~/components/text-input";
@@ -38,10 +39,10 @@ const Form = z
     content: z.string().optional(),
     path: z
       .string()
-      .min(1, "path cannot be empty")
+      .min(1, "validation_path_empty")
       .regex(
         /^([a-zA-Z]:\\|\/)([^<>:"|?*\n\r]+(\/|\\)?)*$/,
-        "invalid path format"
+        "validation_path_format"
       ),
     start: z.boolean(),
   })
@@ -50,12 +51,12 @@ const Form = z
       ctx.addIssue({
         path: ["magnet"],
         code: z.ZodIssueCode.custom,
-        message: "either magnet or file is required",
+        message: "validation_magnet_or_file",
       });
       ctx.addIssue({
         path: ["file"],
         code: z.ZodIssueCode.custom,
-        message: "either magnet or file is required",
+        message: "validation_magnet_or_file",
       });
     }
   });
@@ -81,6 +82,7 @@ export default function AddTorrentScreen() {
   const inset = useSafeAreaInsets();
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
+  const { t } = useTranslation();
 
   const { magnet, file } = useLocalSearchParams<{
     magnet?: string;
@@ -129,12 +131,12 @@ export default function AddTorrentScreen() {
 
     SheetManager.show(SelectSheet.sheetId, {
       payload: {
-        title: "Select directory",
+        title: t("select_directory"),
         options,
         onSelect: (value) => setValue("path", String(value)),
       },
     });
-  }, [session, directories, setValue]);
+  }, [session, directories, setValue, t]);
 
   const addTorrent = useAddTorrent();
 
@@ -188,17 +190,17 @@ export default function AddTorrentScreen() {
         await addTorrent.mutateAsync(params);
         router.back();
       } catch (e) {
-        let message = "Something went wrong";
+        let message = t("something_went_wrong");
         if (e instanceof Error) {
           message = e.message;
         }
         ToastAndroid.show(
-          `Failed to add torrent: ${message}`,
+          t("failed_to_add_torrent", { message }),
           ToastAndroid.SHORT
         );
       }
     },
-    [addTorrent, router]
+    [addTorrent, router, t]
   );
 
   return (
@@ -210,7 +212,7 @@ export default function AddTorrentScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.row}>
-          <Text style={styles.label}>MAGNET LINK</Text>
+          <Text style={styles.label}>{t("magnet_link")}</Text>
           <Controller
             name="magnet"
             control={control}
@@ -231,7 +233,7 @@ export default function AddTorrentScreen() {
                   }}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -239,7 +241,7 @@ export default function AddTorrentScreen() {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>TORRENT FILE</Text>
+          <Text style={styles.label}>{t("torrent_file")}</Text>
           <Controller
             name="file"
             control={control}
@@ -249,14 +251,14 @@ export default function AddTorrentScreen() {
                   title={
                     field.value && field.value.length > 24
                       ? field.value.slice(0, 24) + "..."
-                      : field.value || "or select a .torrent file"
+                      : field.value || t("select_torrent_file")
                   }
                   style={fieldState.error ? { borderColor: red } : {}}
                   titleStyle={field.value ? { color: text } : {}}
                   onPress={onPickDocument}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -264,7 +266,7 @@ export default function AddTorrentScreen() {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>DOWNLOAD PATH</Text>
+          <Text style={styles.label}>{t("download_path")}</Text>
           <Controller
             name="path"
             control={control}
@@ -287,7 +289,7 @@ export default function AddTorrentScreen() {
                   </Pressable>
                 </View>
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -301,13 +303,13 @@ export default function AddTorrentScreen() {
             render={({ field, fieldState }) => (
               <>
                 <Toggle
-                  label="START AUTOMATICALLY"
-                  description="Begin download immediately"
+                  label={t("start_automatically")}
+                  description={t("begin_download")}
                   value={field.value}
                   onPress={field.onChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -315,13 +317,13 @@ export default function AddTorrentScreen() {
         </View>
 
         <Button
-          title="add torrent"
+          title={t("add_torrent").toLowerCase()}
           onPress={handleSubmit(onSubmit)}
           style={{ marginTop: 8, marginBottom: 8 }}
         />
 
         <Button
-          title="cancel"
+          title={t("cancel").toLowerCase()}
           variant="outline"
           onPress={() => router.dismissTo("/")}
         />

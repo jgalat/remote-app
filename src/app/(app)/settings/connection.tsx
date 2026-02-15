@@ -11,6 +11,7 @@ import TransmissionClient, {
   TransmissionError,
 } from "@remote-app/transmission-client";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -18,13 +19,14 @@ import Screen from "~/components/screen";
 import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
-import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { isTestingServer } from "~/utils/mock-transmission-client";
 import ActionIcon from "~/components/action-icon";
+import Required from "~/components/required";
 import ProgressBar from "~/components/progress-bar";
 
 type Form = z.infer<typeof Form>;
@@ -32,9 +34,9 @@ const Form = z
   .object({
     name: z
       .string()
-      .min(1, "Name is required")
-      .max(16, "Max. of 16 characters"),
-    host: z.string().min(1, "Host / IP address is required"),
+      .min(1, "validation_name_required")
+      .max(16, "validation_name_max"),
+    host: z.string().min(1, "validation_host_required"),
     port: z.coerce.number().optional(),
     path: z.string().optional(),
     useSSL: z.boolean(),
@@ -48,14 +50,14 @@ const Form = z
         ctx.addIssue({
           path: ["username"],
           code: z.ZodIssueCode.custom,
-          message: "Username is required",
+          message: "validation_username_required",
         });
       }
       if (!data.password) {
         ctx.addIssue({
           path: ["password"],
           code: z.ZodIssueCode.custom,
-          message: "Password is required",
+          message: "validation_password_required",
         });
       }
     }
@@ -93,22 +95,22 @@ async function testConnection(f: Form): Promise<string> {
   };
 
   if (isTestingServer(creds)) {
-    return "Connected";
+    return "connected";
   }
 
   const client = new TransmissionClient(creds);
   try {
     await client.request({ method: "session-get" });
-    return "Connected";
+    return "connected";
   } catch (e) {
     if (e instanceof HTTPError) {
-      return `HTTP Error: ${e.message}`;
+      return `http_error::${e.message}`;
     } else if (e instanceof TransmissionError) {
-      return `Transmission Error: ${e.message}`;
+      return `transmission_error_msg::${e.message}`;
     } else if (e instanceof Error) {
-      return `Error: ${e.message}`;
+      return `error_msg::${e.message}`;
     }
-    return "Unknown error";
+    return "unknown_error";
   }
 }
 
@@ -146,16 +148,13 @@ function defaultValues(server?: Server): Form {
   };
 }
 
-function Required() {
-  const color = useThemeColor("tint");
-  return <Text style={{ color }}>*</Text>;
-}
 
 export default function ConnectionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { servers, store } = useServersStore();
   const { red, gray, green } = useTheme();
+  const { t } = useTranslation();
 
   const editServer = id ? servers.find((s) => s.id === id) : undefined;
   const isEdit = Boolean(editServer);
@@ -243,11 +242,22 @@ export default function ConnectionScreen() {
     mutationFn: testConnection,
   });
 
-  const status = isPending ? "Connecting..." : data ? data : "Not connected";
+  const statusText = React.useMemo(() => {
+    if (isPending) return t("connecting");
+    if (!data) return t("not_connected");
+    if (data === "connected") return t("connected");
+    if (data === "unknown_error") return t("unknown_error");
+    if (data.includes("::")) {
+      const [key, msg] = data.split("::");
+      return t(key, { message: msg });
+    }
+    return data;
+  }, [isPending, data, t]);
+
   const statusColor =
-    status === "Not connected" || status === "Connecting..."
+    isPending || !data
       ? gray
-      : status === "Connected"
+      : data === "connected"
       ? green
       : red;
 
@@ -273,7 +283,7 @@ export default function ConnectionScreen() {
       >
         <View style={styles.row}>
           <Text style={styles.label}>
-            Name <Required />
+            {t("name")} <Required />
           </Text>
           <Controller
             name="name"
@@ -290,7 +300,7 @@ export default function ConnectionScreen() {
                   value={field.value?.toString() || ""}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -299,7 +309,7 @@ export default function ConnectionScreen() {
 
         <View style={styles.row}>
           <Text style={styles.label}>
-            HOST / IP ADDRESS <Required />
+            {t("host_ip")} <Required />
           </Text>
           <Controller
             name="host"
@@ -316,7 +326,7 @@ export default function ConnectionScreen() {
                   onChangeText={field.onChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -324,7 +334,7 @@ export default function ConnectionScreen() {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>PORT</Text>
+          <Text style={styles.label}>{t("port")}</Text>
           <Controller
             name="port"
             control={control}
@@ -341,7 +351,7 @@ export default function ConnectionScreen() {
                   onChangeText={field.onChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -349,7 +359,7 @@ export default function ConnectionScreen() {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>PATH</Text>
+          <Text style={styles.label}>{t("path")}</Text>
           <Controller
             name="path"
             control={control}
@@ -365,7 +375,7 @@ export default function ConnectionScreen() {
                   onChangeText={field.onChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -379,13 +389,13 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <Toggle
-                  label="USE SSL/HTTPS"
-                  description="Enable secure connection"
+                  label={t("use_ssl")}
+                  description={t("enable_secure_connection")}
                   value={field.value}
                   onPress={onSSLChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -399,13 +409,13 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <Toggle
-                  label="AUTHENTICATION"
-                  description="Username and password required"
+                  label={t("authentication")}
+                  description={t("enable_local_authentication")}
                   value={field.value}
                   onPress={field.onChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -416,7 +426,7 @@ export default function ConnectionScreen() {
           <>
             <View style={styles.row}>
               <Text style={styles.label}>
-                USERNAME <Required />
+                {t("username")} <Required />
               </Text>
               <Controller
                 name="username"
@@ -432,7 +442,7 @@ export default function ConnectionScreen() {
                       onChangeText={field.onChange}
                     />
                     <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
+                      {fieldState.error?.message && t(fieldState.error.message)}
                     </Text>
                   </>
                 )}
@@ -441,7 +451,7 @@ export default function ConnectionScreen() {
 
             <View style={styles.row}>
               <Text style={styles.label}>
-                PASSWORD <Required />
+                {t("password")} <Required />
               </Text>
               <Controller
                 name="password"
@@ -458,7 +468,7 @@ export default function ConnectionScreen() {
                       secureTextEntry
                     />
                     <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
+                      {fieldState.error?.message && t(fieldState.error.message)}
                     </Text>
                   </>
                 )}
@@ -468,19 +478,19 @@ export default function ConnectionScreen() {
         )}
 
         <View style={[styles.row, styles.connection, { borderColor: gray }]}>
-          <Text style={styles.label}>CONNECTION STATUS</Text>
-          <Text>{status}</Text>
+          <Text style={styles.label}>{t("connection_status")}</Text>
+          <Text>{statusText}</Text>
           <ProgressBar progress={100} color={statusColor} />
         </View>
 
         <Button
-          title="test connection"
+          title={t("test_connection")}
           onPress={handleSubmit(onTest)}
           style={{ marginTop: 8, marginBottom: 8, backgroundColor: green }}
         />
 
         <Button
-          title="save"
+          title={t("save")}
           onPress={handleSubmit(onSubmit)}
           style={{ marginTop: 8, marginBottom: 16 }}
         />

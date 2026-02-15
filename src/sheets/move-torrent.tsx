@@ -3,6 +3,7 @@ import { StyleSheet, ToastAndroid } from "react-native";
 import _ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -34,6 +35,7 @@ function MoveTorrentSheet({
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
   const setLocation = useTorrentSetLocation();
+  const { t } = useTranslation();
 
   const initialDir = downloadDir ?? session?.["download-dir"] ?? "";
   const [location, setLocationText] = React.useState(initialDir);
@@ -60,12 +62,12 @@ function MoveTorrentSheet({
 
     SheetManager.show(SelectSheet.sheetId, {
       payload: {
-        title: "Select directory",
+        title: t("select_directory"),
         options,
         onSelect: (value) => setLocationText(String(value)),
       },
     });
-  }, [defaultDir, directories]);
+  }, [defaultDir, directories, t]);
 
   const onMove = React.useCallback(() => {
     if (!location.trim()) return;
@@ -75,11 +77,11 @@ function MoveTorrentSheet({
       { ids, location: location.trim(), move: true },
       {
         onSuccess: () => {
-          ToastAndroid.show("Torrent moved", ToastAndroid.SHORT);
+          ToastAndroid.show(t("torrent_moved"), ToastAndroid.SHORT);
         },
       }
     );
-  }, [ids, location, setLocation]);
+  }, [ids, location, setLocation, t]);
 
   return (
     <_ActionSheet
@@ -100,7 +102,7 @@ function MoveTorrentSheet({
       gestureEnabled
     >
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-        <Text style={styles.title}>Move</Text>
+        <Text style={styles.title}>{t("move")}</Text>
         <View style={styles.inputRow}>
           <TextInput
             placeholder="/downloads"
@@ -114,7 +116,7 @@ function MoveTorrentSheet({
           </Pressable>
         </View>
         <Button
-          title="move"
+          title={t("move").toLowerCase()}
           onPress={onMove}
           disabled={!location.trim()}
           style={styles.button}

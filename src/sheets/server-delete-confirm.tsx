@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
@@ -15,6 +16,7 @@ function ServerDeleteConfirmSheet({
   const { red } = useTheme();
   const { servers, store } = useServersStore();
   const active = useServer();
+  const { t } = useTranslation();
 
   const onDelete = React.useCallback(() => {
     if (!payload) return;
@@ -28,10 +30,10 @@ function ServerDeleteConfirmSheet({
 
   return (
     <ActionSheet
-      title={`Delete ${payload?.label ?? "server"}?`}
+      title={t("delete_server", { label: payload?.label ?? t("server") })}
       options={[
         {
-          label: "Delete",
+          label: t("delete"),
           left: "trash",
           color: red,
           onPress: onDelete,

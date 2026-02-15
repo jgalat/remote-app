@@ -3,6 +3,7 @@ import { StyleSheet, ToastAndroid } from "react-native";
 import { z } from "zod";
 import { Feather } from "@expo/vector-icons";
 import { SheetManager } from "react-native-actions-sheet";
+import { useTranslation } from "react-i18next";
 
 import Toggle from "~/components/toggle";
 import Text from "~/components/text";
@@ -29,23 +30,23 @@ type Form = z.infer<typeof Form>;
 const Form = z
   .object({
     "speed-limit-down-enabled": z.boolean(),
-    "speed-limit-down": z.coerce.number({ message: "Expected a number" }),
+    "speed-limit-down": z.coerce.number({ message: "validation_number" }),
     "speed-limit-up-enabled": z.boolean(),
-    "speed-limit-up": z.coerce.number({ message: "Expected a number" }),
+    "speed-limit-up": z.coerce.number({ message: "validation_number" }),
     "alt-speed-enabled": z.boolean(),
-    "alt-speed-down": z.coerce.number({ message: "Expected a number" }),
-    "alt-speed-up": z.coerce.number({ message: "Expected a number" }),
+    "alt-speed-down": z.coerce.number({ message: "validation_number" }),
+    "alt-speed-up": z.coerce.number({ message: "validation_number" }),
 
     "seedRatioLimited": z.boolean(),
-    "seedRatioLimit": z.coerce.number({ message: "Expected a number" }),
+    "seedRatioLimit": z.coerce.number({ message: "validation_number" }),
 
     "idle-seeding-limit-enabled": z.boolean(),
-    "idle-seeding-limit": z.coerce.number({ message: "Expected a number" }),
+    "idle-seeding-limit": z.coerce.number({ message: "validation_number" }),
 
     "download-queue-enabled": z.boolean(),
-    "download-queue-size": z.coerce.number({ message: "Expected a number" }),
+    "download-queue-size": z.coerce.number({ message: "validation_number" }),
     "seed-queue-enabled": z.boolean(),
-    "seed-queue-size": z.coerce.number({ message: "Expected a number" }),
+    "seed-queue-size": z.coerce.number({ message: "validation_number" }),
 
     "dht-enabled": z.boolean(),
     "lpd-enabled": z.boolean(),
@@ -56,42 +57,42 @@ const Form = z
       ctx.addIssue({
         path: ["speed-limit-down"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["speed-limit-up-enabled"] && !data["speed-limit-up"]) {
       ctx.addIssue({
         path: ["speed-limit-up"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["seedRatioLimited"] && !data["seedRatioLimit"]) {
       ctx.addIssue({
         path: ["seedRatioLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["idle-seeding-limit-enabled"] && !data["idle-seeding-limit"]) {
       ctx.addIssue({
         path: ["idle-seeding-limit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["download-queue-enabled"] && !data["download-queue-size"]) {
       ctx.addIssue({
         path: ["download-queue-size"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["seed-queue-enabled"] && !data["seed-queue-size"]) {
       ctx.addIssue({
         path: ["seed-queue-size"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
   });
@@ -101,6 +102,7 @@ function ConfigurationForm({ server }: { server: Server }) {
   const { mutate } = useServerSessionSet(server);
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const { control, handleSubmit, watch } = useForm({
     mode: "onBlur",
@@ -113,17 +115,14 @@ function ConfigurationForm({ server }: { server: Server }) {
       (f: Form) => {
         mutate(f, {
           onSuccess: () => {
-            ToastAndroid.show(
-              "Server updated successfully",
-              ToastAndroid.SHORT
-            );
+            ToastAndroid.show(t("server_updated"), ToastAndroid.SHORT);
           },
           onError: () => {
-            ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+            ToastAndroid.show(t("server_update_failed"), ToastAndroid.SHORT);
           },
         });
       },
-      [mutate]
+      [mutate, t]
     )
   );
 
@@ -143,7 +142,7 @@ function ConfigurationForm({ server }: { server: Server }) {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { marginTop: 0 }]}>Speed limits</Text>
+        <Text style={[styles.title, { marginTop: 0 }]}>{t("speed_limits")}</Text>
 
         <View style={styles.row}>
           <View style={styles.label}>
@@ -157,7 +156,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="DOWNLOAD (KB/S)"
+                  label={t("download_kbs")}
                 />
               )}
             />
@@ -176,7 +175,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -195,7 +194,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="UPLOAD (KB/S)"
+                  label={t("upload_kbs")}
                 />
               )}
             />
@@ -214,14 +213,14 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
           />
         </View>
 
-        <Text style={styles.title}>Alternative speed limits</Text>
+        <Text style={styles.title}>{t("alt_speed_limits")}</Text>
 
         <View style={styles.row}>
           <Controller
@@ -234,14 +233,14 @@ function ConfigurationForm({ server }: { server: Server }) {
                   field.onChange(v);
                   onSubmit();
                 }}
-                label="Enable alternative speed limits"
+                label={t("enable_alt_speed")}
               />
             )}
           />
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Download (kB/s)</Text>
+          <Text style={styles.label}>{t("alt_download_kbs")}</Text>
           <Controller
             name="alt-speed-down"
             control={control}
@@ -255,7 +254,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -263,7 +262,7 @@ function ConfigurationForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Upload (kB/s)</Text>
+          <Text style={styles.label}>{t("alt_upload_kbs")}</Text>
           <Controller
             name="alt-speed-up"
             control={control}
@@ -277,14 +276,14 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
           />
         </View>
 
-        <Text style={styles.title}>Seed</Text>
+        <Text style={styles.title}>{t("seed")}</Text>
 
         <View style={styles.row}>
           <View style={styles.label}>
@@ -298,7 +297,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="STOP SEEDING AT RATIO"
+                  label={t("stop_seeding_at_ratio")}
                 />
               )}
             />
@@ -317,7 +316,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -336,7 +335,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="STOP SEEDING IF IDLE (MINUTES)"
+                  label={t("stop_seeding_if_idle")}
                 />
               )}
             />
@@ -355,14 +354,14 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
           />
         </View>
 
-        <Text style={styles.title}>Queue</Text>
+        <Text style={styles.title}>{t("queue")}</Text>
 
         <View style={styles.row}>
           <View style={styles.label}>
@@ -376,7 +375,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="DOWNLOAD QUEUE SIZE"
+                  label={t("download_queue_size")}
                 />
               )}
             />
@@ -395,7 +394,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -414,7 +413,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="SEED QUEUE SIZE"
+                  label={t("seed_queue_size")}
                 />
               )}
             />
@@ -433,14 +432,14 @@ function ConfigurationForm({ server }: { server: Server }) {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
           />
         </View>
 
-        <Text style={styles.title}>Peer discovery</Text>
+        <Text style={styles.title}>{t("peer_discovery")}</Text>
 
         <View style={[styles.row, { gap: 16 }]}>
           <Controller
@@ -453,7 +452,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   field.onChange(v);
                   onSubmit();
                 }}
-                label="Enable Distributed Hash Table"
+                label={t("enable_dht")}
               />
             )}
           />
@@ -467,7 +466,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   field.onChange(v);
                   onSubmit();
                 }}
-                label="Enable Local Peer Discovery"
+                label={t("enable_lpd")}
               />
             )}
           />
@@ -481,7 +480,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   field.onChange(v);
                   onSubmit();
                 }}
-                label="Enable Peer Exchange"
+                label={t("enable_pex")}
               />
             )}
           />
@@ -495,6 +494,7 @@ export default function ServerConfigurationScreen() {
   const servers = useServers();
   const activeServerId = useActiveServerId();
   const { text } = useTheme();
+  const { t } = useTranslation();
 
   const [selectedId, setSelectedId] = React.useState<string | undefined>(
     activeServerId ?? servers[0]?.id
@@ -515,17 +515,17 @@ export default function ServerConfigurationScreen() {
 
     SheetManager.show(SelectSheet.sheetId, {
       payload: {
-        title: "Select server",
+        title: t("select_server"),
         options,
         onSelect: (value) => setSelectedId(String(value)),
       },
     });
-  }, [servers, selectedId]);
+  }, [servers, selectedId, t]);
 
   if (servers.length === 0) {
     return (
       <Screen>
-        <Text>No servers configured</Text>
+        <Text>{t("no_servers_configured")}</Text>
       </Screen>
     );
   }
@@ -535,7 +535,7 @@ export default function ServerConfigurationScreen() {
       {servers.length > 1 && (
         <Pressable style={styles.serverSelector} onPress={onPickServer}>
           <Feather name="server" size={16} color={text} />
-          <Text style={styles.serverName}>{server?.name ?? "Select server"}</Text>
+          <Text style={styles.serverName}>{server?.name ?? t("select_server")}</Text>
           <Feather name="chevron-down" size={16} color={text} />
         </Pressable>
       )}

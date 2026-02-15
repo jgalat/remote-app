@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { TorrentStatus } from "@remote-app/transmission-client";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 
 import View from "./view";
 import Text from "./text";
@@ -41,16 +42,17 @@ export default React.memo(function TorrentItem({
   onStop,
 }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
+  const { t } = useTranslation();
 
-  let status = formatStatus(torrent.status);
+  let status = t(formatStatus(torrent.status));
   let progress = torrent.percentDone * 100;
   let progressColor = color;
   switch (torrent.status) {
     case TorrentStatus.DOWNLOADING:
-      status = `${status} - ${torrent.peersSendingToUs} / ${torrent.peersConnected} peers`;
+      status = `${status} - ${t("peers_status", { sending: torrent.peersSendingToUs, connected: torrent.peersConnected })}`;
       break;
     case TorrentStatus.SEEDING:
-      status = `${status} - ${torrent.peersGettingFromUs} / ${torrent.peersConnected} peers`;
+      status = `${status} - ${t("peers_status", { sending: torrent.peersGettingFromUs, connected: torrent.peersConnected })}`;
       progressColor = green;
       break;
     case TorrentStatus.VERIFYING_LOCAL_DATA:

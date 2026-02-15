@@ -19,6 +19,7 @@ import Checkbox from "~/components/checkbox";
 import { useTorrentPrioritySheet } from "~/hooks/use-action-sheet";
 import { useIsFocused } from "@react-navigation/native";
 import useTorrentBrowser from "~/hooks/use-torrent-browser";
+import { useTranslation } from "react-i18next";
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -27,6 +28,7 @@ export default function FilesScreen() {
   const torrentSet = useTorrentSet(+id);
   const isFocused = useIsFocused();
   const { text } = useTheme();
+  const { t } = useTranslation();
 
   const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(
     torrents ?? []
@@ -94,7 +96,7 @@ export default function FilesScreen() {
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
-            <Text style={styles.title}>No files found</Text>
+            <Text style={styles.title}>{t("no_files_found")}</Text>
           </View>
         }
       />

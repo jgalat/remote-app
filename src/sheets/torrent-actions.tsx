@@ -2,6 +2,7 @@ import * as React from "react";
 import { Share, ToastAndroid } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions, Torrent } from "~/hooks/transmission";
@@ -28,37 +29,38 @@ function TorrentActionsSheet({
   const { red } = useTheme();
   const { clear } = useTorrentSelection();
   const actions = useTorrentActions();
+  const { t } = useTranslation();
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
   let options: OptionProps[] = [
     {
-      label: "Start",
+      label: t("start"),
       left: "play",
       onPress: () => actions.start.mutate({ ids }),
     },
     {
-      label: "Start now",
+      label: t("start_now"),
       left: "play",
       onPress: () => actions.startNow.mutate({ ids }),
     },
     {
-      label: "Stop",
+      label: t("stop"),
       left: "pause",
       onPress: () => actions.stop.mutate({ ids }),
     },
     {
-      label: "Verify",
+      label: t("verify"),
       left: "check-circle",
       onPress: () => actions.verify.mutate({ ids }),
     },
     {
-      label: "Reannounce",
+      label: t("reannounce"),
       left: "radio",
       onPress: () => actions.reannounce.mutate({ ids }),
     },
     {
-      label: "Move",
+      label: t("move"),
       left: "folder",
       onPress: () => {
         const downloadDir =
@@ -78,7 +80,7 @@ function TorrentActionsSheet({
     const [{ name, magnetLink }] = torrents;
     options = [
       {
-        label: "Share",
+        label: t("share"),
         left: "share",
         onPress: async () => {
           try {
@@ -86,11 +88,11 @@ function TorrentActionsSheet({
               {
                 message: magnetLink,
               },
-              { dialogTitle: `Share ${name}` }
+              { dialogTitle: t("share_name", { name }) }
             );
           } catch {
             ToastAndroid.show(
-              "Failed to share magnet link",
+              t("failed_to_share"),
               ToastAndroid.SHORT
             );
           }
@@ -104,7 +106,7 @@ function TorrentActionsSheet({
     const [{ id }] = torrents;
     options = [
       {
-        label: "Details",
+        label: t("details"),
         left: "info",
         onPress: () => {
           router.push(`/info/${id}`);
@@ -112,7 +114,7 @@ function TorrentActionsSheet({
         },
       },
       {
-        label: "Settings",
+        label: t("settings"),
         left: "settings",
         onPress: () => {
           router.push(`/info/${id}/settings`);
@@ -127,7 +129,7 @@ function TorrentActionsSheet({
     options = [
       ...options,
       {
-        label: "Remove",
+        label: t("remove"),
         left: "trash",
         color: red,
         onPress: () => {
@@ -143,7 +145,7 @@ function TorrentActionsSheet({
     ];
   }
 
-  return <ActionSheet title="Action" options={options} {...props} />;
+  return <ActionSheet title={t("action")} options={options} {...props} />;
 }
 
 TorrentActionsSheet.sheetId = sheetId;

@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import _ActionSheet from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -29,6 +30,7 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
   const { listing, store } = useListingStore();
   const { sort, direction, filter } = listing;
   const [tab, setTab] = React.useState<Tab>("sort");
+  const { t } = useTranslation();
 
   const updateSort = React.useCallback(
     (s: Sort) => {
@@ -59,17 +61,17 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
 
   const sortOptions = React.useMemo<OptionProps[]>(
     () => [
-      { label: "Queue", left: "chevron-right", onPress: updateSort("queue"), right: sortRight("queue") },
-      { label: "Activity", left: "chevron-right", onPress: updateSort("activity"), right: sortRight("activity") },
-      { label: "Age", left: "chevron-right", onPress: updateSort("age"), right: sortRight("age") },
-      { label: "Name", left: "chevron-right", onPress: updateSort("name"), right: sortRight("name") },
-      { label: "Progress", left: "chevron-right", onPress: updateSort("progress"), right: sortRight("progress") },
-      { label: "Size", left: "chevron-right", onPress: updateSort("size"), right: sortRight("size") },
-      { label: "Status", left: "chevron-right", onPress: updateSort("status"), right: sortRight("status") },
-      { label: "Time Remaining", left: "chevron-right", onPress: updateSort("time-remaining"), right: sortRight("time-remaining") },
-      { label: "Ratio", left: "chevron-right", onPress: updateSort("ratio"), right: sortRight("ratio") },
+      { label: t("sort_queue"), left: "chevron-right", onPress: updateSort("queue"), right: sortRight("queue") },
+      { label: t("sort_activity"), left: "chevron-right", onPress: updateSort("activity"), right: sortRight("activity") },
+      { label: t("sort_age"), left: "chevron-right", onPress: updateSort("age"), right: sortRight("age") },
+      { label: t("sort_name"), left: "chevron-right", onPress: updateSort("name"), right: sortRight("name") },
+      { label: t("sort_progress"), left: "chevron-right", onPress: updateSort("progress"), right: sortRight("progress") },
+      { label: t("sort_size"), left: "chevron-right", onPress: updateSort("size"), right: sortRight("size") },
+      { label: t("sort_status"), left: "chevron-right", onPress: updateSort("status"), right: sortRight("status") },
+      { label: t("sort_time_remaining"), left: "chevron-right", onPress: updateSort("time-remaining"), right: sortRight("time-remaining") },
+      { label: t("sort_ratio"), left: "chevron-right", onPress: updateSort("ratio"), right: sortRight("ratio") },
     ],
-    [updateSort, sortRight]
+    [updateSort, sortRight, t]
   );
 
   const updateFilter = React.useCallback(
@@ -94,15 +96,15 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
 
   const filterOptions = React.useMemo<OptionProps[]>(
     () => [
-      { label: "All", left: filterLeft("all"), onPress: updateFilter("all"), right: filterRight("all") },
-      { label: "Active", left: filterLeft("active"), onPress: updateFilter("active"), right: filterRight("active") },
-      { label: "Downloading", left: filterLeft("downloading"), onPress: updateFilter("downloading"), right: filterRight("downloading") },
-      { label: "Seeding", left: filterLeft("seeding"), onPress: updateFilter("seeding"), right: filterRight("seeding") },
-      { label: "Paused", left: filterLeft("paused"), onPress: updateFilter("paused"), right: filterRight("paused") },
-      { label: "Completed", left: filterLeft("completed"), onPress: updateFilter("completed"), right: filterRight("completed") },
-      { label: "Finished", left: filterLeft("finished"), onPress: updateFilter("finished"), right: filterRight("finished") },
+      { label: t("filter_all"), left: filterLeft("all"), onPress: updateFilter("all"), right: filterRight("all") },
+      { label: t("filter_active"), left: filterLeft("active"), onPress: updateFilter("active"), right: filterRight("active") },
+      { label: t("filter_downloading"), left: filterLeft("downloading"), onPress: updateFilter("downloading"), right: filterRight("downloading") },
+      { label: t("filter_seeding"), left: filterLeft("seeding"), onPress: updateFilter("seeding"), right: filterRight("seeding") },
+      { label: t("filter_paused"), left: filterLeft("paused"), onPress: updateFilter("paused"), right: filterRight("paused") },
+      { label: t("filter_completed"), left: filterLeft("completed"), onPress: updateFilter("completed"), right: filterRight("completed") },
+      { label: t("filter_finished"), left: filterLeft("finished"), onPress: updateFilter("finished"), right: filterRight("finished") },
     ],
-    [filterLeft, updateFilter, filterRight]
+    [filterLeft, updateFilter, filterRight, t]
   );
 
   const options = tab === "sort" ? sortOptions : filterOptions;
@@ -127,19 +129,19 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
     >
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
         <View style={[styles.segmented, { borderColor: text }]}>
-          {tabs.map((t) => (
+          {tabs.map((tb) => (
             <Pressable
-              key={t}
-              style={[styles.segment, tab === t && { backgroundColor: tint }]}
-              onPress={() => setTab(t)}
+              key={tb}
+              style={[styles.segment, tab === tb && { backgroundColor: tint }]}
+              onPress={() => setTab(tb)}
             >
               <Text
                 style={[
                   styles.segmentText,
-                  { color: tab === t ? background : text },
+                  { color: tab === tb ? background : text },
                 ]}
               >
-                {t === "sort" ? "Sort" : "Filter"}
+                {tb === "sort" ? t("sort") : t("filter")}
               </Text>
             </Pressable>
           ))}

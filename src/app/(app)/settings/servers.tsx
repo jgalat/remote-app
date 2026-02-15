@@ -16,6 +16,7 @@ import { usePro } from "@remote-app/pro";
 import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { useHealthPing, type HealthStatus } from "~/hooks/transmission";
+import { useTranslation } from "react-i18next";
 
 function extractHostPort(url: string): string {
   try {
@@ -94,6 +95,7 @@ export default function ServersScreen() {
   const { servers } = useServersStore();
   const { canUse, available } = usePro();
   const { gray, red } = useTheme();
+  const { t } = useTranslation();
   const health = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
 
@@ -131,11 +133,11 @@ export default function ServersScreen() {
     const ids = [...selectedIds];
     const label =
       ids.length === 1
-        ? servers.find((s) => s.id === ids[0])?.name ?? "server"
-        : `${ids.length} servers`;
+        ? servers.find((s) => s.id === ids[0])?.name ?? t("server")
+        : t("servers_count", { count: ids.length });
     deleteSheet({ ids, label });
     clearSelection();
-  }, [selectedIds, servers, deleteSheet, clearSelection]);
+  }, [selectedIds, servers, deleteSheet, clearSelection, t]);
 
   const onAdd = React.useCallback(() => {
     if (servers.length === 0 || (available && canUse("multi-server"))) {
@@ -150,7 +152,7 @@ export default function ServersScreen() {
       {servers.length === 0 ? (
         <View style={styles.empty}>
           <Text color={gray} style={styles.emptyText}>
-            No servers configured
+            {t("no_servers_configured")}
           </Text>
         </View>
       ) : (
@@ -179,12 +181,12 @@ export default function ServersScreen() {
       {selectionActive ? (
         <View style={styles.footer}>
           <Button
-            title={`Delete Selected (${selectedIds.size})`}
+            title={t("delete_selected", { count: selectedIds.size })}
             onPress={onDeleteSelected}
             style={{ backgroundColor: red }}
           />
           <Button
-            title="Cancel"
+            title={t("cancel")}
             variant="outline"
             onPress={clearSelection}
             style={{ marginTop: 8 }}
@@ -193,7 +195,7 @@ export default function ServersScreen() {
       ) : (
         (available || servers.length === 0) && (
           <View style={styles.footer}>
-            <Button title="Add Server" onPress={onAdd} />
+            <Button title={t("add_server")} onPress={onAdd} />
           </View>
         )
       )}

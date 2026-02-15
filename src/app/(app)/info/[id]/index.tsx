@@ -2,6 +2,8 @@ import * as React from "react";
 import { SectionList, StyleSheet } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
 
+import { useTranslation } from "react-i18next";
+
 import Text from "~/components/text";
 import Screen from "~/components/screen";
 import TorrentItem from "~/components/torrent-item";
@@ -17,6 +19,7 @@ import { count } from "~/utils/pieces";
 export default function TorrentDetailsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { t } = useTranslation();
 
   const data = React.useMemo<
     {
@@ -32,84 +35,84 @@ export default function TorrentDetailsScreen() {
 
     return [
       {
-        section: "Info",
+        section: t("info"),
         data: [
           {
-            field: "Name",
+            field: t("field_name"),
             value: torrent.name,
           },
           {
-            field: "Status",
-            value: formatStatus(torrent.status),
+            field: t("field_status"),
+            value: t(formatStatus(torrent.status)),
           },
           {
-            field: "Magnet Link",
+            field: t("field_magnet_link"),
             value: torrent.magnetLink,
             copy: true,
           },
         ],
       },
       {
-        section: "Data",
+        section: t("section_data"),
         data: [
           {
-            field: "Progress",
+            field: t("field_progress"),
             value: `${(torrent.percentDone * 100).toFixed(1)}%`,
           },
           {
-            field: "Downloaded",
+            field: t("field_downloaded"),
             value: formatSize(torrent.downloadedEver),
           },
           {
-            field: "Uploaded",
+            field: t("field_uploaded"),
             value: `${formatSize(
               torrent.uploadedEver
             )} (${torrent.uploadRatio.toFixed(2)})`,
           },
           {
-            field: "Pieces",
+            field: t("field_pieces"),
             value: `${count(torrent.pieces)}/${
               torrent.pieceCount
             } (${formatSize(torrent.pieceSize)})`,
           },
           {
-            field: "Peers",
+            field: t("field_peers"),
             value: `${torrent.peersSendingToUs} - ${torrent.peersGettingFromUs}`,
           },
         ],
       },
       {
-        section: "Files",
+        section: t("section_files"),
         data: [
           {
-            field: "Location",
+            field: t("field_location"),
             value: torrent.downloadDir,
           },
           {
-            field: "Total Size",
+            field: t("field_total_size"),
             value: formatSize(torrent.totalSize),
           },
           {
-            field: "Files",
+            field: t("field_files"),
             value: torrent.files.length,
           },
         ],
       },
       {
-        section: "Dates",
+        section: t("section_dates"),
         data: [
           {
-            field: "Added",
+            field: t("field_added"),
             value: new Date(torrent.addedDate * 1000).toLocaleString(),
           },
           {
-            field: "Last activity",
+            field: t("field_last_activity"),
             value: new Date(torrent.activityDate * 1000).toLocaleString(),
           },
           ...(torrent.doneDate !== 0
             ? [
                 {
-                  field: "Completed",
+                  field: t("field_completed"),
                   value: new Date(torrent.doneDate * 1000).toLocaleString(),
                 },
               ]
@@ -117,7 +120,7 @@ export default function TorrentDetailsScreen() {
         ],
       },
     ];
-  }, [torrents]);
+  }, [torrents, t]);
 
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;

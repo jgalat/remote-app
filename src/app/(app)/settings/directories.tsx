@@ -21,6 +21,7 @@ import { useTheme } from "~/hooks/use-theme-color";
 import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";
 import type { Server } from "~/store/settings";
+import { useTranslation } from "react-i18next";
 
 type DirectoryEntry = {
   path: string;
@@ -47,6 +48,7 @@ function DirectoryRow({
   onLongPress: () => void;
 }) {
   const { text, gray, tint } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Pressable
@@ -81,7 +83,7 @@ function DirectoryRow({
           {entry.path}
         </Text>
         <Text style={[styles.rowTag, { color: gray }]}>
-          {entry.isDefault ? "default" : entry.isGlobal ? "global" : "server"}
+          {entry.isDefault ? t("dir_default") : entry.isGlobal ? t("dir_global") : t("dir_server")}
         </Text>
       </View>
       {!selectionActive && (
@@ -94,6 +96,7 @@ function DirectoryRow({
 function DirectoriesList({ server }: { server: Server }) {
   const router = useRouter();
   const { red } = useTheme();
+  const { t } = useTranslation();
   const { data: session, isLoading, error, refetch } = useServerSession(server);
   const { directories, store } = useDirectoriesStore();
 
@@ -205,12 +208,12 @@ function DirectoriesList({ server }: { server: Server }) {
       {selectionActive ? (
         <View style={styles.footer}>
           <Button
-            title={`Delete Selected (${selectedPaths.size})`}
+            title={t("delete_selected", { count: selectedPaths.size })}
             onPress={onDeleteSelected}
             style={{ backgroundColor: red }}
           />
           <Button
-            title="Cancel"
+            title={t("cancel")}
             variant="outline"
             onPress={clearSelection}
             style={{ marginTop: 8 }}
@@ -219,7 +222,7 @@ function DirectoriesList({ server }: { server: Server }) {
       ) : (
         <View style={styles.footer}>
           <Button
-            title="Add Directory"
+            title={t("add_directory")}
             onPress={() =>
               router.push(`/settings/directory?serverId=${server.id}`)
             }
@@ -234,6 +237,7 @@ export default function DirectoriesScreen() {
   const servers = useServers();
   const activeServerId = useActiveServerId();
   const { text } = useTheme();
+  const { t } = useTranslation();
 
   const [selectedId, setSelectedId] = React.useState<string | undefined>(
     activeServerId ?? servers[0]?.id
@@ -254,17 +258,17 @@ export default function DirectoriesScreen() {
 
     SheetManager.show(SelectSheet.sheetId, {
       payload: {
-        title: "Select server",
+        title: t("select_server"),
         options,
         onSelect: (value) => setSelectedId(String(value)),
       },
     });
-  }, [servers, selectedId]);
+  }, [servers, selectedId, t]);
 
   if (servers.length === 0) {
     return (
       <Screen>
-        <Text>No servers configured</Text>
+        <Text>{t("no_servers_configured")}</Text>
       </Screen>
     );
   }
@@ -274,7 +278,7 @@ export default function DirectoriesScreen() {
       {servers.length > 1 && (
         <Pressable style={styles.serverSelector} onPress={onPickServer}>
           <Feather name="server" size={16} color={text} />
-          <Text style={styles.serverName}>{server?.name ?? "Select server"}</Text>
+          <Text style={styles.serverName}>{server?.name ?? t("select_server")}</Text>
           <Feather name="chevron-down" size={16} color={text} />
         </Pressable>
       )}

@@ -15,10 +15,12 @@ import {
   type ListingData,
 } from "~/store/listing";
 import { loadSearch, storeSearch, type SearchConfig } from "~/store/search";
+import i18n from "~/i18n";
 import {
   loadPreferences,
   storePreferences,
   type ColorScheme,
+  type Language,
 } from "~/store/preferences";
 import {
   loadDirectories,
@@ -33,7 +35,7 @@ const preferencesKey = ["settings", "preferences"] as const;
 const directoriesKey = ["settings", "directories"] as const;
 
 type ServersData = { servers: Server[]; activeServerId?: string };
-type PreferencesData = { colorScheme: ColorScheme; authentication: boolean };
+type PreferencesData = { colorScheme: ColorScheme; authentication: boolean; language: Language };
 
 const queryOptions = { staleTime: Infinity } as const;
 
@@ -131,6 +133,7 @@ export function usePreferencesStore() {
       const current = loadPreferences();
       const updated = { ...current, ...diff };
       storePreferences(updated);
+      if (diff.language) i18n.changeLanguage(diff.language);
       return updated;
     },
     onSettled: (data) => {
@@ -214,6 +217,10 @@ export function useColorScheme(): "light" | "dark" {
 
 export function useAuthentication() {
   return usePreferencesQuery().data.authentication;
+}
+
+export function useLanguage(): Language {
+  return usePreferencesQuery().data.language;
 }
 
 export function useSearchConfig() {

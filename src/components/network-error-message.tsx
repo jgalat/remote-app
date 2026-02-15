@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
 import { HTTPError, TransmissionError } from "@remote-app/transmission-client";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
+import { useTranslation } from "react-i18next";
 
 import View, { ViewProps } from "./view";
 import Text from "./text";
@@ -22,19 +23,20 @@ export default React.memo(function NetworkErrorMessage({
 }: NetworkErrorMessageProps) {
   const linkTo = useLinkTo();
   const { red } = useTheme();
+  const { t } = useTranslation();
 
-  let title = "Failed to connect";
+  let title = t("failed_to_connect");
   let message = error.message;
   if (error instanceof HTTPError) {
     if (!error.message) {
-      message = `HTTP Status ${error.status}`;
+      message = t("http_status", { status: error.status });
     } else {
-      message = `${error.status}: ${error.message}`;
+      message = t("http_status_message", { status: error.status, message: error.message });
     }
   }
 
   if (error instanceof TransmissionError) {
-    title = "Transmission Error";
+    title = t("transmission_error");
   }
 
   return (
@@ -48,13 +50,13 @@ export default React.memo(function NetworkErrorMessage({
       <View style={styles.buttons}>
         <Button
           onPress={() => linkTo("/settings/connection")}
-          title="Connection Settings"
+          title={t("connection_settings")}
         />
         <Button
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
-          title="Network Settings"
+          title={t("network_settings")}
         />
-        <Button onPress={refetch} title="Retry" />
+        <Button onPress={refetch} title={t("retry")} />
       </View>
     </View>
   );

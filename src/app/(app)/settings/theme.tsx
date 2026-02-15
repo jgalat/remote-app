@@ -1,6 +1,7 @@
 import { FlatList, useColorScheme } from "react-native";
 import * as React from "react";
 import * as SystemUI from "expo-system-ui";
+import { useTranslation } from "react-i18next";
 
 import Option, { type OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
@@ -11,6 +12,7 @@ import type { ColorScheme } from "~/store/settings";
 export default function ThemeScreen() {
   const { colorScheme, store } = usePreferencesStore();
   const systemColorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   const select = React.useCallback(
     (option: ColorScheme) => async () => {
@@ -30,24 +32,24 @@ export default function ThemeScreen() {
     () => [
       {
         left: "smartphone",
-        label: "System default",
+        label: t("system_default"),
         right: colorScheme === "system" ? "check" : undefined,
         onPress: select("system"),
       },
       {
         left: "moon",
-        label: "Dark",
+        label: t("dark"),
         right: colorScheme === "dark" ? "check" : undefined,
         onPress: select("dark"),
       },
       {
         left: "sun",
-        label: "Light",
+        label: t("light"),
         right: colorScheme === "light" ? "check" : undefined,
         onPress: select("light"),
       },
     ],
-    [colorScheme, select]
+    [colorScheme, select, t]
   );
 
   return (

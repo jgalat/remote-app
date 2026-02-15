@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Stack, useRouter } from "expo-router";
 import { SheetProvider } from "react-native-actions-sheet";
+import { useTranslation } from "react-i18next";
 
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
 import useScreenOptions from "~/hooks/use-screen-options";
@@ -13,16 +14,17 @@ export const unstable_settings = {
 export default function AppLayout() {
   const opts = useScreenOptions();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <TorrentSelectionProvider>
       <SheetProvider>
         <Stack screenOptions={opts}>
-          <Stack.Screen name="index" options={{ title: "Remote" }} />
+          <Stack.Screen name="index" options={{ title: t("remote") }} />
           <Stack.Screen
             name="info/[id]"
             options={{
-              title: "Details",
+              title: t("details"),
               headerLeft: () => (
                 <ActionIcon
                   name="arrow-left"
@@ -35,59 +37,60 @@ export default function AppLayout() {
           <Stack.Screen
             name="add"
             options={{
-              title: "Add torrent",
+              title: t("add_torrent"),
             }}
           />
           <Stack.Screen
             name="search"
-            options={{ title: "Search" }}
+            options={{ title: t("search") }}
           />
           <Stack.Screen
             name="paywall"
             options={{
               presentation: "modal",
-              title: "Pro",
+              title: t("pro"),
             }}
           />
-          <Stack.Screen name="settings/index" options={{ title: "Settings" }} />
+          <Stack.Screen name="settings/index" options={{ title: t("settings") }} />
           <Stack.Screen
             name="settings/servers"
-            options={{ title: "Servers" }}
+            options={{ title: t("servers") }}
           />
           <Stack.Screen
             name="settings/connection"
-            options={{ title: "Server" }}
+            options={{ title: t("server") }}
           />
           <Stack.Screen
             name="settings/configuration"
-            options={{ title: "Server Configuration" }}
+            options={{ title: t("server_configuration") }}
           />
           <Stack.Screen
             name="settings/security"
-            options={{ title: "Security" }}
+            options={{ title: t("security") }}
           />
-          <Stack.Screen name="settings/theme" options={{ title: "Theme" }} />
-          <Stack.Screen name="settings/about" options={{ title: "About" }} />
+          <Stack.Screen name="settings/theme" options={{ title: t("theme") }} />
+          <Stack.Screen name="settings/language" options={{ title: t("language") }} />
+          <Stack.Screen name="settings/about" options={{ title: t("about") }} />
           <Stack.Screen
             name="settings/pro"
-            options={{ title: "Pro" }}
+            options={{ title: t("pro") }}
           />
           <Stack.Screen
             name="settings/search"
-            options={{ title: "Search" }}
+            options={{ title: t("search") }}
           />
           <Stack.Screen
             name="settings/directories"
-            options={{ title: "Download Directories" }}
+            options={{ title: t("download_directories") }}
           />
           <Stack.Screen
             name="settings/directory"
-            options={{ title: "Directory" }}
+            options={{ title: t("directory") }}
           />
           {__DEV__ && (
             <Stack.Screen
               name="settings/development"
-              options={{ title: "Development" }}
+              options={{ title: t("development") }}
             />
           )}
         </Stack>

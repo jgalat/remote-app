@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import type { OptionProps } from "~/components/option";
@@ -19,26 +20,27 @@ function TorrentPrioritySheet({
   ...props
 }: SheetProps<typeof sheetId>) {
   const torrentSet = useTorrentSet(id);
+  const { t } = useTranslation();
 
   const options: OptionProps[] = [
     {
-      label: "High",
+      label: t("high"),
       left: "chevrons-up",
       onPress: () => torrentSet.mutate({ "priority-high": content }),
     },
     {
-      label: "Normal",
+      label: t("normal"),
       left: "minus",
       onPress: () => torrentSet.mutate({ "priority-normal": content }),
     },
     {
-      label: "Low",
+      label: t("low"),
       left: "chevrons-down",
       onPress: () => torrentSet.mutate({ "priority-low": content }),
     },
   ];
 
-  return <ActionSheet title="Priority" options={options} {...props} />;
+  return <ActionSheet title={t("priority")} options={options} {...props} />;
 }
 
 TorrentPrioritySheet.sheetId = sheetId;

@@ -5,9 +5,13 @@ import { storage } from "./storage";
 const ColorSchemeSchema = z.enum(["system", "dark", "light"]);
 export type ColorScheme = z.infer<typeof ColorSchemeSchema>;
 
+const LanguageSchema = z.enum(["en", "ru", "es", "fr", "hu", "sv", "pt"]);
+export type Language = z.infer<typeof LanguageSchema>;
+
 const PreferencesSchema = z.object({
   colorScheme: ColorSchemeSchema,
   authentication: z.boolean(),
+  language: LanguageSchema.default("en"),
 });
 
 type PreferencesData = z.infer<typeof PreferencesSchema>;
@@ -17,6 +21,7 @@ const KEY = "user.preferences";
 const defaults: PreferencesData = {
   colorScheme: "system",
   authentication: false,
+  language: "en",
 };
 
 export function loadPreferences(): PreferencesData {

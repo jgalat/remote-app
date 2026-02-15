@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useServersStore, useServer } from "~/hooks/use-settings";
@@ -13,6 +14,7 @@ function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
   const { servers, store } = useServersStore();
   const { canUse, available } = usePro();
   const active = useServer();
+  const { t } = useTranslation();
 
   const options = React.useMemo<OptionProps[]>(() => {
     const serverOptions: OptionProps[] = servers.map((server) => ({
@@ -31,7 +33,7 @@ function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
     return [
       ...serverOptions,
       {
-        label: "Add Server",
+        label: t("add_server"),
         left: "plus" as const,
         onPress: () =>
           canAdd
@@ -39,9 +41,9 @@ function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
             : router.push("/paywall"),
       },
     ];
-  }, [servers, active?.id, store, router, available, canUse]);
+  }, [servers, active?.id, store, router, available, canUse, t]);
 
-  return <ActionSheet title="Servers" options={options} {...props} />;
+  return <ActionSheet title={t("servers")} options={options} {...props} />;
 }
 
 ServerSelectorSheet.sheetId = sheetId;

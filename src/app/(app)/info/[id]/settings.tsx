@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "~/hooks/use-theme-color";
+import { useTranslation } from "react-i18next";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -28,42 +29,42 @@ const Form = z
 
     honorsSessionLimits: z.boolean(),
     downloadLimited: z.boolean(),
-    downloadLimit: z.coerce.number({ message: "Expected a number" }),
+    downloadLimit: z.coerce.number({ message: "validation_number" }),
     uploadLimited: z.boolean(),
-    uploadLimit: z.coerce.number({ message: "Expected a number" }),
+    uploadLimit: z.coerce.number({ message: "validation_number" }),
 
     seedIdleMode: z.number(),
-    seedIdleLimit: z.coerce.number({ message: "Expected a number" }),
+    seedIdleLimit: z.coerce.number({ message: "validation_number" }),
     seedRatioMode: z.number(),
-    seedRatioLimit: z.coerce.number({ message: "Expected a number" }),
+    seedRatioLimit: z.coerce.number({ message: "validation_number" }),
   })
   .superRefine((data, ctx) => {
     if (data["downloadLimited"] && !data["downloadLimit"]) {
       ctx.addIssue({
         path: ["downloadLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["uploadLimited"] && !data["uploadLimit"]) {
       ctx.addIssue({
         path: ["uploadLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["seedRatioMode"] === Mode.SINGLE && !data["seedRatioLimit"]) {
       ctx.addIssue({
         path: ["seedRatioLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
     if (data["seedIdleMode"] === Mode.SINGLE && !data["seedIdleLimit"]) {
       ctx.addIssue({
         path: ["seedIdleLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "validation_required",
       });
     }
   });
@@ -75,6 +76,7 @@ export default function TorrentSettingsScreen() {
   const { mutate } = useTorrentSet(+id);
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const { control, handleSubmit, watch } = useForm({
     mode: "onBlur",
@@ -88,16 +90,16 @@ export default function TorrentSettingsScreen() {
         mutate(f, {
           onSuccess: () => {
             ToastAndroid.show(
-              "Server updated successfully",
+              t("server_updated"),
               ToastAndroid.SHORT
             );
           },
           onError: () => {
-            ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+            ToastAndroid.show(t("server_update_failed"), ToastAndroid.SHORT);
           },
         });
       },
-      [mutate]
+      [mutate, t]
     )
   );
 
@@ -117,10 +119,10 @@ export default function TorrentSettingsScreen() {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { marginTop: 0 }]}>Bandwidth</Text>
+        <Text style={[styles.title, { marginTop: 0 }]}>{t("bandwidth")}</Text>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Transfer Priority</Text>
+          <Text style={styles.label}>{t("transfer_priority")}</Text>
           <Controller
             name="bandwidthPriority"
             control={control}
@@ -133,22 +135,22 @@ export default function TorrentSettingsScreen() {
                 }}
                 options={[
                   {
-                    label: "High",
+                    label: t("high"),
                     left: "chevrons-up" as const,
                     value: Priority.HIGH,
                   },
                   {
-                    label: "Normal",
+                    label: t("normal"),
                     left: "minus" as const,
                     value: Priority.NORMAL,
                   },
                   {
-                    label: "Low",
+                    label: t("low"),
                     left: "chevrons-down" as const,
                     value: Priority.LOW,
                   },
                 ]}
-                title="Transfer Priority"
+                title={t("transfer_priority")}
               />
             )}
           />
@@ -165,7 +167,7 @@ export default function TorrentSettingsScreen() {
                   field.onChange(v);
                   onSubmit();
                 }}
-                label="Honors session limits"
+                label={t("honors_session_limits")}
               />
             )}
           />
@@ -183,7 +185,7 @@ export default function TorrentSettingsScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="DOWNLOAD LIMIT (KB/S)"
+                  label={t("download_limit_kbs")}
                 />
               )}
             />
@@ -202,7 +204,7 @@ export default function TorrentSettingsScreen() {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -221,7 +223,7 @@ export default function TorrentSettingsScreen() {
                     field.onChange(v);
                     onSubmit();
                   }}
-                  label="UPLOAD LIMIT (KB/S)"
+                  label={t("upload_limit_kbs")}
                 />
               )}
             />
@@ -240,17 +242,17 @@ export default function TorrentSettingsScreen() {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
           />
         </View>
 
-        <Text style={styles.title}>Seed</Text>
+        <Text style={styles.title}>{t("seed")}</Text>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Stop seeding at ratio</Text>
+          <Text style={styles.label}>{t("stop_seeding_at_ratio_label")}</Text>
           <Controller
             name="seedRatioMode"
             control={control}
@@ -263,29 +265,29 @@ export default function TorrentSettingsScreen() {
                 }}
                 options={[
                   {
-                    label: "Global settings",
+                    label: t("global_settings"),
                     left: "globe" as const,
                     value: Mode.GLOBAL,
                   },
                   {
-                    label: "Stop at ratio",
+                    label: t("stop_at_ratio"),
                     left: "sliders" as const,
                     value: Mode.SINGLE,
                   },
                   {
-                    label: "Unlimited",
+                    label: t("unlimited"),
                     left: "zap" as const,
                     value: Mode.UNLIMITED,
                   },
                 ]}
-                title="Ratio Limit Mode"
+                title={t("ratio_limit_mode")}
               />
             )}
           />
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Ratio limit</Text>
+          <Text style={styles.label}>{t("ratio_limit")}</Text>
           <Controller
             name="seedRatioLimit"
             control={control}
@@ -300,7 +302,7 @@ export default function TorrentSettingsScreen() {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}
@@ -308,7 +310,7 @@ export default function TorrentSettingsScreen() {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Stop seeding if idle</Text>
+          <Text style={styles.label}>{t("stop_seeding_if_idle_label")}</Text>
           <Controller
             name="seedIdleMode"
             control={control}
@@ -321,29 +323,29 @@ export default function TorrentSettingsScreen() {
                 }}
                 options={[
                   {
-                    label: "Global settings",
+                    label: t("global_settings"),
                     left: "globe" as const,
                     value: Mode.GLOBAL,
                   },
                   {
-                    label: "Stop when inactive",
+                    label: t("stop_when_inactive"),
                     left: "sliders" as const,
                     value: Mode.SINGLE,
                   },
                   {
-                    label: "Unlimited",
+                    label: t("unlimited"),
                     left: "zap" as const,
                     value: Mode.UNLIMITED,
                   },
                 ]}
-                title="Idle Mode"
+                title={t("idle_mode")}
               />
             )}
           />
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Idle seeding limit (minutes)</Text>
+          <Text style={styles.label}>{t("idle_seeding_limit")}</Text>
           <Controller
             name="seedIdleLimit"
             control={control}
@@ -358,7 +360,7 @@ export default function TorrentSettingsScreen() {
                   onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+                  {fieldState.error?.message && t(fieldState.error.message)}
                 </Text>
               </>
             )}

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Image, Linking, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { useTranslation } from "react-i18next";
 
 import Screen from "~/components/screen";
 import View from "~/components/view";
@@ -12,31 +13,32 @@ import { useTheme } from "~/hooks/use-theme-color";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const icon = require("../../../../assets/images/icon.png");
 
-const links = [
-  {
-    title: "Website",
-    description: "Official homepage",
-    url: "https://remote.jg.ar",
-  },
-  {
-    title: "Wiki",
-    description: "Documentation, setup guides, and troubleshooting",
-    url: "https://github.com/jgalat/remote-app/wiki",
-  },
-  {
-    title: "Repository",
-    description: "Browse the source code and track development",
-    url: "https://github.com/jgalat/remote-app",
-  },
-  {
-    title: "Issue Tracker",
-    description: "Report bugs and request features",
-    url: "https://github.com/jgalat/remote-app/issues",
-  },
-];
-
 export default function AboutScreen() {
   const { tint, gray, lightGray } = useTheme();
+  const { t } = useTranslation();
+
+  const links = [
+    {
+      title: t("about_website"),
+      description: t("about_website_desc"),
+      url: "https://remote.jg.ar",
+    },
+    {
+      title: t("about_wiki"),
+      description: t("about_wiki_desc"),
+      url: "https://github.com/jgalat/remote-app/wiki",
+    },
+    {
+      title: t("about_repository"),
+      description: t("about_repository_desc"),
+      url: "https://github.com/jgalat/remote-app",
+    },
+    {
+      title: t("about_issues"),
+      description: t("about_issues_desc"),
+      url: "https://github.com/jgalat/remote-app/issues",
+    },
+  ];
 
   return (
     <Screen variant="scroll" contentContainerStyle={styles.content}>
@@ -45,7 +47,7 @@ export default function AboutScreen() {
           source={icon}
           style={styles.icon}
         />
-        <Text style={styles.title}>Remote for Transmission</Text>
+        <Text style={styles.title}>{t("remote_for_transmission")}</Text>
         <Text style={[styles.version, { color: lightGray }]}>
           {Constants.expoConfig?.version}
         </Text>

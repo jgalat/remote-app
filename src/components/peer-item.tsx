@@ -7,6 +7,7 @@ import Text from "./text";
 import ProgressBar from "./progress-bar";
 import Pressable from "./pressable";
 import { useTheme } from "~/hooks/use-theme-color";
+import { useTranslation } from "react-i18next";
 import { ExtTorrent } from "~/hooks/transmission";
 import { formatSpeed } from "~/utils/formatters";
 
@@ -16,6 +17,7 @@ export type Props = {
 
 export default React.memo(function PeerItem({ data }: Props) {
   const { tint, green, red, gray } = useTheme();
+  const { t } = useTranslation();
 
   const address = `${data.isUTP ? "utp" : "tcp"}://${data.address}:${
     data.port
@@ -27,12 +29,12 @@ export default React.memo(function PeerItem({ data }: Props) {
         {
           message: address,
         },
-        { dialogTitle: `Share peer` }
+        { dialogTitle: t("share_peer") }
       );
     } catch {
-      ToastAndroid.show("Failed to share peer", ToastAndroid.SHORT);
+      ToastAndroid.show(t("failed_to_share_peer"), ToastAndroid.SHORT);
     }
-  }, [address]);
+  }, [address, t]);
 
   return (
     <Pressable onLongPress={share}>
@@ -54,11 +56,11 @@ export default React.memo(function PeerItem({ data }: Props) {
               <Text color={gray} style={styles.data}>
                 {data.isEncrypted ? (
                   <>
-                    <Feather name="lock" color={green} /> Encrypted
+                    <Feather name="lock" color={green} /> {t("encrypted")}
                   </>
                 ) : (
                   <>
-                    <Feather name="unlock" color={red} /> Unencrypted
+                    <Feather name="unlock" color={red} /> {t("unencrypted")}
                   </>
                 )}
               </Text>

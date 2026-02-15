@@ -12,6 +12,7 @@ import {
   setServerLastUpdate,
 } from "~/store/task-torrents-notifier";
 import { isTestingServer } from "~/utils/mock-transmission-client";
+import i18n from "~/i18n";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
@@ -58,12 +59,14 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundTask.Bac
 
       if (done.length === 0 || lastUpdate === 0) continue;
 
+      const body = done.length === 1
+        ? i18n.t("notification_finished_one", { server: server.name })
+        : i18n.t("notification_finished_other", { server: server.name, value: done.length });
+
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: "Finished torrents",
-          body: `${server.name}: ${done.length} ${
-            done.length === 1 ? "torrent has" : "torrents have"
-          } finished downloading`,
+          title: i18n.t("notification_finished_title"),
+          body,
         },
         trigger: null,
       });

@@ -21,6 +21,7 @@ import { ProProvider } from "@remote-app/pro";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
 
+import "~/i18n";
 import "~/tasks";
 import "~/sheets";
 

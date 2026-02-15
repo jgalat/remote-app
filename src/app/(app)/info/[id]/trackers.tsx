@@ -12,14 +12,16 @@ import {
 } from "~/components/utility-screens";
 import Separator from "~/components/separator";
 import KeyValue from "~/components/key-value";
+import { useTranslation } from "react-i18next";
 
-function na(count: number) {
-  return count > 0 ? count : "N/A";
+function na(count: number, naText: string): string {
+  return count > 0 ? String(count) : naText;
 }
 
 export default function TrackersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { t } = useTranslation();
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
@@ -35,86 +37,87 @@ export default function TrackersScreen() {
         data={torrents[0].trackerStats}
         renderItem={({ item: tracker }) => {
           const url = new URL(tracker.announce);
+          const naText = t("na");
           const lastAnnounce =
             tracker.lastAnnounceTime > 0
               ? new Date(tracker.lastAnnounceTime * 1_000).toLocaleString()
-              : "N/A";
+              : naText;
           const nextAnnounce =
             tracker.nextAnnounceTime > 0
               ? new Date(tracker.nextAnnounceTime * 1_000).toLocaleString()
-              : "N/A";
+              : naText;
 
           const lastScrape =
             tracker.lastScrapeTime > 0
               ? new Date(tracker.lastScrapeTime * 1_000).toLocaleString()
-              : "N/A";
+              : naText;
           const nextScrape =
             tracker.lastScrapeTime > 0
               ? new Date(tracker.nextScrapeTime * 1_000).toLocaleString()
-              : "N/A";
+              : naText;
 
           return (
             <View style={{ gap: 8 }}>
               <Text numberOfLines={1} style={styles.title}>
-                Tier {tracker.tier + 1} - {url.host}
+                {t("tier_label", { tier: tracker.tier + 1, host: url.host })}
               </Text>
               <View>
                 <KeyValue
                   style={styles.kv}
-                  field="Last Announce"
+                  field={t("last_announce")}
                   value={lastAnnounce}
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Result"
+                  field={t("result")}
                   value={
                     tracker.lastAnnounceSucceeded
-                      ? `${na(tracker.lastAnnouncePeerCount)} peers`
+                      ? t("peers_count", { value: tracker.lastAnnouncePeerCount > 0 ? tracker.lastAnnouncePeerCount : naText })
                       : tracker.lastAnnounceResult
                   }
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Next Announce"
+                  field={t("next_announce")}
                   value={nextAnnounce}
                 />
               </View>
               <View>
                 <KeyValue
                   style={styles.kv}
-                  field="Last Scrape"
+                  field={t("last_scrape")}
                   value={lastScrape}
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Result"
+                  field={t("result")}
                   value={
                     tracker.lastScrapeSucceeded
-                      ? `Success`
+                      ? t("success")
                       : tracker.lastScrapeResult
                   }
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Next Scrape"
+                  field={t("next_scrape")}
                   value={nextScrape}
                 />
               </View>
               <View>
                 <KeyValue
                   style={styles.kv}
-                  field="Seeders"
-                  value={na(tracker.seederCount)}
+                  field={t("seeders")}
+                  value={na(tracker.seederCount, naText)}
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Leechers"
-                  value={na(tracker.leecherCount)}
+                  field={t("leechers")}
+                  value={na(tracker.leecherCount, naText)}
                 />
                 <KeyValue
                   style={styles.kv}
-                  field="Downloaded"
-                  value={na(tracker.downloadCount)}
+                  field={t("downloaded")}
+                  value={na(tracker.downloadCount, naText)}
                 />
               </View>
             </View>
@@ -124,7 +127,7 @@ export default function TrackersScreen() {
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>
-            <Text style={styles.title}>No trackers found</Text>
+            <Text style={styles.title}>{t("no_trackers_found")}</Text>
           </View>
         }
       />

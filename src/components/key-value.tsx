@@ -7,6 +7,7 @@ import View, { ViewProps } from "./view";
 import Text from "./text";
 import Pressable from "./pressable";
 import { useTheme } from "../hooks/use-theme-color";
+import { useTranslation } from "react-i18next";
 
 export type KeyValueProps = {
   field: string;
@@ -21,11 +22,12 @@ export default React.memo(function KeyValue({
   style,
 }: KeyValueProps) {
   const { gray, tint } = useTheme();
+  const { t } = useTranslation();
 
   const onCopy = React.useCallback(async () => {
     await Clipboard.setStringAsync(value.toString());
-    ToastAndroid.show("Magnet Link copied", ToastAndroid.SHORT);
-  }, [value]);
+    ToastAndroid.show(t("magnet_link_copied"), ToastAndroid.SHORT);
+  }, [value, t]);
 
   return (
     <View style={[styles.row, style]}>
@@ -38,7 +40,7 @@ export default React.memo(function KeyValue({
         {copy ? (
           <Pressable style={styles.pressable} onPress={onCopy}>
             <Feather name="clipboard" color={tint} size={16} />
-            <Text style={[styles.value, { color: tint }]}> Copy</Text>
+            <Text style={[styles.value, { color: tint }]}> {t("copy")}</Text>
           </Pressable>
         ) : (
           <Text style={[styles.value, { color: gray }]}>{value}</Text>

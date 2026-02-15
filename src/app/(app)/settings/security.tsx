@@ -1,6 +1,7 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
+import { useTranslation } from "react-i18next";
 
 import Toggle from "~/components/toggle";
 import View from "~/components/view";
@@ -9,6 +10,7 @@ import { usePreferencesStore } from "~/hooks/use-settings";
 
 export default function SecurityScreen() {
   const { authentication, store } = usePreferencesStore();
+  const { t } = useTranslation();
 
   const [available, setAvailable] = React.useState(false);
 
@@ -24,7 +26,7 @@ export default function SecurityScreen() {
       }
 
       const { success } = await LocalAuthentication.authenticateAsync({
-        promptMessage: authentication ? "Disable" : "Enable",
+        promptMessage: authentication ? t("disable") : t("enable"),
       });
       if (!success) {
         return;
@@ -42,8 +44,8 @@ export default function SecurityScreen() {
         <Toggle
           value={authentication}
           onPress={onUpdate}
-          label="AUTHENTICATION"
-          description="Enable local authentication"
+          label={t("authentication")}
+          description={t("enable_local_authentication")}
           disabled={!available}
         />
       </View>

@@ -3,6 +3,7 @@ import { FlatList, StyleSheet } from "react-native";
 import Pressable from "~/components/pressable";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -51,6 +52,7 @@ export default function TorrentsScreen() {
   const listingSheet = useListingSheet();
   const { canUse, available } = usePro();
   const serverSelectorSheet = useServerSelectorSheet();
+  const { t } = useTranslation();
 
   const {
     active: activeSelection,
@@ -61,7 +63,7 @@ export default function TorrentsScreen() {
   } = useTorrentSelection();
 
   React.useEffect(() => {
-    const title = !server || server.name === "" ? "Remote" : server.name;
+    const title = !server || server.name === "" ? t("remote") : server.name;
     navigation.setOptions({
       headerTitle: () =>
         activeSelection ? (
@@ -169,6 +171,7 @@ export default function TorrentsScreen() {
     textColor,
     torrentActionsSheet,
     torrents,
+    t,
   ]);
 
   const refresh = React.useCallback(async () => {
@@ -188,9 +191,9 @@ export default function TorrentsScreen() {
   if (servers.length === 0) {
     return (
       <Screen style={styles.message}>
-        <Text style={styles.title}>No connection found</Text>
+        <Text style={styles.title}>{t("no_connection_found")}</Text>
         <Button
-          title="Setup connection"
+          title={t("setup_connection")}
           onPress={() => router.push("/settings/connection")}
         />
       </Screen>
@@ -209,8 +212,8 @@ export default function TorrentsScreen() {
     return (
       <Screen>
         <View style={styles.message}>
-          <Text style={styles.title}>No torrents found</Text>
-          <Button title="Add a torrent" onPress={() => router.push("/add")} />
+          <Text style={styles.title}>{t("no_torrents_found")}</Text>
+          <Button title={t("add_a_torrent")} onPress={() => router.push("/add")} />
         </View>
         <Stats />
       </Screen>

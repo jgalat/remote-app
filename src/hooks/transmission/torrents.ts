@@ -1,4 +1,5 @@
 import { ToastAndroid } from "react-native";
+import i18n from "~/i18n";
 import {
   useQuery,
   useMutation,
@@ -225,7 +226,7 @@ export function useTorrentAction<
     },
     onError: (_error, _params, context) => {
       queryClient.setQueryData(queryKeys.torrentGet(server), context?.previous);
-      ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
+      ToastAndroid.show(i18n.t("failed_to_perform_action"), ToastAndroid.SHORT);
     },
     onSettled: () => {
       clear();
@@ -287,7 +288,7 @@ export function useTorrentSetLocation() {
       });
     },
     onError: () => {
-      ToastAndroid.show("Failed to move torrent", ToastAndroid.SHORT);
+      ToastAndroid.show(i18n.t("failed_to_move_torrent"), ToastAndroid.SHORT);
     },
     onSettled: () => {
       clear();
@@ -364,7 +365,7 @@ export function useTorrentSet(id: number) {
         queryKeys.torrentGet(server, id),
         context?.previous
       );
-      ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
+      ToastAndroid.show(i18n.t("failed_to_perform_action"), ToastAndroid.SHORT);
     },
     onSettled: () => {
       setTimeout(
