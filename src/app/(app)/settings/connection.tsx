@@ -9,6 +9,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import TransmissionClient, {
   HTTPError,
   TransmissionError,
+  ResponseParseError,
 } from "@remote-app/transmission-client";
 import { useMutation } from "@tanstack/react-query";
 
@@ -103,6 +104,8 @@ async function testConnection(f: Form): Promise<string> {
   } catch (e) {
     if (e instanceof HTTPError) {
       return `HTTP Error: ${e.message}`;
+    } else if (e instanceof ResponseParseError) {
+      return `Unexpected response (HTTP ${e.status})`;
     } else if (e instanceof TransmissionError) {
       return `Transmission Error: ${e.message}`;
     } else if (e instanceof Error) {

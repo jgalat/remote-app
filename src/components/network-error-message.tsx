@@ -1,8 +1,13 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
-import { HTTPError, TransmissionError } from "@remote-app/transmission-client";
+import {
+  HTTPError,
+  TransmissionError,
+  ResponseParseError,
+} from "@remote-app/transmission-client";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
+import { File, Paths } from "expo-file-system/next";
 
 import View, { ViewProps } from "./view";
 import Text from "./text";
@@ -37,6 +42,10 @@ export default React.memo(function NetworkErrorMessage({
     title = "Transmission Error";
   }
 
+  if (error instanceof ResponseParseError) {
+    title = "Unexpected response";
+  }
+
   return (
     <View style={[styles.container, style]} {...props}>
       <Text color={red} style={styles.text}>
@@ -54,6 +63,20 @@ export default React.memo(function NetworkErrorMessage({
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
           title="Network Settings"
         />
+        {error instanceof ResponseParseError && (
+          <Button
+            onPress={() => {
+              const file = new File(Paths.cache, "response.html");
+              file.write(error.body);
+              startActivityAsync("android.intent.action.VIEW", {
+                data: file.contentUri,
+                flags: 1,
+                type: "text/html",
+              });
+            }}
+            title="Show response"
+          />
+        )}
         <Button onPress={refetch} title="Retry" />
       </View>
     </View>

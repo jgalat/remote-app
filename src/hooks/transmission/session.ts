@@ -8,6 +8,7 @@ import {
   SessionSetRequest,
   TransmissionError,
   HTTPError,
+  ResponseParseError,
   SessionStatsResponse,
 } from "@remote-app/transmission-client";
 
@@ -17,7 +18,7 @@ import { useServerClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 import type { Server } from "~/store/settings";
 
-type HookError = TransmissionError | HTTPError;
+type HookError = TransmissionError | HTTPError | ResponseParseError;
 
 type QueryProps = { stale?: boolean };
 

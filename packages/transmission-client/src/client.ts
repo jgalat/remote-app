@@ -2,7 +2,7 @@ import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
 import type { Methods, Calls } from "./rpc-call";
-import { HTTPError, TransmissionError } from "./error";
+import { HTTPError, TransmissionError, ResponseParseError } from "./error";
 
 export class TransmissionClient {
   private session: string | null = null;
@@ -44,7 +44,15 @@ export class TransmissionClient {
       throw new HTTPError(response.status, response.statusText);
     }
 
-    const json = (await response.json()) as ReturnType<Calls[M]>;
+    const text = await response.text();
+
+    let json: ReturnType<Calls[M]>;
+    try {
+      json = JSON.parse(text) as ReturnType<Calls[M]>;
+    } catch {
+      throw new ResponseParseError(response.status, text);
+    }
+
     if (json && json.result !== "success") {
       throw new TransmissionError(json.result);
     }

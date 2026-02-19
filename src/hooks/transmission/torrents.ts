@@ -11,6 +11,7 @@ import {
   Torrent as _Torrent,
   TransmissionError,
   HTTPError,
+  ResponseParseError,
   TorrentAddRequest,
   TorrentAddResponse,
   TorrentStatus,
@@ -75,7 +76,7 @@ const selectFields = [
   "seedIdleLimit",
 ] as const;
 
-type HookError = TransmissionError | HTTPError;
+type HookError = TransmissionError | HTTPError | ResponseParseError;
 
 type QueryProps = { stale?: boolean };
 

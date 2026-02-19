@@ -39,6 +39,6 @@ export type { Torrent } from "./rpc-calls/torrent-get";
 
 export type { Methods } from "./rpc-call";
 
-export { HTTPError, TransmissionError } from "./error";
+export { HTTPError, TransmissionError, ResponseParseError } from "./error";
 
 export { TransmissionClient as default } from "./client";

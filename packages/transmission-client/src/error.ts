@@ -11,3 +11,13 @@ export class TransmissionError extends Error {
     this.name = "TransmissionError";
   }
 }
+
+export class ResponseParseError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly body: string
+  ) {
+    super("The server returned an unexpected response");
+    this.name = "ResponseParseError";
+  }
+}
