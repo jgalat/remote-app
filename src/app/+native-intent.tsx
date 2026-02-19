@@ -22,10 +22,10 @@ export async function redirectSystemPath({
   switch (true) {
     case path.startsWith("magnet:"):
       path = normalize(path);
-      redirect = "/add?magnet=" + encodeURIComponent(path);
+      redirect = "/add?magnet=" + encodeURIComponent(path) + "&intent=1";
       break;
     case path.startsWith("file:") || path.startsWith("content:"):
-      redirect = "/add?file=" + encodeURIComponent(path);
+      redirect = "/add?file=" + encodeURIComponent(path) + "&intent=1";
       break;
   }
 

@@ -17,44 +17,55 @@ const plugin: ConfigPlugin = (config) => {
 
     activity.$["android:launchMode"] = "singleTop";
 
-    if (!activity["intent-filter"]) activity["intent-filter"] = [];
+    if (!app.activity) app.activity = [];
 
-    activity["intent-filter"].push({
-      action: [{ $: { "android:name": "android.intent.action.VIEW" } }],
-      data: [{ $: { "android:scheme": "magnet" } }],
-      category: [
-        { $: { "android:name": "android.intent.category.DEFAULT" } },
-        { $: { "android:name": "android.intent.category.BROWSABLE" } },
-      ],
-    });
-
-    activity["intent-filter"].push({
-      action: [{ $: { "android:name": "android.intent.action.VIEW" } }],
-      data: [
+    app.activity.push({
+      $: {
+        "android:name": "expo.modules.sendintent.TrampolineActivity",
+        "android:exported": "true",
+        "android:noHistory": "true",
+        "android:excludeFromRecents": "true",
+        "android:theme": "@android:style/Theme.NoDisplay",
+      },
+      "intent-filter": [
         {
-          $: {
-            "android:scheme": "content",
-            "android:mimeType": "application/x-bittorrent",
-          },
+          action: [{ $: { "android:name": "android.intent.action.VIEW" } }],
+          data: [{ $: { "android:scheme": "magnet" } }],
+          category: [
+            { $: { "android:name": "android.intent.category.DEFAULT" } },
+            { $: { "android:name": "android.intent.category.BROWSABLE" } },
+          ],
         },
         {
-          $: {
-            "android:scheme": "file",
-            "android:mimeType": "application/x-bittorrent",
-            "android:pathPattern": ".*\\.torrent",
-          },
+          action: [{ $: { "android:name": "android.intent.action.VIEW" } }],
+          data: [
+            {
+              $: {
+                "android:scheme": "content",
+                "android:mimeType": "application/x-bittorrent",
+              },
+            },
+            {
+              $: {
+                "android:scheme": "file",
+                "android:mimeType": "application/x-bittorrent",
+                "android:pathPattern": "/.*\\.torrent",
+              },
+            },
+          ],
+          category: [
+            { $: { "android:name": "android.intent.category.DEFAULT" } },
+            { $: { "android:name": "android.intent.category.BROWSABLE" } },
+          ],
+        },
+        {
+          action: [{ $: { "android:name": "android.intent.action.SEND" } }],
+          data: [{ $: { "android:mimeType": "application/x-bittorrent" } }],
+          category: [
+            { $: { "android:name": "android.intent.category.DEFAULT" } },
+          ],
         },
       ],
-      category: [
-        { $: { "android:name": "android.intent.category.DEFAULT" } },
-        { $: { "android:name": "android.intent.category.BROWSABLE" } },
-      ],
-    });
-
-    activity["intent-filter"].push({
-      action: [{ $: { "android:name": "android.intent.action.SEND" } }],
-      data: [{ $: { "android:mimeType": "application/x-bittorrent" } }],
-      category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
     });
 
     return config;

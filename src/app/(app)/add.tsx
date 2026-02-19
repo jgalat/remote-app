@@ -29,6 +29,7 @@ import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
 import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";
+import SendIntent from "~/native/send-intent";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -82,10 +83,19 @@ export default function AddTorrentScreen() {
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
 
-  const { magnet, file } = useLocalSearchParams<{
+  const { magnet, file, intent } = useLocalSearchParams<{
     magnet?: string;
     file?: string;
+    intent?: string;
   }>();
+
+  const goBack = React.useCallback(() => {
+    if (intent) {
+      router.dismissTo("/");
+    } else {
+      router.back();
+    }
+  }, [intent, router]);
 
   const { control, handleSubmit, setValue, reset } = useForm({
     mode: "onSubmit",
@@ -105,7 +115,9 @@ export default function AddTorrentScreen() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      setValue("file", "file.torrent");
+      const name =
+        SendIntent.getDisplayName(file) ?? "file.torrent";
+      setValue("file", name);
       setValue("content", content);
     }
 
@@ -186,7 +198,7 @@ export default function AddTorrentScreen() {
         }
 
         await addTorrent.mutateAsync(params);
-        router.back();
+        goBack();
       } catch (e) {
         let message = "Something went wrong";
         if (e instanceof Error) {
@@ -198,7 +210,7 @@ export default function AddTorrentScreen() {
         );
       }
     },
-    [addTorrent, router]
+    [addTorrent, goBack]
   );
 
   return (
@@ -323,7 +335,7 @@ export default function AddTorrentScreen() {
         <Button
           title="cancel"
           variant="outline"
-          onPress={() => router.dismissTo("/")}
+          onPress={goBack}
         />
       </KeyboardAwareScrollView>
     </Screen>
