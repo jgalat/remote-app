@@ -1,0 +1,27 @@
+name: Publish packages
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm -w @remote-app/transmission-client run build
+      - run: npm -w @remote-app/qbittorrent-client run build
+      - run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          npm -w @remote-app/transmission-client version "$VERSION" --no-git-tag-version
+          npm -w @remote-app/qbittorrent-client version "$VERSION" --no-git-tag-version
+      - run: npm -w @remote-app/transmission-client publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm -w @remote-app/qbittorrent-client publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

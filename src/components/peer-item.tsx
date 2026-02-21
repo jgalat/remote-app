@@ -7,27 +7,23 @@ import Text from "./text";
 import ProgressBar from "./progress-bar";
 import Pressable from "./pressable";
 import { useTheme } from "~/hooks/use-theme-color";
-import { ExtTorrent } from "~/hooks/transmission";
+import type { Peer } from "~/client";
 import { formatSpeed } from "~/utils/formatters";
 
 export type Props = {
-  data: ExtTorrent["peers"][number];
+  data: Peer;
 };
 
 export default React.memo(function PeerItem({ data }: Props) {
   const { tint, green, red, gray } = useTheme();
 
-  const address = `${data.isUTP ? "utp" : "tcp"}://${data.address}:${
-    data.port
-  }`;
+  const address = `${data.isUTP ? "utp" : "tcp"}://${data.address}:${data.port}`;
 
   const share = React.useCallback(async () => {
     try {
       await Share.share(
-        {
-          message: address,
-        },
-        { dialogTitle: `Share peer` }
+        { message: address },
+        { dialogTitle: "Share peer" },
       );
     } catch {
       ToastAndroid.show("Failed to share peer", ToastAndroid.SHORT);

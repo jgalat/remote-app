@@ -18,7 +18,7 @@ export default function Development() {
   const { devOverride, setDevOverride } = usePro();
   const [deviceId, setDeviceId] = React.useState(() => getDeviceId());
   return (
-    <Screen>
+    <Screen variant="scroll">
       <Text style={[styles.title]}>Navigation</Text>
       <View style={styles.row}>
         <Button
@@ -61,14 +61,6 @@ export default function Development() {
           onPress={() => setDevOverride(!devOverride)}
         />
       </View>
-      <Text style={[styles.title]}>Device ID</Text>
-      <View style={styles.row}>
-        <Text selectable style={styles.deviceId}>{deviceId}</Text>
-        <Button
-          title="Update Device ID"
-          onPress={() => setDeviceId(updateDeviceId())}
-        />
-      </View>
       <Text style={[styles.title]}>Servers</Text>
       <View style={styles.row}>
         <Button
@@ -77,21 +69,22 @@ export default function Development() {
             const now = Date.now();
             const id = generateServerId();
             store({
-              servers: [{ id, name: "app", url: "app-testing-url", createdAt: now, updatedAt: now }],
+              servers: [{ id, name: "app", url: "app-testing-url", type: "transmission" as const, createdAt: now, updatedAt: now }],
               activeServerId: id,
             });
           }}
         />
         <Button
-          title="Local"
+          title="Local Transmission"
           onPress={async () => {
             const now = Date.now();
             const id = generateServerId();
             store({
               servers: [{
                 id,
-                name: "app",
+                name: "transmission",
                 url: "http://192.168.0.201:9091/transmission/rpc",
+                type: "transmission" as const,
                 username: "test",
                 password: "test",
                 createdAt: now,
@@ -100,6 +93,34 @@ export default function Development() {
               activeServerId: id,
             });
           }}
+        />
+        <Button
+          title="Local qBittorrent"
+          onPress={async () => {
+            const now = Date.now();
+            const id = generateServerId();
+            store({
+              servers: [{
+                id,
+                name: "qbittorrent",
+                url: "http://192.168.0.201:8080",
+                type: "qbittorrent" as const,
+                username: "test",
+                password: "test",
+                createdAt: now,
+                updatedAt: now,
+              }],
+              activeServerId: id,
+            });
+          }}
+        />
+      </View>
+      <Text style={[styles.title]}>Device ID</Text>
+      <View style={styles.row}>
+        <Text selectable style={styles.deviceId}>{deviceId}</Text>
+        <Button
+          title="Update Device ID"
+          onPress={() => setDeviceId(updateDeviceId())}
         />
       </View>
     </Screen>

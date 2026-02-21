@@ -1,4 +1,4 @@
-import { TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus } from "~/client";
 
 function formatBytes(units: string[]): (bytes: number) => string {
   return (bytes: number): string => {

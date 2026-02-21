@@ -7,10 +7,7 @@ import { ToastAndroid } from "react-native";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  SessionGetResponse,
-  TorrentAddRequest,
-} from "@remote-app/transmission-client";
+import type { Session, AddTorrentParams } from "~/client";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SheetManager } from "react-native-actions-sheet";
@@ -62,7 +59,7 @@ const Form = z
   });
 
 function values(
-  session?: Required<SessionGetResponse>,
+  session?: Session,
   magnet?: string
 ): Form | undefined {
   if (!session) {
@@ -180,12 +177,12 @@ export default function AddTorrentScreen() {
           return;
         }
 
-        const options: Partial<TorrentAddRequest> = {
+        const options: Partial<AddTorrentParams> = {
           ...(f.path ? { "download-dir": f.path } : {}),
           paused: !f.start,
         };
 
-        let params: TorrentAddRequest | null = null;
+        let params: AddTorrentParams | null = null;
 
         if (f.magnet) {
           params = { filename: f.magnet.trim(), ...options };

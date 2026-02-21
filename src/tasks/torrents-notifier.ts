@@ -1,8 +1,8 @@
 import * as BackgroundTask from "expo-background-task";
 import * as Network from "expo-network";
 import * as Notifications from "expo-notifications";
-import TransmissionClient from "@remote-app/transmission-client";
 
+import { createClient } from "~/client";
 import "~/store/migrations";
 import { loadServers } from "~/store/servers";
 import {
@@ -33,25 +33,13 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundTask.Bac
   for (const server of servers) {
     if (isTestingServer(server)) continue;
 
-    const client = new TransmissionClient({
-      url: server.url,
-      username: server.username,
-      password: server.password,
-    });
+    const client = createClient(server);
 
     try {
-      const response = await client.request({
-        method: "torrent-get",
-        arguments: {
-          fields: ["id", "doneDate"],
-        },
-      });
-
-      const torrents = response.arguments?.torrents;
-      if (!torrents) continue;
+      const torrents = await client.getTorrents();
 
       const lastUpdate = getServerLastUpdate(notifierState, server.id);
-      const done = torrents.filter((t) => t.doneDate! > lastUpdate);
+      const done = torrents.filter((t) => t.doneDate > lastUpdate);
 
       const now = Math.floor(Date.now() / 1_000);
       notifierState = setServerLastUpdate(notifierState, server.id, now);

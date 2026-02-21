@@ -19,20 +19,19 @@ function na(count: number) {
 
 export default function TrackersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
 
   return (
     <Screen style={styles.container}>
       <FlatList
-        // fadingEdgeLength={64}
-        data={torrents[0].trackerStats}
+        data={torrent.trackerStats}
         renderItem={({ item: tracker }) => {
           const url = new URL(tracker.announce);
           const lastAnnounce =

@@ -16,9 +16,10 @@ import SelectSheet from "./select";
 
 import type { SheetProps } from "react-native-actions-sheet";
 import type { SelectOption } from "./select";
+import type { TorrentId } from "~/client";
 
 export type Payload = {
-  ids: number[];
+  ids: TorrentId[];
   downloadDir?: string;
 };
 

@@ -13,6 +13,7 @@ export type {
   TransferInfo,
   Preferences,
   AddTorrentParams,
+  TorrentFileInput,
 } from "./types";
 
 export { HTTPError, QBittorrentError } from "./error";

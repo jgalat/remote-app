@@ -1,11 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { useLinkTo } from "@react-navigation/native";
-import {
-  HTTPError,
-  TransmissionError,
-  ResponseParseError,
-} from "@remote-app/transmission-client";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import { File, Paths } from "expo-file-system/next";
 
@@ -19,6 +14,14 @@ export type NetworkErrorMessageProps = {
   refetch: () => void;
 } & ViewProps;
 
+function hasStatus(error: Error): error is Error & { status: number } {
+  return "status" in error && typeof (error as { status: unknown }).status === "number";
+}
+
+function hasBody(error: Error): error is Error & { body: string } {
+  return "body" in error && typeof (error as { body: unknown }).body === "string";
+}
+
 export default React.memo(function NetworkErrorMessage({
   error,
   refetch,
@@ -29,21 +32,20 @@ export default React.memo(function NetworkErrorMessage({
   const { red } = useTheme();
 
   let title = "Failed to connect";
-  let message = error.message;
-  if (error instanceof HTTPError) {
-    if (!error.message) {
-      message = `HTTP Status ${error.status}`;
-    } else {
-      message = `${error.status}: ${error.message}`;
-    }
+  let message = error.message || "Unknown error";
+
+  if (hasStatus(error)) {
+    title = error.message ? `${error.status}: ${error.message}` : `HTTP Status ${error.status}`;
+    message = "";
   }
 
-  if (error instanceof TransmissionError) {
-    title = "Transmission Error";
+  if (error.name === "TransmissionError" || error.name === "QBittorrentError") {
+    title = "Server Error";
   }
 
-  if (error instanceof ResponseParseError) {
+  if (hasBody(error)) {
     title = "Unexpected response";
+    message = "";
   }
 
   return (
@@ -51,9 +53,11 @@ export default React.memo(function NetworkErrorMessage({
       <Text color={red} style={styles.text}>
         {title}
       </Text>
-      <Text color={red} style={styles.text}>
-        {message}
-      </Text>
+      {message ? (
+        <Text color={red} style={styles.text}>
+          {message}
+        </Text>
+      ) : null}
       <View style={styles.buttons}>
         <Button
           onPress={() => linkTo("/settings/connection")}
@@ -63,7 +67,7 @@ export default React.memo(function NetworkErrorMessage({
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
           title="Network Settings"
         />
-        {error instanceof ResponseParseError && (
+        {hasBody(error) && (
           <Button
             onPress={() => {
               const file = new File(Paths.cache, "response.html");

@@ -3,10 +3,14 @@ import { randomUUID } from "expo-crypto";
 
 import { storage } from "./storage";
 
+const ServerTypeSchema = z.enum(["transmission", "qbittorrent"]);
+export type ServerType = z.infer<typeof ServerTypeSchema>;
+
 const ServerSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: z.string(),
+  type: ServerTypeSchema.default("transmission"),
   username: z.string().optional(),
   password: z.string().optional(),
   createdAt: z.number(),

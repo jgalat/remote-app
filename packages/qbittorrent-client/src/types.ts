@@ -236,6 +236,8 @@ export type Preferences = {
   max_ratio_act: number;
   max_seeding_time_enabled: boolean;
   max_seeding_time: number;
+  max_inactive_seeding_time_enabled?: boolean;
+  max_inactive_seeding_time?: number;
   queueing_enabled: boolean;
   max_active_downloads: number;
   max_active_torrents: number;
@@ -247,9 +249,11 @@ export type Preferences = {
   web_ui_port: number;
 };
 
+export type TorrentFileInput = Blob | { uri: string; type: string; name: string };
+
 export type AddTorrentParams = {
   urls?: string;
-  torrents?: Blob;
+  torrents?: TorrentFileInput;
   savepath?: string;
   cookie?: string;
   category?: string;

@@ -6,22 +6,19 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import TransmissionClient, {
-  HTTPError,
-  TransmissionError,
-  ResponseParseError,
-} from "@remote-app/transmission-client";
 import { useMutation } from "@tanstack/react-query";
 
+import { createClient } from "~/client";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
 import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
+import SelectInput from "~/components/select-input";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
-import type { Server } from "~/store/settings";
+import type { Server, ServerType } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { isTestingServer } from "~/utils/mock-transmission-client";
@@ -31,6 +28,7 @@ import ProgressBar from "~/components/progress-bar";
 type Form = z.infer<typeof Form>;
 const Form = z
   .object({
+    type: z.enum(["transmission", "qbittorrent"]).default("transmission"),
     name: z
       .string()
       .min(1, "Name is required")
@@ -97,27 +95,37 @@ async function testConnection(f: Form): Promise<string> {
     return "Connected";
   }
 
-  const client = new TransmissionClient(creds);
+  const client = createClient({
+    id: "",
+    name: f.name,
+    url: creds.url,
+    type: f.type,
+    username: f.username,
+    password: f.password,
+    createdAt: 0,
+    updatedAt: 0,
+  });
+
   try {
-    await client.request({ method: "session-get" });
+    await client.ping();
     return "Connected";
   } catch (e) {
-    if (e instanceof HTTPError) {
-      return `HTTP Error: ${e.message}`;
-    } else if (e instanceof ResponseParseError) {
-      return `Unexpected response (HTTP ${e.status})`;
-    } else if (e instanceof TransmissionError) {
-      return `Transmission Error: ${e.message}`;
-    } else if (e instanceof Error) {
+    if (e instanceof Error) {
       return `Error: ${e.message}`;
     }
     return "Unknown error";
   }
 }
 
+const typeDefaults: Record<ServerType, { port: number; path: string }> = {
+  transmission: { port: 9091, path: "/transmission/rpc" },
+  qbittorrent: { port: 8080, path: "" },
+};
+
 function defaultValues(server?: Server): Form {
   if (!server) {
     return {
+      type: "transmission",
       name: "",
       host: "",
       port: 9091,
@@ -131,6 +139,7 @@ function defaultValues(server?: Server): Form {
 
   if (isTestingServer(server)) {
     return {
+      type: server.type,
       name: "app",
       host: "app-testing-url",
       port: 9091,
@@ -142,10 +151,17 @@ function defaultValues(server?: Server): Form {
     };
   }
 
+  const parsed = parseUrl(server.url);
   return {
-    ...parseUrl(server.url),
-    ...server,
+    type: server.type,
+    name: server.name,
+    host: parsed.host,
+    port: parsed.port,
+    path: parsed.path,
+    useSSL: parsed.useSSL,
     useAuth: Boolean(server.username || server.password),
+    username: server.username ?? "",
+    password: server.password ?? "",
   };
 }
 
@@ -184,6 +200,17 @@ export default function ConnectionScreen() {
     [setValue]
   );
 
+  const onTypeChange = React.useCallback(
+    (value: string | number) => {
+      const t = value as ServerType;
+      setValue("type", t);
+      const defaults = typeDefaults[t];
+      if (!useSSL) setValue("port", defaults.port);
+      setValue("path", defaults.path);
+    },
+    [setValue, useSSL]
+  );
+
   const navigation = useNavigation();
 
   const remove = React.useCallback(() => {
@@ -214,7 +241,7 @@ export default function ConnectionScreen() {
       if (editServer) {
         const updated = servers.map((s) =>
           s.id === editServer.id
-            ? { ...s, name: f.name, url, username: f.username, password: f.password, updatedAt: now }
+            ? { ...s, name: f.name, url, type: f.type, username: f.username, password: f.password, updatedAt: now }
             : s
         );
         store({ servers: updated });
@@ -223,6 +250,7 @@ export default function ConnectionScreen() {
           id: generateServerId(),
           name: f.name,
           url,
+          type: f.type,
           username: f.username,
           password: f.password,
           createdAt: now,
@@ -274,6 +302,25 @@ export default function ConnectionScreen() {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.row}>
+          <Text style={styles.label}>CLIENT TYPE</Text>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <SelectInput
+                value={field.value}
+                onChange={onTypeChange}
+                options={[
+                  { label: "Transmission", left: "server" as const, value: "transmission" },
+                  { label: "qBittorrent", left: "server" as const, value: "qbittorrent" },
+                ]}
+                title="Client Type"
+              />
+            )}
+          />
+        </View>
+
         <View style={styles.row}>
           <Text style={styles.label}>
             Name <Required />
@@ -334,7 +381,7 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <TextInput
-                  placeholder={useSSL ? "443" : "9091"}
+                  placeholder={useSSL ? "443" : String(typeDefaults[watch("type") ?? "transmission"].port)}
                   keyboardType="numeric"
                   style={[
                     styles.input,
@@ -359,7 +406,7 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <TextInput
-                  placeholder="/transmission/rpc"
+                  placeholder={typeDefaults[watch("type") ?? "transmission"].path || "/"}
                   style={[
                     styles.input,
                     fieldState.error ? { borderColor: red } : {},

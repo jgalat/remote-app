@@ -9,7 +9,7 @@ const direction = (d: Direction, compare: Compare): Compare => {
 };
 
 const id: Compare = (t1: Torrent, t2: Torrent) => {
-  return t1.id - t2.id;
+  return String(t1.id).localeCompare(String(t2.id));
 };
 
 const queue: Compare = (t1: Torrent, t2: Torrent) => {

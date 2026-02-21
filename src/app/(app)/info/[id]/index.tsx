@@ -16,7 +16,7 @@ import { count } from "~/utils/pieces";
 
 export default function TorrentDetailsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
 
   const data = React.useMemo<
     {
@@ -24,11 +24,9 @@ export default function TorrentDetailsScreen() {
       data: KeyValueProps[];
     }[]
   >(() => {
-    if (!torrents || torrents.length !== 1) {
+    if (!torrent) {
       return [];
     }
-
-    const torrent = torrents[0];
 
     return [
       {
@@ -117,19 +115,19 @@ export default function TorrentDetailsScreen() {
         ],
       },
     ];
-  }, [torrents]);
+  }, [torrent]);
 
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
 
   return (
     <Screen style={{ paddingTop: 16 }}>
-      <TorrentItem disabled torrent={torrents[0]} />
+      <TorrentItem disabled torrent={torrent} />
       <SectionList
         // fadingEdgeLength={64}
         sections={data}

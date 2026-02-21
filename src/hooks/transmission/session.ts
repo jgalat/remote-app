@@ -3,77 +3,45 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  SessionGetResponse,
-  SessionSetRequest,
-  TransmissionError,
-  HTTPError,
-  ResponseParseError,
-  SessionStatsResponse,
-} from "@remote-app/transmission-client";
 
+import type { Session, SessionStats } from "~/client";
 import { useServer } from "../use-settings";
-import { useTransmission } from "./client";
-import { useServerClient } from "./client";
+import { useClient, useServerClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 import type { Server } from "~/store/settings";
-
-type HookError = TransmissionError | HTTPError | ResponseParseError;
 
 type QueryProps = { stale?: boolean };
 
 export function useSession({ stale = false }: QueryProps = { stale: false }) {
-  const client = useTransmission();
+  const client = useClient();
   const server = useServer();
-  return useQuery<Required<SessionGetResponse> | undefined, HookError>({
+  return useQuery<Session | undefined, Error>({
     queryKey: queryKeys.sessionGet(server),
-    queryFn: async () => {
-      const response = await client?.request({
-        method: "session-get",
-      });
-
-      const session = response?.arguments;
-      if (!session) return session;
-      return session as Required<SessionGetResponse>;
-    },
+    queryFn: async () => client?.getSession(),
     enabled: Boolean(client) && !stale,
-    staleTime: 5000,
+    staleTime: 5_000,
   });
 }
 
 export function useSessionSet() {
   const queryClient = useQueryClient();
-  const client = useTransmission();
+  const client = useClient();
   const server = useServer();
 
-  return useMutation<
-    void,
-    HookError,
-    SessionSetRequest,
-    { previous?: SessionGetResponse }
-  >({
-    mutationFn: async (params: SessionSetRequest): Promise<void> => {
-      await client?.request({
-        method: "session-set",
-        arguments: params,
-      });
+  return useMutation<void, Error, Partial<Session>, { previous?: Session }>({
+    mutationFn: async (params: Partial<Session>) => {
+      await client?.setSession(params);
     },
-    onMutate: async (params: SessionSetRequest) => {
+    onMutate: async (params: Partial<Session>) => {
       await queryClient.cancelQueries(queryMatchers.session(server));
-      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(
-        queryKeys.sessionGet(server)
-      );
+      const previous = queryClient.getQueryData<Session | undefined>(queryKeys.sessionGet(server));
 
       queryClient.setQueryData(
         queryKeys.sessionGet(server),
-        (
-          old: SessionGetResponse | undefined
-        ): SessionGetResponse | undefined => {
-          if (!old) {
-            return;
-          }
+        (old: Session | undefined): Session | undefined => {
+          if (!old) return;
           return { ...old, ...params };
-        }
+        },
       );
 
       return { previous };
@@ -87,38 +55,62 @@ export function useSessionSet() {
   });
 }
 
-export function useSessionStats(
-  { stale = false }: QueryProps = { stale: false }
-) {
-  const client = useTransmission();
+export function useSessionStats({ stale = false }: QueryProps = { stale: false }) {
+  const client = useClient();
   const server = useServer();
-  return useQuery<SessionStatsResponse | undefined, HookError>({
+  return useQuery<SessionStats | undefined, Error>({
     queryKey: queryKeys.sessionStats(server),
-    queryFn: async () => {
-      const response = await client?.request({
-        method: "session-stats",
-      });
-
-      return response?.arguments;
-    },
+    queryFn: async () => client?.getSessionStats(),
     enabled: Boolean(client) && !stale,
-    refetchInterval: (query) => (query.state.status === "error" ? false : 5000),
-    staleTime: 5000,
+    refetchInterval: (query) => (query.state.status === "error" ? false : 5_000),
+    staleTime: 5_000,
   });
 }
 
 export function useServerSession(server: Server | undefined) {
   const client = useServerClient(server);
-  return useQuery<Required<SessionGetResponse> | undefined>({
+  return useQuery<Session | undefined>({
     queryKey: ["config-session", server?.id, server?.url],
-    queryFn: async () => {
-      const response = await client?.request({ method: "session-get" });
-      const session = response?.arguments;
-      if (!session) return session;
-      return session as Required<SessionGetResponse>;
-    },
+    queryFn: async () => client?.getSession(),
     enabled: Boolean(client),
-    staleTime: 5_000,
+    staleTime: Infinity,
+  });
+}
+
+export function useServerPreferences(server: Server | undefined) {
+  const client = useServerClient(server);
+  return useQuery<Record<string, unknown> | undefined>({
+    queryKey: ["config-preferences", server?.id, server?.url],
+    queryFn: async () => client?.getPreferences(),
+    enabled: Boolean(client),
+    staleTime: Infinity,
+  });
+}
+
+export function useServerPreferencesSet(server: Server | undefined) {
+  const queryClient = useQueryClient();
+  const client = useServerClient(server);
+  const key = ["config-preferences", server?.id, server?.url];
+
+  return useMutation<void, Error, Record<string, unknown>, { previous?: Record<string, unknown> }>({
+    mutationFn: async (params) => {
+      await client?.setPreferences(params);
+    },
+    onMutate: async (params) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<Record<string, unknown>>(key);
+      queryClient.setQueryData(key, (old: Record<string, unknown> | undefined) => {
+        if (!old) return;
+        return { ...old, ...params };
+      });
+      return { previous };
+    },
+    onError: (_err, _params, context) => {
+      queryClient.setQueryData(key, context?.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+    },
   });
 }
 
@@ -127,14 +119,14 @@ export function useServerSessionSet(server: Server | undefined) {
   const client = useServerClient(server);
   const key = ["config-session", server?.id, server?.url];
 
-  return useMutation<void, Error, SessionSetRequest, { previous?: SessionGetResponse }>({
+  return useMutation<void, Error, Partial<Session>, { previous?: Session }>({
     mutationFn: async (params) => {
-      await client?.request({ method: "session-set", arguments: params });
+      await client?.setSession(params);
     },
     onMutate: async (params) => {
       await queryClient.cancelQueries({ queryKey: key });
-      const previous = queryClient.getQueryData<SessionGetResponse | undefined>(key);
-      queryClient.setQueryData(key, (old: SessionGetResponse | undefined) => {
+      const previous = queryClient.getQueryData<Session | undefined>(key);
+      queryClient.setQueryData(key, (old: Session | undefined) => {
         if (!old) return;
         return { ...old, ...params };
       });

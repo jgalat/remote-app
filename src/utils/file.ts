@@ -1,4 +1,4 @@
-import { Priority as Priority } from "@remote-app/transmission-client";
+import { Priority } from "~/client";
 import type { ExtTorrent } from "~/hooks/transmission";
 
 type _File = ExtTorrent["files"][number];

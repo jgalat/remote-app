@@ -1,7 +1,6 @@
 export {
   useTorrents,
   useTorrent,
-  useTorrentAction,
   useTorrentActions,
   useTorrentSet,
   useTorrentSetLocation,
@@ -16,6 +15,8 @@ export {
   useSessionStats,
   useServerSession,
   useServerSessionSet,
+  useServerPreferences,
+  useServerPreferencesSet,
 } from "./session";
 
 export { useHealthPing, type HealthStatus } from "./health";

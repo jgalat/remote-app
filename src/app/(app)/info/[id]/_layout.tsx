@@ -18,6 +18,10 @@ import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import { useTorrent } from "~/hooks/transmission";
+import {
+  HeaderActionContext,
+  HeaderActionProvider,
+} from "~/contexts/header-action";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -34,26 +38,30 @@ const tabBarItemStyle = {
   width: 96,
 };
 
-export default function Layout() {
+function LayoutInner() {
   const navigation = useNavigation();
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { tint, text, background } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
-  const { data: torrents, error } = useTorrent(+id);
+  const { data: torrent, error } = useTorrent(id);
+  const { action: saveAction } = React.useContext(HeaderActionContext);
 
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () =>
-        error || !torrents ? null : (
+        error || !torrent ? null : (
           <ActionList>
+            {saveAction && (
+              <ActionIcon name="save" onPress={saveAction} />
+            )}
             <ActionIcon
-              onPress={() => torrentActionsSheet({ torrents, info: true })}
+              onPress={() => torrentActionsSheet({ torrents: [torrent], info: true })}
               name="more-vertical"
             />
           </ActionList>
         ),
     });
-  }, [torrentActionsSheet, navigation, error, torrents]);
+  }, [torrentActionsSheet, navigation, error, torrent, saveAction]);
 
   const screenOptions = React.useMemo(
     () => ({
@@ -117,5 +125,13 @@ export default function Layout() {
         }}
       />
     </MaterialTopTabs>
+  );
+}
+
+export default function Layout() {
+  return (
+    <HeaderActionProvider>
+      <LayoutInner />
+    </HeaderActionProvider>
   );
 }

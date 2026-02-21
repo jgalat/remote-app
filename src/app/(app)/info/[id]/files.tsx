@@ -22,14 +22,14 @@ import useTorrentBrowser from "~/hooks/use-torrent-browser";
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
-  const prioritySheet = useTorrentPrioritySheet(+id);
-  const torrentSet = useTorrentSet(+id);
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const prioritySheet = useTorrentPrioritySheet(id);
+  const torrentSet = useTorrentSet(id);
   const isFocused = useIsFocused();
   const { text } = useTheme();
 
   const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(
-    torrents ?? []
+    torrent ? [torrent] : []
   );
 
   React.useEffect(() => {
@@ -50,7 +50,7 @@ export default function FilesScreen() {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
 

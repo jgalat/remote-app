@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus, type TorrentId } from "~/client";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
@@ -24,10 +24,10 @@ export type TorrentItemProps = {
   disabled?: boolean;
   activeSelection?: boolean;
   selected?: boolean;
-  onToggle?: (id: number) => void;
+  onToggle?: (id: TorrentId) => void;
   onActions?: (payload: { torrents: Torrent[] }) => void;
-  onStart?: (params: { ids: number }) => void;
-  onStop?: (params: { ids: number }) => void;
+  onStart?: (params: { ids: TorrentId[] }) => void;
+  onStop?: (params: { ids: TorrentId[] }) => void;
 };
 
 export default React.memo(function TorrentItem({
@@ -83,8 +83,8 @@ export default React.memo(function TorrentItem({
       name={torrent.status === TorrentStatus.STOPPED ? "play" : "pause"}
       onPress={() =>
         torrent.status === TorrentStatus.STOPPED
-          ? onStart?.({ ids: torrent.id })
-          : onStop?.({ ids: torrent.id })
+          ? onStart?.({ ids: [torrent.id] })
+          : onStop?.({ ids: [torrent.id] })
       }
     />
   );

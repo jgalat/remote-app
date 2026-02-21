@@ -17,26 +17,23 @@ import { formatSize } from "~/utils/formatters";
 
 export default function PiecesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
   const { green, lightestGray } = useTheme();
 
   const value = React.useMemo(() => {
-    if (!torrents || torrents.length !== 1) return "";
-    const torrent = torrents[0];
+    if (!torrent) return "";
     return `${count(torrent.pieces)}/${torrent.pieceCount} (${formatSize(
       torrent.pieceSize
     )})`;
-  }, [torrents]);
+  }, [torrent]);
 
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
-
-  const torrent = torrents[0];
 
   return (
     <Screen

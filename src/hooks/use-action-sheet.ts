@@ -23,7 +23,7 @@ export function useTorrentActionsSheet() {
   );
 }
 
-export function useTorrentPrioritySheet(id: number) {
+export function useTorrentPrioritySheet(id: number | string) {
   return React.useCallback(
     (payload: Pick<TorrentPriorityPayload, "content">) =>
       SheetManager.show(TorrentPrioritySheet.sheetId, {

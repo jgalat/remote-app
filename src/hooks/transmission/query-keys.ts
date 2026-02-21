@@ -1,3 +1,4 @@
+import type { TorrentId } from "~/client";
 import type { Server } from "~/store/settings";
 
 export const queryKeys = {
@@ -13,11 +14,11 @@ export const queryKeys = {
   freeSpace: (server: Server | undefined, downloadDir?: string) =>
     ["free-space", server?.id, server?.url, downloadDir] as const,
 
-  torrentGet: (server: Server | undefined, id?: number | undefined) =>
+  torrentGet: (server: Server | undefined, id?: TorrentId) =>
     [
       ...queryKeys.torrents(server),
       "get",
-      ...(typeof id === "number" ? [id] : []),
+      ...(id !== undefined ? [id] : []),
     ] as const,
 
   sessionGet: (server: Server | undefined) =>

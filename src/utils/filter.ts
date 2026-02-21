@@ -1,4 +1,4 @@
-import { TorrentStatus } from "@remote-app/transmission-client";
+import { TorrentStatus } from "~/client";
 import type { Torrent } from "~/hooks/transmission";
 import type { Filter } from "~/store/settings";
 

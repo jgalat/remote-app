@@ -18,6 +18,7 @@
   "types": "dist/index.d.mts",
   "exports": {
     ".": {
+      "react-native": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"

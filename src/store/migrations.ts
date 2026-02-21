@@ -69,8 +69,8 @@ const LEGACY_KEY = "user.settings";
     const multi = MultiServerSchema.safeParse(json);
     if (multi.success) {
       const d = multi.data;
-      storeServers({ servers: d.servers, activeServerId: d.activeServerId });
-      storeListing(d.listing);
+      storeServers({ servers: d.servers.map((s) => ({ ...s, type: "transmission" as const })), activeServerId: d.activeServerId });
+      storeListing({ ...d.listing, pathFilter: "" });
       storeSearch(d.searchConfig ?? null);
       storePreferences({ colorScheme: d.colorScheme, authentication: d.authentication });
       storage.delete(LEGACY_KEY);
@@ -98,11 +98,12 @@ const LEGACY_KEY = "user.settings";
         activeServerId = id;
       }
 
-      storeServers({ servers, activeServerId });
+      storeServers({ servers: servers.map((s) => ({ ...s, type: "transmission" as const })), activeServerId });
       storeListing({
         sort: d.listing?.sort ?? "queue",
         direction: d.listing?.direction ?? "asc",
         filter: d.listing?.filter ?? "all",
+        pathFilter: "",
       });
       storeSearch(null);
       storePreferences({

@@ -14,10 +14,22 @@ import { HTTPError, QBittorrentError } from "./error";
 
 export class QBittorrentClient {
   private sid: string | null = null;
+  private loggedIn = false;
+  private loginPromise: Promise<void> | null = null;
 
   constructor(private config: QBittorrentConfig) {}
 
   private async login(): Promise<void> {
+    if (this.loginPromise) return this.loginPromise;
+    this.loginPromise = this.doLogin();
+    try {
+      await this.loginPromise;
+    } finally {
+      this.loginPromise = null;
+    }
+  }
+
+  private async doLogin(): Promise<void> {
     const body = new URLSearchParams();
     if (this.config.username) body.set("username", this.config.username);
     if (this.config.password) body.set("password", this.config.password);
@@ -26,8 +38,10 @@ export class QBittorrentClient {
       method: "POST",
       headers: {
         Referer: this.config.url,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body,
+      credentials: "include",
+      body: body.toString(),
     });
 
     if (!response.ok) {
@@ -46,6 +60,8 @@ export class QBittorrentClient {
         this.sid = match[1];
       }
     }
+
+    this.loggedIn = true;
   }
 
   private async get<T>(path: string, params?: Record<string, string>): Promise<T> {
@@ -63,7 +79,7 @@ export class QBittorrentClient {
     body?: URLSearchParams | FormData,
     retry = true,
   ): Promise<T> {
-    if (!this.sid) {
+    if (!this.loggedIn) {
       await this.login();
     }
 
@@ -73,15 +89,27 @@ export class QBittorrentClient {
       url += `?${qs.toString()}`;
     }
 
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+      Referer: this.config.url,
+    };
     if (this.sid) {
       headers["Cookie"] = `SID=${this.sid}`;
     }
 
-    const response = await fetch(url, { method, headers, body });
+    // URLSearchParams is not a valid fetch body type in React Native
+    let fetchBody: string | FormData | undefined;
+    if (body instanceof URLSearchParams) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+      fetchBody = body.toString();
+    } else {
+      fetchBody = body;
+    }
+
+    const response = await fetch(url, { method, headers, body: fetchBody, credentials: "include" });
 
     if (response.status === 403 && retry) {
       this.sid = null;
+      this.loggedIn = false;
       return this.request<T>(method, path, params, body, false);
     }
 
@@ -135,8 +163,10 @@ export class QBittorrentClient {
     const form = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined) continue;
-      if (key === "torrents" && value instanceof Blob) {
-        form.append("torrents", value, "torrent");
+      if (key === "torrents") {
+        // Support both Blob (Node/web) and {uri, type, name} (React Native)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        form.append("torrents", value as any, "torrent");
       } else {
         form.append(key, String(value));
       }

@@ -15,24 +15,21 @@ import Separator from "~/components/separator";
 
 export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
 
   return (
     <Screen style={styles.container}>
       <FlatList
-        // fadingEdgeLength={64}
-        data={torrents[0].peers}
+        data={torrent.peers}
         renderItem={({ item: peer }) => <PeerItem data={peer} />}
-        keyExtractor={({ isUTP, address, port }) =>
-          `${isUTP ? "utp" : "tcp"}://${address}:${port}`
-        }
+        keyExtractor={({ address, port }) => `${address}:${port}`}
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={
           <View style={styles.message}>

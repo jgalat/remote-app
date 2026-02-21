@@ -1,8 +1,9 @@
 import * as React from "react";
 import { StyleSheet, ToastAndroid } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
 import { z } from "zod";
-import { Mode, Priority } from "@remote-app/transmission-client";
+import { Mode, Priority } from "~/client";
 
 import Toggle from "~/components/toggle";
 import Text from "~/components/text";
@@ -10,7 +11,9 @@ import View from "~/components/view";
 import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
+import { HeaderActionContext } from "~/contexts/header-action";
 import { useTorrent, useTorrentSet } from "~/hooks/transmission";
+import { useServer } from "~/hooks/use-settings";
 import {
   NetworkErrorScreen,
   LoadingScreen,
@@ -24,9 +27,9 @@ import { useTheme } from "~/hooks/use-theme-color";
 type Form = z.infer<typeof Form>;
 const Form = z
   .object({
-    bandwidthPriority: z.number(),
+    bandwidthPriority: z.number().optional(),
 
-    honorsSessionLimits: z.boolean(),
+    honorsSessionLimits: z.boolean().optional(),
     downloadLimited: z.boolean(),
     downloadLimit: z.coerce.number({ message: "Expected a number" }),
     uploadLimited: z.boolean(),
@@ -70,25 +73,35 @@ const Form = z
 
 export default function TorrentSettingsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrents, error, isLoading, refetch } = useTorrent(+id);
+  const server = useServer();
+  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
 
-  const { mutate } = useTorrentSet(+id);
+  const { mutate } = useTorrentSet(id);
   const { red } = useTheme();
+  const isTransmission = server?.type !== "qbittorrent";
   const inset = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  const { setAction } = React.useContext(HeaderActionContext);
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch, reset } = useForm({
     mode: "onBlur",
     resolver: zodResolver(Form),
-    values: torrents?.[0],
+    values: torrent,
+    resetOptions: { keepDirtyValues: true },
   });
 
   const onSubmit = handleSubmit(
     React.useCallback(
       (f: Form) => {
-        mutate(f, {
+        const params: Form = isTransmission ? f : {
+          ...f,
+          downloadLimited: f.downloadLimit > 0,
+          uploadLimited: f.uploadLimit > 0,
+        };
+        mutate(params, {
           onSuccess: () => {
             ToastAndroid.show(
-              "Server updated successfully",
+              "Torrent settings updated successfully",
               ToastAndroid.SHORT
             );
           },
@@ -97,15 +110,28 @@ export default function TorrentSettingsScreen() {
           },
         });
       },
-      [mutate]
+      [mutate, isTransmission]
     )
   );
+
+  const onSubmitRef = React.useRef(onSubmit);
+  onSubmitRef.current = onSubmit;
+
+  React.useEffect(() => {
+    if (isFocused) {
+      setAction(() => () => onSubmitRef.current());
+    } else {
+      setAction(null);
+      reset();
+    }
+    return () => setAction(null);
+  }, [isFocused, setAction, reset]);
 
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
 
-  if (isLoading || !torrents || torrents.length !== 1) {
+  if (isLoading || !torrent) {
     return <LoadingScreen />;
   }
 
@@ -119,133 +145,171 @@ export default function TorrentSettingsScreen() {
       >
         <Text style={[styles.title, { marginTop: 0 }]}>Bandwidth</Text>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Transfer Priority</Text>
-          <Controller
-            name="bandwidthPriority"
-            control={control}
-            render={({ field }) => (
-              <SelectInput
-                value={field.value}
-                onChange={(v) => {
-                  field.onChange(v);
-                  onSubmit();
-                }}
-                options={[
-                  {
-                    label: "High",
-                    left: "chevrons-up" as const,
-                    value: Priority.HIGH,
-                  },
-                  {
-                    label: "Normal",
-                    left: "minus" as const,
-                    value: Priority.NORMAL,
-                  },
-                  {
-                    label: "Low",
-                    left: "chevrons-down" as const,
-                    value: Priority.LOW,
-                  },
-                ]}
-                title="Transfer Priority"
+        {isTransmission && (
+          <>
+            <View style={styles.row}>
+              <Text style={styles.label}>Transfer Priority</Text>
+              <Controller
+                name="bandwidthPriority"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    value={field.value ?? Priority.NORMAL}
+                    onChange={field.onChange}
+                    options={[
+                      {
+                        label: "High",
+                        left: "chevrons-up" as const,
+                        value: Priority.HIGH,
+                      },
+                      {
+                        label: "Normal",
+                        left: "minus" as const,
+                        value: Priority.NORMAL,
+                      },
+                      {
+                        label: "Low",
+                        left: "chevrons-down" as const,
+                        value: Priority.LOW,
+                      },
+                    ]}
+                    title="Transfer Priority"
+                  />
+                )}
               />
-            )}
-          />
-        </View>
+            </View>
 
-        <View style={styles.row}>
-          <Controller
-            name="honorsSessionLimits"
-            control={control}
-            render={({ field }) => (
-              <Toggle
-                value={field.value}
-                onPress={(v) => {
-                  field.onChange(v);
-                  onSubmit();
-                }}
-                label="Honors session limits"
+            <View style={styles.row}>
+              <Controller
+                name="honorsSessionLimits"
+                control={control}
+                render={({ field }) => (
+                  <Toggle
+                    value={field.value ?? true}
+                    onPress={field.onChange}
+                    label="Honors session limits"
+                  />
+                )}
               />
-            )}
-          />
-        </View>
+            </View>
+          </>
+        )}
 
-        <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="downloadLimited"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={(v) => {
-                    field.onChange(v);
-                    onSubmit();
-                  }}
-                  label="DOWNLOAD LIMIT (KB/S)"
+        {isTransmission ? (
+          <>
+            <View style={styles.row}>
+              <View style={styles.label}>
+                <Controller
+                  name="downloadLimited"
+                  control={control}
+                  render={({ field }) => (
+                    <Toggle
+                      value={field.value}
+                      onPress={field.onChange}
+                      label="DOWNLOAD LIMIT (KB/S)"
+                    />
+                  )}
                 />
-              )}
-            />
-          </View>
-          <Controller
-            name="downloadLimit"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  keyboardType="numeric"
-                  editable={watch("downloadLimited")}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                  style={[fieldState.error ? { borderColor: red } : {}]}
-                  onEndEditing={onSubmit}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+              </View>
+              <Controller
+                name="downloadLimit"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      keyboardType="numeric"
+                      editable={watch("downloadLimited")}
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      style={[fieldState.error ? { borderColor: red } : {}]}
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
 
-        <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="uploadLimited"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={(v) => {
-                    field.onChange(v);
-                    onSubmit();
-                  }}
-                  label="UPLOAD LIMIT (KB/S)"
+            <View style={styles.row}>
+              <View style={styles.label}>
+                <Controller
+                  name="uploadLimited"
+                  control={control}
+                  render={({ field }) => (
+                    <Toggle
+                      value={field.value}
+                      onPress={field.onChange}
+                      label="UPLOAD LIMIT (KB/S)"
+                    />
+                  )}
                 />
-              )}
-            />
-          </View>
-          <Controller
-            name="uploadLimit"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  keyboardType="numeric"
-                  editable={watch("uploadLimited")}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                  style={[fieldState.error ? { borderColor: red } : {}]}
-                  onEndEditing={onSubmit}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+              </View>
+              <Controller
+                name="uploadLimit"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      keyboardType="numeric"
+                      editable={watch("uploadLimited")}
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      style={[fieldState.error ? { borderColor: red } : {}]}
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.row}>
+              <Text style={styles.label}>Download limit (KB/s, 0 = unlimited)</Text>
+              <Controller
+                name="downloadLimit"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      keyboardType="numeric"
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      style={[fieldState.error ? { borderColor: red } : {}]}
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Upload limit (KB/s, 0 = unlimited)</Text>
+              <Controller
+                name="uploadLimit"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <TextInput
+                      keyboardType="numeric"
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      style={[fieldState.error ? { borderColor: red } : {}]}
+                    />
+                    <Text style={[styles.error, { color: red }]}>
+                      {fieldState.error?.message}
+                    </Text>
+                  </>
+                )}
+              />
+            </View>
+          </>
+        )}
 
         <Text style={styles.title}>Seed</Text>
 
@@ -257,10 +321,7 @@ export default function TorrentSettingsScreen() {
             render={({ field }) => (
               <SelectInput
                 value={field.value}
-                onChange={(v) => {
-                  field.onChange(v);
-                  onSubmit();
-                }}
+                onChange={field.onChange}
                 options={[
                   {
                     label: "Global settings",
@@ -297,7 +358,6 @@ export default function TorrentSettingsScreen() {
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
                   style={[fieldState.error ? { borderColor: red } : {}]}
-                  onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -315,10 +375,7 @@ export default function TorrentSettingsScreen() {
             render={({ field }) => (
               <SelectInput
                 value={field.value}
-                onChange={(v) => {
-                  field.onChange(v);
-                  onSubmit();
-                }}
+                onChange={field.onChange}
                 options={[
                   {
                     label: "Global settings",
@@ -355,7 +412,6 @@ export default function TorrentSettingsScreen() {
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
                   style={[fieldState.error ? { borderColor: red } : {}]}
-                  onEndEditing={onSubmit}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useTorrentAction, Torrent } from "~/hooks/transmission";
+import { useTorrentActions, Torrent } from "~/hooks/transmission";
 
 export type Payload = Torrent["id"][];
 
@@ -13,7 +13,7 @@ function RemoveConfirmSheet({
   ...props
 }: SheetProps<typeof sheetId>) {
   const { red } = useTheme();
-  const remove = useTorrentAction("torrent-remove");
+  const { remove } = useTorrentActions();
 
   return (
     <ActionSheet
@@ -31,7 +31,7 @@ function RemoveConfirmSheet({
           color: red,
           onPress: () =>
             ids
-              ? remove.mutate({ ids, "delete-local-data": true })
+              ? remove.mutate({ ids, deleteData: true })
               : undefined,
         },
       ]}
