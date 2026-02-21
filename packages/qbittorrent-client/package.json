@@ -1,17 +1,18 @@
 {
-  "name": "@remote-app/transmission-client",
-  "version": "0.1.4",
-  "description": "Transmission RPC client",
+  "name": "@remote-app/qbittorrent-client",
+  "version": "0.1.0",
+  "description": "qBittorrent WebUI API client",
   "keywords": [
-    "transmission",
-    "rpc",
+    "qbittorrent",
+    "webui",
+    "api",
     "client"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jgalat/remote-app.git",
-    "directory": "packages/transmission-client"
+    "directory": "packages/qbittorrent-client"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -35,11 +36,5 @@
   "scripts": {
     "build": "tsdown",
     "test": "vitest run"
-  },
-  "dependencies": {
-    "base-64": "^1.0.0"
-  },
-  "devDependencies": {
-    "@types/base-64": "^1.0.0"
   }
 }

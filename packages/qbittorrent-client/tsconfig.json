@@ -3,7 +3,6 @@
     "module": "esnext",
     "target": "es6",
     "lib": ["es6", "dom"],
-    "types": ["react"],
     "declaration": true,
     "moduleResolution": "node",
     "strict": true,

@@ -1,0 +1,4 @@
+*
+!.gitignore
+!custom-cont-init.d/
+!custom-cont-init.d/**

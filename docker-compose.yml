@@ -14,6 +14,21 @@ services:
     volumes:
       - "data:/downloads"
 
+  qbittorrent:
+    image: linuxserver/qbittorrent:5.0.4
+    container_name: qbittorrent-test
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    volumes:
+      - "qbt-data:/downloads"
+      - "qbt-config:/config"
+      - "./docker/qbittorrent/custom-cont-init.d:/custom-cont-init.d:ro"
+
   jackett:
     image: linuxserver/jackett:latest
     container_name: jackett-test
@@ -38,5 +53,7 @@ services:
 
 volumes:
   data:
+  qbt-data:
+  qbt-config:
   jackett-config:
   prowlarr-config:

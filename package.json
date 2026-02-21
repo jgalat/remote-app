@@ -19,6 +19,8 @@
     "build:android:development": "npx eas build --platform android --local --profile development",
     "build:android:production": "npx eas build --platform android --local --profile production",
     "lint": "eslint --max-warnings=0 .",
+    "test:transmission": "npm -w @remote-app/transmission-client test",
+    "test:qbittorrent": "npm -w @remote-app/qbittorrent-client test",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
@@ -94,7 +96,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.2.0",
+    "tsdown": "^0.20.3",
     "tsx": "^4.20.3",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.18"
   }
 }
