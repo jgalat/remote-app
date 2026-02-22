@@ -28,7 +28,7 @@ import {
   useServerSessionSet,
   useServerPreferences,
   useServerPreferencesSet,
-} from "~/hooks/transmission";
+} from "~/hooks/torrent";
 import SelectInput from "~/components/select-input";
 import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";

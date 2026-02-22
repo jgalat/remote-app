@@ -20,7 +20,7 @@ import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import Screen from "~/components/screen";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useAddTorrent, useSession } from "~/hooks/transmission";
+import { useAddTorrent, useSession } from "~/hooks/torrent";
 import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";

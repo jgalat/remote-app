@@ -4,7 +4,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import { router } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
-import { useTorrentActions, Torrent } from "~/hooks/transmission";
+import { useTorrentActions, Torrent } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
 import RemoveConfirmSheet from "./remove-confirm";
 import MoveTorrentSheet from "./move-torrent";

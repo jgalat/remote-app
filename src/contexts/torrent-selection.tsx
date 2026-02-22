@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BackHandler } from "react-native";
-import type { Torrent } from "~/hooks/transmission";
+import type { Torrent } from "~/hooks/torrent";
 
 type Action =
   | {

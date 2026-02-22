@@ -19,7 +19,7 @@ import {
   NetworkErrorScreen,
   LoadingScreen,
 } from "~/components/utility-screens";
-import { useTorrentActions, useTorrents } from "~/hooks/transmission";
+import { useTorrentActions, useTorrents } from "~/hooks/torrent";
 import { useServer, useListing, useServers, useSearchConfig } from "~/hooks/use-settings";
 import {
   useListingSheet,

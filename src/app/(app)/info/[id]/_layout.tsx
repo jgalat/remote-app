@@ -17,7 +17,7 @@ import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
-import { useTorrent } from "~/hooks/transmission";
+import { useTorrent } from "~/hooks/torrent";
 import {
   HeaderActionContext,
   HeaderActionProvider,

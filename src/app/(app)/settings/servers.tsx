@@ -15,7 +15,7 @@ import { useServersStore } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
 import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
-import { useHealthPing, type HealthStatus } from "~/hooks/transmission";
+import { useHealthPing, type HealthStatus } from "~/hooks/torrent";
 
 function extractHostPort(url: string): string {
   try {

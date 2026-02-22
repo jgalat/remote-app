@@ -11,7 +11,7 @@ import Pressable from "./pressable";
 import ActionIcon from "./action-icon";
 import Checkbox from "./checkbox";
 import { useTheme } from "~/hooks/use-theme-color";
-import { Torrent } from "~/hooks/transmission";
+import { Torrent } from "~/hooks/torrent";
 import {
   formatSize,
   formatSpeed,

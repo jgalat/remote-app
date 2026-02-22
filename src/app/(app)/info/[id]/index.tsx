@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import Screen from "~/components/screen";
 import TorrentItem from "~/components/torrent-item";
-import { useTorrent } from "~/hooks/transmission";
+import { useTorrent } from "~/hooks/torrent";
 import KeyValue, { KeyValueProps } from "~/components/key-value";
 import { formatSize, formatStatus } from "~/utils/formatters";
 import {

@@ -1,4 +1,4 @@
-import type { Torrent } from "~/hooks/transmission";
+import type { Torrent } from "~/hooks/torrent";
 import type { Direction, Sort } from "~/store/settings";
 
 type Compare = (t1: Torrent, t2: Torrent) => number;

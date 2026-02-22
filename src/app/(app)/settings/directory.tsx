@@ -18,7 +18,7 @@ import {
   useServers,
   useDirectoriesStore,
 } from "~/hooks/use-settings";
-import { useServerSessionSet } from "~/hooks/transmission";
+import { useServerSessionSet } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
 import { usePro } from "@remote-app/pro";
 

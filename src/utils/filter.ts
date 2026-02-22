@@ -1,5 +1,5 @@
 import { TorrentStatus } from "~/client";
-import type { Torrent } from "~/hooks/transmission";
+import type { Torrent } from "~/hooks/torrent";
 import type { Filter } from "~/store/settings";
 
 type Predicate = (t: Torrent) => boolean;

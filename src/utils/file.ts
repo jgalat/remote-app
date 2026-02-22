@@ -1,5 +1,5 @@
 import { Priority } from "~/client";
-import type { ExtTorrent } from "~/hooks/transmission";
+import type { ExtTorrent } from "~/hooks/torrent";
 
 type _File = ExtTorrent["files"][number];
 type Stats = ExtTorrent["fileStats"][number];

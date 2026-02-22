@@ -10,7 +10,7 @@ import Pressable from "~/components/pressable";
 import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useSession, useTorrentSetLocation } from "~/hooks/transmission";
+import { useSession, useTorrentSetLocation } from "~/hooks/torrent";
 import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import SelectSheet from "./select";
 

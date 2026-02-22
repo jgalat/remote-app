@@ -16,7 +16,7 @@ import {
   useActiveServerId,
   useDirectoriesStore,
 } from "~/hooks/use-settings";
-import { useServerSession } from "~/hooks/transmission";
+import { useServerSession } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
 import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";

@@ -10,7 +10,7 @@ import Pressable from "~/components/pressable";
 import Option from "~/components/option";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useListingStore, useActiveServerId, useDirectories } from "~/hooks/use-settings";
-import { useTorrents, useSession } from "~/hooks/transmission";
+import { useTorrents, useSession } from "~/hooks/torrent";
 import predicate from "~/utils/filter";
 
 import type { SheetProps } from "react-native-actions-sheet";

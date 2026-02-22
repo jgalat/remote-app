@@ -12,7 +12,7 @@ import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
 import { HeaderActionContext } from "~/contexts/header-action";
-import { useTorrent, useTorrentSet } from "~/hooks/transmission";
+import { useTorrent, useTorrentSet } from "~/hooks/torrent";
 import { useServer } from "~/hooks/use-settings";
 import {
   NetworkErrorScreen,
