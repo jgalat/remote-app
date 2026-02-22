@@ -19,49 +19,43 @@ import type {
   QBitPreferences,
 } from "./types";
 
-function mapState(state: TorrentState): TorrentStatus {
-  switch (state) {
-    case "downloading":
-    case "forcedDL":
-    case "metaDL":
-    case "forcedMetaDL":
-    case "stalledDL":
-      return TorrentStatus.DOWNLOADING;
-    case "uploading":
-    case "forcedUP":
-    case "stalledUP":
-      return TorrentStatus.SEEDING;
-    case "stoppedDL":
-    case "stoppedUP":
-    case "error":
-    case "missingFiles":
-    case "unknown":
-      return TorrentStatus.STOPPED;
-    case "queuedDL":
-    case "allocating":
-    case "moving":
-      return TorrentStatus.QUEUED_TO_DOWNLOAD;
-    case "queuedUP":
-      return TorrentStatus.QUEUED_TO_SEED;
-    case "checkingDL":
-    case "checkingUP":
-    case "checkingResumeData":
-      return TorrentStatus.VERIFYING_LOCAL_DATA;
-  }
-}
+const stateMap: Record<TorrentState, TorrentStatus> = {
+  downloading: TorrentStatus.DOWNLOADING,
+  forcedDL: TorrentStatus.DOWNLOADING,
+  metaDL: TorrentStatus.DOWNLOADING,
+  forcedMetaDL: TorrentStatus.DOWNLOADING,
+  stalledDL: TorrentStatus.DOWNLOADING,
+  uploading: TorrentStatus.SEEDING,
+  forcedUP: TorrentStatus.SEEDING,
+  stalledUP: TorrentStatus.SEEDING,
+  stoppedDL: TorrentStatus.STOPPED,
+  stoppedUP: TorrentStatus.STOPPED,
+  error: TorrentStatus.STOPPED,
+  missingFiles: TorrentStatus.STOPPED,
+  unknown: TorrentStatus.STOPPED,
+  queuedDL: TorrentStatus.QUEUED_TO_DOWNLOAD,
+  allocating: TorrentStatus.QUEUED_TO_DOWNLOAD,
+  moving: TorrentStatus.QUEUED_TO_DOWNLOAD,
+  queuedUP: TorrentStatus.QUEUED_TO_SEED,
+  checkingDL: TorrentStatus.VERIFYING_LOCAL_DATA,
+  checkingUP: TorrentStatus.VERIFYING_LOCAL_DATA,
+  checkingResumeData: TorrentStatus.VERIFYING_LOCAL_DATA,
+};
+
+const QBIT_ETA_UNKNOWN = 8_640_000;
 
 function mapTorrent(t: TorrentInfo): Torrent {
   return {
     id: t.hash,
     name: t.name,
-    status: mapState(t.state),
+    status: stateMap[t.state],
     percentDone: t.progress,
     rateDownload: t.dlspeed,
     rateUpload: t.upspeed,
     totalSize: t.total_size,
     sizeWhenDone: t.size,
     leftUntilDone: t.amount_left,
-    eta: t.eta === 8_640_000 ? -1 : t.eta,
+    eta: t.eta === QBIT_ETA_UNKNOWN ? -1 : t.eta,
     error: t.state === "error" || t.state === "missingFiles" ? 1 : 0,
     errorString: t.state === "error" || t.state === "missingFiles" ? t.state : "",
     isFinished: t.state === "stoppedUP" && t.progress >= 1,
@@ -82,18 +76,9 @@ function mapTorrent(t: TorrentInfo): Torrent {
 }
 
 function mapFilePriority(qbitPriority: number): number {
-  switch (qbitPriority) {
-    case 0:
-      return Priority.NORMAL;
-    case 1:
-      return Priority.NORMAL;
-    case 6:
-      return Priority.HIGH;
-    case 7:
-      return Priority.HIGH;
-    default:
-      return Priority.NORMAL;
-  }
+  if (qbitPriority === 0) return Priority.LOW;
+  if (qbitPriority >= 6) return Priority.HIGH;
+  return Priority.NORMAL;
 }
 
 function pieceStatesToBitfield(states: number[]): string {
@@ -132,17 +117,13 @@ export class QBittorrentAdapter implements TorrentClient {
     if (infos.length === 0) return undefined;
     const base = mapTorrent(infos[0]);
 
-    const files = qFiles.map((f) => ({
-      bytesCompleted: Math.round(f.progress * f.size),
-      length: f.size,
-      name: f.name,
-    }));
-
-    const fileStats = qFiles.map((f) => ({
-      bytesCompleted: Math.round(f.progress * f.size),
-      wanted: f.priority > 0,
-      priority: mapFilePriority(f.priority),
-    }));
+    const files: ExtTorrent["files"] = [];
+    const fileStats: ExtTorrent["fileStats"] = [];
+    for (const f of qFiles) {
+      const bytesCompleted = Math.round(f.progress * f.size);
+      files.push({ bytesCompleted, length: f.size, name: f.name });
+      fileStats.push({ bytesCompleted, wanted: f.priority > 0, priority: mapFilePriority(f.priority) });
+    }
 
     const peers: Peer[] = peersResp
       ? Object.values(peersResp.peers).map((p) => ({
@@ -196,8 +177,16 @@ export class QBittorrentAdapter implements TorrentClient {
       uploadLimit: infos[0].up_limit > 0 ? Math.round(infos[0].up_limit / 1_024) : 0,
       seedRatioMode: infos[0].ratio_limit === -2 ? 0 : infos[0].ratio_limit === -1 ? 2 : 1,
       seedRatioLimit: infos[0].ratio_limit >= 0 ? infos[0].ratio_limit : 0,
-      seedIdleMode: infos[0].seeding_time_limit === -2 ? 0 : infos[0].seeding_time_limit === -1 ? 2 : 1,
-      seedIdleLimit: infos[0].seeding_time_limit >= 0 ? infos[0].seeding_time_limit : 0,
+      seedIdleMode:
+        (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) === -2
+          ? 0
+          : (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) === -1
+            ? 2
+            : 1,
+      seedIdleLimit:
+        (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) >= 0
+          ? (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit)
+          : 0,
     };
   }
 
@@ -214,11 +203,7 @@ export class QBittorrentAdapter implements TorrentClient {
     if (params["download-dir"]) qParams.savepath = params["download-dir"];
     if (params.paused !== undefined) qParams.paused = params.paused;
 
-    try {
-      await this.client.add(qParams);
-    } catch {
-      // ignore
-    }
+    await this.client.add(qParams);
     return null;
   }
 
@@ -264,6 +249,7 @@ export class QBittorrentAdapter implements TorrentClient {
         await this.client.filePrio(hash, params["priority-normal"], 1);
       }
       if (params["priority-low"]) {
+        // qBit has no "low" priority; 1 (normal) is the closest non-zero option
         await this.client.filePrio(hash, params["priority-low"], 1);
       }
     }
@@ -290,7 +276,7 @@ export class QBittorrentAdapter implements TorrentClient {
       const ratioLimit = ratioMode === 0 ? -2 : ratioMode === 2 ? -1 : (params.seedRatioLimit ?? -2);
       const idleMode = params.seedIdleMode ?? 0;
       const idleLimit = idleMode === 0 ? -2 : idleMode === 2 ? -1 : (params.seedIdleLimit ?? -2);
-      await this.client.setShareLimits(hashes, ratioLimit, idleLimit, -2);
+      await this.client.setShareLimits(hashes, ratioLimit, -2, idleLimit);
     }
   }
 
@@ -315,13 +301,16 @@ export class QBittorrentAdapter implements TorrentClient {
   }
 
   async getSession(): Promise<Session> {
-    const prefs = await this.client.preferences();
+    const [prefs, speedLimitsMode] = await Promise.all([
+      this.client.preferences(),
+      this.client.speedLimitsMode(),
+    ]);
     return {
       "speed-limit-down-enabled": prefs.dl_limit > 0,
       "speed-limit-down": prefs.dl_limit > 0 ? Math.round(prefs.dl_limit / 1_024) : 0,
       "speed-limit-up-enabled": prefs.up_limit > 0,
       "speed-limit-up": prefs.up_limit > 0 ? Math.round(prefs.up_limit / 1_024) : 0,
-      "alt-speed-enabled": prefs.scheduler_enabled,
+      "alt-speed-enabled": speedLimitsMode === 1,
       "alt-speed-down": Math.round(prefs.alt_dl_limit / 1_024),
       "alt-speed-up": Math.round(prefs.alt_up_limit / 1_024),
       seedRatioLimited: prefs.max_ratio_enabled,
@@ -354,7 +343,13 @@ export class QBittorrentAdapter implements TorrentClient {
       const enabled = params["speed-limit-up-enabled"] ?? true;
       prefs.up_limit = enabled ? (params["speed-limit-up"] ?? 0) * 1_024 : 0;
     }
-    if (params["alt-speed-enabled"] !== undefined) prefs.scheduler_enabled = params["alt-speed-enabled"];
+    if (params["alt-speed-enabled"] !== undefined) {
+      const mode = await this.client.speedLimitsMode();
+      const enabled = mode === 1;
+      if (enabled !== params["alt-speed-enabled"]) {
+        await this.client.toggleSpeedLimitsMode();
+      }
+    }
     if (params["alt-speed-down"] !== undefined) prefs.alt_dl_limit = params["alt-speed-down"] * 1_024;
     if (params["alt-speed-up"] !== undefined) prefs.alt_up_limit = params["alt-speed-up"] * 1_024;
     if (params.seedRatioLimited !== undefined) prefs.max_ratio_enabled = params.seedRatioLimited;
@@ -368,7 +363,9 @@ export class QBittorrentAdapter implements TorrentClient {
     if (params["lpd-enabled"] !== undefined) prefs.lsd = params["lpd-enabled"];
     if (params["pex-enabled"] !== undefined) prefs.pex = params["pex-enabled"];
 
-    await this.client.setPreferences(prefs);
+    if (Object.keys(prefs).length > 0) {
+      await this.client.setPreferences(prefs);
+    }
   }
 
   async getPreferences(): Promise<Record<string, unknown>> {
@@ -418,23 +415,11 @@ export class QBittorrentAdapter implements TorrentClient {
   }
 
   async getSessionStats(): Promise<SessionStats> {
-    const [transfer, torrents] = await Promise.all([
-      this.client.transferInfo(),
-      this.client.info(),
-    ]);
-
-    const active = torrents.filter(
-      (t) => t.dlspeed > 0 || t.upspeed > 0
-    ).length;
-
-    const stopped = torrents.filter(
-      (t) => t.state === "stoppedDL" || t.state === "stoppedUP"
-    ).length;
-
+    const transfer = await this.client.transferInfo();
     return {
-      activeTorrentCount: active,
-      pausedTorrentCount: stopped,
-      torrentCount: torrents.length,
+      activeTorrentCount: 0,
+      pausedTorrentCount: 0,
+      torrentCount: 0,
       downloadSpeed: transfer.dl_info_speed,
       uploadSpeed: transfer.up_info_speed,
     };

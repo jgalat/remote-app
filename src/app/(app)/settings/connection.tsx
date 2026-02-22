@@ -6,9 +6,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { useMutation } from "@tanstack/react-query";
-
-import { createClient } from "~/client";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
@@ -22,6 +19,8 @@ import type { Server, ServerType } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { isTestingServer } from "~/utils/mock-transmission-client";
+import { useTestConnection } from "~/hooks/use-test-connection";
+import { defaultPortForSSL, typeDefaults } from "~/utils/server-connection-defaults";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
 
@@ -80,56 +79,22 @@ function renderUrl(form: Form): string {
     !form.port || (form.useSSL && form.port === 443) || (!form.useSSL && form.port === 80)
       ? ""
       : `:${form.port}`;
-  const path = form.path?.startsWith("/") ? form.path : `/${form.path}`;
+  const pathInput = form.path?.trim() ?? "";
+  const path = pathInput ? (pathInput.startsWith("/") ? pathInput : `/${pathInput}`) : "";
 
   return `${protocol}://${form.host}${port}${path}`;
 }
 
-async function testConnection(f: Form): Promise<string> {
-  const creds = {
-    url: renderUrl(f),
-    ...f,
-  };
-
-  if (isTestingServer(creds)) {
-    return "Connected";
-  }
-
-  const client = createClient({
-    id: "",
-    name: f.name,
-    url: creds.url,
-    type: f.type,
-    username: f.username,
-    password: f.password,
-    createdAt: 0,
-    updatedAt: 0,
-  });
-
-  try {
-    await client.ping();
-    return "Connected";
-  } catch (e) {
-    if (e instanceof Error) {
-      return `Error: ${e.message}`;
-    }
-    return "Unknown error";
-  }
-}
-
-const typeDefaults: Record<ServerType, { port: number; path: string }> = {
-  transmission: { port: 9091, path: "/transmission/rpc" },
-  qbittorrent: { port: 8080, path: "" },
-};
-
 function defaultValues(server?: Server): Form {
+  const transmissionDefaults = typeDefaults.transmission;
+
   if (!server) {
     return {
       type: "transmission",
       name: "",
       host: "",
-      port: 9091,
-      path: "/transmission/rpc",
+      port: transmissionDefaults.port,
+      path: transmissionDefaults.path,
       useSSL: false,
       useAuth: false,
       username: "",
@@ -142,8 +107,8 @@ function defaultValues(server?: Server): Form {
       type: server.type,
       name: "app",
       host: "app-testing-url",
-      port: 9091,
-      path: "/transmission/rpc",
+      port: transmissionDefaults.port,
+      path: transmissionDefaults.path,
       useSSL: false,
       useAuth: false,
       username: "",
@@ -157,7 +122,7 @@ function defaultValues(server?: Server): Form {
     name: server.name,
     host: parsed.host,
     port: parsed.port,
-    path: parsed.path,
+    path: server.type === "qbittorrent" && parsed.path === "/" ? "" : parsed.path,
     useSSL: parsed.useSSL,
     useAuth: Boolean(server.username || server.password),
     username: server.username ?? "",
@@ -182,7 +147,7 @@ export default function ConnectionScreen() {
 
   const inset = useSafeAreaInsets();
 
-  const { control, handleSubmit, watch, setValue } = useForm({
+  const { control, handleSubmit, watch, setValue, getValues } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
     defaultValues: defaultValues(editServer),
@@ -190,14 +155,16 @@ export default function ConnectionScreen() {
 
   const useAuth = watch("useAuth");
   const useSSL = watch("useSSL");
+  const type = watch("type") ?? "transmission";
   const scroll = React.useRef<ScrollView>(null);
 
   const onSSLChange = React.useCallback(
     (enabled: boolean) => {
       setValue("useSSL", enabled);
-      setValue("port", enabled ? ("" as unknown as number) : 9091);
+      const selectedType = getValues("type") ?? "transmission";
+      setValue("port", defaultPortForSSL(selectedType, enabled));
     },
-    [setValue]
+    [setValue, getValues]
   );
 
   const onTypeChange = React.useCallback(
@@ -270,9 +237,7 @@ export default function ConnectionScreen() {
     data,
     isPending,
     mutate: test,
-  } = useMutation({
-    mutationFn: testConnection,
-  });
+  } = useTestConnection();
 
   const status = isPending ? "Connecting..." : data ? data : "Not connected";
   const statusColor =
@@ -284,11 +249,14 @@ export default function ConnectionScreen() {
 
   const onTest = React.useCallback(
     (f: Form) => {
-      test(f, {
-        onSettled: () => {
-          scroll.current?.scrollToEnd({ animated: true });
-        },
-      });
+      test(
+        { type: f.type, name: f.name, url: renderUrl(f), username: f.username, password: f.password },
+        {
+          onSettled: () => {
+            scroll.current?.scrollToEnd({ animated: true });
+          },
+        }
+      );
     },
     [test]
   );
@@ -381,7 +349,7 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <TextInput
-                  placeholder={useSSL ? "443" : String(typeDefaults[watch("type") ?? "transmission"].port)}
+                  placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
                   keyboardType="numeric"
                   style={[
                     styles.input,
@@ -406,7 +374,7 @@ export default function ConnectionScreen() {
             render={({ field, fieldState }) => (
               <>
                 <TextInput
-                  placeholder={typeDefaults[watch("type") ?? "transmission"].path || "/"}
+                  placeholder={typeDefaults[type].path || "/"}
                   style={[
                     styles.input,
                     fieldState.error ? { borderColor: red } : {},

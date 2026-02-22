@@ -1,14 +1,27 @@
 import type { Torrent } from "~/hooks/transmission";
 import type { Direction, Sort } from "~/store/settings";
 
-
 type Compare = (t1: Torrent, t2: Torrent) => number;
+
+function asNumericId(value: Torrent["id"]): number | undefined {
+  if (typeof value === "number" && Number.isSafeInteger(value)) return value;
+  if (typeof value === "string" && /^-?\d+$/.test(value)) {
+    const parsed = Number(value);
+    if (Number.isSafeInteger(parsed)) return parsed;
+  }
+  return undefined;
+}
 
 const direction = (d: Direction, compare: Compare): Compare => {
   return (t1: Torrent, t2: Torrent) => (d === "asc" ? 1 : -1) * compare(t1, t2);
 };
 
 const id: Compare = (t1: Torrent, t2: Torrent) => {
+  const n1 = asNumericId(t1.id);
+  const n2 = asNumericId(t2.id);
+  if (n1 !== undefined && n2 !== undefined) {
+    return n1 - n2;
+  }
   return String(t1.id).localeCompare(String(t2.id));
 };
 

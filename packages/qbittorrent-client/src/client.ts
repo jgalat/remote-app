@@ -19,6 +19,10 @@ export class QBittorrentClient {
 
   constructor(private config: QBittorrentConfig) {}
 
+  private baseUrl(): string {
+    return this.config.url.replace(/\/+$/, "");
+  }
+
   private async login(): Promise<void> {
     if (this.loginPromise) return this.loginPromise;
     this.loginPromise = this.doLogin();
@@ -30,14 +34,15 @@ export class QBittorrentClient {
   }
 
   private async doLogin(): Promise<void> {
+    const baseUrl = this.baseUrl();
     const body = new URLSearchParams();
     if (this.config.username) body.set("username", this.config.username);
     if (this.config.password) body.set("password", this.config.password);
 
-    const response = await fetch(`${this.config.url}/api/v2/auth/login`, {
+    const response = await fetch(`${baseUrl}/api/v2/auth/login`, {
       method: "POST",
       headers: {
-        Referer: this.config.url,
+        Referer: baseUrl,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       credentials: "include",
@@ -83,14 +88,15 @@ export class QBittorrentClient {
       await this.login();
     }
 
-    let url = `${this.config.url}${path}`;
+    const baseUrl = this.baseUrl();
+    let url = `${baseUrl}${path}`;
     if (params) {
       const qs = new URLSearchParams(params);
       url += `?${qs.toString()}`;
     }
 
     const headers: Record<string, string> = {
-      Referer: this.config.url,
+      Referer: baseUrl,
     };
     if (this.sid) {
       headers["Cookie"] = `SID=${this.sid}`;

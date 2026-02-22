@@ -24,6 +24,12 @@ export const queryKeys = {
   sessionGet: (server: Server | undefined) =>
     [...queryKeys.session(server), "get"] as const,
 
+  configSession: (server: Server | undefined) =>
+    ["config-session", server?.id, server?.url] as const,
+
+  configPreferences: (server: Server | undefined) =>
+    ["config-preferences", server?.id, server?.url] as const,
+
   serverScope: (server: Server | undefined) =>
     [server?.id, server?.url] as const,
 

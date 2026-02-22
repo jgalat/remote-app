@@ -70,7 +70,7 @@ export function useSessionStats({ stale = false }: QueryProps = { stale: false }
 export function useServerSession(server: Server | undefined) {
   const client = useServerClient(server);
   return useQuery<Session | undefined>({
-    queryKey: ["config-session", server?.id, server?.url],
+    queryKey: queryKeys.configSession(server),
     queryFn: async () => client?.getSession(),
     enabled: Boolean(client),
     staleTime: Infinity,
@@ -80,7 +80,7 @@ export function useServerSession(server: Server | undefined) {
 export function useServerPreferences(server: Server | undefined) {
   const client = useServerClient(server);
   return useQuery<Record<string, unknown> | undefined>({
-    queryKey: ["config-preferences", server?.id, server?.url],
+    queryKey: queryKeys.configPreferences(server),
     queryFn: async () => client?.getPreferences(),
     enabled: Boolean(client),
     staleTime: Infinity,
@@ -90,7 +90,7 @@ export function useServerPreferences(server: Server | undefined) {
 export function useServerPreferencesSet(server: Server | undefined) {
   const queryClient = useQueryClient();
   const client = useServerClient(server);
-  const key = ["config-preferences", server?.id, server?.url];
+  const key = queryKeys.configPreferences(server);
 
   return useMutation<void, Error, Record<string, unknown>, { previous?: Record<string, unknown> }>({
     mutationFn: async (params) => {
@@ -117,7 +117,7 @@ export function useServerPreferencesSet(server: Server | undefined) {
 export function useServerSessionSet(server: Server | undefined) {
   const queryClient = useQueryClient();
   const client = useServerClient(server);
-  const key = ["config-session", server?.id, server?.url];
+  const key = queryKeys.configSession(server);
 
   return useMutation<void, Error, Partial<Session>, { previous?: Session }>({
     mutationFn: async (params) => {
