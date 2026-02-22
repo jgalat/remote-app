@@ -7,6 +7,7 @@ import { ToastAndroid } from "react-native";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import type { Session, AddTorrentParams } from "~/client";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -72,6 +73,20 @@ function values(
   };
 }
 
+async function readSharedTorrent(filePath: string): Promise<{ name: string; content: string }> {
+  const dst = FileSystem.cacheDirectory + "shared.torrent";
+  await FileSystem.copyAsync({
+    from: filePath,
+    to: dst,
+  });
+  const content = await FileSystem.readAsStringAsync(dst, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  const name = SendIntent.getDisplayName(filePath) ?? "file.torrent";
+  return { name, content };
+}
+
 export default function AddTorrentScreen() {
   const router = useRouter();
   const { red, text } = useTheme();
@@ -100,26 +115,27 @@ export default function AddTorrentScreen() {
     values: values(session, magnet),
   });
 
+  const sharedTorrent = useQuery({
+    queryKey: ["add-torrent", "shared-file", file],
+    queryFn: async () => readSharedTorrent(file!),
+    enabled: Boolean(file),
+    staleTime: Infinity,
+  });
+
   React.useEffect(() => {
-    async function read() {
-      if (!file) return;
-      const dst = FileSystem.cacheDirectory + "shared.torrent";
-      await FileSystem.copyAsync({
-        from: file,
-        to: dst,
-      });
-      const content = await FileSystem.readAsStringAsync(dst, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+    if (!sharedTorrent.data) return;
+    setValue("file", sharedTorrent.data.name);
+    setValue("content", sharedTorrent.data.content);
+  }, [sharedTorrent.data, setValue]);
 
-      const name =
-        SendIntent.getDisplayName(file) ?? "file.torrent";
-      setValue("file", name);
-      setValue("content", content);
-    }
-
-    read();
-  }, [file, setValue]);
+  React.useEffect(() => {
+    if (!sharedTorrent.error) return;
+    const message =
+      sharedTorrent.error instanceof Error
+        ? sharedTorrent.error.message
+        : "Unknown error";
+    ToastAndroid.show(`Failed to read shared file: ${message}`, ToastAndroid.SHORT);
+  }, [sharedTorrent.error]);
 
   const onPickDirectory = React.useCallback(() => {
     const defaultDir = session?.["download-dir"];

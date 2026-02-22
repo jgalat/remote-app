@@ -28,7 +28,6 @@ import {
 } from "~/hooks/use-action-sheet";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { usePro } from "@remote-app/pro";
-import { useTheme } from "~/hooks/use-theme-color";
 import compare from "~/utils/sort";
 import predicate, { pathPredicate, searchPredicate } from "~/utils/filter";
 
@@ -63,7 +62,6 @@ export default function TorrentsScreen() {
   const server = useServer();
   const servers = useServers();
   const { sort, direction, filter, pathFilter } = useListing();
-  const { text: textColor } = useTheme();
   const {
     data: torrents,
     refetch,
@@ -237,11 +235,9 @@ export default function TorrentsScreen() {
     available,
     canUse,
     serverSelectorSheet,
-    textColor,
     torrentActionsSheet,
     torrents,
     searching,
-    searchQuery,
     exitSearch,
   ]);
 
@@ -263,6 +259,21 @@ export default function TorrentsScreen() {
             .filter(searchPredicate(searchQuery))
         : [],
     [torrents, direction, sort, filter, resolvedPath, searchQuery]
+  );
+
+  const renderTorrentItem = React.useCallback(
+    ({ item: torrent }: { item: (typeof render)[number] }) => (
+      <TorrentItem
+        torrent={torrent}
+        activeSelection={activeSelection}
+        selected={selection.has(torrent.id)}
+        onToggle={toggle}
+        onActions={torrentActionsSheet}
+        onStart={start.mutate}
+        onStop={stop.mutate}
+      />
+    ),
+    [activeSelection, selection, toggle, torrentActionsSheet, start.mutate, stop.mutate]
   );
 
   if (servers.length === 0) {
@@ -302,17 +313,7 @@ export default function TorrentsScreen() {
       <FlatList
         keyboardDismissMode="on-drag"
         data={render}
-        renderItem={({ item: torrent }) => (
-          <TorrentItem
-            torrent={torrent}
-            activeSelection={activeSelection}
-            selected={selection.has(torrent.id)}
-            onToggle={toggle}
-            onActions={torrentActionsSheet}
-            onStart={start.mutate}
-            onStop={stop.mutate}
-          />
-        )}
+        renderItem={renderTorrentItem}
         keyExtractor={({ id }) => id.toString()}
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={

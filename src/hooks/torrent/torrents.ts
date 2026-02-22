@@ -24,6 +24,7 @@ import { queryKeys, queryMatchers } from "./query-keys";
 export type { Torrent, ExtTorrent };
 
 type QueryProps = { stale?: boolean };
+const optimisticInvalidationDelayMs = 2_000;
 
 export function useTorrents({ stale = false }: QueryProps = { stale: false }): UseQueryResult<Torrent[] | undefined, Error> {
   const client = useClient();
@@ -108,7 +109,10 @@ function useAction(
     },
     onSettled: () => {
       clear();
-      setTimeout(() => queryClient.invalidateQueries(queryMatchers.torrents(server)), 2_000);
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        optimisticInvalidationDelayMs
+      );
     },
   });
 }
@@ -175,7 +179,10 @@ export function useTorrentSetLocation() {
     },
     onSettled: () => {
       clear();
-      setTimeout(() => queryClient.invalidateQueries(queryMatchers.torrents(server)), 500);
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        optimisticInvalidationDelayMs
+      );
     },
   });
 }
@@ -228,7 +235,10 @@ export function useTorrentSet(id: TorrentId) {
       ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
     },
     onSettled: () => {
-      setTimeout(() => queryClient.invalidateQueries(queryMatchers.torrents(server)), 500);
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        optimisticInvalidationDelayMs
+      );
     },
   });
 }

@@ -1,16 +1,17 @@
 import * as React from "react";
+import useNonNullContext from "~/hooks/use-non-null-context";
 
-type HeaderAction = (() => void) | null;
+export type HeaderAction = (() => void) | null;
 
-type HeaderActionContext = {
+type HeaderActionState = {
   action: HeaderAction;
   setAction: (action: HeaderAction) => void;
 };
 
-export const HeaderActionContext = React.createContext<HeaderActionContext>({
-  action: null,
-  setAction: () => {},
-});
+export const HeaderActionContext = React.createContext<HeaderActionState | null>(
+  null
+);
+HeaderActionContext.displayName = "HeaderActionContext";
 
 export function HeaderActionProvider({ children }: React.PropsWithChildren) {
   const [action, setAction] = React.useState<HeaderAction>(null);
@@ -22,4 +23,8 @@ export function HeaderActionProvider({ children }: React.PropsWithChildren) {
       {children}
     </HeaderActionContext.Provider>
   );
+}
+
+export function useHeaderAction() {
+  return useNonNullContext(HeaderActionContext);
 }

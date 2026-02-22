@@ -11,7 +11,7 @@ import View from "~/components/view";
 import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
-import { HeaderActionContext } from "~/contexts/header-action";
+import { useHeaderAction } from "~/contexts/header-action";
 import { useTorrent, useTorrentSet } from "~/hooks/torrent";
 import { useServer } from "~/hooks/use-settings";
 import {
@@ -81,7 +81,7 @@ export default function TorrentSettingsScreen() {
   const isTransmission = server?.type !== "qbittorrent";
   const inset = useSafeAreaInsets();
   const isFocused = useIsFocused();
-  const { setAction } = React.useContext(HeaderActionContext);
+  const { setAction } = useHeaderAction();
 
   const { control, handleSubmit, watch, reset } = useForm({
     mode: "onBlur",

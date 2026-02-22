@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { ProContextValue } from "~/pro/types";
+import useNonNullContext from "~/hooks/use-non-null-context";
 
 const stubValue: ProContextValue = {
   available: false,
@@ -14,12 +15,13 @@ const stubValue: ProContextValue = {
   debugLog: [],
 };
 
-export const ProContext = React.createContext<ProContextValue | null>(stubValue);
+export const ProContext = React.createContext<ProContextValue | null>(null);
+ProContext.displayName = "ProContext";
 
 export function ProProvider({ children }: React.PropsWithChildren) {
   return <ProContext.Provider value={stubValue}>{children}</ProContext.Provider>;
 }
 
 export function usePro(): ProContextValue {
-  return React.useContext(ProContext) as ProContextValue;
+  return useNonNullContext(ProContext);
 }

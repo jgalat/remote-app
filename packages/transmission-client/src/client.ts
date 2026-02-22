@@ -6,26 +6,76 @@ import { HTTPError, TransmissionError, ResponseParseError } from "./error";
 
 export class TransmissionClient {
   private session: string | null = null;
+  private sessionPromise: Promise<void> | null = null;
 
   constructor(private config: TransmissionConfig) {}
 
-  async request<M extends Methods>(
-    req: Parameters<Calls[M]>[0] & { method: M }
-  ): Promise<ReturnType<Calls[M]>> {
+  private authHeader(): string | null {
+    if (!this.config.username && !this.config.password) return null;
+    const creds = `${this.config.username ?? ""}:${this.config.password ?? ""}`;
+    return `Basic ${encode(creds)}`;
+  }
+
+  private async ensureSession(): Promise<void> {
+    if (this.session) return;
+    if (this.sessionPromise) return await this.sessionPromise;
+
+    this.sessionPromise = this.fetchSession();
+    try {
+      await this.sessionPromise;
+    } finally {
+      this.sessionPromise = null;
+    }
+  }
+
+  private async fetchSession(): Promise<void> {
     const headers = new Headers({
       "Content-Type": "application/json",
     });
 
-    if (this.session) {
-      headers.set("x-transmission-session-id", this.session);
+    const auth = this.authHeader();
+    if (auth) headers.set("Authorization", auth);
+
+    const response = await fetch(
+      new Request(this.config.url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ method: "session-stats" }),
+      })
+    );
+
+    if (response.status !== 409) {
+      if (!response.ok) {
+        throw new HTTPError(response.status, response.statusText);
+      }
+
+      throw new HTTPError(
+        response.status,
+        "Expected Transmission session negotiation response"
+      );
     }
 
-    if (this.config.username || this.config.password) {
-      const creds = `${this.config.username ?? ""}:${
-        this.config.password ?? ""
-      }`;
-      headers.set("Authorization", `Basic ${encode(creds)}`);
+    const nextSession = response.headers.get("x-transmission-session-id");
+    if (!nextSession) {
+      throw new HTTPError(409, "Missing x-transmission-session-id header");
     }
+    this.session = nextSession;
+  }
+
+  async request<M extends Methods>(
+    req: Parameters<Calls[M]>[0] & { method: M },
+    retry = true
+  ): Promise<ReturnType<Calls[M]>> {
+    await this.ensureSession();
+
+    const headers = new Headers({
+      "Content-Type": "application/json",
+    });
+
+    headers.set("x-transmission-session-id", this.session!);
+
+    const auth = this.authHeader();
+    if (auth) headers.set("Authorization", auth);
 
     const request: Request = new Request(this.config.url, {
       method: "POST",
@@ -35,9 +85,10 @@ export class TransmissionClient {
 
     const response: Response = await fetch(request);
 
-    if (response.status === 409) {
-      this.session = response.headers.get("x-transmission-session-id");
-      return await this.request<M>(req);
+    if (response.status === 409 && retry) {
+      this.session = null;
+      await this.ensureSession();
+      return await this.request<M>(req, false);
     }
 
     if (!response.ok) {

@@ -51,6 +51,62 @@ export default defineConfig([
       },
     },
 
-    rules: {},
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.property.name='useContext']",
+          message:
+            "Use a dedicated hook (for example useHeaderAction/useAuth) instead of calling useContext directly.",
+        },
+        {
+          selector: "CallExpression[callee.name='useContext']",
+          message:
+            "Use a dedicated hook (for example useHeaderAction/useAuth) instead of calling useContext directly.",
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='useEffect'] > ArrowFunctionExpression[async=true]",
+          message:
+            "Do not make useEffect callbacks async. Use React Query for async server-state operations.",
+        },
+        {
+          selector:
+            "CallExpression[callee.name='useEffect'] > ArrowFunctionExpression[async=true]",
+          message:
+            "Do not make useEffect callbacks async. Use React Query for async server-state operations.",
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='useEffect'] FunctionDeclaration[async=true]",
+          message:
+            "Avoid async functions inside useEffect. Move async server-state work to React Query hooks.",
+        },
+        {
+          selector:
+            "CallExpression[callee.name='useEffect'] FunctionDeclaration[async=true]",
+          message:
+            "Avoid async functions inside useEffect. Move async server-state work to React Query hooks.",
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='useEffect'] VariableDeclarator > ArrowFunctionExpression[async=true]",
+          message:
+            "Avoid async functions inside useEffect. Move async server-state work to React Query hooks.",
+        },
+        {
+          selector:
+            "CallExpression[callee.name='useEffect'] VariableDeclarator > ArrowFunctionExpression[async=true]",
+          message:
+            "Avoid async functions inside useEffect. Move async server-state work to React Query hooks.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/hooks/use-non-null-context.ts"],
+    rules: {
+      "no-restricted-syntax": "off",
+    },
   },
 ]);

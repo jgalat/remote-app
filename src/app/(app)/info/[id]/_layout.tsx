@@ -15,13 +15,11 @@ import {
 } from "expo-router";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
+import { useHeaderAction } from "~/contexts/header-action";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import { useTorrent } from "~/hooks/torrent";
-import {
-  HeaderActionContext,
-  HeaderActionProvider,
-} from "~/contexts/header-action";
+import { HeaderActionProvider } from "~/contexts/header-action";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -44,7 +42,7 @@ function LayoutInner() {
   const { tint, text, background } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
   const { data: torrent, error } = useTorrent(id);
-  const { action: saveAction } = React.useContext(HeaderActionContext);
+  const { action: saveAction } = useHeaderAction();
 
   React.useEffect(() => {
     navigation.setOptions({
