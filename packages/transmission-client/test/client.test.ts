@@ -9,7 +9,7 @@ import {
   SessionGetResponseSchema,
   SessionStatsResponseSchema,
   FreeSpaceResponseSchema,
-} from "./schemas";
+} from "../src/schemas";
 
 const URL = "http://localhost:9091/transmission/rpc";
 const TORRENT_FILE = resolve(__dirname, "fixtures/test.torrent");

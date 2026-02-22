@@ -11,7 +11,7 @@ import {
   TorrentTrackerSchema,
   TransferInfoSchema,
   PreferencesSchema,
-} from "./schemas";
+} from "../src/schemas";
 
 const URL = "http://localhost:8080";
 const TORRENT_FILE = resolve(__dirname, "fixtures/test.torrent");

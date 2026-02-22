@@ -32,10 +32,10 @@ export type {
   GroupGetResponse,
   BandwidthGroup,
   GroupSetRequest,
-} from "./rpc-calls";
+} from "./schemas";
 
 export { TorrentStatus, Priority, Mode } from "./rpc-calls/torrent-get";
-export type { Torrent } from "./rpc-calls/torrent-get";
+export type { Torrent } from "./schemas";
 
 export type { Methods } from "./rpc-call";
 

@@ -28,6 +28,17 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./schemas": {
+      "react-native": "./src/schemas.ts",
+      "import": {
+        "types": "./dist/schemas.d.mts",
+        "default": "./dist/schemas.mjs"
+      },
+      "require": {
+        "types": "./dist/schemas.d.cts",
+        "default": "./dist/schemas.cjs"
+      }
     }
   },
   "react-native": "src/index.ts",
@@ -37,5 +48,8 @@
   "scripts": {
     "build": "tsdown",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
   }
 }
