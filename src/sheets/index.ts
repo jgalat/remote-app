@@ -18,6 +18,9 @@ import ServerDeleteConfirmSheet, {
 import MoveTorrentSheet, {
   type Payload as MoveTorrentPayload,
 } from "./move-torrent";
+import SearchConfigDeleteConfirmSheet, {
+  type Payload as SearchConfigDeleteConfirmPayload,
+} from "./search-config-delete-confirm";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
@@ -41,6 +44,9 @@ declare module "react-native-actions-sheet" {
     [MoveTorrentSheet.sheetId]: SheetDefinition<{
       payload: MoveTorrentPayload;
     }>;
+    [SearchConfigDeleteConfirmSheet.sheetId]: SheetDefinition<{
+      payload: SearchConfigDeleteConfirmPayload;
+    }>;
   }
 }
 
@@ -52,5 +58,6 @@ registerSheet(SelectSheet.sheetId, SelectSheet);
 registerSheet(ServerSelectorSheet.sheetId, ServerSelectorSheet);
 registerSheet(ServerDeleteConfirmSheet.sheetId, ServerDeleteConfirmSheet);
 registerSheet(MoveTorrentSheet.sheetId, MoveTorrentSheet);
+registerSheet(SearchConfigDeleteConfirmSheet.sheetId, SearchConfigDeleteConfirmSheet);
 
 export {};

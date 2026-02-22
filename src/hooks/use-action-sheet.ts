@@ -12,6 +12,9 @@ import ServerSelectorSheet from "~/sheets/server-selector";
 import ServerDeleteConfirmSheet, {
   type Payload as ServerDeleteConfirmPayload,
 } from "~/sheets/server-delete-confirm";
+import SearchConfigDeleteConfirmSheet, {
+  type Payload as SearchConfigDeleteConfirmPayload,
+} from "~/sheets/search-config-delete-confirm";
 
 export function useTorrentActionsSheet() {
   return React.useCallback(
@@ -48,6 +51,14 @@ export function useServerDeleteConfirmSheet() {
   return React.useCallback(
     (payload: ServerDeleteConfirmPayload) =>
       SheetManager.show(ServerDeleteConfirmSheet.sheetId, { payload }),
+    []
+  );
+}
+
+export function useSearchConfigDeleteConfirmSheet() {
+  return React.useCallback(
+    (payload: SearchConfigDeleteConfirmPayload) =>
+      SheetManager.show(SearchConfigDeleteConfirmSheet.sheetId, { payload }),
     []
   );
 }
