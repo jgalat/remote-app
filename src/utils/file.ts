@@ -1,8 +1,8 @@
 import { Priority } from "~/client";
-import type { ExtTorrent } from "~/hooks/torrent";
+import type { FileInfo, FileStats } from "~/client";
 
-type _File = ExtTorrent["files"][number];
-type Stats = ExtTorrent["fileStats"][number];
+type _File = FileInfo;
+type Stats = FileStats;
 
 export type File = {
   id: number;

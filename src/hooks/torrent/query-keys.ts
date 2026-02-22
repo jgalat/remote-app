@@ -11,12 +11,26 @@ export const queryKeys = {
   sessionStats: (server: Server | undefined) =>
     ["session-stats", server?.id, server?.url] as const,
 
-  torrentGet: (server: Server | undefined, id?: TorrentId) =>
-    [
-      ...queryKeys.torrents(server),
-      "get",
-      ...(id !== undefined ? [id] : []),
-    ] as const,
+  torrentGet: (server: Server | undefined) =>
+    [...queryKeys.torrents(server), "get"] as const,
+
+  torrentInfo: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "info", id] as const,
+
+  torrentSettings: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "settings", id] as const,
+
+  torrentFiles: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "files", id] as const,
+
+  torrentPeers: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "peers", id] as const,
+
+  torrentTrackers: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "trackers", id] as const,
+
+  torrentPieces: (server: Server | undefined, id: TorrentId) =>
+    [...queryKeys.torrents(server), "pieces", id] as const,
 
   sessionGet: (server: Server | undefined) =>
     [...queryKeys.session(server), "get"] as const,

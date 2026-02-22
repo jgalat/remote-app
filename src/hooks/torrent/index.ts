@@ -1,12 +1,22 @@
 export {
   useTorrents,
-  useTorrent,
+  useTorrentInfo,
+  useTorrentSettings,
+  useTorrentFiles,
+  useTorrentPeers,
+  useTorrentTrackers,
+  useTorrentPieces,
   useTorrentActions,
   useTorrentSet,
   useTorrentSetLocation,
   useAddTorrent,
   type Torrent,
-  type ExtTorrent,
+  type TorrentInfo,
+  type TorrentSettings,
+  type TorrentFiles,
+  type TorrentPeers,
+  type TorrentTrackers,
+  type TorrentPieces,
 } from "./torrents";
 
 export {

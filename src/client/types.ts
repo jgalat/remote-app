@@ -2,7 +2,7 @@ export { TorrentStatus, Priority, Mode } from "@remote-app/transmission-client";
 
 export type TorrentId = number | string;
 
-export type Torrent = {
+export type TorrentListItem = {
   id: TorrentId;
   name: string;
   status: number;
@@ -19,10 +19,10 @@ export type Torrent = {
   peersConnected: number;
   peersGettingFromUs: number;
   peersSendingToUs: number;
-  webseedsSendingToUs: number;
+  webseedsSendingToUs?: number;
   uploadedEver: number;
   uploadRatio: number;
-  recheckProgress: number;
+  recheckProgress?: number;
   queuePosition: number;
   addedDate: number;
   doneDate: number;
@@ -30,6 +30,8 @@ export type Torrent = {
   magnetLink: string;
   downloadDir: string;
 };
+
+export type Torrent = TorrentListItem;
 
 export type Peer = {
   address: string;
@@ -40,7 +42,6 @@ export type Peer = {
   rateToClient: number;
   rateToPeer: number;
   progress: number;
-  flagStr: string;
 };
 
 export type TrackerStats = {
@@ -73,15 +74,15 @@ export type FileStats = {
   priority: number;
 };
 
-export type ExtTorrent = Torrent & {
-  files: FileInfo[];
-  fileStats: FileStats[];
-  peers: Peer[];
-  trackerStats: TrackerStats[];
+export type TorrentInfoDetail = TorrentListItem & {
   downloadedEver: number;
   pieceCount: number;
   pieceSize: number;
   pieces: string;
+  filesCount: number;
+};
+
+export type TorrentSettingsDetail = {
   bandwidthPriority?: number;
   honorsSessionLimits?: boolean;
   downloadLimited: boolean;
@@ -92,6 +93,25 @@ export type ExtTorrent = Torrent & {
   seedRatioLimit: number;
   seedIdleMode: number;
   seedIdleLimit: number;
+};
+
+export type TorrentFilesDetail = {
+  files: FileInfo[];
+  fileStats: FileStats[];
+};
+
+export type TorrentPeersDetail = {
+  peers: Peer[];
+};
+
+export type TorrentTrackersDetail = {
+  trackerStats: TrackerStats[];
+};
+
+export type TorrentPiecesDetail = {
+  pieceCount: number;
+  pieceSize: number;
+  pieces: string;
 };
 
 export type Session = {

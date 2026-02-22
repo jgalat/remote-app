@@ -2,8 +2,13 @@ import {
   TorrentStatus,
   Priority,
   type TorrentId,
-  type Torrent,
-  type ExtTorrent,
+  type TorrentListItem,
+  type TorrentInfoDetail,
+  type TorrentSettingsDetail,
+  type TorrentFilesDetail,
+  type TorrentPeersDetail,
+  type TorrentTrackersDetail,
+  type TorrentPiecesDetail,
   type AddTorrentResult,
   type SetTorrentParams,
   type Session,
@@ -11,8 +16,14 @@ import {
 } from "~/client/types";
 import type { TorrentClient } from "~/client/interface";
 
+type StoredTorrent = TorrentInfoDetail &
+  TorrentSettingsDetail &
+  TorrentFilesDetail &
+  TorrentPeersDetail &
+  TorrentTrackersDetail;
+
 const storage: {
-  torrents: ExtTorrent[];
+  torrents: StoredTorrent[];
   session: Session & Record<string, unknown>;
   sessionStats: SessionStats;
 } = {
@@ -37,6 +48,7 @@ const storage: {
           name: "archlinux-2025.08.01-x86_64.iso",
         },
       ],
+      filesCount: 1,
       honorsSessionLimits: true,
       id: 1,
       isFinished: false,
@@ -98,6 +110,7 @@ const storage: {
           name: "Fedora-Astronomy_KDE-Live-x86_64-43_Beta/Fedora-Labs-iso-43_Beta-1.3-x86_64-CHECKSUM",
         },
       ],
+      filesCount: 2,
       honorsSessionLimits: true,
       id: 2,
       isFinished: false,
@@ -188,7 +201,7 @@ export function isTestingServer(server: { name: string; url: string }): boolean 
   return server.name === "app" && server.url === "app-testing-url";
 }
 
-function stripExtended(t: ExtTorrent): Torrent {
+function toListItem(t: StoredTorrent): TorrentListItem {
   return {
     id: t.id,
     name: t.name,
@@ -219,13 +232,88 @@ function stripExtended(t: ExtTorrent): Torrent {
   };
 }
 
+function toInfoDetail(t: StoredTorrent): TorrentInfoDetail {
+  return {
+    ...toListItem(t),
+    downloadedEver: t.downloadedEver,
+    pieceCount: t.pieceCount,
+    pieceSize: t.pieceSize,
+    pieces: t.pieces,
+    filesCount: t.filesCount,
+  };
+}
+
+function toSettingsDetail(t: StoredTorrent): TorrentSettingsDetail {
+  return {
+    bandwidthPriority: t.bandwidthPriority,
+    honorsSessionLimits: t.honorsSessionLimits,
+    downloadLimited: t.downloadLimited,
+    downloadLimit: t.downloadLimit,
+    uploadLimited: t.uploadLimited,
+    uploadLimit: t.uploadLimit,
+    seedRatioMode: t.seedRatioMode,
+    seedRatioLimit: t.seedRatioLimit,
+    seedIdleMode: t.seedIdleMode,
+    seedIdleLimit: t.seedIdleLimit,
+  };
+}
+
+function toFilesDetail(t: StoredTorrent): TorrentFilesDetail {
+  return {
+    files: t.files,
+    fileStats: t.fileStats,
+  };
+}
+
+function toPeersDetail(t: StoredTorrent): TorrentPeersDetail {
+  return { peers: t.peers };
+}
+
+function toTrackersDetail(t: StoredTorrent): TorrentTrackersDetail {
+  return { trackerStats: t.trackerStats };
+}
+
+function toPiecesDetail(t: StoredTorrent): TorrentPiecesDetail {
+  return {
+    pieceCount: t.pieceCount,
+    pieceSize: t.pieceSize,
+    pieces: t.pieces,
+  };
+}
+
 export default class MockClient implements TorrentClient {
-  async getTorrents(): Promise<Torrent[]> {
-    return storage.torrents.map(stripExtended);
+  async getTorrents(): Promise<TorrentListItem[]> {
+    return storage.torrents.map(toListItem);
   }
 
-  async getTorrent(id: TorrentId): Promise<ExtTorrent | undefined> {
-    return storage.torrents.find((t) => t.id == id);
+  async getTorrentInfo(id: TorrentId): Promise<TorrentInfoDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toInfoDetail(torrent) : undefined;
+  }
+
+  async getTorrentSettings(id: TorrentId): Promise<TorrentSettingsDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toSettingsDetail(torrent) : undefined;
+  }
+
+  async getTorrentFiles(id: TorrentId): Promise<TorrentFilesDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toFilesDetail(torrent) : undefined;
+  }
+
+  async getTorrentPeers(id: TorrentId): Promise<TorrentPeersDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toPeersDetail(torrent) : undefined;
+  }
+
+  async getTorrentTrackers(id: TorrentId): Promise<TorrentTrackersDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toTrackersDetail(torrent) : undefined;
+  }
+
+  async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined> {
+    const torrent = storage.torrents.find((t) => t.id == id);
+    return torrent ? toPiecesDetail(torrent) : undefined;
   }
 
   async addTorrent(): Promise<AddTorrentResult | null> {
@@ -259,14 +347,39 @@ export default class MockClient implements TorrentClient {
     storage.torrents = storage.torrents.map((torrent) => {
       if (torrent.id != id) return torrent;
 
-      const fs = [...torrent.fileStats];
-      for (const i of params["files-wanted"] ?? []) fs[i] = { ...fs[i], wanted: true };
-      for (const i of params["files-unwanted"] ?? []) fs[i] = { ...fs[i], wanted: false };
-      for (const i of params["priority-low"] ?? []) fs[i] = { ...fs[i], priority: Priority.LOW };
-      for (const i of params["priority-normal"] ?? []) fs[i] = { ...fs[i], priority: Priority.NORMAL };
-      for (const i of params["priority-high"] ?? []) fs[i] = { ...fs[i], priority: Priority.HIGH };
+      const fileStats = [...torrent.fileStats];
+      for (const i of params["files-wanted"] ?? []) {
+        fileStats[i] = { ...fileStats[i], wanted: true };
+      }
+      for (const i of params["files-unwanted"] ?? []) {
+        fileStats[i] = { ...fileStats[i], wanted: false };
+      }
+      for (const i of params["priority-low"] ?? []) {
+        fileStats[i] = { ...fileStats[i], priority: Priority.LOW };
+      }
+      for (const i of params["priority-normal"] ?? []) {
+        fileStats[i] = { ...fileStats[i], priority: Priority.NORMAL };
+      }
+      for (const i of params["priority-high"] ?? []) {
+        fileStats[i] = { ...fileStats[i], priority: Priority.HIGH };
+      }
 
-      return { ...torrent, fileStats: fs };
+      return {
+        ...torrent,
+        fileStats,
+        bandwidthPriority:
+          params.bandwidthPriority ?? torrent.bandwidthPriority,
+        honorsSessionLimits:
+          params.honorsSessionLimits ?? torrent.honorsSessionLimits,
+        downloadLimit: params.downloadLimit ?? torrent.downloadLimit,
+        downloadLimited: params.downloadLimited ?? torrent.downloadLimited,
+        uploadLimit: params.uploadLimit ?? torrent.uploadLimit,
+        uploadLimited: params.uploadLimited ?? torrent.uploadLimited,
+        seedRatioMode: params.seedRatioMode ?? torrent.seedRatioMode,
+        seedRatioLimit: params.seedRatioLimit ?? torrent.seedRatioLimit,
+        seedIdleMode: params.seedIdleMode ?? torrent.seedIdleMode,
+        seedIdleLimit: params.seedIdleLimit ?? torrent.seedIdleLimit,
+      };
     });
   }
 

@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
 
 import Screen from "~/components/screen";
-import { useTorrent } from "~/hooks/torrent";
+import { useTorrentPieces } from "~/hooks/torrent";
 import {
   NetworkErrorScreen,
   LoadingScreen,
@@ -17,7 +17,7 @@ import { formatSize } from "~/utils/formatters";
 
 export default function PiecesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentPieces(id);
   const { green, lightestGray } = useTheme();
 
   const value = React.useMemo(() => {

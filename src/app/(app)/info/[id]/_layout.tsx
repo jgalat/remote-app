@@ -18,7 +18,7 @@ import { useTorrentActionsSheet } from "~/hooks/use-action-sheet";
 import { useHeaderAction } from "~/contexts/header-action";
 import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
-import { useTorrent } from "~/hooks/torrent";
+import { useTorrents } from "~/hooks/torrent";
 import { HeaderActionProvider } from "~/contexts/header-action";
 
 const { Navigator } = createMaterialTopTabNavigator();
@@ -41,25 +41,33 @@ function LayoutInner() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { tint, text, background } = useTheme();
   const torrentActionsSheet = useTorrentActionsSheet();
-  const { data: torrent, error } = useTorrent(id);
+  const { data: torrents } = useTorrents({ stale: true });
   const { action: saveAction } = useHeaderAction();
+  const torrent = React.useMemo(
+    () => torrents?.find((item) => String(item.id) === String(id)),
+    [torrents, id],
+  );
 
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () =>
-        error || !torrent ? null : (
+        !torrent && !saveAction ? null : (
           <ActionList>
             {saveAction && (
               <ActionIcon name="save" onPress={saveAction} />
             )}
-            <ActionIcon
-              onPress={() => torrentActionsSheet({ torrents: [torrent], info: true })}
-              name="more-vertical"
-            />
+            {torrent && (
+              <ActionIcon
+                onPress={() =>
+                  torrentActionsSheet({ torrents: [torrent], info: true })
+                }
+                name="more-vertical"
+              />
+            )}
           </ActionList>
         ),
     });
-  }, [torrentActionsSheet, navigation, error, torrent, saveAction]);
+  }, [torrentActionsSheet, navigation, torrent, saveAction]);
 
   const screenOptions = React.useMemo(
     () => ({
@@ -77,6 +85,7 @@ function LayoutInner() {
         justifyContent: "center" as const,
         elevation: 0,
       },
+      lazy: true,
       tabBarItemStyle: tabBarItemStyle,
       tabBarScrollEnabled: true,
       tabBarIndicatorStyle: { backgroundColor: tint, height: 2 },

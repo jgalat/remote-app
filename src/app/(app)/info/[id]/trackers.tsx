@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
-import { useTorrent } from "~/hooks/torrent";
+import { useTorrentTrackers } from "~/hooks/torrent";
 import {
   LoadingScreen,
   NetworkErrorScreen,
@@ -19,7 +19,7 @@ function na(count: number) {
 
 export default function TrackersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentTrackers(id);
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }

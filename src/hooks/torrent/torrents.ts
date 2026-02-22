@@ -3,13 +3,18 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  UseQueryResult,
+  type UseQueryResult,
 } from "@tanstack/react-query";
 
 import type {
   TorrentId,
-  Torrent,
-  ExtTorrent,
+  TorrentListItem,
+  TorrentInfoDetail,
+  TorrentSettingsDetail,
+  TorrentFilesDetail,
+  TorrentPeersDetail,
+  TorrentTrackersDetail,
+  TorrentPiecesDetail,
   AddTorrentParams,
   AddTorrentResult,
   SetTorrentParams,
@@ -21,15 +26,43 @@ import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { useClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 
-export type { Torrent, ExtTorrent };
+export type Torrent = TorrentListItem;
+export type TorrentInfo = TorrentInfoDetail;
+export type TorrentSettings = TorrentSettingsDetail;
+export type TorrentFiles = TorrentFilesDetail;
+export type TorrentPeers = TorrentPeersDetail;
+export type TorrentTrackers = TorrentTrackersDetail;
+export type TorrentPieces = TorrentPiecesDetail;
 
 type QueryProps = { stale?: boolean };
 const optimisticInvalidationDelayMs = 2_000;
 
-export function useTorrents({ stale = false }: QueryProps = { stale: false }): UseQueryResult<Torrent[] | undefined, Error> {
+function useTorrentDetailQuery<T>(
+  id: TorrentId,
+  queryKey: readonly unknown[],
+  queryFn: (id: TorrentId) => Promise<T | undefined>,
+): UseQueryResult<T | undefined, Error> {
+  const client = useClient();
+
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      if (!client) return undefined;
+      return queryFn(id);
+    },
+    enabled: Boolean(client),
+    refetchInterval: (query) => (query.state.status === "error" ? false : 5_000),
+    staleTime: 5_000,
+  });
+}
+
+export function useTorrents({
+  stale = false,
+}: QueryProps = { stale: false }): UseQueryResult<Torrent[] | undefined, Error> {
   const client = useClient();
   const server = useServer();
   const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: queryKeys.torrentGet(server),
     queryFn: async ({ signal }) => {
@@ -47,16 +80,76 @@ export function useTorrents({ stale = false }: QueryProps = { stale: false }): U
   });
 }
 
-export function useTorrent(id: TorrentId): UseQueryResult<ExtTorrent | undefined, Error> {
-  const client = useClient();
+export function useTorrentInfo(
+  id: TorrentId,
+): UseQueryResult<TorrentInfo | undefined, Error> {
   const server = useServer();
-  return useQuery({
-    queryKey: queryKeys.torrentGet(server, id),
-    queryFn: async () => client?.getTorrent(id),
-    enabled: Boolean(client),
-    refetchInterval: (query) => (query.state.status === "error" ? false : 5_000),
-    staleTime: 5_000,
-  });
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentInfo(server, id),
+    async (torrentId) => client?.getTorrentInfo(torrentId),
+  );
+}
+
+export function useTorrentSettings(
+  id: TorrentId,
+): UseQueryResult<TorrentSettings | undefined, Error> {
+  const server = useServer();
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentSettings(server, id),
+    async (torrentId) => client?.getTorrentSettings(torrentId),
+  );
+}
+
+export function useTorrentFiles(
+  id: TorrentId,
+): UseQueryResult<TorrentFiles | undefined, Error> {
+  const server = useServer();
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentFiles(server, id),
+    async (torrentId) => client?.getTorrentFiles(torrentId),
+  );
+}
+
+export function useTorrentPeers(
+  id: TorrentId,
+): UseQueryResult<TorrentPeers | undefined, Error> {
+  const server = useServer();
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentPeers(server, id),
+    async (torrentId) => client?.getTorrentPeers(torrentId),
+  );
+}
+
+export function useTorrentTrackers(
+  id: TorrentId,
+): UseQueryResult<TorrentTrackers | undefined, Error> {
+  const server = useServer();
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentTrackers(server, id),
+    async (torrentId) => client?.getTorrentTrackers(torrentId),
+  );
+}
+
+export function useTorrentPieces(
+  id: TorrentId,
+): UseQueryResult<TorrentPieces | undefined, Error> {
+  const server = useServer();
+  const client = useClient();
+  return useTorrentDetailQuery(
+    id,
+    queryKeys.torrentPieces(server, id),
+    async (torrentId) => client?.getTorrentPieces(torrentId),
+  );
 }
 
 export function useAddTorrent() {
@@ -75,12 +168,19 @@ export function useAddTorrent() {
   });
 }
 
-type RemoveParams = { ids: TorrentId[]; deleteData?: boolean };
-type ActionParams = { ids: TorrentId[] } | RemoveParams;
+type ActionParams = {
+  ids: TorrentId[];
+  deleteData?: boolean;
+};
 
 function useAction(
-  getAction: (client: NonNullable<ReturnType<typeof useClient>>) => (params: ActionParams) => Promise<void>,
-  optimistic?: (old: Torrent[] | undefined, ids: TorrentId[]) => Torrent[] | undefined,
+  getAction: (
+    client: NonNullable<ReturnType<typeof useClient>>,
+  ) => (params: ActionParams) => Promise<void>,
+  optimistic?: (
+    old: Torrent[] | undefined,
+    ids: TorrentId[],
+  ) => Torrent[] | undefined,
 ) {
   const queryClient = useQueryClient();
   const client = useClient();
@@ -94,11 +194,15 @@ function useAction(
     },
     onMutate: async (params: ActionParams) => {
       await queryClient.cancelQueries(queryMatchers.torrents(server));
-      const previous = queryClient.getQueryData<Torrent[] | undefined>(queryKeys.torrentGet(server));
+      const previous = queryClient.getQueryData<Torrent[] | undefined>(
+        queryKeys.torrentGet(server),
+      );
 
       if (optimistic) {
-        const ids = Array.isArray(params.ids) ? params.ids : [params.ids];
-        queryClient.setQueryData(queryKeys.torrentGet(server), (old: Torrent[] | undefined) => optimistic(old, ids));
+        queryClient.setQueryData(
+          queryKeys.torrentGet(server),
+          (old: Torrent[] | undefined) => optimistic(old, params.ids),
+        );
       }
 
       return { previous };
@@ -111,7 +215,7 @@ function useAction(
       clear();
       setTimeout(
         () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
-        optimisticInvalidationDelayMs
+        optimisticInvalidationDelayMs,
       );
     },
   });
@@ -121,7 +225,9 @@ function getOptimisticStatus(action: string, torrent: Torrent): number {
   switch (action) {
     case "start":
     case "startNow":
-      return torrent.percentDone >= 1 ? TorrentStatus.QUEUED_TO_SEED : TorrentStatus.QUEUED_TO_DOWNLOAD;
+      return torrent.percentDone >= 1
+        ? TorrentStatus.QUEUED_TO_SEED
+        : TorrentStatus.QUEUED_TO_DOWNLOAD;
     case "stop":
       return TorrentStatus.STOPPED;
     case "verify":
@@ -133,31 +239,43 @@ function getOptimisticStatus(action: string, torrent: Torrent): number {
 
 export function useTorrentActions() {
   const start = useAction(
-    (c) => (p) => c.startTorrents(p.ids as TorrentId[]),
-    (old, ids) => old?.map((t) => (ids.includes(t.id) ? { ...t, status: getOptimisticStatus("start", t) } : t)),
+    (c) => (p) => c.startTorrents(p.ids),
+    (old, ids) =>
+      old?.map((t) =>
+        ids.includes(t.id) ? { ...t, status: getOptimisticStatus("start", t) } : t,
+      ),
   );
 
   const startNow = useAction(
-    (c) => (p) => c.startTorrentsNow(p.ids as TorrentId[]),
-    (old, ids) => old?.map((t) => (ids.includes(t.id) ? { ...t, status: getOptimisticStatus("startNow", t) } : t)),
+    (c) => (p) => c.startTorrentsNow(p.ids),
+    (old, ids) =>
+      old?.map((t) =>
+        ids.includes(t.id)
+          ? { ...t, status: getOptimisticStatus("startNow", t) }
+          : t,
+      ),
   );
 
   const stop = useAction(
-    (c) => (p) => c.stopTorrents(p.ids as TorrentId[]),
-    (old, ids) => old?.map((t) => (ids.includes(t.id) ? { ...t, status: getOptimisticStatus("stop", t) } : t)),
+    (c) => (p) => c.stopTorrents(p.ids),
+    (old, ids) =>
+      old?.map((t) =>
+        ids.includes(t.id) ? { ...t, status: getOptimisticStatus("stop", t) } : t,
+      ),
   );
 
   const verify = useAction(
-    (c) => (p) => c.verifyTorrents(p.ids as TorrentId[]),
-    (old, ids) => old?.map((t) => (ids.includes(t.id) ? { ...t, status: getOptimisticStatus("verify", t) } : t)),
+    (c) => (p) => c.verifyTorrents(p.ids),
+    (old, ids) =>
+      old?.map((t) =>
+        ids.includes(t.id) ? { ...t, status: getOptimisticStatus("verify", t) } : t,
+      ),
   );
 
-  const reannounce = useAction(
-    (c) => (p) => c.reannounceTorrents(p.ids as TorrentId[]),
-  );
+  const reannounce = useAction((c) => (p) => c.reannounceTorrents(p.ids));
 
   const remove = useAction(
-    (c) => (p) => c.removeTorrents(p.ids as TorrentId[], (p as RemoveParams).deleteData),
+    (c) => (p) => c.removeTorrents(p.ids, p.deleteData),
     (old, ids) => old?.filter((t) => !ids.includes(t.id)),
   );
 
@@ -181,10 +299,20 @@ export function useTorrentSetLocation() {
       clear();
       setTimeout(
         () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
-        optimisticInvalidationDelayMs
+        optimisticInvalidationDelayMs,
       );
     },
   });
+}
+
+function hasFilePriorityChanges(params: SetTorrentParams): boolean {
+  return Boolean(
+    params["files-wanted"] ||
+      params["files-unwanted"] ||
+      params["priority-low"] ||
+      params["priority-normal"] ||
+      params["priority-high"],
+  );
 }
 
 export function useTorrentSet(id: TorrentId) {
@@ -199,45 +327,51 @@ export function useTorrentSet(id: TorrentId) {
     onMutate: async (params: SetTorrentParams) => {
       await queryClient.cancelQueries(queryMatchers.torrents(server));
 
-      const previous = queryClient.getQueryData<ExtTorrent | undefined>(queryKeys.torrentGet(server, id));
+      if (!hasFilePriorityChanges(params)) {
+        return { previous: undefined };
+      }
+
+      const key = queryKeys.torrentFiles(server, id);
+      const previous = queryClient.getQueryData<TorrentFiles | undefined>(key);
 
       queryClient.setQueryData(
-        queryKeys.torrentGet(server, id),
-        (old: ExtTorrent | undefined): ExtTorrent | undefined => {
-          if (!old) return;
+        key,
+        (old: TorrentFiles | undefined): TorrentFiles | undefined => {
+          if (!old) return old;
 
-          const fs = [...old.fileStats];
+          const fileStats = [...old.fileStats];
 
           for (const i of params["files-wanted"] ?? []) {
-            fs[i] = { ...fs[i], wanted: true };
+            fileStats[i] = { ...fileStats[i], wanted: true };
           }
           for (const i of params["files-unwanted"] ?? []) {
-            fs[i] = { ...fs[i], wanted: false };
+            fileStats[i] = { ...fileStats[i], wanted: false };
           }
           for (const i of params["priority-low"] ?? []) {
-            fs[i] = { ...fs[i], priority: Priority.LOW };
+            fileStats[i] = { ...fileStats[i], priority: Priority.LOW };
           }
           for (const i of params["priority-normal"] ?? []) {
-            fs[i] = { ...fs[i], priority: Priority.NORMAL };
+            fileStats[i] = { ...fileStats[i], priority: Priority.NORMAL };
           }
           for (const i of params["priority-high"] ?? []) {
-            fs[i] = { ...fs[i], priority: Priority.HIGH };
+            fileStats[i] = { ...fileStats[i], priority: Priority.HIGH };
           }
 
-          return { ...old, fileStats: fs };
+          return { ...old, fileStats };
         },
       );
 
       return { previous };
     },
     onError: (_error, _params, context) => {
-      queryClient.setQueryData(queryKeys.torrentGet(server, id), context?.previous);
+      const key = queryKeys.torrentFiles(server, id);
+      queryClient.setQueryData(key, context?.previous);
       ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
     },
     onSettled: () => {
       setTimeout(
         () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
-        optimisticInvalidationDelayMs
+        optimisticInvalidationDelayMs,
       );
     },
   });

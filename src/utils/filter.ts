@@ -9,7 +9,7 @@ const all: Predicate = () => true;
 const active: Predicate = (t: Torrent) =>
   t.peersGettingFromUs > 0 ||
   t.peersSendingToUs > 0 ||
-  t.webseedsSendingToUs > 0 ||
+  (t.webseedsSendingToUs ?? 0) > 0 ||
   [
     TorrentStatus.VERIFYING_LOCAL_DATA,
     TorrentStatus.DOWNLOADING,

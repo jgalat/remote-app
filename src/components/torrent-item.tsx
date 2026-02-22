@@ -54,7 +54,7 @@ export default React.memo(function TorrentItem({
       progressColor = green;
       break;
     case TorrentStatus.VERIFYING_LOCAL_DATA:
-      progress = torrent.recheckProgress * 100;
+      progress = (torrent.recheckProgress ?? 0) * 100;
       progressColor = yellow;
       break;
     default:

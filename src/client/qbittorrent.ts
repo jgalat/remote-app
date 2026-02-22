@@ -1,5 +1,12 @@
 import QBittorrentClient from "@remote-app/qbittorrent-client";
-import type { TorrentInfo, TorrentState, TorrentFileInput } from "@remote-app/qbittorrent-client";
+import type {
+  TorrentInfo,
+  TorrentState,
+  TorrentFileInput,
+  TorrentFile,
+  TorrentPeersResponse,
+  TorrentTracker,
+} from "@remote-app/qbittorrent-client";
 import * as FileSystem from "expo-file-system/legacy";
 import { randomUUID } from "expo-crypto";
 
@@ -7,8 +14,13 @@ import { TorrentStatus, Priority } from "./types";
 import type { TorrentClient } from "./interface";
 import type {
   TorrentId,
-  Torrent,
-  ExtTorrent,
+  TorrentListItem,
+  TorrentInfoDetail,
+  TorrentSettingsDetail,
+  TorrentFilesDetail,
+  TorrentPeersDetail,
+  TorrentTrackersDetail,
+  TorrentPiecesDetail,
   Peer,
   TrackerStats,
   AddTorrentParams,
@@ -46,7 +58,7 @@ const stateMap: Record<TorrentState, TorrentStatus> = {
 const QBIT_ETA_UNKNOWN = 8_640_000;
 const CHARCODE_CHUNK_SIZE = 0x8000;
 
-function mapTorrent(t: TorrentInfo): Torrent {
+function mapTorrent(t: TorrentInfo): TorrentListItem {
   return {
     id: t.hash,
     name: t.name,
@@ -64,10 +76,8 @@ function mapTorrent(t: TorrentInfo): Torrent {
     peersConnected: t.num_seeds + t.num_leechs,
     peersGettingFromUs: t.num_leechs,
     peersSendingToUs: t.num_seeds,
-    webseedsSendingToUs: 0,
     uploadedEver: t.uploaded,
     uploadRatio: t.ratio,
-    recheckProgress: 0,
     queuePosition: t.priority,
     addedDate: t.added_on,
     doneDate: t.completion_on,
@@ -77,10 +87,85 @@ function mapTorrent(t: TorrentInfo): Torrent {
   };
 }
 
+function mapSettings(t: TorrentInfo): TorrentSettingsDetail {
+  const seedIdleRaw =
+    t.inactive_seeding_time_limit ?? t.seeding_time_limit;
+
+  return {
+    downloadLimited: t.dl_limit > 0,
+    downloadLimit: t.dl_limit > 0 ? Math.round(t.dl_limit / 1_024) : 0,
+    uploadLimited: t.up_limit > 0,
+    uploadLimit: t.up_limit > 0 ? Math.round(t.up_limit / 1_024) : 0,
+    seedRatioMode: t.ratio_limit === -2 ? 0 : t.ratio_limit === -1 ? 2 : 1,
+    seedRatioLimit: t.ratio_limit >= 0 ? t.ratio_limit : 0,
+    seedIdleMode: seedIdleRaw === -2 ? 0 : seedIdleRaw === -1 ? 2 : 1,
+    seedIdleLimit: seedIdleRaw >= 0 ? seedIdleRaw : 0,
+  };
+}
+
 function mapFilePriority(qbitPriority: number): number {
   if (qbitPriority === 0) return Priority.LOW;
   if (qbitPriority >= 6) return Priority.HIGH;
   return Priority.NORMAL;
+}
+
+function mapFiles(qFiles: TorrentFile[]): TorrentFilesDetail {
+  const files: TorrentFilesDetail["files"] = [];
+  const fileStats: TorrentFilesDetail["fileStats"] = [];
+  for (const f of qFiles) {
+    const bytesCompleted = Math.round(f.progress * f.size);
+    files.push({ bytesCompleted, length: f.size, name: f.name });
+    fileStats.push({
+      bytesCompleted,
+      wanted: f.priority > 0,
+      priority: mapFilePriority(f.priority),
+    });
+  }
+  return { files, fileStats };
+}
+
+function mapPeers(peersResp: TorrentPeersResponse | null): TorrentPeersDetail {
+  const peers: Peer[] = peersResp
+    ? Object.values(peersResp.peers).map((p) => ({
+        address: p.ip,
+        port: p.port,
+        clientName: p.client,
+        isUTP: p.connection === "uTP",
+        isEncrypted: p.flags.includes("E"),
+        rateToClient: p.dl_speed,
+        rateToPeer: p.up_speed,
+        progress: p.progress,
+      }))
+    : [];
+  return { peers };
+}
+
+function mapTrackers(qTrackers: TorrentTracker[]): TorrentTrackersDetail {
+  const trackerStats: TrackerStats[] = qTrackers
+    .filter(
+      (t) =>
+        t.url !== "** [DHT] **" &&
+        t.url !== "** [PeX] **" &&
+        t.url !== "** [LSD] **",
+    )
+    .map((t) => ({
+      announce: t.url,
+      tier: t.tier,
+      seederCount: t.num_seeds,
+      leecherCount: t.num_leeches,
+      downloadCount: t.num_downloaded,
+      lastAnnounceTime: 0,
+      lastAnnounceSucceeded: t.status >= 2,
+      lastAnnouncePeerCount: t.num_peers,
+      lastAnnounceResult: t.msg || "OK",
+      nextAnnounceTime: 0,
+      lastScrapeTime: 0,
+      lastScrapeSucceeded: t.status >= 2,
+      lastScrapeResult: t.msg || "OK",
+      nextScrapeTime: 0,
+      scrape: "",
+    }));
+  return { trackerStats };
 }
 
 function pieceStatesToBitfield(states: number[]): string {
@@ -105,93 +190,74 @@ export class QBittorrentAdapter implements TorrentClient {
     this.client = new QBittorrentClient(config);
   }
 
-  async getTorrents(): Promise<Torrent[]> {
+  private async getInfoOrUndefined(hash: string): Promise<TorrentInfo | undefined> {
+    const infos = await this.client.info({ hashes: hash });
+    return infos[0];
+  }
+
+  async getTorrents(): Promise<TorrentListItem[]> {
     const torrents = await this.client.info();
     return torrents.map(mapTorrent);
   }
 
-  async getTorrent(id: TorrentId): Promise<ExtTorrent | undefined> {
+  async getTorrentInfo(id: TorrentId): Promise<TorrentInfoDetail | undefined> {
     const hash = String(id);
-    const [infos, props, qFiles, qTrackers, peersResp, pieceStates] = await Promise.all([
-      this.client.info({ hashes: hash }),
+    const info = await this.getInfoOrUndefined(hash);
+    if (!info) return undefined;
+
+    const [props, qFiles, pieceStates] = await Promise.all([
       this.client.properties(hash),
       this.client.files(hash),
-      this.client.trackers(hash),
-      this.client.torrentPeers(hash).catch(() => null),
-      this.client.pieceStates(hash).catch(() => [] as number[]),
+      this.client.pieceStates(hash).catch((): number[] => []),
     ]);
 
-    if (infos.length === 0) return undefined;
-    const base = mapTorrent(infos[0]);
-
-    const files: ExtTorrent["files"] = [];
-    const fileStats: ExtTorrent["fileStats"] = [];
-    for (const f of qFiles) {
-      const bytesCompleted = Math.round(f.progress * f.size);
-      files.push({ bytesCompleted, length: f.size, name: f.name });
-      fileStats.push({ bytesCompleted, wanted: f.priority > 0, priority: mapFilePriority(f.priority) });
-    }
-
-    const peers: Peer[] = peersResp
-      ? Object.values(peersResp.peers).map((p) => ({
-          address: p.ip,
-          port: p.port,
-          clientName: p.client,
-          isUTP: p.connection === "uTP",
-          isEncrypted: p.flags.includes("E"),
-          rateToClient: p.dl_speed,
-          rateToPeer: p.up_speed,
-          progress: p.progress,
-          flagStr: p.flags,
-        }))
-      : [];
-
-    const trackerStats: TrackerStats[] = qTrackers
-      .filter((t) => t.url !== "** [DHT] **" && t.url !== "** [PeX] **" && t.url !== "** [LSD] **")
-      .map((t) => ({
-        announce: t.url,
-        tier: t.tier,
-        seederCount: t.num_seeds,
-        leecherCount: t.num_leeches,
-        downloadCount: t.num_downloaded,
-        lastAnnounceTime: 0,
-        lastAnnounceSucceeded: t.status >= 2,
-        lastAnnouncePeerCount: t.num_peers,
-        lastAnnounceResult: t.msg || "OK",
-        nextAnnounceTime: 0,
-        lastScrapeTime: 0,
-        lastScrapeSucceeded: t.status >= 2,
-        lastScrapeResult: t.msg || "OK",
-        nextScrapeTime: 0,
-        scrape: "",
-      }));
-
     return {
-      ...base,
-      files,
-      fileStats,
-      peers,
-      trackerStats,
+      ...mapTorrent(info),
       downloadedEver: props.total_downloaded,
       pieceCount: props.pieces_num,
       pieceSize: props.piece_size,
       pieces: pieceStatesToBitfield(pieceStates),
-      downloadLimited: infos[0].dl_limit > 0,
-      downloadLimit: infos[0].dl_limit > 0 ? Math.round(infos[0].dl_limit / 1_024) : 0,
-      uploadLimited: infos[0].up_limit > 0,
-      uploadLimit: infos[0].up_limit > 0 ? Math.round(infos[0].up_limit / 1_024) : 0,
-      seedRatioMode: infos[0].ratio_limit === -2 ? 0 : infos[0].ratio_limit === -1 ? 2 : 1,
-      seedRatioLimit: infos[0].ratio_limit >= 0 ? infos[0].ratio_limit : 0,
-      seedIdleMode:
-        (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) === -2
-          ? 0
-          : (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) === -1
-            ? 2
-            : 1,
-      seedIdleLimit:
-        (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit) >= 0
-          ? (infos[0].inactive_seeding_time_limit ?? infos[0].seeding_time_limit)
-          : 0,
+      filesCount: qFiles.length,
+    };
+  }
+
+  async getTorrentSettings(id: TorrentId): Promise<TorrentSettingsDetail | undefined> {
+    const hash = String(id);
+    const info = await this.getInfoOrUndefined(hash);
+    if (!info) return undefined;
+    return mapSettings(info);
+  }
+
+  async getTorrentFiles(id: TorrentId): Promise<TorrentFilesDetail> {
+    const hash = String(id);
+    const qFiles = await this.client.files(hash);
+    return mapFiles(qFiles);
+  }
+
+  async getTorrentPeers(id: TorrentId): Promise<TorrentPeersDetail> {
+    const hash = String(id);
+    const peersResp = await this.client
+      .torrentPeers(hash)
+      .catch((): TorrentPeersResponse | null => null);
+    return mapPeers(peersResp);
+  }
+
+  async getTorrentTrackers(id: TorrentId): Promise<TorrentTrackersDetail> {
+    const hash = String(id);
+    const qTrackers = await this.client.trackers(hash);
+    return mapTrackers(qTrackers);
+  }
+
+  async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail> {
+    const hash = String(id);
+    const [props, pieceStates] = await Promise.all([
+      this.client.properties(hash),
+      this.client.pieceStates(hash).catch((): number[] => []),
+    ]);
+    return {
+      pieceCount: props.pieces_num,
+      pieceSize: props.piece_size,
+      pieces: pieceStatesToBitfield(pieceStates),
     };
   }
 
@@ -389,6 +455,7 @@ export class QBittorrentAdapter implements TorrentClient {
 
   async getPreferences(): Promise<Record<string, unknown>> {
     const p = await this.client.preferences();
+    const maxInactiveSeedingTime = p.max_inactive_seeding_time ?? -1;
     const result: QBitPreferences = {
       dl_limit: Math.round(p.dl_limit / 1_024),
       up_limit: Math.round(p.up_limit / 1_024),
@@ -406,7 +473,7 @@ export class QBittorrentAdapter implements TorrentClient {
       max_seeding_time_enabled: p.max_seeding_time_enabled,
       max_seeding_time: p.max_seeding_time >= 0 ? p.max_seeding_time : 1_440,
       max_inactive_seeding_time_enabled: p.max_inactive_seeding_time_enabled ?? false,
-      max_inactive_seeding_time: (p.max_inactive_seeding_time ?? -1) >= 0 ? p.max_inactive_seeding_time! : 1_440,
+      max_inactive_seeding_time: maxInactiveSeedingTime >= 0 ? maxInactiveSeedingTime : 1_440,
       queueing_enabled: p.queueing_enabled,
       max_active_downloads: p.max_active_downloads,
       max_active_uploads: p.max_active_uploads,
@@ -420,16 +487,24 @@ export class QBittorrentAdapter implements TorrentClient {
       lsd: p.lsd,
       encryption: p.encryption,
     };
-    return result as unknown as Record<string, unknown>;
+    return { ...result };
   }
 
   async setPreferences(prefs: Record<string, unknown>): Promise<void> {
-    const input = prefs as unknown as Partial<QBitPreferences>;
-    const mapped: Record<string, unknown> = { ...input };
-    if (input.dl_limit !== undefined) mapped.dl_limit = input.dl_limit * 1_024;
-    if (input.up_limit !== undefined) mapped.up_limit = input.up_limit * 1_024;
-    if (input.alt_dl_limit !== undefined) mapped.alt_dl_limit = input.alt_dl_limit * 1_024;
-    if (input.alt_up_limit !== undefined) mapped.alt_up_limit = input.alt_up_limit * 1_024;
+    const mapped: Record<string, unknown> = { ...prefs };
+
+    const dlLimit = prefs.dl_limit;
+    if (typeof dlLimit === "number") mapped.dl_limit = dlLimit * 1_024;
+
+    const upLimit = prefs.up_limit;
+    if (typeof upLimit === "number") mapped.up_limit = upLimit * 1_024;
+
+    const altDlLimit = prefs.alt_dl_limit;
+    if (typeof altDlLimit === "number") mapped.alt_dl_limit = altDlLimit * 1_024;
+
+    const altUpLimit = prefs.alt_up_limit;
+    if (typeof altUpLimit === "number") mapped.alt_up_limit = altUpLimit * 1_024;
+
     await this.client.setPreferences(mapped);
   }
 

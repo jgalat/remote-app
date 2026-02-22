@@ -12,7 +12,7 @@ import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
 import { useHeaderAction } from "~/contexts/header-action";
-import { useTorrent, useTorrentSet } from "~/hooks/torrent";
+import { useTorrentSettings, useTorrentSet } from "~/hooks/torrent";
 import { useServer } from "~/hooks/use-settings";
 import {
   NetworkErrorScreen,
@@ -74,7 +74,7 @@ const Form = z
 export default function TorrentSettingsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const server = useServer();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentSettings(id);
 
   const { mutate } = useTorrentSet(id);
   const { red } = useTheme();

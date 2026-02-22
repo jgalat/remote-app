@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
-import { useTorrent } from "~/hooks/torrent";
+import { useTorrentPeers } from "~/hooks/torrent";
 import {
   LoadingScreen,
   NetworkErrorScreen,
@@ -15,7 +15,7 @@ import Separator from "~/components/separator";
 
 export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentPeers(id);
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }

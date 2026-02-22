@@ -7,18 +7,15 @@ import {
   type File,
   type Node,
 } from "~/utils/file";
-import { ExtTorrent } from "./torrent";
+import type { TorrentFiles } from "./torrent";
 import { type RenderFile } from "~/components/file-item";
 
-export default function useTorrentBrowser(torrents: ExtTorrent[]) {
+export default function useTorrentBrowser(torrent: TorrentFiles | undefined) {
   const [files, root] = React.useMemo<[File[], Node]>(() => {
-    const _files =
-      torrents.length === 1
-        ? makeFiles(torrents[0].files, torrents[0].fileStats)
-        : [];
+    const _files = torrent ? makeFiles(torrent.files, torrent.fileStats) : [];
     const _root = makeTree(_files);
     return [_files, _root] as const;
-  }, [torrents]);
+  }, [torrent]);
 
   const [current, setCurrent] = React.useState("");
 

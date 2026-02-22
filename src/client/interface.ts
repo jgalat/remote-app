@@ -1,7 +1,12 @@
 import type {
   TorrentId,
-  Torrent,
-  ExtTorrent,
+  TorrentListItem,
+  TorrentInfoDetail,
+  TorrentSettingsDetail,
+  TorrentFilesDetail,
+  TorrentPeersDetail,
+  TorrentTrackersDetail,
+  TorrentPiecesDetail,
   AddTorrentParams,
   AddTorrentResult,
   SetTorrentParams,
@@ -11,8 +16,13 @@ import type {
 } from "./types";
 
 export interface TorrentClient {
-  getTorrents(): Promise<Torrent[]>;
-  getTorrent(id: TorrentId): Promise<ExtTorrent | undefined>;
+  getTorrents(): Promise<TorrentListItem[]>;
+  getTorrentInfo(id: TorrentId): Promise<TorrentInfoDetail | undefined>;
+  getTorrentSettings(id: TorrentId): Promise<TorrentSettingsDetail | undefined>;
+  getTorrentFiles(id: TorrentId): Promise<TorrentFilesDetail | undefined>;
+  getTorrentPeers(id: TorrentId): Promise<TorrentPeersDetail | undefined>;
+  getTorrentTrackers(id: TorrentId): Promise<TorrentTrackersDetail | undefined>;
+  getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined>;
   addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null>;
   removeTorrents(ids: TorrentId[], deleteData?: boolean): Promise<void>;
   startTorrents(ids: TorrentId[]): Promise<void>;

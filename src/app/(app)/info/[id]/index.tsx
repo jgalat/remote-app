@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import Screen from "~/components/screen";
 import TorrentItem from "~/components/torrent-item";
-import { useTorrent } from "~/hooks/torrent";
+import { useTorrentInfo } from "~/hooks/torrent";
 import KeyValue, { KeyValueProps } from "~/components/key-value";
 import { formatSize, formatStatus } from "~/utils/formatters";
 import {
@@ -16,7 +16,7 @@ import { count } from "~/utils/pieces";
 
 export default function TorrentDetailsScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentInfo(id);
 
   const data = React.useMemo<
     {
@@ -89,7 +89,7 @@ export default function TorrentDetailsScreen() {
           },
           {
             field: "Files",
-            value: torrent.files.length,
+            value: torrent.filesCount,
           },
         ],
       },

@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from "expo-router";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
-import { useTorrent, useTorrentSet } from "~/hooks/torrent";
+import { useTorrentFiles, useTorrentSet } from "~/hooks/torrent";
 import {
   LoadingScreen,
   NetworkErrorScreen,
@@ -22,15 +22,13 @@ import useTorrentBrowser from "~/hooks/use-torrent-browser";
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data: torrent, error, isLoading, refetch } = useTorrent(id);
+  const { data: torrent, error, isLoading, refetch } = useTorrentFiles(id);
   const prioritySheet = useTorrentPrioritySheet(id);
   const torrentSet = useTorrentSet(id);
   const isFocused = useIsFocused();
   const { text } = useTheme();
 
-  const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(
-    torrent ? [torrent] : []
-  );
+  const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(torrent);
 
   React.useEffect(() => {
     if (!isFocused || !canGoUp) {
