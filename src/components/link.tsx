@@ -5,7 +5,7 @@ import * as Linking from "expo-linking";
 
 import Text from "./text";
 import Pressable from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type LinkProps = {
   to: string;

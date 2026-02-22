@@ -4,7 +4,7 @@ import {
   ActivityIndicatorProps as _ActivityIndicatorProps,
 } from "react-native";
 
-import useThemeColor from "../hooks/use-theme-color";
+import useThemeColor from "~/hooks/use-theme-color";
 
 export type ActivityIndicatorProps = _ActivityIndicatorProps;
 

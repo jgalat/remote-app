@@ -6,7 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import View, { ViewProps } from "./view";
 import Text from "./text";
 import Pressable from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type KeyValueProps = {
   field: string;

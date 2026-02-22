@@ -6,7 +6,7 @@ import Text from "./text";
 import View from "./view";
 import Badge from "./badge";
 import Pressable, { PressableProps } from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type OptionProps = {
   id?: string;

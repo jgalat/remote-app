@@ -5,13 +5,13 @@ import { Feather } from "@expo/vector-icons";
 import View, { ViewProps } from "./view";
 import Text from "./text";
 import ActionIcon from "./action-icon";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 import {
   useSession,
   useSessionSet,
   useSessionStats,
-} from "../hooks/transmission";
-import { formatSpeed } from "../utils/formatters";
+} from "~/hooks/torrent";
+import { formatSpeed } from "~/utils/formatters";
 
 export type StatsProps = ViewProps;
 

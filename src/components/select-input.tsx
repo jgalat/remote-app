@@ -5,8 +5,8 @@ import { SheetManager } from "react-native-actions-sheet";
 
 import Text from "./text";
 import Pressable, { PressableProps } from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
-import type { SelectOption } from "../sheets/select";
+import { useTheme } from "~/hooks/use-theme-color";
+import type { SelectOption } from "~/sheets/select";
 
 export type SelectInputProps = {
   title?: string;

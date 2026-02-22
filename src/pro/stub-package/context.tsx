@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { ProContextValue } from "../types";
+import type { ProContextValue } from "~/pro/types";
 
 const stubValue: ProContextValue = {
   available: false,

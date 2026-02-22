@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 
 import Text from "./text";
 import Pressable, { PressableProps } from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type FileInputProps = {
   title: string;

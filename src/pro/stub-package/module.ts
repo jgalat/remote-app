@@ -1,4 +1,4 @@
-import type { ProModule, EntitlementState } from "../types";
+import type { ProModule, EntitlementState } from "~/pro/types";
 
 const stubEntitlement: EntitlementState = {
   isPro: false,

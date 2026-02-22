@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, ViewProps, StyleSheet } from "react-native";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type ProgressBarProps = {
   progress: number;

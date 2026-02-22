@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 
 import type { Session, SessionStats } from "~/client";
-import { useServer } from "../use-settings";
+import { useServer } from "~/hooks/use-settings";
 import { useClient, useServerClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 import type { Server } from "~/store/settings";

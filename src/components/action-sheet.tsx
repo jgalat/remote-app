@@ -7,7 +7,7 @@ import _ActionSheet, {
 
 import Text from "./text";
 import View from "./view";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 import Option, { OptionProps } from "./option";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 

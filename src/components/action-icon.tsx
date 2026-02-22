@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 import Pressable, { PressableProps } from "./pressable";
 
 export type ActionIconProps = React.ComponentProps<typeof Feather> &

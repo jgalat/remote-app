@@ -7,7 +7,7 @@ import { File, Paths } from "expo-file-system/next";
 import View, { ViewProps } from "./view";
 import Text from "./text";
 import Button from "./button";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type NetworkErrorMessageProps = {
   error: Error;

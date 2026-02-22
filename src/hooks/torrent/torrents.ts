@@ -16,8 +16,8 @@ import type {
   SetLocationParams,
 } from "~/client";
 import { TorrentStatus, Priority } from "~/client";
-import { useServer } from "../use-settings";
-import useTorrentSelection from "../use-torrent-selection";
+import { useServer } from "~/hooks/use-settings";
+import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { useClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 

@@ -1,5 +1,5 @@
 import { createClient, type TorrentClient } from "~/client";
-import { useServer } from "../use-settings";
+import { useServer } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
 
 export function useClient(): TorrentClient | null {

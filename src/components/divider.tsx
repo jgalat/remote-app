@@ -3,7 +3,7 @@ import { StyleSheet, ViewProps } from "react-native";
 
 import View from "./view";
 import Text from "./text";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type DividerProps = {
   title?: string;

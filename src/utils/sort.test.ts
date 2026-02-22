@@ -1,22 +1,37 @@
 import { describe, expect, it } from "vitest";
+import type { Torrent } from "~/client";
 
 import compare from "./sort";
 
-function torrent(id: number | string, name: string) {
+function torrent(id: number | string, name: string): Torrent {
   return {
     id,
     name,
-    queuePosition: 0,
-    activityDate: 0,
-    addedDate: 0,
-    percentDone: 0,
-    totalSize: 0,
     status: 0,
-    leftUntilDone: 0,
+    percentDone: 0,
+    rateDownload: 0,
+    rateUpload: 0,
+    totalSize: 0,
     sizeWhenDone: 1,
+    leftUntilDone: 0,
     eta: 0,
+    error: 0,
+    errorString: "",
+    isFinished: false,
+    peersConnected: 0,
+    peersGettingFromUs: 0,
+    peersSendingToUs: 0,
+    webseedsSendingToUs: 0,
+    uploadedEver: 0,
     uploadRatio: 0,
-  } as const;
+    recheckProgress: 0,
+    queuePosition: 0,
+    addedDate: 0,
+    doneDate: 0,
+    activityDate: 0,
+    magnetLink: "",
+    downloadDir: "",
+  };
 }
 
 describe("sort comparator", () => {

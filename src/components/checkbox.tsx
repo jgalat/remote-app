@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Pressable, { PressableProps } from "./pressable";
-import { useTheme } from "../hooks/use-theme-color";
+import { useTheme } from "~/hooks/use-theme-color";
 
 export type CheckboxProps = {
   value: boolean;
