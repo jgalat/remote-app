@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { Socket } from "node:net";
 import { describe, it, expect } from "vitest";
 import { QBittorrentClient } from "../src/client";
 import { QBittorrentError } from "../src/error";
@@ -17,6 +18,25 @@ const TORRENT_FILE = resolve(__dirname, "fixtures/test.torrent");
 const TORRENT_BYTES = readFileSync(TORRENT_FILE);
 const HASH = "c70556f6b4c2b63ca346cc34f33d526935f7cc0e";
 
+async function isPortOpen(port: number, host = "127.0.0.1", timeoutMs = 500): Promise<boolean> {
+  return await new Promise((resolve) => {
+    const socket = new Socket();
+    const done = (result: boolean) => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolve(result);
+    };
+    socket.setTimeout(timeoutMs);
+    socket.once("connect", () => done(true));
+    socket.once("timeout", () => done(false));
+    socket.once("error", () => done(false));
+    socket.connect(port, host);
+  });
+}
+
+const qBittorrentAvailable = await isPortOpen(8080);
+const describeIfQBittorrent = qBittorrentAvailable ? describe : describe.skip;
+
 async function waitForTorrent(client: QBittorrentClient, hash: string): Promise<void> {
   for (let i = 0; i < 10; i++) {
     const torrents = await client.info({ hashes: hash });
@@ -26,7 +46,7 @@ async function waitForTorrent(client: QBittorrentClient, hash: string): Promise<
   throw new Error("Torrent did not appear");
 }
 
-describe("QBittorrentClient", () => {
+describeIfQBittorrent("QBittorrentClient", () => {
   const client = new QBittorrentClient({
     url: URL,
     username: "test",

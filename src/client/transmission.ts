@@ -228,14 +228,6 @@ export class TransmissionAdapter implements TorrentClient {
     return response.arguments as unknown as SessionStats;
   }
 
-  async getFreeSpace(path: string): Promise<number> {
-    const response = await this.client.request({
-      method: "free-space",
-      arguments: { path },
-    });
-    return response.arguments?.["size-bytes"] ?? 0;
-  }
-
   async ping(): Promise<void> {
     await this.client.request({ method: "session-get" });
   }

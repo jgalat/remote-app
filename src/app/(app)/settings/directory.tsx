@@ -90,7 +90,7 @@ export default function DirectoryScreen() {
 
     navigation.setOptions({
       headerRight: () => (
-        <ActionIcon onPress={onDelete} name="trash-2" color={red} />
+        <ActionIcon onPress={onDelete} name="trash" color={red} />
       ),
     });
   }, [isDefaultDir, isNew, onDelete, navigation, red]);

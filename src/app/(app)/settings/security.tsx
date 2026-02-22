@@ -1,25 +1,38 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
+import { useQuery } from "@tanstack/react-query";
 
 import Toggle from "~/components/toggle";
 import View from "~/components/view";
 import Screen from "~/components/screen";
 import { usePreferencesStore } from "~/hooks/use-settings";
 
+async function loadLocalAuthenticationAvailability(): Promise<boolean> {
+  try {
+    const [hasHardware, isEnrolled] = await Promise.all([
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync(),
+    ]);
+    return hasHardware && isEnrolled;
+  } catch {
+    return false;
+  }
+}
+
 export default function SecurityScreen() {
   const { authentication, store } = usePreferencesStore();
 
-  const [available, setAvailable] = React.useState(false);
-
-  React.useEffect(() => {
-    LocalAuthentication.hasHardwareAsync().then(setAvailable);
-  }, []);
+  const { data: available = false, refetch } = useQuery({
+    queryKey: ["security", "local-auth-availability"],
+    queryFn: loadLocalAuthenticationAvailability,
+    staleTime: Infinity,
+  });
 
   const onUpdate = async () => {
     try {
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      if (!hasHardware) {
+      const availability = await refetch();
+      if (!availability.data) {
         return;
       }
 
@@ -44,7 +57,7 @@ export default function SecurityScreen() {
           onPress={onUpdate}
           label="AUTHENTICATION"
           description="Enable local authentication"
-          disabled={!available}
+          disabled={!authentication && !available}
         />
       </View>
     </Screen>

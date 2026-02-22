@@ -687,8 +687,8 @@ const schedulerDaysOptions: SelectOption[] = [
 
 const seedingActionOptions: SelectOption[] = [
   { id: "0", label: "Stop torrent", left: "square" as const, value: 0 },
-  { id: "1", label: "Remove torrent", left: "trash-2" as const, value: 1 },
-  { id: "3", label: "Remove torrent and its files", left: "trash" as const, value: 3 },
+  { id: "1", label: "Remove torrent", left: "trash" as const, value: 1 },
+  { id: "3", label: "Remove torrent and its files", left: "trash-2" as const, value: 3 },
   { id: "2", label: "Enable super seeding", left: "zap" as const, value: 2 },
 ];
 

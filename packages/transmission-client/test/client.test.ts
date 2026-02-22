@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { Socket } from "node:net";
 import { describe, it, expect } from "vitest";
 import { TransmissionClient } from "../src/client";
 import { HTTPError } from "../src/error";
@@ -14,6 +15,25 @@ const URL = "http://localhost:9091/transmission/rpc";
 const TORRENT_FILE = resolve(__dirname, "fixtures/test.torrent");
 const TORRENT_B64 = readFileSync(TORRENT_FILE).toString("base64");
 const HASH = "c70556f6b4c2b63ca346cc34f33d526935f7cc0e";
+
+async function isPortOpen(port: number, host = "127.0.0.1", timeoutMs = 500): Promise<boolean> {
+  return await new Promise((resolve) => {
+    const socket = new Socket();
+    const done = (result: boolean) => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolve(result);
+    };
+    socket.setTimeout(timeoutMs);
+    socket.once("connect", () => done(true));
+    socket.once("timeout", () => done(false));
+    socket.once("error", () => done(false));
+    socket.connect(port, host);
+  });
+}
+
+const transmissionAvailable = await isPortOpen(9091);
+const describeIfTransmission = transmissionAvailable ? describe : describe.skip;
 
 const TORRENT_FIELDS = [
   "id",
@@ -44,7 +64,7 @@ const TORRENT_FIELDS = [
   "activityDate",
 ] as const;
 
-describe("TransmissionClient", () => {
+describeIfTransmission("TransmissionClient", () => {
   const client = new TransmissionClient({
     url: URL,
     username: "test",

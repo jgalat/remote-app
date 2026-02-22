@@ -31,6 +31,5 @@ export interface TorrentClient {
   getPreferences(): Promise<Record<string, unknown>>;
   setPreferences(prefs: Record<string, unknown>): Promise<void>;
   getSessionStats(): Promise<SessionStats>;
-  getFreeSpace(path: string): Promise<number>;
   ping(): Promise<void>;
 }

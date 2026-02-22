@@ -1,6 +1,7 @@
 import QBittorrentClient from "@remote-app/qbittorrent-client";
 import type { TorrentInfo, TorrentState, TorrentFileInput } from "@remote-app/qbittorrent-client";
 import * as FileSystem from "expo-file-system/legacy";
+import { randomUUID } from "expo-crypto";
 
 import { TorrentStatus, Priority } from "./types";
 import type { TorrentClient } from "./interface";
@@ -43,6 +44,7 @@ const stateMap: Record<TorrentState, TorrentStatus> = {
 };
 
 const QBIT_ETA_UNKNOWN = 8_640_000;
+const CHARCODE_CHUNK_SIZE = 0x8000;
 
 function mapTorrent(t: TorrentInfo): Torrent {
   return {
@@ -88,7 +90,12 @@ function pieceStatesToBitfield(states: number[]): string {
       bytes[Math.floor(i / 8)] |= 1 << (7 - (i % 8));
     }
   }
-  return btoa(String.fromCharCode(...bytes));
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHARCODE_CHUNK_SIZE) {
+    const chunk = Array.from(bytes.slice(i, i + CHARCODE_CHUNK_SIZE));
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
 }
 
 export class QBittorrentAdapter implements TorrentClient {
@@ -169,8 +176,6 @@ export class QBittorrentAdapter implements TorrentClient {
       pieceCount: props.pieces_num,
       pieceSize: props.piece_size,
       pieces: pieceStatesToBitfield(pieceStates),
-      bandwidthPriority: 0,
-      honorsSessionLimits: true,
       downloadLimited: infos[0].dl_limit > 0,
       downloadLimit: infos[0].dl_limit > 0 ? Math.round(infos[0].dl_limit / 1_024) : 0,
       uploadLimited: infos[0].up_limit > 0,
@@ -192,18 +197,32 @@ export class QBittorrentAdapter implements TorrentClient {
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {
     const qParams: { urls?: string; torrents?: TorrentFileInput; savepath?: string; paused?: boolean } = {};
+    let tempPath: string | undefined;
+
     if (params.filename) qParams.urls = params.filename;
     if (params.metainfo) {
-      const path = FileSystem.cacheDirectory + "upload.torrent";
-      await FileSystem.writeAsStringAsync(path, params.metainfo, {
+      const cacheDir = FileSystem.cacheDirectory;
+      if (!cacheDir) {
+        throw new Error("Cache directory is unavailable");
+      }
+
+      tempPath = `${cacheDir}upload-${Date.now()}-${randomUUID()}.torrent`;
+      await FileSystem.writeAsStringAsync(tempPath, params.metainfo, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      qParams.torrents = { uri: path, type: "application/x-bittorrent", name: "torrent" };
+      qParams.torrents = { uri: tempPath, type: "application/x-bittorrent", name: "torrent" };
     }
     if (params["download-dir"]) qParams.savepath = params["download-dir"];
     if (params.paused !== undefined) qParams.paused = params.paused;
 
-    await this.client.add(qParams);
+    try {
+      await this.client.add(qParams);
+    } finally {
+      if (tempPath) {
+        await FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
+      }
+    }
+
     return null;
   }
 
@@ -415,18 +434,21 @@ export class QBittorrentAdapter implements TorrentClient {
   }
 
   async getSessionStats(): Promise<SessionStats> {
-    const transfer = await this.client.transferInfo();
+    const [transfer, torrents] = await Promise.all([
+      this.client.transferInfo(),
+      this.client.info(),
+    ]);
+
+    const pausedTorrentCount = torrents.filter((t) => stateMap[t.state] === TorrentStatus.STOPPED).length;
+    const torrentCount = torrents.length;
+
     return {
-      activeTorrentCount: 0,
-      pausedTorrentCount: 0,
-      torrentCount: 0,
+      activeTorrentCount: torrentCount - pausedTorrentCount,
+      pausedTorrentCount,
+      torrentCount,
       downloadSpeed: transfer.dl_info_speed,
       uploadSpeed: transfer.up_info_speed,
     };
-  }
-
-  async getFreeSpace(): Promise<number> {
-    return 0;
   }
 
   async ping(): Promise<void> {

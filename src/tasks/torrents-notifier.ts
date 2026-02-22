@@ -16,8 +16,6 @@ import { isTestingServer } from "~/utils/mock-transmission-client";
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
 export default async function TorrentsNotifierTask(): Promise<BackgroundTask.BackgroundTaskResult> {
-  console.log("[torrents-notifier] Task started");
-
   const state = await Network.getNetworkStateAsync();
   if (!state.isConnected || !state.isInternetReachable) {
     return BackgroundTask.BackgroundTaskResult.Success;

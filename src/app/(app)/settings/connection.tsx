@@ -69,6 +69,24 @@ function parseUrl(input: string) {
   };
 }
 
+function fallbackParsedUrl(server: Server) {
+  const defaults = typeDefaults[server.type];
+  const raw = server.url.trim();
+  const withoutProtocol = raw.replace(/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//, "");
+  const slashIndex = withoutProtocol.indexOf("/");
+  const hostPort = slashIndex >= 0 ? withoutProtocol.slice(0, slashIndex) : withoutProtocol;
+  const rawPath = slashIndex >= 0 ? withoutProtocol.slice(slashIndex) : "";
+  const [host, rawPort] = hostPort.split(":");
+  const parsedPort = rawPort ? Number(rawPort) : NaN;
+  const path = rawPath && rawPath !== "/" ? rawPath : defaults.path;
+  return {
+    host: host || raw,
+    port: Number.isFinite(parsedPort) ? parsedPort : defaults.port,
+    path,
+    useSSL: raw.startsWith("https://"),
+  };
+}
+
 function renderUrl(form: Form): string {
   if (isTestingServer({ name: form.name, url: form.host })) {
     return form.host;
@@ -116,7 +134,13 @@ function defaultValues(server?: Server): Form {
     };
   }
 
-  const parsed = parseUrl(server.url);
+  let parsed: ReturnType<typeof parseUrl>;
+  try {
+    parsed = parseUrl(server.url);
+  } catch {
+    parsed = fallbackParsedUrl(server);
+  }
+
   return {
     type: server.type,
     name: server.name,
@@ -178,6 +202,17 @@ export default function ConnectionScreen() {
     [setValue, useSSL]
   );
 
+  const onUseAuthChange = React.useCallback(
+    (enabled: boolean) => {
+      setValue("useAuth", enabled);
+      if (!enabled) {
+        setValue("username", "");
+        setValue("password", "");
+      }
+    },
+    [setValue]
+  );
+
   const navigation = useNavigation();
 
   const remove = React.useCallback(() => {
@@ -195,7 +230,7 @@ export default function ConnectionScreen() {
     if (!isEdit) return;
     navigation.setOptions({
       headerRight: () => (
-        <ActionIcon onPress={remove} name="trash-2" color={red} />
+        <ActionIcon onPress={remove} name="trash" color={red} />
       ),
     });
   }, [isEdit, remove, navigation, red]);
@@ -204,11 +239,13 @@ export default function ConnectionScreen() {
     (f: Form) => {
       const now = Date.now();
       const url = renderUrl(f);
+      const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
+      const password = f.useAuth ? (f.password || undefined) : undefined;
 
       if (editServer) {
         const updated = servers.map((s) =>
           s.id === editServer.id
-            ? { ...s, name: f.name, url, type: f.type, username: f.username, password: f.password, updatedAt: now }
+            ? { ...s, name: f.name, url, type: f.type, username, password, updatedAt: now }
             : s
         );
         store({ servers: updated });
@@ -218,8 +255,8 @@ export default function ConnectionScreen() {
           name: f.name,
           url,
           type: f.type,
-          username: f.username,
-          password: f.password,
+          username,
+          password,
           createdAt: now,
           updatedAt: now,
         };
@@ -249,8 +286,10 @@ export default function ConnectionScreen() {
 
   const onTest = React.useCallback(
     (f: Form) => {
+      const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
+      const password = f.useAuth ? (f.password || undefined) : undefined;
       test(
-        { type: f.type, name: f.name, url: renderUrl(f), username: f.username, password: f.password },
+        { type: f.type, name: f.name, url: renderUrl(f), username, password },
         {
           onSettled: () => {
             scroll.current?.scrollToEnd({ animated: true });
@@ -420,7 +459,7 @@ export default function ConnectionScreen() {
                   label="AUTHENTICATION"
                   description="Username and password required"
                   value={field.value}
-                  onPress={field.onChange}
+                  onPress={onUseAuthChange}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}

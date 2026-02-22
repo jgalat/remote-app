@@ -82,8 +82,8 @@ export type ExtTorrent = Torrent & {
   pieceCount: number;
   pieceSize: number;
   pieces: string;
-  bandwidthPriority: number;
-  honorsSessionLimits: boolean;
+  bandwidthPriority?: number;
+  honorsSessionLimits?: boolean;
   downloadLimited: boolean;
   downloadLimit: number;
   uploadLimited: boolean;

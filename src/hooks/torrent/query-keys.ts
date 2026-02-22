@@ -11,9 +11,6 @@ export const queryKeys = {
   sessionStats: (server: Server | undefined) =>
     ["session-stats", server?.id, server?.url] as const,
 
-  freeSpace: (server: Server | undefined, downloadDir?: string) =>
-    ["free-space", server?.id, server?.url, downloadDir] as const,
-
   torrentGet: (server: Server | undefined, id?: TorrentId) =>
     [
       ...queryKeys.torrents(server),
@@ -47,10 +44,6 @@ export const queryMatchers = {
 
   sessionStats: (server: Server | undefined) => ({
     queryKey: queryKeys.sessionStats(server),
-  }),
-
-  freeSpace: (server: Server | undefined) => ({
-    queryKey: queryKeys.freeSpace(server),
   }),
 
   allForServer: (server: Server | undefined) => ({
