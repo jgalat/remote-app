@@ -1,6 +1,7 @@
 import TransmissionClient, {
-  type Torrent as TransmissionTorrent,
-  type SessionGetResponse,
+  type TorrentField as TransmissionTorrentField,
+  type TorrentForFields,
+  type SessionGetField,
   type SessionStatsResponse,
 } from "@remote-app/transmission-client";
 
@@ -49,7 +50,7 @@ const listFields = [
   "activityDate",
   "magnetLink",
   "downloadDir",
-] as const;
+] as const satisfies readonly TransmissionTorrentField[];
 
 const infoFields = [
   ...listFields,
@@ -58,7 +59,7 @@ const infoFields = [
   "pieceCount",
   "pieceSize",
   "pieces",
-] as const;
+] as const satisfies readonly TransmissionTorrentField[];
 
 const settingsFields = [
   "bandwidthPriority",
@@ -71,86 +72,60 @@ const settingsFields = [
   "seedRatioLimit",
   "seedIdleMode",
   "seedIdleLimit",
-] as const;
+] as const satisfies readonly TransmissionTorrentField[];
 
-const filesFields = ["files", "fileStats"] as const;
-const peersFields = ["peers"] as const;
-const trackersFields = ["trackerStats"] as const;
-const piecesFields = ["pieceCount", "pieceSize", "pieces"] as const;
+const filesFields = ["files", "fileStats"] as const satisfies readonly TransmissionTorrentField[];
+const peersFields = ["peers"] as const satisfies readonly TransmissionTorrentField[];
+const trackersFields = ["trackerStats"] as const satisfies readonly TransmissionTorrentField[];
+const piecesFields = ["pieceCount", "pieceSize", "pieces"] as const satisfies readonly TransmissionTorrentField[];
 
-type TorrentField =
-  | (typeof listFields)[number]
-  | (typeof infoFields)[number]
-  | (typeof settingsFields)[number]
-  | (typeof filesFields)[number]
-  | (typeof peersFields)[number]
-  | (typeof trackersFields)[number]
-  | (typeof piecesFields)[number];
+const sessionFields = [
+  "speed-limit-down-enabled",
+  "speed-limit-down",
+  "speed-limit-up-enabled",
+  "speed-limit-up",
+  "alt-speed-enabled",
+  "alt-speed-down",
+  "alt-speed-up",
+  "alt-speed-time-enabled",
+  "alt-speed-time-begin",
+  "alt-speed-time-end",
+  "alt-speed-time-day",
+  "seedRatioLimited",
+  "seedRatioLimit",
+  "idle-seeding-limit-enabled",
+  "idle-seeding-limit",
+  "download-queue-enabled",
+  "download-queue-size",
+  "seed-queue-enabled",
+  "seed-queue-size",
+  "dht-enabled",
+  "lpd-enabled",
+  "pex-enabled",
+  "download-dir",
+] as const satisfies readonly SessionGetField[];
 
-function toTorrentListItem(t: TransmissionTorrent): TorrentListItem {
+type TorrentField = TransmissionTorrentField;
+type InfoTorrent = TorrentForFields<typeof infoFields>;
+type FilesTorrent = TorrentForFields<typeof filesFields>;
+type PeersTorrent = TorrentForFields<typeof peersFields>;
+type TrackersTorrent = TorrentForFields<typeof trackersFields>;
+
+function toTorrentInfoDetail(t: InfoTorrent): TorrentInfoDetail {
+  const { ["file-count"]: filesCount, ...rest } = t;
   return {
-    id: t.id!,
-    name: t.name!,
-    status: t.status!,
-    percentDone: t.percentDone!,
-    rateDownload: t.rateDownload!,
-    rateUpload: t.rateUpload!,
-    totalSize: t.totalSize!,
-    sizeWhenDone: t.sizeWhenDone!,
-    leftUntilDone: t.leftUntilDone!,
-    eta: t.eta!,
-    error: t.error!,
-    errorString: t.errorString!,
-    isFinished: t.isFinished!,
-    peersConnected: t.peersConnected!,
-    peersGettingFromUs: t.peersGettingFromUs!,
-    peersSendingToUs: t.peersSendingToUs!,
-    webseedsSendingToUs: t.webseedsSendingToUs,
-    uploadedEver: t.uploadedEver!,
-    uploadRatio: t.uploadRatio!,
-    recheckProgress: t.recheckProgress,
-    queuePosition: t.queuePosition!,
-    addedDate: t.addedDate!,
-    doneDate: t.doneDate!,
-    activityDate: t.activityDate!,
-    magnetLink: t.magnetLink!,
-    downloadDir: t.downloadDir!,
+    ...rest,
+    filesCount,
   };
 }
 
-function toTorrentInfoDetail(t: TransmissionTorrent): TorrentInfoDetail {
-  return {
-    ...toTorrentListItem(t),
-    downloadedEver: t.downloadedEver!,
-    pieceCount: t.pieceCount!,
-    pieceSize: t.pieceSize!,
-    pieces: t.pieces!,
-    filesCount: t["file-count"]!,
-  };
-}
-
-function toTorrentSettingsDetail(t: TransmissionTorrent): TorrentSettingsDetail {
-  return {
-    bandwidthPriority: t.bandwidthPriority,
-    honorsSessionLimits: t.honorsSessionLimits,
-    downloadLimited: t.downloadLimited!,
-    downloadLimit: t.downloadLimit!,
-    uploadLimited: t.uploadLimited!,
-    uploadLimit: t.uploadLimit!,
-    seedRatioMode: t.seedRatioMode!,
-    seedRatioLimit: t.seedRatioLimit!,
-    seedIdleMode: t.seedIdleMode!,
-    seedIdleLimit: t.seedIdleLimit!,
-  };
-}
-
-function toTorrentFilesDetail(t: TransmissionTorrent): TorrentFilesDetail {
-  const files = (t.files ?? []).map((file) => ({
+function toTorrentFilesDetail(t: FilesTorrent): TorrentFilesDetail {
+  const files = t.files.map((file) => ({
     bytesCompleted: file.bytesCompleted,
     length: file.length,
     name: file.name,
   }));
-  const fileStats = (t.fileStats ?? []).map((stats) => ({
+  const fileStats = t.fileStats.map((stats) => ({
     bytesCompleted: stats.bytesCompleted,
     wanted: stats.wanted,
     priority: stats.priority,
@@ -158,8 +133,8 @@ function toTorrentFilesDetail(t: TransmissionTorrent): TorrentFilesDetail {
   return { files, fileStats };
 }
 
-function toTorrentPeersDetail(t: TransmissionTorrent): TorrentPeersDetail {
-  const peers = (t.peers ?? []).map((peer) => ({
+function toTorrentPeersDetail(t: PeersTorrent): TorrentPeersDetail {
+  const peers = t.peers.map((peer) => ({
     address: peer.address,
     port: peer.port,
     clientName: peer.clientName,
@@ -172,8 +147,8 @@ function toTorrentPeersDetail(t: TransmissionTorrent): TorrentPeersDetail {
   return { peers };
 }
 
-function toTorrentTrackersDetail(t: TransmissionTorrent): TorrentTrackersDetail {
-  const trackerStats = (t.trackerStats ?? []).map((tracker) => ({
+function toTorrentTrackersDetail(t: TrackersTorrent): TorrentTrackersDetail {
+  const trackerStats = t.trackerStats.map((tracker) => ({
     announce: tracker.announce,
     tier: tracker.tier,
     seederCount: tracker.seederCount,
@@ -193,41 +168,6 @@ function toTorrentTrackersDetail(t: TransmissionTorrent): TorrentTrackersDetail 
   return { trackerStats };
 }
 
-function toTorrentPiecesDetail(t: TransmissionTorrent): TorrentPiecesDetail {
-  return {
-    pieceCount: t.pieceCount!,
-    pieceSize: t.pieceSize!,
-    pieces: t.pieces!,
-  };
-}
-
-function toSession(s: SessionGetResponse): Session {
-  return {
-    "speed-limit-down-enabled": s["speed-limit-down-enabled"]!,
-    "speed-limit-down": s["speed-limit-down"]!,
-    "speed-limit-up-enabled": s["speed-limit-up-enabled"]!,
-    "speed-limit-up": s["speed-limit-up"]!,
-    "alt-speed-enabled": s["alt-speed-enabled"]!,
-    "alt-speed-down": s["alt-speed-down"]!,
-    "alt-speed-up": s["alt-speed-up"]!,
-    "alt-speed-time-enabled": s["alt-speed-time-enabled"]!,
-    "alt-speed-time-begin": s["alt-speed-time-begin"]!,
-    "alt-speed-time-end": s["alt-speed-time-end"]!,
-    "alt-speed-time-day": s["alt-speed-time-day"]!,
-    seedRatioLimited: s.seedRatioLimited!,
-    seedRatioLimit: s.seedRatioLimit!,
-    "idle-seeding-limit-enabled": s["idle-seeding-limit-enabled"]!,
-    "idle-seeding-limit": s["idle-seeding-limit"]!,
-    "download-queue-enabled": s["download-queue-enabled"]!,
-    "download-queue-size": s["download-queue-size"]!,
-    "seed-queue-enabled": s["seed-queue-enabled"]!,
-    "seed-queue-size": s["seed-queue-size"]!,
-    "dht-enabled": s["dht-enabled"]!,
-    "lpd-enabled": s["lpd-enabled"]!,
-    "pex-enabled": s["pex-enabled"]!,
-    "download-dir": s["download-dir"]!,
-  };
-}
 
 function toSessionStats(s: SessionStatsResponse): SessionStats {
   return {
@@ -250,13 +190,13 @@ export class TransmissionAdapter implements TorrentClient {
     this.client = new TransmissionClient(config);
   }
 
-  private async getSingleTorrent(
+  private async getSingleTorrent<const F extends readonly TorrentField[]>(
     id: TorrentId,
-    fields: readonly TorrentField[],
-  ): Promise<TransmissionTorrent | undefined> {
+    fields: F,
+  ): Promise<TorrentForFields<F> | undefined> {
     const response = await this.client.request({
       method: "torrent-get",
-      arguments: { fields: [...fields], ids: [Number(id)] },
+      arguments: { fields, ids: [Number(id)] },
     });
     return response.arguments.torrents[0];
   }
@@ -264,9 +204,9 @@ export class TransmissionAdapter implements TorrentClient {
   async getTorrents(): Promise<TorrentListItem[]> {
     const response = await this.client.request({
       method: "torrent-get",
-      arguments: { fields: [...listFields] },
+      arguments: { fields: listFields },
     });
-    return response.arguments.torrents.map(toTorrentListItem);
+    return response.arguments.torrents;
   }
 
   async getTorrentInfo(id: TorrentId): Promise<TorrentInfoDetail | undefined> {
@@ -278,7 +218,7 @@ export class TransmissionAdapter implements TorrentClient {
   async getTorrentSettings(id: TorrentId): Promise<TorrentSettingsDetail | undefined> {
     const torrent = await this.getSingleTorrent(id, settingsFields);
     if (!torrent) return undefined;
-    return toTorrentSettingsDetail(torrent);
+    return torrent;
   }
 
   async getTorrentFiles(id: TorrentId): Promise<TorrentFilesDetail | undefined> {
@@ -302,7 +242,7 @@ export class TransmissionAdapter implements TorrentClient {
   async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined> {
     const torrent = await this.getSingleTorrent(id, piecesFields);
     if (!torrent) return undefined;
-    return toTorrentPiecesDetail(torrent);
+    return torrent;
   }
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {
@@ -426,8 +366,11 @@ export class TransmissionAdapter implements TorrentClient {
   }
 
   async getSession(): Promise<Session> {
-    const response = await this.client.request({ method: "session-get" });
-    return toSession(response.arguments);
+    const response = await this.client.request({
+      method: "session-get",
+      arguments: { fields: sessionFields },
+    });
+    return response.arguments;
   }
 
   async setSession(params: Partial<Session>): Promise<void> {
@@ -438,8 +381,7 @@ export class TransmissionAdapter implements TorrentClient {
   }
 
   async getPreferences(): Promise<Record<string, unknown>> {
-    const session = await this.getSession();
-    return { ...session };
+    return await this.getSession();
   }
 
   async setPreferences(prefs: Record<string, unknown>): Promise<void> {

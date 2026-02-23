@@ -1,7 +1,7 @@
 import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
-import type { Methods, Calls } from "./rpc-call";
+import type { AnyRequest, ResponseForRequest } from "./rpc-call";
 import { HTTPError, TransmissionError, ResponseParseError } from "./error";
 
 export class TransmissionClient {
@@ -62,10 +62,10 @@ export class TransmissionClient {
     this.session = nextSession;
   }
 
-  async request<M extends Methods>(
-    req: Parameters<Calls[M]>[0] & { method: M },
+  async request<Req extends AnyRequest>(
+    req: Req,
     retry = true
-  ): Promise<ReturnType<Calls[M]>> {
+  ): Promise<ResponseForRequest<Req>> {
     await this.ensureSession();
 
     const headers = new Headers({
@@ -88,7 +88,7 @@ export class TransmissionClient {
     if (response.status === 409 && retry) {
       this.session = null;
       await this.ensureSession();
-      return await this.request<M>(req, false);
+      return await this.request(req, false);
     }
 
     if (!response.ok) {
@@ -97,9 +97,9 @@ export class TransmissionClient {
 
     const text = await response.text();
 
-    let json: ReturnType<Calls[M]>;
+    let json: ResponseForRequest<Req>;
     try {
-      json = JSON.parse(text) as ReturnType<Calls[M]>;
+      json = JSON.parse(text);
     } catch {
       throw new ResponseParseError(response.status, text);
     }

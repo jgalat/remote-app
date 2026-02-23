@@ -1,6 +1,9 @@
 export type {
   Request as SessionGetRequest,
   Response as SessionGetResponse,
+  SessionGetField,
+  SessionGetForFields,
+  ResponseFor as SessionGetResponseFor,
 } from "./session-get";
 export type { Request as SessionSetRequest } from "./session-set";
 export type { Response as SessionStatsResponse } from "./session-stats";
@@ -18,6 +21,9 @@ export type { Request as TorrentSetRequest } from "./torrent-set";
 export type {
   Request as TorrentGetRequest,
   Response as TorrentGetResponse,
+  TorrentField,
+  TorrentForFields,
+  ResponseFor as TorrentGetResponseFor,
 } from "./torrent-get";
 export type {
   Request as TorrentAddRequest,

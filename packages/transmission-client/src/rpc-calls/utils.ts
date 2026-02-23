@@ -3,5 +3,5 @@ export type Identifiers = {
 };
 
 export type Fields<T> = {
-  fields: T[];
+  fields: readonly T[];
 };

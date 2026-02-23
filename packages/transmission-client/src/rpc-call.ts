@@ -1,5 +1,7 @@
 import type {
+  SessionGetField,
   SessionGetRequest,
+  SessionGetResponseFor,
   SessionGetResponse,
   SessionSetRequest,
   SessionStatsResponse,
@@ -12,7 +14,9 @@ import type {
   TorrentVerifyRequest,
   TorrentReannounceRequest,
   TorrentSetRequest,
+  TorrentField,
   TorrentGetRequest,
+  TorrentGetResponseFor,
   TorrentGetResponse,
   TorrentAddRequest,
   TorrentAddResponse,
@@ -140,3 +144,25 @@ export type MethodResponse = {
 export type Calls = {
   [K in Methods]: RPCCall<K, MethodRequest[K], MethodResponse[K]>;
 };
+
+export type RequestForMethod<M extends Methods> = RPCRequest<M, MethodRequest[M]>;
+
+export type AnyRequest = {
+  [K in Methods]: RequestForMethod<K>;
+}[Methods];
+
+type MethodResponseForRequest<M extends Methods, Req extends RequestForMethod<M>> = M extends "torrent-get"
+  ? Req extends { arguments: { fields: infer F extends readonly TorrentField[] } }
+    ? TorrentGetResponseFor<F>
+    : TorrentGetResponse
+  : M extends "session-get"
+    ? Req extends { arguments: { fields: infer F extends readonly SessionGetField[] } }
+      ? SessionGetResponseFor<F>
+      : SessionGetResponse
+    : MethodResponse[M];
+
+export type ResponseForRequest<Req extends AnyRequest> = Req extends RequestForMethod<
+  infer M extends Methods
+>
+  ? RPCResponse<MethodResponseForRequest<M, Req>>
+  : never;

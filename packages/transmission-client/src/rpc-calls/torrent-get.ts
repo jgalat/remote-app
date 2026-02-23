@@ -1,4 +1,4 @@
-import { Identifiers, Fields } from "./utils";
+import { Identifiers } from "./utils";
 
 type File = {
   bytesCompleted: number;
@@ -185,12 +185,30 @@ export type Torrent = {
 
 export type TorrentFormat = "objects" | "table";
 
-export type Response = {
-  torrents: Torrent[];
+export type TorrentField = keyof Torrent;
+
+type SelectedTorrentFields<F extends readonly TorrentField[]> = {
+  [K in F[number]]-?: NonNullable<Torrent[K]>;
+};
+
+type IsTuple<T extends readonly unknown[]> = number extends T["length"] ? false : true;
+
+// Only narrow when TypeScript can infer a concrete field subset.
+// Widened arrays should keep the broad optional Torrent shape.
+export type TorrentForFields<F extends readonly TorrentField[]> = IsTuple<F> extends true
+  ? SelectedTorrentFields<F>
+  : Torrent;
+
+export type ResponseFor<F extends readonly TorrentField[]> = {
+  torrents: TorrentForFields<F>[];
   removed?: number[];
 };
 
-export type Request = Identifiers &
-  Fields<keyof Torrent> & {
-    format?: TorrentFormat;
-  };
+export type Response = ResponseFor<readonly TorrentField[]>;
+
+export type Request<F extends readonly TorrentField[] = readonly TorrentField[]> =
+  Identifiers &
+    {
+      fields: F;
+      format?: TorrentFormat;
+    };

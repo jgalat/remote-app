@@ -36,6 +36,16 @@ export type {
 
 export { TorrentStatus, Priority, Mode } from "./rpc-calls/torrent-get";
 export type { Torrent } from "./schemas";
+export type {
+  TorrentField,
+  TorrentForFields,
+  ResponseFor as TorrentGetResponseFor,
+} from "./rpc-calls/torrent-get";
+export type {
+  SessionGetField,
+  SessionGetForFields,
+  ResponseFor as SessionGetResponseFor,
+} from "./rpc-calls/session-get";
 
 export type { Methods } from "./rpc-call";
 

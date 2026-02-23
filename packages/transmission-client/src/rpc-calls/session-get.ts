@@ -1,5 +1,3 @@
-import { Fields } from "./utils";
-
 type Units = {
   "speed-units": string[];
   "speed-bytes": number;
@@ -70,4 +68,22 @@ export type Response = {
   version?: string;
 };
 
-export type Request = Partial<Fields<keyof Response>>;
+export type SessionGetField = keyof Response;
+
+type SelectedSessionFields<F extends readonly SessionGetField[]> = {
+  [K in F[number]]-?: NonNullable<Response[K]>;
+};
+
+type IsTuple<T extends readonly unknown[]> = number extends T["length"] ? false : true;
+
+// Only narrow when TypeScript can infer a concrete field subset.
+// Widened arrays should keep the broad optional response shape.
+export type SessionGetForFields<F extends readonly SessionGetField[]> = IsTuple<F> extends true
+  ? SelectedSessionFields<F>
+  : Response;
+
+export type ResponseFor<F extends readonly SessionGetField[]> = SessionGetForFields<F>;
+
+export type Request<F extends readonly SessionGetField[] = readonly SessionGetField[]> = {
+  fields?: F;
+};
