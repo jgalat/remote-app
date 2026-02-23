@@ -87,73 +87,45 @@ type TorrentField =
   | (typeof trackersFields)[number]
   | (typeof piecesFields)[number];
 
-function requiredNumber(value: number | undefined, field: string): number {
-  if (typeof value !== "number") {
-    throw new Error(`Transmission missing numeric field: ${field}`);
-  }
-  return value;
-}
-
-function requiredString(value: string | undefined, field: string): string {
-  if (typeof value !== "string") {
-    throw new Error(`Transmission missing string field: ${field}`);
-  }
-  return value;
-}
-
-function requiredBoolean(value: boolean | undefined, field: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new Error(`Transmission missing boolean field: ${field}`);
-  }
-  return value;
-}
-
-function requiredArray<T>(value: T[] | undefined, field: string): T[] {
-  if (!Array.isArray(value)) {
-    throw new Error(`Transmission missing array field: ${field}`);
-  }
-  return value;
-}
-
 function toTorrentListItem(t: TransmissionTorrent): TorrentListItem {
   return {
-    id: requiredNumber(t.id, "id"),
-    name: requiredString(t.name, "name"),
-    status: requiredNumber(t.status, "status"),
-    percentDone: requiredNumber(t.percentDone, "percentDone"),
-    rateDownload: requiredNumber(t.rateDownload, "rateDownload"),
-    rateUpload: requiredNumber(t.rateUpload, "rateUpload"),
-    totalSize: requiredNumber(t.totalSize, "totalSize"),
-    sizeWhenDone: requiredNumber(t.sizeWhenDone, "sizeWhenDone"),
-    leftUntilDone: requiredNumber(t.leftUntilDone, "leftUntilDone"),
-    eta: requiredNumber(t.eta, "eta"),
-    error: requiredNumber(t.error, "error"),
-    errorString: requiredString(t.errorString, "errorString"),
-    isFinished: requiredBoolean(t.isFinished, "isFinished"),
-    peersConnected: requiredNumber(t.peersConnected, "peersConnected"),
-    peersGettingFromUs: requiredNumber(t.peersGettingFromUs, "peersGettingFromUs"),
-    peersSendingToUs: requiredNumber(t.peersSendingToUs, "peersSendingToUs"),
+    id: t.id!,
+    name: t.name!,
+    status: t.status!,
+    percentDone: t.percentDone!,
+    rateDownload: t.rateDownload!,
+    rateUpload: t.rateUpload!,
+    totalSize: t.totalSize!,
+    sizeWhenDone: t.sizeWhenDone!,
+    leftUntilDone: t.leftUntilDone!,
+    eta: t.eta!,
+    error: t.error!,
+    errorString: t.errorString!,
+    isFinished: t.isFinished!,
+    peersConnected: t.peersConnected!,
+    peersGettingFromUs: t.peersGettingFromUs!,
+    peersSendingToUs: t.peersSendingToUs!,
     webseedsSendingToUs: t.webseedsSendingToUs,
-    uploadedEver: requiredNumber(t.uploadedEver, "uploadedEver"),
-    uploadRatio: requiredNumber(t.uploadRatio, "uploadRatio"),
+    uploadedEver: t.uploadedEver!,
+    uploadRatio: t.uploadRatio!,
     recheckProgress: t.recheckProgress,
-    queuePosition: requiredNumber(t.queuePosition, "queuePosition"),
-    addedDate: requiredNumber(t.addedDate, "addedDate"),
-    doneDate: requiredNumber(t.doneDate, "doneDate"),
-    activityDate: requiredNumber(t.activityDate, "activityDate"),
-    magnetLink: requiredString(t.magnetLink, "magnetLink"),
-    downloadDir: requiredString(t.downloadDir, "downloadDir"),
+    queuePosition: t.queuePosition!,
+    addedDate: t.addedDate!,
+    doneDate: t.doneDate!,
+    activityDate: t.activityDate!,
+    magnetLink: t.magnetLink!,
+    downloadDir: t.downloadDir!,
   };
 }
 
 function toTorrentInfoDetail(t: TransmissionTorrent): TorrentInfoDetail {
   return {
     ...toTorrentListItem(t),
-    downloadedEver: requiredNumber(t.downloadedEver, "downloadedEver"),
-    pieceCount: requiredNumber(t.pieceCount, "pieceCount"),
-    pieceSize: requiredNumber(t.pieceSize, "pieceSize"),
-    pieces: requiredString(t.pieces, "pieces"),
-    filesCount: requiredNumber(t["file-count"], "file-count"),
+    downloadedEver: t.downloadedEver!,
+    pieceCount: t.pieceCount!,
+    pieceSize: t.pieceSize!,
+    pieces: t.pieces!,
+    filesCount: t["file-count"]!,
   };
 }
 
@@ -161,142 +133,109 @@ function toTorrentSettingsDetail(t: TransmissionTorrent): TorrentSettingsDetail 
   return {
     bandwidthPriority: t.bandwidthPriority,
     honorsSessionLimits: t.honorsSessionLimits,
-    downloadLimited: requiredBoolean(t.downloadLimited, "downloadLimited"),
-    downloadLimit: requiredNumber(t.downloadLimit, "downloadLimit"),
-    uploadLimited: requiredBoolean(t.uploadLimited, "uploadLimited"),
-    uploadLimit: requiredNumber(t.uploadLimit, "uploadLimit"),
-    seedRatioMode: requiredNumber(t.seedRatioMode, "seedRatioMode"),
-    seedRatioLimit: requiredNumber(t.seedRatioLimit, "seedRatioLimit"),
-    seedIdleMode: requiredNumber(t.seedIdleMode, "seedIdleMode"),
-    seedIdleLimit: requiredNumber(t.seedIdleLimit, "seedIdleLimit"),
+    downloadLimited: t.downloadLimited!,
+    downloadLimit: t.downloadLimit!,
+    uploadLimited: t.uploadLimited!,
+    uploadLimit: t.uploadLimit!,
+    seedRatioMode: t.seedRatioMode!,
+    seedRatioLimit: t.seedRatioLimit!,
+    seedIdleMode: t.seedIdleMode!,
+    seedIdleLimit: t.seedIdleLimit!,
   };
 }
 
 function toTorrentFilesDetail(t: TransmissionTorrent): TorrentFilesDetail {
-  const files = requiredArray(t.files, "files").map((file, i) => ({
-    bytesCompleted: requiredNumber(file.bytesCompleted, `files[${i}].bytesCompleted`),
-    length: requiredNumber(file.length, `files[${i}].length`),
-    name: requiredString(file.name, `files[${i}].name`),
+  const files = (t.files ?? []).map((file) => ({
+    bytesCompleted: file.bytesCompleted,
+    length: file.length,
+    name: file.name,
   }));
-  const fileStats = requiredArray(t.fileStats, "fileStats").map((stats, i) => ({
-    bytesCompleted: requiredNumber(
-      stats.bytesCompleted,
-      `fileStats[${i}].bytesCompleted`,
-    ),
-    wanted: requiredBoolean(stats.wanted, `fileStats[${i}].wanted`),
-    priority: requiredNumber(stats.priority, `fileStats[${i}].priority`),
+  const fileStats = (t.fileStats ?? []).map((stats) => ({
+    bytesCompleted: stats.bytesCompleted,
+    wanted: stats.wanted,
+    priority: stats.priority,
   }));
   return { files, fileStats };
 }
 
 function toTorrentPeersDetail(t: TransmissionTorrent): TorrentPeersDetail {
-  const peers = (t.peers ?? []).map((peer, i) => ({
-    address: requiredString(peer.address, `peers[${i}].address`),
-    port: requiredNumber(peer.port, `peers[${i}].port`),
-    clientName: requiredString(peer.clientName, `peers[${i}].clientName`),
-    isUTP: requiredBoolean(peer.isUTP, `peers[${i}].isUTP`),
-    isEncrypted: requiredBoolean(peer.isEncrypted, `peers[${i}].isEncrypted`),
-    rateToClient: requiredNumber(peer.rateToClient, `peers[${i}].rateToClient`),
-    rateToPeer: requiredNumber(peer.rateToPeer, `peers[${i}].rateToPeer`),
-    progress: requiredNumber(peer.progress, `peers[${i}].progress`),
+  const peers = (t.peers ?? []).map((peer) => ({
+    address: peer.address,
+    port: peer.port,
+    clientName: peer.clientName,
+    isUTP: peer.isUTP,
+    isEncrypted: peer.isEncrypted,
+    rateToClient: peer.rateToClient,
+    rateToPeer: peer.rateToPeer,
+    progress: peer.progress,
   }));
   return { peers };
 }
 
 function toTorrentTrackersDetail(t: TransmissionTorrent): TorrentTrackersDetail {
-  const trackerStats = (t.trackerStats ?? []).map((tracker, i) => ({
-    announce: requiredString(tracker.announce, `trackerStats[${i}].announce`),
-    tier: requiredNumber(tracker.tier, `trackerStats[${i}].tier`),
-    seederCount: requiredNumber(tracker.seederCount, `trackerStats[${i}].seederCount`),
-    leecherCount: requiredNumber(tracker.leecherCount, `trackerStats[${i}].leecherCount`),
-    downloadCount: requiredNumber(
-      tracker.downloadCount,
-      `trackerStats[${i}].downloadCount`,
-    ),
-    lastAnnounceTime: requiredNumber(
-      tracker.lastAnnounceTime,
-      `trackerStats[${i}].lastAnnounceTime`,
-    ),
-    lastAnnounceSucceeded: requiredBoolean(
-      tracker.lastAnnounceSucceeded,
-      `trackerStats[${i}].lastAnnounceSucceeded`,
-    ),
-    lastAnnouncePeerCount: requiredNumber(
-      tracker.lastAnnouncePeerCount,
-      `trackerStats[${i}].lastAnnouncePeerCount`,
-    ),
-    lastAnnounceResult: requiredString(
-      tracker.lastAnnounceResult,
-      `trackerStats[${i}].lastAnnounceResult`,
-    ),
-    nextAnnounceTime: requiredNumber(
-      tracker.nextAnnounceTime,
-      `trackerStats[${i}].nextAnnounceTime`,
-    ),
-    lastScrapeTime: requiredNumber(
-      tracker.lastScrapeTime,
-      `trackerStats[${i}].lastScrapeTime`,
-    ),
-    lastScrapeSucceeded: requiredBoolean(
-      tracker.lastScrapeSucceeded,
-      `trackerStats[${i}].lastScrapeSucceeded`,
-    ),
-    lastScrapeResult: requiredString(
-      tracker.lastScrapeResult,
-      `trackerStats[${i}].lastScrapeResult`,
-    ),
-    nextScrapeTime: requiredNumber(
-      tracker.nextScrapeTime,
-      `trackerStats[${i}].nextScrapeTime`,
-    ),
-    scrape: requiredString(tracker.scrape, `trackerStats[${i}].scrape`),
+  const trackerStats = (t.trackerStats ?? []).map((tracker) => ({
+    announce: tracker.announce,
+    tier: tracker.tier,
+    seederCount: tracker.seederCount,
+    leecherCount: tracker.leecherCount,
+    downloadCount: tracker.downloadCount,
+    lastAnnounceTime: tracker.lastAnnounceTime,
+    lastAnnounceSucceeded: tracker.lastAnnounceSucceeded,
+    lastAnnouncePeerCount: tracker.lastAnnouncePeerCount,
+    lastAnnounceResult: tracker.lastAnnounceResult,
+    nextAnnounceTime: tracker.nextAnnounceTime,
+    lastScrapeTime: tracker.lastScrapeTime,
+    lastScrapeSucceeded: tracker.lastScrapeSucceeded,
+    lastScrapeResult: tracker.lastScrapeResult,
+    nextScrapeTime: tracker.nextScrapeTime,
+    scrape: tracker.scrape,
   }));
   return { trackerStats };
 }
 
 function toTorrentPiecesDetail(t: TransmissionTorrent): TorrentPiecesDetail {
   return {
-    pieceCount: requiredNumber(t.pieceCount, "pieceCount"),
-    pieceSize: requiredNumber(t.pieceSize, "pieceSize"),
-    pieces: requiredString(t.pieces, "pieces"),
+    pieceCount: t.pieceCount!,
+    pieceSize: t.pieceSize!,
+    pieces: t.pieces!,
   };
 }
 
 function toSession(s: SessionGetResponse): Session {
   return {
-    "speed-limit-down-enabled": requiredBoolean(s["speed-limit-down-enabled"], "speed-limit-down-enabled"),
-    "speed-limit-down": requiredNumber(s["speed-limit-down"], "speed-limit-down"),
-    "speed-limit-up-enabled": requiredBoolean(s["speed-limit-up-enabled"], "speed-limit-up-enabled"),
-    "speed-limit-up": requiredNumber(s["speed-limit-up"], "speed-limit-up"),
-    "alt-speed-enabled": requiredBoolean(s["alt-speed-enabled"], "alt-speed-enabled"),
-    "alt-speed-down": requiredNumber(s["alt-speed-down"], "alt-speed-down"),
-    "alt-speed-up": requiredNumber(s["alt-speed-up"], "alt-speed-up"),
-    "alt-speed-time-enabled": requiredBoolean(s["alt-speed-time-enabled"], "alt-speed-time-enabled"),
-    "alt-speed-time-begin": requiredNumber(s["alt-speed-time-begin"], "alt-speed-time-begin"),
-    "alt-speed-time-end": requiredNumber(s["alt-speed-time-end"], "alt-speed-time-end"),
-    "alt-speed-time-day": requiredNumber(s["alt-speed-time-day"], "alt-speed-time-day"),
-    seedRatioLimited: requiredBoolean(s.seedRatioLimited, "seedRatioLimited"),
-    seedRatioLimit: requiredNumber(s.seedRatioLimit, "seedRatioLimit"),
-    "idle-seeding-limit-enabled": requiredBoolean(s["idle-seeding-limit-enabled"], "idle-seeding-limit-enabled"),
-    "idle-seeding-limit": requiredNumber(s["idle-seeding-limit"], "idle-seeding-limit"),
-    "download-queue-enabled": requiredBoolean(s["download-queue-enabled"], "download-queue-enabled"),
-    "download-queue-size": requiredNumber(s["download-queue-size"], "download-queue-size"),
-    "seed-queue-enabled": requiredBoolean(s["seed-queue-enabled"], "seed-queue-enabled"),
-    "seed-queue-size": requiredNumber(s["seed-queue-size"], "seed-queue-size"),
-    "dht-enabled": requiredBoolean(s["dht-enabled"], "dht-enabled"),
-    "lpd-enabled": requiredBoolean(s["lpd-enabled"], "lpd-enabled"),
-    "pex-enabled": requiredBoolean(s["pex-enabled"], "pex-enabled"),
-    "download-dir": requiredString(s["download-dir"], "download-dir"),
+    "speed-limit-down-enabled": s["speed-limit-down-enabled"]!,
+    "speed-limit-down": s["speed-limit-down"]!,
+    "speed-limit-up-enabled": s["speed-limit-up-enabled"]!,
+    "speed-limit-up": s["speed-limit-up"]!,
+    "alt-speed-enabled": s["alt-speed-enabled"]!,
+    "alt-speed-down": s["alt-speed-down"]!,
+    "alt-speed-up": s["alt-speed-up"]!,
+    "alt-speed-time-enabled": s["alt-speed-time-enabled"]!,
+    "alt-speed-time-begin": s["alt-speed-time-begin"]!,
+    "alt-speed-time-end": s["alt-speed-time-end"]!,
+    "alt-speed-time-day": s["alt-speed-time-day"]!,
+    seedRatioLimited: s.seedRatioLimited!,
+    seedRatioLimit: s.seedRatioLimit!,
+    "idle-seeding-limit-enabled": s["idle-seeding-limit-enabled"]!,
+    "idle-seeding-limit": s["idle-seeding-limit"]!,
+    "download-queue-enabled": s["download-queue-enabled"]!,
+    "download-queue-size": s["download-queue-size"]!,
+    "seed-queue-enabled": s["seed-queue-enabled"]!,
+    "seed-queue-size": s["seed-queue-size"]!,
+    "dht-enabled": s["dht-enabled"]!,
+    "lpd-enabled": s["lpd-enabled"]!,
+    "pex-enabled": s["pex-enabled"]!,
+    "download-dir": s["download-dir"]!,
   };
 }
 
 function toSessionStats(s: SessionStatsResponse): SessionStats {
   return {
-    activeTorrentCount: requiredNumber(s.activeTorrentCount, "activeTorrentCount"),
-    pausedTorrentCount: requiredNumber(s.pausedTorrentCount, "pausedTorrentCount"),
-    torrentCount: requiredNumber(s.torrentCount, "torrentCount"),
-    downloadSpeed: requiredNumber(s.downloadSpeed, "downloadSpeed"),
-    uploadSpeed: requiredNumber(s.uploadSpeed, "uploadSpeed"),
+    activeTorrentCount: s.activeTorrentCount,
+    pausedTorrentCount: s.pausedTorrentCount,
+    torrentCount: s.torrentCount,
+    downloadSpeed: s.downloadSpeed,
+    uploadSpeed: s.uploadSpeed,
   };
 }
 
