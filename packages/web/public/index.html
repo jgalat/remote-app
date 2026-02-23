@@ -1,80 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Remote for Transmission</title>
+    <title>Remote for Transmission | React Native app for Transmission</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Remote for Transmission is an open source Transmission BitTorrent remote client built with React Native. Download it for free on Google Play."
+      content="Remote for Transmission is an open source React Native app to control your Transmission server from Android. Manage, monitor, and fine-tune torrents from anywhere."
     />
+    <meta
+      name="keywords"
+      content="remote for Transmission, Transmission controller app, React Native Transmission app, control Transmission server from phone, Android"
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#efefef" />
+    <meta name="application-name" content="Remote for Transmission" />
+
+    <link rel="canonical" href="https://remote.jg.ar/" />
     <link rel="icon" href="assets/favicon.png" type="image/png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Remote for Transmission" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://remote.jg.ar/" />
+    <meta
+      property="og:title"
+      content="Remote for Transmission | React Native app for Transmission"
+    />
+    <meta
+      property="og:description"
+      content="Open source React Native app to control your Transmission server from Android."
+    />
+    <meta property="og:image" content="https://remote.jg.ar/assets/screen.jpg" />
+    <meta property="og:image:width" content="385" />
+    <meta property="og:image:height" content="842" />
+    <meta
+      property="og:image:alt"
+      content="Remote for Transmission Android app screen preview"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Remote for Transmission | React Native app for Transmission"
+    />
+    <meta
+      name="twitter:description"
+      content="Open source React Native app to control your Transmission server from Android."
+    />
+    <meta name="twitter:image" content="https://remote.jg.ar/assets/screen.jpg" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Remote for Transmission",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Android",
+        "isAccessibleForFree": true,
+        "url": "https://remote.jg.ar/",
+        "downloadUrl": "https://play.google.com/store/apps/details?id=ar.jg.remote",
+        "screenshot": "https://remote.jg.ar/assets/screen.jpg",
+        "description": "Open source React Native Android app to control your Transmission server.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Jorge Galat"
+        },
+        "sameAs": [
+          "https://github.com/jgalat/remote-app",
+          "https://github.com/jgalat/remote-app/issues",
+          "https://github.com/jgalat/remote-app/wiki"
+        ],
+        "featureList": [
+          "View active, paused, and completed torrents",
+          "Add torrents by magnet link, .torrent file, and Android share intents",
+          "Advanced controls for file priorities, limits, and queue rules",
+          "Server status, bandwidth activity, and session stats",
+          "Light and dark mode",
+          "Optional biometric lock and secure direct connection to your own Transmission instance",
+          "Background notifications for completed downloads",
+          "Open source app with public repository and issue tracker"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Remote for Transmission",
+        "url": "https://remote.jg.ar/",
+        "inLanguage": "en"
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+
     <style>
       :root {
-        font-family: "Roboto Mono", monospace;
+        color-scheme: light;
+        --background: #efefef;
+        --text: #000;
+        --gray: #444;
+        --light-gray: #888;
+        --tint: #cc0063;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
       }
 
       body {
-        max-width: 480px;
+        min-height: 100vh;
+        background: radial-gradient(circle at 0% 0%, #f8f8f8, transparent 32%),
+          radial-gradient(circle at 100% 90%, #e8e8e8, transparent 36%),
+          var(--background);
+        color: var(--text);
+        font-family: "Roboto Mono", monospace;
+      }
+
+      main {
+        max-width: 1080px;
         margin: 0 auto;
-
-        padding: 2rem 1rem 1rem 1rem;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        overflow-y: hidden;
+        padding: 2.4rem 1.1rem 1.6rem;
       }
 
       h1,
+      h2,
+      h3,
       p {
-        text-align: center;
         margin: 0;
-        margin-bottom: 24px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr minmax(280px, 360px);
+        gap: 2rem;
+        align-items: center;
+        min-height: min(78vh, 760px);
+      }
+
+      .eyebrow {
+        color: var(--gray);
+        letter-spacing: 0.03em;
+        margin-bottom: 0.7rem;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5.2vw, 3.7rem);
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+      }
+
+      .lead {
+        color: var(--gray);
+        max-width: 58ch;
+        line-height: 1.6;
+      }
+
+      .actions {
+        margin-top: 1.35rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
       }
 
       .playstore-link {
-        max-width: 240px;
+        width: min(240px, 100%);
         height: auto;
+        display: block;
       }
 
-      .screen-preview {
-        max-width: 100%;
+      .phone {
+        justify-self: center;
+      }
+
+      .phone img {
+        display: block;
+        width: 100%;
         height: auto;
-        margin-top: 24px;
+        border-radius: 34px;
+        box-shadow: 0 26px 50px -34px rgba(0, 0, 0, 0.46);
+      }
+
+      .links {
+        margin-top: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem 1.25rem;
+      }
+
+      .features {
+        margin-top: 2rem;
+      }
+
+      .features h2 {
+        font-size: 1.08rem;
+        margin-bottom: 0.7rem;
+      }
+
+      .features ul {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: var(--gray);
+        line-height: 1.6;
+      }
+
+      .features li::marker {
+        color: var(--tint);
+      }
+
+      .links a {
+        color: var(--tint);
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+        text-decoration-thickness: 1px;
+        font-weight: 500;
+      }
+
+      .links a:hover,
+      .links a:focus-visible {
+        color: #a90052;
+        text-decoration: underline;
+        text-underline-offset: 0.22em;
+      }
+
+      footer {
+        margin-top: 2.1rem;
+        color: var(--light-gray);
+        font-size: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.8rem;
+      }
+
+      footer a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      footer a:hover,
+      footer a:focus-visible {
+        color: var(--tint);
+        text-decoration: underline;
+        text-underline-offset: 0.22em;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: reveal 0.56s ease-out forwards;
+      }
+
+      .hero.reveal {
+        animation-delay: 0.05s;
+      }
+
+      .features.reveal {
+        animation-delay: 0.12s;
+      }
+
+      @keyframes reveal {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 920px) {
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: auto;
+        }
+
+        .hero-copy {
+          text-align: center;
+        }
+
+        .lead {
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .actions {
+          justify-content: center;
+        }
+
+        .phone {
+          max-width: 340px;
+          justify-self: center;
+        }
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding-top: 1.7rem;
+        }
+
+        .actions {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .actions a {
+          text-align: center;
+        }
+
+        .playstore-link {
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal {
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Remote for Transmission</h1>
-    <p>
-      An open source Transmission BitTorrent remote client built with React
-      Native
-    </p>
-    <a
-      href="https://play.google.com/store/apps/details?id=ar.jg.remote"
-      rel="noopener noreferrer"
-      target="_blank"
-      ><img
-        width="646"
-        height="250"
-        class="playstore-link"
-        alt="Get it on Google Play"
-        src="https://play.google.com/intl/es-419/badges/static/images/badges/en_badge_web_generic.png"
-    /></a>
-    <img
-      width="385"
-      height="842"
-      class="screen-preview"
-      alt="Preview of the app"
-      src="assets/screen.jpg"
-    />
+    <main>
+      <section class="hero reveal" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Remote for Transmission</p>
+          <h1 id="hero-title">Control your torrents remotely.</h1>
+          <p class="lead">
+            Remote for Transmission is an open source Android app built with
+            React Native to control your Transmission server while managing,
+            monitoring, and fine-tuning your downloads, queue, files, peers,
+            trackers, and speed limits.
+          </p>
+          <div class="actions">
+            <a
+              href="https://play.google.com/store/apps/details?id=ar.jg.remote"
+              rel="noopener noreferrer"
+              target="_blank"
+              aria-label="Download Remote for Transmission on Google Play"
+            >
+              <img
+                width="646"
+                height="250"
+                class="playstore-link"
+                alt="Get Remote for Transmission on Google Play"
+                src="https://play.google.com/intl/es-419/badges/static/images/badges/en_badge_web_generic.png"
+              />
+            </a>
+          </div>
+        </div>
+
+        <figure class="phone" aria-label="App screen preview">
+          <img
+            width="385"
+            height="842"
+            alt="Remote for Transmission app screenshot showing torrent list and controls"
+            src="assets/screen.jpg"
+          />
+        </figure>
+      </section>
+
+      <section class="links" aria-label="Project links">
+        <a href="https://github.com/jgalat/remote-app" target="_blank" rel="noopener noreferrer"
+          >Repository</a
+        >
+        <a
+          href="https://github.com/jgalat/remote-app/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Issues</a
+        >
+        <a href="https://github.com/jgalat/remote-app/wiki" target="_blank" rel="noopener noreferrer"
+          >Wiki</a
+        >
+        <a href="mailto:remote@jg.ar">Contact: remote@jg.ar</a>
+      </section>
+
+      <section class="features reveal" aria-labelledby="features-title">
+        <h2 id="features-title">What you can do</h2>
+        <ul>
+          <li>Add torrents via magnet links, .torrent files, and Android share intents.</li>
+          <li>Inspect torrent details: files, trackers, peers, pieces, speeds, ratio, and ETA.</li>
+          <li>Run torrent actions: start, start now, pause, verify, reannounce, move, and remove.</li>
+          <li>Set per-file priorities and skip files you do not want to download.</li>
+          <li>Control Transmission settings: speed limits, seeding rules, queue sizes, and peer discovery.</li>
+          <li>Manage download directories globally and per server.</li>
+          <li>Use light, dark, or system theme, with optional biometric lock.</li>
+          <li>Receive background notifications when downloads complete.</li>
+          <li>Pro features include multi-server support and torrent search via Jackett or Prowlarr.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <span>Remote for Transmission</span>
+        <a href="privacy-policy">Privacy Policy</a>
+      </footer>
+    </main>
   </body>
 </html>

@@ -9,7 +9,7 @@
     "directory": "packages/web"
   },
   "scripts": {
-    "publish": "npx wrangler pages deploy ./public",
+    "publish": "npx wrangler pages deploy ./public --branch master",
     "dev": "npx wrangler pages dev ./public --live-reload"
   },
   "license": "MIT",

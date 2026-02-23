@@ -1,2 +1,4 @@
-User-Agent: *
+User-agent: *
 Allow: /
+
+Sitemap: https://remote.jg.ar/sitemap.xml

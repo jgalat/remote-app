@@ -1,0 +1,5 @@
+{
+  "name": "remote-app-web",
+  "compatibility_date": "2026-02-23",
+  "pages_build_output_dir": "./public"
+}
