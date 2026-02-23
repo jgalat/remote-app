@@ -5,10 +5,9 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useServersStore, useServer } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
 import type { OptionProps } from "~/components/option";
+import { SERVER_SELECTOR_SHEET_ID } from "./ids";
 
-const sheetId = "server-selector" as const;
-
-function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
+function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>) {
   const router = useRouter();
   const { servers, store } = useServersStore();
   const { canUse, available } = usePro();
@@ -44,6 +43,6 @@ function ServerSelectorSheet(props: SheetProps<typeof sheetId>) {
   return <ActionSheet title="Servers" options={options} {...props} />;
 }
 
-ServerSelectorSheet.sheetId = sheetId;
+ServerSelectorSheet.sheetId = SERVER_SELECTOR_SHEET_ID;
 
 export default ServerSelectorSheet;

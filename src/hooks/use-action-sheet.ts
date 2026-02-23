@@ -1,25 +1,23 @@
 import * as React from "react";
 import { SheetManager } from "react-native-actions-sheet";
 
-import ListingSheet from "~/sheets/listing";
-import TorrentActionsSheet, {
-  type Payload as TorrentActionsPayload,
-} from "~/sheets/torrent-actions";
-import TorrentPrioritySheet, {
-  type Payload as TorrentPriorityPayload,
-} from "~/sheets/torrent-priority";
-import ServerSelectorSheet from "~/sheets/server-selector";
-import ServerDeleteConfirmSheet, {
-  type Payload as ServerDeleteConfirmPayload,
-} from "~/sheets/server-delete-confirm";
-import SearchConfigDeleteConfirmSheet, {
-  type Payload as SearchConfigDeleteConfirmPayload,
-} from "~/sheets/search-config-delete-confirm";
+import type { Payload as TorrentActionsPayload } from "~/sheets/torrent-actions";
+import type { Payload as TorrentPriorityPayload } from "~/sheets/torrent-priority";
+import type { Payload as ServerDeleteConfirmPayload } from "~/sheets/server-delete-confirm";
+import type { Payload as SearchConfigDeleteConfirmPayload } from "~/sheets/search-config-delete-confirm";
+import {
+  LISTING_SHEET_ID,
+  SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID,
+  SERVER_DELETE_CONFIRM_SHEET_ID,
+  SERVER_SELECTOR_SHEET_ID,
+  TORRENT_ACTIONS_SHEET_ID,
+  TORRENT_PRIORITY_SHEET_ID,
+} from "~/sheets/ids";
 
 export function useTorrentActionsSheet() {
   return React.useCallback(
     (payload: TorrentActionsPayload) =>
-      SheetManager.show(TorrentActionsSheet.sheetId, {
+      SheetManager.show(TORRENT_ACTIONS_SHEET_ID, {
         payload,
       }),
     []
@@ -29,7 +27,7 @@ export function useTorrentActionsSheet() {
 export function useTorrentPrioritySheet(id: number | string) {
   return React.useCallback(
     (payload: Pick<TorrentPriorityPayload, "content">) =>
-      SheetManager.show(TorrentPrioritySheet.sheetId, {
+      SheetManager.show(TORRENT_PRIORITY_SHEET_ID, {
         payload: { id, ...payload },
       }),
     [id]
@@ -37,20 +35,17 @@ export function useTorrentPrioritySheet(id: number | string) {
 }
 
 export function useListingSheet() {
-  return React.useCallback(() => SheetManager.show(ListingSheet.sheetId), []);
+  return React.useCallback(() => SheetManager.show(LISTING_SHEET_ID), []);
 }
 
 export function useServerSelectorSheet() {
-  return React.useCallback(
-    () => SheetManager.show(ServerSelectorSheet.sheetId),
-    []
-  );
+  return React.useCallback(() => SheetManager.show(SERVER_SELECTOR_SHEET_ID), []);
 }
 
 export function useServerDeleteConfirmSheet() {
   return React.useCallback(
     (payload: ServerDeleteConfirmPayload) =>
-      SheetManager.show(ServerDeleteConfirmSheet.sheetId, { payload }),
+      SheetManager.show(SERVER_DELETE_CONFIRM_SHEET_ID, { payload }),
     []
   );
 }
@@ -58,7 +53,7 @@ export function useServerDeleteConfirmSheet() {
 export function useSearchConfigDeleteConfirmSheet() {
   return React.useCallback(
     (payload: SearchConfigDeleteConfirmPayload) =>
-      SheetManager.show(SearchConfigDeleteConfirmSheet.sheetId, { payload }),
+      SheetManager.show(SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID, { payload }),
     []
   );
 }

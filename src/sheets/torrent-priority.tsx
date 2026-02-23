@@ -4,13 +4,12 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import type { OptionProps } from "~/components/option";
 import { useTorrentSet } from "~/hooks/torrent";
 import type { TorrentId } from "~/client";
+import { TORRENT_PRIORITY_SHEET_ID } from "./ids";
 
 export type Payload = {
   id: TorrentId;
   content: number[];
 };
-
-const sheetId = "torrent-priority" as const;
 
 function TorrentPrioritySheet({
   payload: { id, content = [] } = {
@@ -18,7 +17,7 @@ function TorrentPrioritySheet({
     content: [],
   },
   ...props
-}: SheetProps<typeof sheetId>) {
+}: SheetProps<typeof TORRENT_PRIORITY_SHEET_ID>) {
   const torrentSet = useTorrentSet(id);
 
   const options: OptionProps[] = [
@@ -42,6 +41,6 @@ function TorrentPrioritySheet({
   return <ActionSheet title="Priority" options={options} {...props} />;
 }
 
-TorrentPrioritySheet.sheetId = sheetId;
+TorrentPrioritySheet.sheetId = TORRENT_PRIORITY_SHEET_ID;
 
 export default TorrentPrioritySheet;

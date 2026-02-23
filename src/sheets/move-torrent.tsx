@@ -12,7 +12,7 @@ import Button from "~/components/button";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useSession, useTorrentSetLocation } from "~/hooks/torrent";
 import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
-import SelectSheet from "./select";
+import { MOVE_TORRENT_SHEET_ID, SELECT_SHEET_ID } from "./ids";
 
 import type { SheetProps } from "react-native-actions-sheet";
 import type { SelectOption } from "./select";
@@ -23,12 +23,10 @@ export type Payload = {
   downloadDir?: string;
 };
 
-const sheetId = "move-torrent" as const;
-
 function MoveTorrentSheet({
   payload: { ids, downloadDir } = { ids: [] },
   ...props
-}: SheetProps<typeof sheetId>) {
+}: SheetProps<typeof MOVE_TORRENT_SHEET_ID>) {
   const { background, text } = useTheme();
   const insets = useSafeAreaInsets();
   const { data: session } = useSession({ stale: true });
@@ -59,7 +57,7 @@ function MoveTorrentSheet({
       left: "folder" as const,
     }));
 
-    SheetManager.show(SelectSheet.sheetId, {
+    SheetManager.show(SELECT_SHEET_ID, {
       payload: {
         title: "Select directory",
         options,
@@ -71,7 +69,7 @@ function MoveTorrentSheet({
   const onMove = React.useCallback(() => {
     if (!location.trim()) return;
 
-    SheetManager.hide(sheetId);
+    SheetManager.hide(MOVE_TORRENT_SHEET_ID);
     setLocation.mutate(
       { ids, location: location.trim(), move: true },
       {
@@ -125,7 +123,7 @@ function MoveTorrentSheet({
   );
 }
 
-MoveTorrentSheet.sheetId = sheetId;
+MoveTorrentSheet.sheetId = MOVE_TORRENT_SHEET_ID;
 
 export default MoveTorrentSheet;
 

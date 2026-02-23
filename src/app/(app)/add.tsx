@@ -25,8 +25,8 @@ import { useAddTorrent, useSession } from "~/hooks/torrent";
 import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
-import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";
+import { SELECT_SHEET_ID } from "~/sheets/ids";
 import SendIntent from "~/native/send-intent";
 
 type Form = z.infer<typeof Form>;
@@ -152,7 +152,7 @@ export default function AddTorrentScreen() {
       left: "folder" as const,
     }));
 
-    SheetManager.show(SelectSheet.sheetId, {
+    SheetManager.show(SELECT_SHEET_ID, {
       payload: {
         title: "Select directory",
         options,

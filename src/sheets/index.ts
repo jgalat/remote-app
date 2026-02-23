@@ -21,43 +21,54 @@ import MoveTorrentSheet, {
 import SearchConfigDeleteConfirmSheet, {
   type Payload as SearchConfigDeleteConfirmPayload,
 } from "./search-config-delete-confirm";
+import {
+  LISTING_SHEET_ID,
+  MOVE_TORRENT_SHEET_ID,
+  REMOVE_CONFIRM_SHEET_ID,
+  SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID,
+  SELECT_SHEET_ID,
+  SERVER_DELETE_CONFIRM_SHEET_ID,
+  SERVER_SELECTOR_SHEET_ID,
+  TORRENT_ACTIONS_SHEET_ID,
+  TORRENT_PRIORITY_SHEET_ID,
+} from "./ids";
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
-    [TorrentActionsSheet.sheetId]: SheetDefinition<{
+    [TORRENT_ACTIONS_SHEET_ID]: SheetDefinition<{
       payload: TorrentActionsPayload;
     }>;
-    [TorrentPrioritySheet.sheetId]: SheetDefinition<{
+    [TORRENT_PRIORITY_SHEET_ID]: SheetDefinition<{
       payload: TorrentPriorityPayload;
     }>;
-    [RemoveConfirmSheet.sheetId]: SheetDefinition<{
+    [REMOVE_CONFIRM_SHEET_ID]: SheetDefinition<{
       payload: RemoveConfirmPayload;
     }>;
-    [ListingSheet.sheetId]: SheetDefinition;
-    [SelectSheet.sheetId]: SheetDefinition<{
+    [LISTING_SHEET_ID]: SheetDefinition;
+    [SELECT_SHEET_ID]: SheetDefinition<{
       payload: SelectPayload;
     }>;
-    [ServerSelectorSheet.sheetId]: SheetDefinition;
-    [ServerDeleteConfirmSheet.sheetId]: SheetDefinition<{
+    [SERVER_SELECTOR_SHEET_ID]: SheetDefinition;
+    [SERVER_DELETE_CONFIRM_SHEET_ID]: SheetDefinition<{
       payload: ServerDeleteConfirmPayload;
     }>;
-    [MoveTorrentSheet.sheetId]: SheetDefinition<{
+    [MOVE_TORRENT_SHEET_ID]: SheetDefinition<{
       payload: MoveTorrentPayload;
     }>;
-    [SearchConfigDeleteConfirmSheet.sheetId]: SheetDefinition<{
+    [SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID]: SheetDefinition<{
       payload: SearchConfigDeleteConfirmPayload;
     }>;
   }
 }
 
-registerSheet(TorrentActionsSheet.sheetId, TorrentActionsSheet);
-registerSheet(TorrentPrioritySheet.sheetId, TorrentPrioritySheet);
-registerSheet(ListingSheet.sheetId, ListingSheet);
-registerSheet(RemoveConfirmSheet.sheetId, RemoveConfirmSheet);
-registerSheet(SelectSheet.sheetId, SelectSheet);
-registerSheet(ServerSelectorSheet.sheetId, ServerSelectorSheet);
-registerSheet(ServerDeleteConfirmSheet.sheetId, ServerDeleteConfirmSheet);
-registerSheet(MoveTorrentSheet.sheetId, MoveTorrentSheet);
-registerSheet(SearchConfigDeleteConfirmSheet.sheetId, SearchConfigDeleteConfirmSheet);
+registerSheet(TORRENT_ACTIONS_SHEET_ID, TorrentActionsSheet);
+registerSheet(TORRENT_PRIORITY_SHEET_ID, TorrentPrioritySheet);
+registerSheet(LISTING_SHEET_ID, ListingSheet);
+registerSheet(REMOVE_CONFIRM_SHEET_ID, RemoveConfirmSheet);
+registerSheet(SELECT_SHEET_ID, SelectSheet);
+registerSheet(SERVER_SELECTOR_SHEET_ID, ServerSelectorSheet);
+registerSheet(SERVER_DELETE_CONFIRM_SHEET_ID, ServerDeleteConfirmSheet);
+registerSheet(MOVE_TORRENT_SHEET_ID, MoveTorrentSheet);
+registerSheet(SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID, SearchConfigDeleteConfirmSheet);
 
 export {};

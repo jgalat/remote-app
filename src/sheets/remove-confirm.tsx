@@ -3,15 +3,14 @@ import * as React from "react";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useTorrentActions, Torrent } from "~/hooks/torrent";
+import { REMOVE_CONFIRM_SHEET_ID } from "./ids";
 
 export type Payload = Torrent["id"][];
-
-const sheetId = "remove-confirm" as const;
 
 function RemoveConfirmSheet({
   payload: ids,
   ...props
-}: SheetProps<typeof sheetId>) {
+}: SheetProps<typeof REMOVE_CONFIRM_SHEET_ID>) {
   const { red } = useTheme();
   const { remove } = useTorrentActions();
 
@@ -40,6 +39,6 @@ function RemoveConfirmSheet({
   );
 }
 
-RemoveConfirmSheet.sheetId = sheetId;
+RemoveConfirmSheet.sheetId = REMOVE_CONFIRM_SHEET_ID;
 
 export default RemoveConfirmSheet;

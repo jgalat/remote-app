@@ -17,13 +17,13 @@ import type { SheetProps } from "react-native-actions-sheet";
 import type { Sort, Filter } from "~/store/settings";
 import type { SelectOption } from "./select";
 import type { OptionProps } from "~/components/option";
+import { LISTING_SHEET_ID, SELECT_SHEET_ID } from "./ids";
 
-const sheetId = "listing" as const;
 const tabs = ["sort", "filter"] as const;
 type Tab = (typeof tabs)[number];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ListingSheet(_: SheetProps<typeof sheetId>) {
+function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
   const { background, text, tint } = useTheme();
   const insets = useSafeAreaInsets();
   const { data: torrents } = useTorrents({ stale: true });
@@ -139,7 +139,7 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
       })),
     ];
 
-    SheetManager.show("select", {
+    SheetManager.show(SELECT_SHEET_ID, {
       payload: {
         title: "Path",
         options,
@@ -154,7 +154,7 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
 
   return (
     <_ActionSheet
-      id={sheetId}
+      id={LISTING_SHEET_ID}
       containerStyle={{
         backgroundColor: background,
         borderWidth: 2,
@@ -211,7 +211,7 @@ function ListingSheet(_: SheetProps<typeof sheetId>) {
   );
 }
 
-ListingSheet.sheetId = sheetId;
+ListingSheet.sheetId = LISTING_SHEET_ID;
 
 export default ListingSheet;
 

@@ -30,8 +30,8 @@ import {
   useServerPreferencesSet,
 } from "~/hooks/torrent";
 import SelectInput from "~/components/select-input";
-import SelectSheet from "~/sheets/select";
 import type { SelectOption } from "~/sheets/select";
+import { SELECT_SHEET_ID } from "~/sheets/ids";
 import type { Server } from "~/store/settings";
 import type { QBitPreferences, Session } from "~/client";
 
@@ -1309,7 +1309,7 @@ export default function ServerConfigurationScreen() {
       right: s.id === selectedId ? ("check" as const) : undefined,
     }));
 
-    SheetManager.show(SelectSheet.sheetId, {
+    SheetManager.show(SELECT_SHEET_ID, {
       payload: {
         title: "Select server",
         options,

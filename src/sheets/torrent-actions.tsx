@@ -6,17 +6,18 @@ import { router } from "expo-router";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions, Torrent } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
-import RemoveConfirmSheet from "./remove-confirm";
-import MoveTorrentSheet from "./move-torrent";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { OptionProps } from "~/components/option";
+import {
+  MOVE_TORRENT_SHEET_ID,
+  REMOVE_CONFIRM_SHEET_ID,
+  TORRENT_ACTIONS_SHEET_ID,
+} from "./ids";
 
 export type Payload = {
   torrents: Torrent[];
   info?: boolean;
 };
-
-const sheetId = "torrent-actions" as const;
 
 function TorrentActionsSheet({
   payload: { torrents, info = false } = {
@@ -24,7 +25,7 @@ function TorrentActionsSheet({
     info: false,
   },
   ...props
-}: SheetProps<typeof sheetId>) {
+}: SheetProps<typeof TORRENT_ACTIONS_SHEET_ID>) {
   const { red } = useTheme();
   const { clear } = useTorrentSelection();
   const actions = useTorrentActions();
@@ -65,7 +66,7 @@ function TorrentActionsSheet({
           torrents.length === 1 ? torrents[0].downloadDir ?? undefined : undefined;
         setTimeout(
           () =>
-            SheetManager.show(MoveTorrentSheet.sheetId, {
+            SheetManager.show(MOVE_TORRENT_SHEET_ID, {
               payload: { ids, downloadDir },
             }),
           100
@@ -133,7 +134,7 @@ function TorrentActionsSheet({
         onPress: () => {
           setTimeout(
             () =>
-              SheetManager.show(RemoveConfirmSheet.sheetId, {
+              SheetManager.show(REMOVE_CONFIRM_SHEET_ID, {
                 payload: ids,
               }),
             100
@@ -146,6 +147,6 @@ function TorrentActionsSheet({
   return <ActionSheet title="Action" options={options} {...props} />;
 }
 
-TorrentActionsSheet.sheetId = sheetId;
+TorrentActionsSheet.sheetId = TORRENT_ACTIONS_SHEET_ID;
 
 export default TorrentActionsSheet;

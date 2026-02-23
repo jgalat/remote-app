@@ -4,17 +4,16 @@ import { router } from "expo-router";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useSearchStore } from "~/hooks/use-settings";
+import { SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID } from "./ids";
 
 export type Payload = {
   label?: string;
 };
 
-const sheetId = "search-config-delete-confirm" as const;
-
 function SearchConfigDeleteConfirmSheet({
   payload,
   ...props
-}: SheetProps<typeof sheetId>) {
+}: SheetProps<typeof SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID>) {
   const { red } = useTheme();
   const { store } = useSearchStore();
 
@@ -39,6 +38,6 @@ function SearchConfigDeleteConfirmSheet({
   );
 }
 
-SearchConfigDeleteConfirmSheet.sheetId = sheetId;
+SearchConfigDeleteConfirmSheet.sheetId = SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID;
 
 export default SearchConfigDeleteConfirmSheet;
