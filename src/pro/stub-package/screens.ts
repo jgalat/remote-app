@@ -10,3 +10,6 @@ export function SearchConfigScreen() {
 export function ProSettingsScreen() {
   return null;
 }
+export function BackupSettingsScreen() {
+  return null;
+}

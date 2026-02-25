@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { storage } from "./storage";
 
-const DirectoriesSchema = z.object({
+export const DirectoriesSchema = z.object({
   global: z.array(z.string()),
   servers: z.record(z.string(), z.array(z.string())),
 });

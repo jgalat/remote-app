@@ -5,7 +5,7 @@ import { storage } from "./storage";
 const ColorSchemeSchema = z.enum(["system", "dark", "light"]);
 export type ColorScheme = z.infer<typeof ColorSchemeSchema>;
 
-const PreferencesSchema = z.object({
+export const PreferencesSchema = z.object({
   colorScheme: ColorSchemeSchema,
   authentication: z.boolean(),
 });

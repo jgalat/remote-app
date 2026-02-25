@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { storage } from "./storage";
 
-const SearchConfigSchema = z.object({
+export const SearchConfigSchema = z.object({
   url: z.string(),
   apiKey: z.string(),
   type: z.enum(["jackett", "prowlarr"]).default("jackett"),

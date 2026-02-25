@@ -5,6 +5,7 @@ export {
   SearchScreen,
   SearchConfigScreen,
   ProSettingsScreen,
+  BackupSettingsScreen,
 } from "./screens";
 
 export function getDeviceId(): string {

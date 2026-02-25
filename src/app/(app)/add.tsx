@@ -9,7 +9,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import type { Session, AddTorrentParams } from "~/client";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
@@ -91,7 +90,6 @@ export default function AddTorrentScreen() {
   const router = useRouter();
   const { red, text } = useTheme();
   const { data: session } = useSession();
-  const inset = useSafeAreaInsets();
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
 
@@ -231,7 +229,6 @@ export default function AddTorrentScreen() {
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
         bottomOffset={8}
-        contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.row}>
@@ -339,18 +336,20 @@ export default function AddTorrentScreen() {
           />
         </View>
 
+      </KeyboardAwareScrollView>
+
+      <View style={styles.footer}>
         <Button
           title="add torrent"
           onPress={handleSubmit(onSubmit)}
-          style={{ marginTop: 8, marginBottom: 8 }}
         />
-
         <Button
           title="cancel"
           variant="outline"
           onPress={goBack}
+          style={{ marginTop: 8 }}
         />
-      </KeyboardAwareScrollView>
+      </View>
     </Screen>
   );
 }
@@ -385,5 +384,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "lowercase",
     marginTop: 4,
+  },
+  footer: {
+    paddingVertical: 16,
   },
 });

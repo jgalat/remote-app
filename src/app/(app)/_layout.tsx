@@ -81,6 +81,10 @@ export default function AppLayout() {
               name="settings/search"
               options={{ title: "Search" }}
             />
+            <Stack.Screen
+              name="settings/backup"
+              options={{ title: "Configuration Backup" }}
+            />
           </Stack.Protected>
           <Stack.Screen
             name="settings/directories"

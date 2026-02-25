@@ -29,7 +29,7 @@ const FilterSchema = z.enum([
 ]);
 export type Filter = z.infer<typeof FilterSchema>;
 
-const ListingSchema = z.object({
+export const ListingSchema = z.object({
   sort: SortSchema,
   direction: DirectionSchema,
   filter: FilterSchema,

@@ -19,7 +19,7 @@ const ServerSchema = z.object({
 
 export type Server = z.infer<typeof ServerSchema>;
 
-const ServersSchema = z.object({
+export const ServersSchema = z.object({
   servers: z.array(ServerSchema),
   activeServerId: z.string().optional(),
 });

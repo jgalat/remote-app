@@ -66,6 +66,16 @@ export default function SettingsScreen() {
       },
       ...(available
         ? [
+            ...(isPro
+              ? [
+                  {
+                    left: "download" as const,
+                    label: "Configuration Backup",
+                    onPress: () => router.push("/settings/backup"),
+                    right: "chevron-right" as const,
+                  },
+                ]
+              : []),
             isPro
               ? {
                   left: "star" as const,
