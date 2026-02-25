@@ -72,7 +72,7 @@ export default function TorrentsScreen() {
   const { start, stop } = useTorrentActions();
   const torrentActionsSheet = useTorrentActionsSheet();
   const listingSheet = useListingSheet();
-  const { canUse, available } = usePro();
+  const { available, isPro } = usePro();
   const serverSelectorSheet = useServerSelectorSheet();
 
   const {
@@ -170,9 +170,12 @@ export default function TorrentsScreen() {
           }
 
           const onIndexerSearch = () => {
-            if (!canUse("search")) {
+            if (!isPro) {
               router.push("/paywall");
-            } else if (searchConfig) {
+              return;
+            }
+
+            if (searchConfig) {
               router.push("/search");
             } else {
               router.push("/settings/search");
@@ -233,7 +236,7 @@ export default function TorrentsScreen() {
     servers,
     searchConfig,
     available,
-    canUse,
+    isPro,
     serverSelectorSheet,
     torrentActionsSheet,
     torrents,

@@ -5,6 +5,7 @@ import { SheetProvider } from "react-native-actions-sheet";
 import { TorrentSelectionProvider } from "~/contexts/torrent-selection";
 import useScreenOptions from "~/hooks/use-screen-options";
 import ActionIcon from "~/components/action-icon";
+import { usePro } from "@remote-app/pro";
 
 export const unstable_settings = {
   initialRouteName: "index",
@@ -13,6 +14,7 @@ export const unstable_settings = {
 export default function AppLayout() {
   const opts = useScreenOptions();
   const router = useRouter();
+  const { available, isPro } = usePro();
 
   return (
     <TorrentSelectionProvider>
@@ -38,10 +40,12 @@ export default function AppLayout() {
               title: "Add torrent",
             }}
           />
-          <Stack.Screen
-            name="search"
-            options={{ title: "Search" }}
-          />
+          <Stack.Protected guard={available && isPro}>
+            <Stack.Screen
+              name="search"
+              options={{ title: "Search" }}
+            />
+          </Stack.Protected>
           <Stack.Screen
             name="paywall"
             options={{
@@ -72,10 +76,12 @@ export default function AppLayout() {
             name="settings/pro"
             options={{ title: "Pro" }}
           />
-          <Stack.Screen
-            name="settings/search"
-            options={{ title: "Search" }}
-          />
+          <Stack.Protected guard={available && isPro}>
+            <Stack.Screen
+              name="settings/search"
+              options={{ title: "Search" }}
+            />
+          </Stack.Protected>
           <Stack.Screen
             name="settings/directories"
             options={{ title: "Download Directories" }}

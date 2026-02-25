@@ -12,7 +12,6 @@ const stubValue: ProContextValue = {
   canUse: () => false,
   devOverride: false,
   setDevOverride: () => {},
-  debugLog: [],
 };
 
 export const ProContext = React.createContext<ProContextValue | null>(null);

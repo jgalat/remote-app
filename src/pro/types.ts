@@ -10,7 +10,6 @@ export type ProContextValue = {
   canUse: (feature: ProFeature) => boolean;
   devOverride: boolean;
   setDevOverride: (value: boolean) => void;
-  debugLog: string[];
 };
 
 export type EntitlementState = {
