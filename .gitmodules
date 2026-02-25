@@ -1,3 +1,6 @@
 [submodule "packages/pro"]
 	path = packages/pro
 	url = git@github.com:jgalat/remote-app-pro.git
+[submodule "packages/sw"]
+	path = packages/sw
+	url = git@github.com:jgalat/remote-app-sw.git
