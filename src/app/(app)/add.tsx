@@ -13,7 +13,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
 
-import Text from "~/components/text";
 import TextInput from "~/components/text-input";
 import View from "~/components/view";
 import Pressable from "~/components/pressable";
@@ -27,6 +26,10 @@ import FileInput from "~/components/file-input";
 import type { SelectOption } from "~/sheets/select";
 import { SELECT_SHEET_ID } from "~/sheets/ids";
 import SendIntent from "~/native/send-intent";
+import {
+  SettingsFieldRow,
+  SettingsInlineGroup,
+} from "~/components/settings";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -88,7 +91,7 @@ async function readSharedTorrent(filePath: string): Promise<{ name: string; cont
 
 export default function AddTorrentScreen() {
   const router = useRouter();
-  const { red, text } = useTheme();
+  const { red, text, gray, lightGray, background } = useTheme();
   const { data: session } = useSession();
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
@@ -231,110 +234,106 @@ export default function AddTorrentScreen() {
         bottomOffset={8}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.row}>
-          <Text style={styles.label}>MAGNET LINK</Text>
-          <Controller
-            name="magnet"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
+        <Controller
+          name="magnet"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Magnet link"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                placeholder="magnet:?xt=urn:btih:..."
+                icon="link"
+                style={fieldState.error ? { borderColor: red } : undefined}
+                value={field.value?.toString() || ""}
+                onChangeText={(v) => {
+                  setValue("file", undefined);
+                  setValue("content", undefined);
+                  field.onChange(v);
+                }}
+              />
+            </SettingsFieldRow>
+          )}
+        />
+
+        <Controller
+          name="file"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Torrent file"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <FileInput
+                variant="settings"
+                title={
+                  field.value && field.value.length > 24
+                    ? field.value.slice(0, 24) + "..."
+                    : field.value || "or select a .torrent file"
+                }
+                style={fieldState.error ? { borderColor: red } : undefined}
+                titleStyle={field.value ? { color: text } : undefined}
+                onPress={onPickDocument}
+              />
+            </SettingsFieldRow>
+          )}
+        />
+
+        <Controller
+          name="path"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Download path"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <SettingsInlineGroup>
                 <TextInput
-                  placeholder="magnet:?xt=urn:btih:..."
-                  icon="link"
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
+                  variant="settings"
+                  placeholder="/downloads"
+                  icon="folder"
+                  style={fieldState.error ? { borderColor: red } : undefined}
+                  containerStyle={{ flex: 1 }}
                   value={field.value?.toString() || ""}
-                  onChangeText={(v) => {
-                    setValue("file", undefined);
-                    setValue("content", undefined);
-                    field.onChange(v);
-                  }}
+                  onChangeText={field.onChange}
                 />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+                <Pressable
+                  style={[
+                    styles.pickButton,
+                    {
+                      borderColor: lightGray,
+                      backgroundColor: background,
+                    },
+                  ]}
+                  onPress={onPickDirectory}
+                >
+                  <Feather name="book" size={16} color={gray} />
+                </Pressable>
+              </SettingsInlineGroup>
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>TORRENT FILE</Text>
-          <Controller
-            name="file"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <FileInput
-                  title={
-                    field.value && field.value.length > 24
-                      ? field.value.slice(0, 24) + "..."
-                      : field.value || "or select a .torrent file"
-                  }
-                  style={fieldState.error ? { borderColor: red } : {}}
-                  titleStyle={field.value ? { color: text } : {}}
-                  onPress={onPickDocument}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>DOWNLOAD PATH</Text>
-          <Controller
-            name="path"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <View style={styles.pathRow}>
-                  <TextInput
-                    placeholder="/downloads"
-                    icon="folder"
-                    style={[
-                      styles.input,
-                      fieldState.error ? { borderColor: red } : {},
-                    ]}
-                    containerStyle={{ flex: 1 }}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
-                  />
-                  <Pressable style={styles.pickButton} onPress={onPickDirectory}>
-                    <Feather name="book" size={20} color={text} />
-                  </Pressable>
-                </View>
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
-
-        <View style={[styles.row]}>
+        <SettingsFieldRow>
           <Controller
             name="start"
             control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <Toggle
-                  label="START AUTOMATICALLY"
-                  description="Begin download immediately"
-                  value={field.value}
-                  onPress={field.onChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
+            render={({ field }) => (
+              <Toggle
+                variant="settings"
+                label="Start automatically"
+                description="Begin downloading immediately after adding."
+                value={field.value}
+                onPress={field.onChange}
+              />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
       </KeyboardAwareScrollView>
 
@@ -355,35 +354,13 @@ export default function AddTorrentScreen() {
 }
 
 const styles = StyleSheet.create({
-  free: {
-    marginTop: 24,
-    textAlign: "center",
-    fontSize: 16,
-  },
-  row: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    textTransform: "uppercase",
-  },
-  input: {},
-  pathRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
   pickButton: {
-    height: 48,
-    width: 48,
+    height: 44,
+    width: 44,
+    borderRadius: 12,
+    borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  error: {
-    fontSize: 12,
-    textTransform: "lowercase",
-    marginTop: 4,
   },
   footer: {
     paddingVertical: 16,

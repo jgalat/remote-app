@@ -10,7 +10,9 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import Screen from "~/components/screen";
-import Separator from "~/components/separator";
+import {
+  SettingsInsetDivider,
+} from "~/components/settings";
 import { LoadingScreen, NetworkErrorScreen } from "~/components/utility-screens";
 import {
   useServers,
@@ -180,23 +182,27 @@ function DirectoriesList({ server }: { server: Server }) {
         data={entries}
         keyExtractor={(item) => item.path}
         renderItem={({ item }) => (
-          <DirectoryRow
-            entry={item}
-            selected={selectedPaths.has(item.path)}
-            selectionActive={selectionActive}
-            onPress={() => {
-              if (selectionActive) {
-                if (!item.isDefault) toggleSelection(item.path);
-                return;
-              }
-              router.push(
-                `/settings/directory?serverId=${server.id}&path=${encodeURIComponent(item.path)}&isDefault=${item.isDefault}`
-              );
-            }}
-            onLongPress={() => toggleSelection(item.path)}
-          />
+          <View>
+            <DirectoryRow
+              entry={item}
+              selected={selectedPaths.has(item.path)}
+              selectionActive={selectionActive}
+              onPress={() => {
+                if (selectionActive) {
+                  if (!item.isDefault) toggleSelection(item.path);
+                  return;
+                }
+                router.push(
+                  `/settings/directory?serverId=${server.id}&path=${encodeURIComponent(item.path)}&isDefault=${item.isDefault}`
+                );
+              }}
+              onLongPress={() => toggleSelection(item.path)}
+            />
+          </View>
         )}
-        ItemSeparatorComponent={() => <Separator style={styles.separator} />}
+        ItemSeparatorComponent={() => <SettingsInsetDivider inset={12} />}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
       />
       {selectionActive ? (
         <View style={styles.footer}>
@@ -295,8 +301,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
   },
   rowInfo: {
     flex: 1,
@@ -310,8 +316,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  separator: {
-    marginVertical: 0,
+  listContent: {
+    paddingBottom: 12,
   },
   footer: {
     paddingVertical: 16,

@@ -129,7 +129,7 @@ function TorrentActionsSheet({
       ...options,
       {
         label: "Remove",
-        left: "trash",
+        left: "trash-2",
         color: red,
         onPress: () => {
           setTimeout(

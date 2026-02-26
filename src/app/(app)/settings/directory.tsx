@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, ToastAndroid } from "react-native";
+import { ToastAndroid } from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -8,12 +8,12 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import Text from "~/components/text";
-import View from "~/components/view";
 import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
 import Screen from "~/components/screen";
 import ActionIcon from "~/components/action-icon";
+import { SettingsFieldRow } from "~/components/settings";
 import {
   useServers,
   useDirectoriesStore,
@@ -174,43 +174,39 @@ export default function DirectoryScreen() {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.row}>
-          <Text style={styles.label}>PATH</Text>
-          <Controller
-            name="path"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  placeholder="/downloads"
-                  icon="folder"
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : {}}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+        <Controller
+          name="path"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow label="Path" error={fieldState.error?.message}>
+              <TextInput
+                variant="settings"
+                placeholder="/downloads"
+                icon="folder"
+                value={field.value}
+                onChangeText={field.onChange}
+                style={fieldState.error ? { borderColor: red } : undefined}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
         {showGlobal && (
-          <View style={styles.row}>
+          <SettingsFieldRow>
             <Controller
               name="global"
               control={control}
               render={({ field }) => (
                 <Toggle
-                  label="GLOBAL"
-                  description="Shared across all servers"
+                  variant="settings"
+                  label="Global"
+                  description="Share this directory across all servers."
                   value={field.value}
                   onPress={field.onChange}
                 />
               )}
             />
-          </View>
+          </SettingsFieldRow>
         )}
 
         <Button
@@ -221,19 +217,3 @@ export default function DirectoryScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    textTransform: "uppercase",
-  },
-  error: {
-    fontSize: 12,
-    textTransform: "lowercase",
-    marginTop: 4,
-  },
-});

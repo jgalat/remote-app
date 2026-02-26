@@ -6,13 +6,14 @@ import { SheetManager } from "react-native-actions-sheet";
 import { useNavigation } from "expo-router";
 import { router } from "expo-router";
 
-import Toggle from "~/components/toggle";
+import ToggleBase from "~/components/toggle";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Screen from "~/components/screen";
-import TextInput from "~/components/text-input";
+import TextInputBase from "~/components/text-input";
 import ActionIcon from "~/components/action-icon";
+import { SettingsInlineGroup, SettingsSectionTitle } from "~/components/settings";
 import {
   NetworkErrorScreen,
   LoadingScreen,
@@ -29,11 +30,45 @@ import {
   useServerPreferences,
   useServerPreferencesSet,
 } from "~/hooks/torrent";
-import SelectInput from "~/components/select-input";
+import SelectInputBase from "~/components/select-input";
 import type { SelectOption } from "~/sheets/select";
 import { SELECT_SHEET_ID } from "~/sheets/ids";
 import type { Server } from "~/store/settings";
 import type { QBitPreferences, Session } from "~/client";
+
+function SettingsTextInput(props: React.ComponentProps<typeof TextInputBase>) {
+  return <TextInputBase variant="settings" {...props} />;
+}
+
+function SettingsToggle(props: React.ComponentProps<typeof ToggleBase>) {
+  return <ToggleBase variant="settings" {...props} />;
+}
+
+function SettingsSelectInput(props: React.ComponentProps<typeof SelectInputBase>) {
+  return <SelectInputBase variant="settings" {...props} />;
+}
+
+function SettingsToggleFieldLabel({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: boolean;
+  onPress?: (checked: boolean) => void;
+}) {
+  return (
+    <View style={styles.toggleLabel}>
+      <Text style={styles.toggleLabelText}>{label}</Text>
+      <SettingsToggle
+        style={styles.toggleLabelControl}
+        value={value}
+        onPress={onPress}
+        accessibilityLabel={label}
+      />
+    </View>
+  );
+}
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -206,28 +241,26 @@ function ConfigurationForm({ server }: { server: Server }) {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { marginTop: 0 }]}>Speed limits</Text>
+        <SettingsSectionTitle title="Speed limits" first />
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="speed-limit-down-enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="DOWNLOAD (KB/S)"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="speed-limit-down-enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Download (KB/s)"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="speed-limit-down"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("speed-limit-down-enabled")}
                   value={field.value?.toString() || ""}
@@ -243,25 +276,23 @@ function ConfigurationForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="speed-limit-up-enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="UPLOAD (KB/S)"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="speed-limit-up-enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Upload (KB/s)"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="speed-limit-up"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("speed-limit-up-enabled")}
                   value={field.value?.toString() || ""}
@@ -276,17 +307,18 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
-        <Text style={styles.title}>Alternative speed limits</Text>
+        <SettingsSectionTitle title="Alternative speed limits" />
 
         <View style={styles.row}>
           <Controller
             name="alt-speed-enabled"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Enable alternative speed limits"
+                description="Use alternate upload and download limits."
               />
             )}
           />
@@ -299,7 +331,7 @@ function ConfigurationForm({ server }: { server: Server }) {
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
@@ -320,7 +352,7 @@ function ConfigurationForm({ server }: { server: Server }) {
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
@@ -339,10 +371,11 @@ function ConfigurationForm({ server }: { server: Server }) {
             name="alt-speed-time-enabled"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Schedule alt speed limits"
+                description="Apply alternate limits by time and day."
               />
             )}
           />
@@ -352,12 +385,12 @@ function ConfigurationForm({ server }: { server: Server }) {
           <>
             <View style={styles.row}>
               <Text style={styles.label}>From</Text>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <SettingsInlineGroup>
                 <Controller
                   name="alt-speed-time-begin-hour"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="HH"
@@ -371,7 +404,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   name="alt-speed-time-begin-min"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="MM"
@@ -380,17 +413,17 @@ function ConfigurationForm({ server }: { server: Server }) {
                     />
                   )}
                 />
-              </View>
+              </SettingsInlineGroup>
             </View>
 
             <View style={styles.row}>
               <Text style={styles.label}>To</Text>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <SettingsInlineGroup>
                 <Controller
                   name="alt-speed-time-end-hour"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="HH"
@@ -404,7 +437,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   name="alt-speed-time-end-min"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="MM"
@@ -413,7 +446,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     />
                   )}
                 />
-              </View>
+              </SettingsInlineGroup>
             </View>
 
             <View style={styles.row}>
@@ -422,7 +455,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                 name="alt-speed-time-day"
                 control={control}
                 render={({ field }) => (
-                  <SelectInput
+                  <SettingsSelectInput
                     title="Days"
                     value={field.value}
                     options={transmissionDayOptions}
@@ -434,28 +467,26 @@ function ConfigurationForm({ server }: { server: Server }) {
           </>
         )}
 
-        <Text style={styles.title}>Seed</Text>
+        <SettingsSectionTitle title="Seed" />
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="seedRatioLimited"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="STOP SEEDING AT RATIO"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="seedRatioLimited"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Stop seeding at ratio"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="seedRatioLimit"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("seedRatioLimited")}
                   value={field.value?.toString() || ""}
@@ -471,25 +502,23 @@ function ConfigurationForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="idle-seeding-limit-enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="STOP SEEDING IF IDLE (MINUTES)"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="idle-seeding-limit-enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Stop seeding if idle (minutes)"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="idle-seeding-limit"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("idle-seeding-limit-enabled")}
                   value={field.value?.toString() || ""}
@@ -504,28 +533,26 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
-        <Text style={styles.title}>Queue</Text>
+        <SettingsSectionTitle title="Queue" />
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="download-queue-enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="DOWNLOAD QUEUE SIZE"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="download-queue-enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Download queue size"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="download-queue-size"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("download-queue-enabled")}
                   value={field.value?.toString() || ""}
@@ -541,25 +568,23 @@ function ConfigurationForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="seed-queue-enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="SEED QUEUE SIZE"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="seed-queue-enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Seed queue size"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="seed-queue-size"
             control={control}
             render={({ field, fieldState }) => (
               <>
-                <TextInput
+                <SettingsTextInput
                   keyboardType="numeric"
                   editable={watch("seed-queue-enabled")}
                   value={field.value?.toString() || ""}
@@ -576,17 +601,18 @@ function ConfigurationForm({ server }: { server: Server }) {
 
         {server.type === "transmission" && (
           <>
-            <Text style={styles.title}>Peer discovery</Text>
+            <SettingsSectionTitle title="Peer discovery" />
 
             <View style={[styles.row, { gap: 16 }]}>
               <Controller
                 name="dht-enabled"
                 control={control}
                 render={({ field }) => (
-                  <Toggle
+                  <SettingsToggle
                     value={field.value ?? false}
                     onPress={field.onChange}
                     label="Enable Distributed Hash Table"
+                    description="Find peers from the distributed network."
                   />
                 )}
               />
@@ -594,10 +620,11 @@ function ConfigurationForm({ server }: { server: Server }) {
                 name="lpd-enabled"
                 control={control}
                 render={({ field }) => (
-                  <Toggle
+                  <SettingsToggle
                     value={field.value ?? false}
                     onPress={field.onChange}
                     label="Enable Local Peer Discovery"
+                    description="Find peers on your local network."
                   />
                 )}
               />
@@ -605,10 +632,11 @@ function ConfigurationForm({ server }: { server: Server }) {
                 name="pex-enabled"
                 control={control}
                 render={({ field }) => (
-                  <Toggle
+                  <SettingsToggle
                     value={field.value ?? false}
                     onPress={field.onChange}
                     label="Enable Peer Exchange"
+                    description="Exchange peer lists with connected peers."
                   />
                 )}
               />
@@ -783,27 +811,25 @@ function QBitConfigForm({ server }: { server: Server }) {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { marginTop: 0 }]}>Connection limits</Text>
+        <SettingsSectionTitle title="Connection limits" first />
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_connec_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="GLOBAL MAX CONNECTIONS"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_connec_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Global max connections"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_connec"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_connec_enabled")}
                 value={field.value?.toString() || ""}
@@ -814,24 +840,22 @@ function QBitConfigForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_connec_per_torrent_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="PER-TORRENT MAX CONNECTIONS"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_connec_per_torrent_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Per-torrent max connections"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_connec_per_torrent"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_connec_per_torrent_enabled")}
                 value={field.value?.toString() || ""}
@@ -842,24 +866,22 @@ function QBitConfigForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_uploads_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="GLOBAL MAX UPLOAD SLOTS"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_uploads_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Global max upload slots"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_uploads"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_uploads_enabled")}
                 value={field.value?.toString() || ""}
@@ -870,24 +892,22 @@ function QBitConfigForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_uploads_per_torrent_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="PER-TORRENT MAX UPLOAD SLOTS"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_uploads_per_torrent_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="Per-torrent max upload slots"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_uploads_per_torrent"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_uploads_per_torrent_enabled")}
                 value={field.value?.toString() || ""}
@@ -897,7 +917,7 @@ function QBitConfigForm({ server }: { server: Server }) {
           />
         </View>
 
-        <Text style={styles.title}>Speed limits</Text>
+        <SettingsSectionTitle title="Speed limits" />
 
         <View style={styles.row}>
           <Text style={styles.label}>Download (KB/s, 0 = unlimited)</Text>
@@ -905,7 +925,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="dl_limit"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 value={field.value?.toString() || ""}
                 onChangeText={field.onChange}
@@ -920,7 +940,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="up_limit"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 value={field.value?.toString() || ""}
                 onChangeText={field.onChange}
@@ -929,7 +949,7 @@ function QBitConfigForm({ server }: { server: Server }) {
           />
         </View>
 
-        <Text style={styles.title}>Alternative speed limits</Text>
+        <SettingsSectionTitle title="Alternative speed limits" />
 
         <View style={styles.row}>
           <Text style={styles.label}>Download (KB/s)</Text>
@@ -937,7 +957,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="alt_dl_limit"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 value={field.value?.toString() || ""}
                 onChangeText={field.onChange}
@@ -952,7 +972,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="alt_up_limit"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 value={field.value?.toString() || ""}
                 onChangeText={field.onChange}
@@ -966,10 +986,11 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="scheduler_enabled"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Schedule alt speed limits"
+                description="Apply alternate speed limits on a schedule."
               />
             )}
           />
@@ -979,12 +1000,12 @@ function QBitConfigForm({ server }: { server: Server }) {
           <>
             <View style={styles.row}>
               <Text style={styles.label}>From</Text>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <SettingsInlineGroup>
                 <Controller
                   name="schedule_from_hour"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="HH"
@@ -998,7 +1019,7 @@ function QBitConfigForm({ server }: { server: Server }) {
                   name="schedule_from_min"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="MM"
@@ -1007,17 +1028,17 @@ function QBitConfigForm({ server }: { server: Server }) {
                     />
                   )}
                 />
-              </View>
+              </SettingsInlineGroup>
             </View>
 
             <View style={styles.row}>
               <Text style={styles.label}>To</Text>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <SettingsInlineGroup>
                 <Controller
                   name="schedule_to_hour"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="HH"
@@ -1031,7 +1052,7 @@ function QBitConfigForm({ server }: { server: Server }) {
                   name="schedule_to_min"
                   control={control}
                   render={({ field }) => (
-                    <TextInput
+                    <SettingsTextInput
                       containerStyle={{ flex: 1 }}
                       keyboardType="numeric"
                       placeholder="MM"
@@ -1040,7 +1061,7 @@ function QBitConfigForm({ server }: { server: Server }) {
                     />
                   )}
                 />
-              </View>
+              </SettingsInlineGroup>
             </View>
 
             <View style={styles.row}>
@@ -1049,7 +1070,7 @@ function QBitConfigForm({ server }: { server: Server }) {
                 name="scheduler_days"
                 control={control}
                 render={({ field }) => (
-                  <SelectInput
+                  <SettingsSelectInput
                     title="Days"
                     value={field.value}
                     options={schedulerDaysOptions}
@@ -1061,27 +1082,25 @@ function QBitConfigForm({ server }: { server: Server }) {
           </>
         )}
 
-        <Text style={styles.title}>Seed</Text>
+        <SettingsSectionTitle title="Seed" />
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_ratio_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="WHEN RATIO REACHES"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_ratio_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="When ratio reaches"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_ratio"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_ratio_enabled")}
                 value={field.value?.toString() || ""}
@@ -1092,24 +1111,22 @@ function QBitConfigForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_seeding_time_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="WHEN TOTAL SEEDING TIME REACHES (MIN)"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_seeding_time_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="When total seeding time reaches (min)"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_seeding_time"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_seeding_time_enabled")}
                 value={field.value?.toString() || ""}
@@ -1120,24 +1137,22 @@ function QBitConfigForm({ server }: { server: Server }) {
         </View>
 
         <View style={styles.row}>
-          <View style={styles.label}>
-            <Controller
-              name="max_inactive_seeding_time_enabled"
-              control={control}
-              render={({ field }) => (
-                <Toggle
-                  value={field.value}
-                  onPress={field.onChange}
-                  label="WHEN INACTIVE SEEDING TIME REACHES (MIN)"
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="max_inactive_seeding_time_enabled"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggleFieldLabel
+                label="When inactive seeding time reaches (min)"
+                value={field.value}
+                onPress={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="max_inactive_seeding_time"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("max_inactive_seeding_time_enabled")}
                 value={field.value?.toString() || ""}
@@ -1154,7 +1169,7 @@ function QBitConfigForm({ server }: { server: Server }) {
               name="max_ratio_act"
               control={control}
               render={({ field }) => (
-                <SelectInput
+                <SettingsSelectInput
                   title="Seeding action"
                   value={field.value}
                   options={seedingActionOptions}
@@ -1165,17 +1180,18 @@ function QBitConfigForm({ server }: { server: Server }) {
           </View>
         )}
 
-        <Text style={styles.title}>Queue</Text>
+        <SettingsSectionTitle title="Queue" />
 
         <View style={styles.row}>
           <Controller
             name="queueing_enabled"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Enable queueing"
+                description="Use queue limits for active torrents."
               />
             )}
           />
@@ -1187,7 +1203,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="max_active_downloads"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("queueing_enabled")}
                 value={field.value?.toString() || ""}
@@ -1203,7 +1219,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="max_active_uploads"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("queueing_enabled")}
                 value={field.value?.toString() || ""}
@@ -1219,7 +1235,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="max_active_torrents"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SettingsTextInput
                 keyboardType="numeric"
                 editable={watch("queueing_enabled")}
                 value={field.value?.toString() || ""}
@@ -1229,17 +1245,18 @@ function QBitConfigForm({ server }: { server: Server }) {
           />
         </View>
 
-        <Text style={styles.title}>Peer discovery</Text>
+        <SettingsSectionTitle title="Peer discovery" />
 
         <View style={[styles.row, { gap: 16 }]}>
           <Controller
             name="dht"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Enable Distributed Hash Table"
+                description="Find peers from the distributed network."
               />
             )}
           />
@@ -1247,10 +1264,11 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="pex"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Enable Peer Exchange"
+                description="Exchange peer lists with connected peers."
               />
             )}
           />
@@ -1258,10 +1276,11 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="lsd"
             control={control}
             render={({ field }) => (
-              <Toggle
+              <SettingsToggle
                 value={field.value}
                 onPress={field.onChange}
                 label="Enable Local Peer Discovery"
+                description="Find peers on your local network."
               />
             )}
           />
@@ -1273,7 +1292,7 @@ function QBitConfigForm({ server }: { server: Server }) {
             name="encryption"
             control={control}
             render={({ field }) => (
-              <SelectInput
+              <SettingsSelectInput
                 title="Encryption"
                 value={field.value}
                 options={encryptionOptions}
@@ -1357,23 +1376,33 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMono-Medium",
     fontSize: 15,
   },
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
-    marginBottom: 12,
-    marginTop: 12,
-  },
   row: {
-    marginBottom: 12,
+    marginBottom: 14,
+  },
+  toggleLabel: {
+    position: "relative",
+    paddingRight: 44,
+    marginBottom: 8,
+  },
+  toggleLabelText: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  toggleLabelControl: {
+    position: "absolute",
+    right: 0,
+    top: "50%",
+    transform: [{ translateY: -16 }],
   },
   label: {
-    fontSize: 16,
-    textTransform: "uppercase",
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 13,
+    lineHeight: 18,
     marginBottom: 8,
   },
   error: {
     fontSize: 12,
-    textTransform: "lowercase",
     marginTop: 4,
   },
 });

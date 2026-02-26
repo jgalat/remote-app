@@ -1,9 +1,8 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Text from "./text";
-import View from "./view";
 import Badge from "./badge";
 import Pressable, { PressableProps } from "./pressable";
 import { useTheme } from "~/hooks/use-theme-color";
@@ -13,23 +12,40 @@ export type OptionProps = {
   label: string;
   left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];
+  value?: string;
   color?: string;
+  showChevron?: boolean;
+  variant?: "default" | "compact";
 } & PressableProps;
 
 export default React.memo(function Option({
   label,
   left,
   right,
+  value,
   onPress,
   style,
   color,
+  showChevron = false,
+  variant = "default",
   ...props
 }: OptionProps) {
-  const { text } = useTheme();
+  const { text, gray } = useTheme();
   const optionColor = color ? color : text;
+  const rightIcon = right ?? (showChevron ? "chevron-right" : undefined);
+  const rightColor = rightIcon === "chevron-right" ? gray : optionColor;
+
   return (
-    <Pressable style={[styles.container, style]} onPress={onPress} {...props}>
-      <View style={typeof left === "number" ? styles.leftBadge : styles.leftIcon}>
+    <Pressable
+      style={[
+        styles.container,
+        variant === "compact" ? styles.compact : styles.default,
+        style,
+      ]}
+      onPress={onPress}
+      {...props}
+    >
+      <View style={styles.left}>
         {typeof left === "number" ? (
           <Badge label={left} />
         ) : (
@@ -37,11 +53,20 @@ export default React.memo(function Option({
         )}
       </View>
       <View style={styles.label}>
-        <Text color={optionColor}>{label}</Text>
+        <Text color={optionColor} numberOfLines={1}>
+          {label}
+        </Text>
       </View>
-      <View>
-        {right ? <Feather name={right} size={24} color={text} /> : null}
-      </View>
+      {(value || rightIcon) && (
+        <View style={styles.right}>
+          {value ? (
+            <Text color={gray} numberOfLines={1} style={styles.value}>
+              {value}
+            </Text>
+          ) : null}
+          {rightIcon ? <Feather name={rightIcon} size={20} color={rightColor} /> : null}
+        </View>
+      )}
     </Pressable>
   );
 });
@@ -50,19 +75,34 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-around",
+    minHeight: 44,
+  },
+  default: {
     marginBottom: 32,
-    minHeight: 32,
     paddingVertical: 12,
   },
-  leftBadge: {
-    width: "15%",
+  compact: {
+    marginBottom: 0,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
   },
-  leftIcon: {
-    width: "auto",
+  left: {
+    width: 24,
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     flex: 1,
-    marginLeft: 24,
+    marginLeft: 16,
+  },
+  right: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 12,
+    maxWidth: "55%",
+  },
+  value: {
+    fontSize: 13,
+    marginRight: 8,
   },
 });

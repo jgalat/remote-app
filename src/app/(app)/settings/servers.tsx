@@ -10,7 +10,9 @@ import Text from "~/components/text";
 import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
-import Separator from "~/components/separator";
+import {
+  SettingsInsetDivider,
+} from "~/components/settings";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
@@ -174,7 +176,9 @@ export default function ServersScreen() {
               onLongPress={() => toggleSelection(server.id)}
             />
           )}
-          ItemSeparatorComponent={() => <Separator style={styles.separator} />}
+          ItemSeparatorComponent={() => <SettingsInsetDivider inset={12} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
         />
       )}
       {selectionActive ? (
@@ -206,8 +210,8 @@ const styles = StyleSheet.create({
   serverRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
   },
   serverInfo: {
     flex: 1,
@@ -222,8 +226,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
     opacity: 0.6,
   },
-  separator: {
-    marginVertical: 0,
+  listContent: {
+    paddingBottom: 12,
   },
   empty: {
     flex: 1,

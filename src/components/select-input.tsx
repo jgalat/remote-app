@@ -15,6 +15,7 @@ export type SelectInputProps = {
   options: SelectOption[];
   onChange?: (value: string | number) => void;
   titleStyle?: TextStyle;
+  variant?: "default" | "settings";
 } & Omit<PressableProps, "onPress">;
 
 export default React.memo(function SelectInput({
@@ -26,9 +27,11 @@ export default React.memo(function SelectInput({
   onChange,
   disabled,
   titleStyle,
+  variant = "default",
   ...props
 }: SelectInputProps) {
   const { text, lightGray, background, gray } = useTheme();
+  const settings = variant === "settings";
 
   const selectedOption = options.find((opt) => opt.value === value);
   const displayText = selectedOption?.label || placeholder;
@@ -48,11 +51,10 @@ export default React.memo(function SelectInput({
   return (
     <Pressable
       style={[
-        styles.button,
+        settings ? styles.settingsButton : styles.button,
         {
-          borderWidth: 2,
           backgroundColor: background,
-          borderColor: disabled ? lightGray : text,
+          borderColor: disabled ? lightGray : settings ? lightGray : text,
         },
         style,
       ]}
@@ -62,7 +64,11 @@ export default React.memo(function SelectInput({
     >
       <Text
         color={selectedOption ? text : gray}
-        style={[styles.buttonText, titleStyle]}
+        style={[
+          styles.buttonText,
+          settings && styles.settingsButtonText,
+          titleStyle,
+        ]}
       >
         {displayText}
       </Text>
@@ -77,6 +83,7 @@ export default React.memo(function SelectInput({
 
 const styles = StyleSheet.create({
   button: {
+    borderWidth: 2,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -85,7 +92,19 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 8,
   },
+  settingsButton: {
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 12,
+  },
   buttonText: {
     flex: 1,
+  },
+  settingsButtonText: {
+    fontSize: 14,
   },
 });

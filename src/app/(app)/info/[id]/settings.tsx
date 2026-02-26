@@ -1,16 +1,15 @@
 import * as React from "react";
-import { StyleSheet, ToastAndroid } from "react-native";
+import { ToastAndroid } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { z } from "zod";
 import { Mode, Priority } from "~/client";
 
 import Toggle from "~/components/toggle";
-import Text from "~/components/text";
-import View from "~/components/view";
 import TextInput from "~/components/text-input";
 import Screen from "~/components/screen";
 import SelectInput from "~/components/select-input";
+import { SettingsFieldRow, SettingsSectionTitle } from "~/components/settings";
 import { useHeaderAction } from "~/contexts/header-action";
 import { useTorrentSettings, useTorrentSet } from "~/hooks/torrent";
 import { useServer } from "~/hooks/use-settings";
@@ -89,6 +88,10 @@ export default function TorrentSettingsScreen() {
     values: torrent,
     resetOptions: { keepDirtyValues: true },
   });
+  const downloadLimited = watch("downloadLimited");
+  const uploadLimited = watch("uploadLimited");
+  const seedRatioMode = watch("seedRatioMode");
+  const seedIdleMode = watch("seedIdleMode");
 
   const onSubmit = handleSubmit(
     React.useCallback(
@@ -136,24 +139,24 @@ export default function TorrentSettingsScreen() {
   }
 
   return (
-    <Screen style={styles.container}>
+    <Screen>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
         bottomOffset={8}
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { marginTop: 0 }]}>Bandwidth</Text>
+        <SettingsSectionTitle title="Bandwidth" first />
 
         {isTransmission && (
           <>
-            <View style={styles.row}>
-              <Text style={styles.label}>Transfer Priority</Text>
+            <SettingsFieldRow label="Transfer priority">
               <Controller
                 name="bandwidthPriority"
                 control={control}
                 render={({ field }) => (
                   <SelectInput
+                    variant="settings"
                     value={field.value ?? Priority.NORMAL}
                     onChange={field.onChange}
                     options={[
@@ -177,149 +180,153 @@ export default function TorrentSettingsScreen() {
                   />
                 )}
               />
-            </View>
+            </SettingsFieldRow>
 
-            <View style={styles.row}>
+            <SettingsFieldRow>
               <Controller
                 name="honorsSessionLimits"
                 control={control}
                 render={({ field }) => (
                   <Toggle
+                    variant="settings"
                     value={field.value ?? true}
                     onPress={field.onChange}
-                    label="Honors session limits"
+                    label="Honor session limits"
+                    description="Use server-wide speed limits for this torrent."
                   />
                 )}
               />
-            </View>
+            </SettingsFieldRow>
           </>
         )}
 
         {isTransmission ? (
           <>
-            <View style={styles.row}>
-              <View style={styles.label}>
-                <Controller
-                  name="downloadLimited"
-                  control={control}
-                  render={({ field }) => (
-                    <Toggle
-                      value={field.value}
-                      onPress={field.onChange}
-                      label="DOWNLOAD LIMIT (KB/S)"
-                    />
-                  )}
-                />
-              </View>
+            <SettingsFieldRow>
               <Controller
-                name="downloadLimit"
+                name="downloadLimited"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      keyboardType="numeric"
-                      editable={watch("downloadLimited")}
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      style={[fieldState.error ? { borderColor: red } : {}]}
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
-                    </Text>
-                  </>
+                render={({ field }) => (
+                  <Toggle
+                    variant="settings"
+                    value={field.value}
+                    onPress={field.onChange}
+                    label="Enable download limit"
+                  />
                 )}
               />
-            </View>
+            </SettingsFieldRow>
 
-            <View style={styles.row}>
-              <View style={styles.label}>
-                <Controller
-                  name="uploadLimited"
-                  control={control}
-                  render={({ field }) => (
-                    <Toggle
-                      value={field.value}
-                      onPress={field.onChange}
-                      label="UPLOAD LIMIT (KB/S)"
-                    />
-                  )}
-                />
-              </View>
+            <Controller
+              name="downloadLimit"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Download limit (KB/s)"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    keyboardType="numeric"
+                    editable={downloadLimited}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
+
+            <SettingsFieldRow>
               <Controller
-                name="uploadLimit"
+                name="uploadLimited"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      keyboardType="numeric"
-                      editable={watch("uploadLimited")}
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      style={[fieldState.error ? { borderColor: red } : {}]}
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
-                    </Text>
-                  </>
+                render={({ field }) => (
+                  <Toggle
+                    variant="settings"
+                    value={field.value}
+                    onPress={field.onChange}
+                    label="Enable upload limit"
+                  />
                 )}
               />
-            </View>
+            </SettingsFieldRow>
+
+            <Controller
+              name="uploadLimit"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Upload limit (KB/s)"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    keyboardType="numeric"
+                    editable={uploadLimited}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
           </>
         ) : (
           <>
-            <View style={styles.row}>
-              <Text style={styles.label}>Download limit (KB/s, 0 = unlimited)</Text>
-              <Controller
-                name="downloadLimit"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      keyboardType="numeric"
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      style={[fieldState.error ? { borderColor: red } : {}]}
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
-                    </Text>
-                  </>
-                )}
-              />
-            </View>
+            <Controller
+              name="downloadLimit"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Download limit (KB/s, 0 = unlimited)"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    keyboardType="numeric"
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
 
-            <View style={styles.row}>
-              <Text style={styles.label}>Upload limit (KB/s, 0 = unlimited)</Text>
-              <Controller
-                name="uploadLimit"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      keyboardType="numeric"
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      style={[fieldState.error ? { borderColor: red } : {}]}
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
-                    </Text>
-                  </>
-                )}
-              />
-            </View>
+            <Controller
+              name="uploadLimit"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Upload limit (KB/s, 0 = unlimited)"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    keyboardType="numeric"
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
           </>
         )}
 
-        <Text style={styles.title}>Seed</Text>
+        <SettingsSectionTitle title="Seed" />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Stop seeding at ratio</Text>
+        <SettingsFieldRow label="Stop seeding at ratio">
           <Controller
             name="seedRatioMode"
             control={control}
             render={({ field }) => (
               <SelectInput
+                variant="settings"
                 value={field.value}
                 onChange={field.onChange}
                 options={[
@@ -343,37 +350,36 @@ export default function TorrentSettingsScreen() {
               />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Ratio limit</Text>
-          <Controller
-            name="seedRatioLimit"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  keyboardType="numeric"
-                  editable={watch("seedRatioMode") === Mode.SINGLE}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                  style={[fieldState.error ? { borderColor: red } : {}]}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+        <Controller
+          name="seedRatioLimit"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Ratio limit"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                keyboardType="numeric"
+                editable={seedRatioMode === Mode.SINGLE}
+                value={field.value?.toString() || ""}
+                onChangeText={field.onChange}
+                style={fieldState.error ? { borderColor: red } : undefined}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Stop seeding if idle</Text>
+        <SettingsFieldRow label="Stop seeding if idle">
           <Controller
             name="seedIdleMode"
             control={control}
             render={({ field }) => (
               <SelectInput
+                variant="settings"
                 value={field.value}
                 onChange={field.onChange}
                 options={[
@@ -397,57 +403,29 @@ export default function TorrentSettingsScreen() {
               />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Idle seeding limit (minutes)</Text>
-          <Controller
-            name="seedIdleLimit"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  keyboardType="numeric"
-                  editable={watch("seedIdleMode") === Mode.SINGLE}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                  style={[fieldState.error ? { borderColor: red } : {}]}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+        <Controller
+          name="seedIdleLimit"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Idle seeding limit (minutes)"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                keyboardType="numeric"
+                editable={seedIdleMode === Mode.SINGLE}
+                value={field.value?.toString() || ""}
+                onChangeText={field.onChange}
+                style={fieldState.error ? { borderColor: red } : undefined}
+              />
+            </SettingsFieldRow>
+          )}
+        />
       </KeyboardAwareScrollView>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "stretch",
-    paddingTop: 16,
-    paddingBottom: 24,
-  },
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
-    marginBottom: 12,
-    marginTop: 12,
-  },
-  row: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  error: {
-    fontSize: 12,
-    textTransform: "lowercase",
-    marginTop: 4,
-  },
-});

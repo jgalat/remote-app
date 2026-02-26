@@ -13,6 +13,7 @@ import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
 import SelectInput from "~/components/select-input";
+import { SettingsFieldRow, SettingsSectionTitle } from "~/components/settings";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import type { Server, ServerType } from "~/store/settings";
@@ -230,7 +231,7 @@ export default function ConnectionScreen() {
     if (!isEdit) return;
     navigation.setOptions({
       headerRight: () => (
-        <ActionIcon onPress={remove} name="trash" color={red} />
+        <ActionIcon onPress={remove} name="trash-2" color={red} />
       ),
     });
   }, [isEdit, remove, navigation, red]);
@@ -309,13 +310,15 @@ export default function ConnectionScreen() {
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.row}>
-          <Text style={styles.label}>CLIENT TYPE</Text>
+        <SettingsSectionTitle title="Connection" first />
+
+        <SettingsFieldRow label="Client type" reserveErrorSpace>
           <Controller
             name="type"
             control={control}
             render={({ field }) => (
               <SelectInput
+                variant="settings"
                 value={field.value}
                 onChange={onTypeChange}
                 options={[
@@ -326,207 +329,189 @@ export default function ConnectionScreen() {
               />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>
-            Name <Required />
-          </Text>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  placeholder="remote server"
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
-                  onChangeText={field.onChange}
-                  value={field.value?.toString() || ""}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+        <Controller
+          name="name"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label={
+                <Text style={styles.label}>
+                  Name <Required />
                 </Text>
-              </>
-            )}
-          />
-        </View>
+              }
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                placeholder="remote server"
+                style={fieldState.error ? { borderColor: red } : undefined}
+                onChangeText={field.onChange}
+                value={field.value?.toString() || ""}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>
-            HOST / IP ADDRESS <Required />
-          </Text>
-          <Controller
-            name="host"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  placeholder="192.168.1.100"
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
+        <Controller
+          name="host"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label={
+                <Text style={styles.label}>
+                  Host / IP address <Required />
                 </Text>
-              </>
-            )}
-          />
-        </View>
+              }
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                placeholder="192.168.1.100"
+                style={fieldState.error ? { borderColor: red } : undefined}
+                value={field.value?.toString() || ""}
+                onChangeText={field.onChange}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>PORT</Text>
-          <Controller
-            name="port"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
-                  keyboardType="numeric"
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+        <Controller
+          name="port"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Port"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
+                keyboardType="numeric"
+                style={fieldState.error ? { borderColor: red } : undefined}
+                value={field.value?.toString() || ""}
+                onChangeText={field.onChange}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={styles.row}>
-          <Text style={styles.label}>PATH</Text>
-          <Controller
-            name="path"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <TextInput
-                  placeholder={typeDefaults[type].path || "/"}
-                  style={[
-                    styles.input,
-                    fieldState.error ? { borderColor: red } : {},
-                  ]}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+        <Controller
+          name="path"
+          control={control}
+          render={({ field, fieldState }) => (
+            <SettingsFieldRow
+              label="Path"
+              error={fieldState.error?.message}
+              reserveErrorSpace
+            >
+              <TextInput
+                variant="settings"
+                placeholder={typeDefaults[type].path || "/"}
+                style={fieldState.error ? { borderColor: red } : undefined}
+                value={field.value?.toString() || ""}
+                onChangeText={field.onChange}
+              />
+            </SettingsFieldRow>
+          )}
+        />
 
-        <View style={[styles.row]}>
+        <SettingsSectionTitle title="Security" />
+
+        <SettingsFieldRow>
           <Controller
             name="useSSL"
             control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <Toggle
-                  label="USE SSL/HTTPS"
-                  description="Enable secure connection"
-                  value={field.value}
-                  onPress={onSSLChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
+            render={({ field }) => (
+              <Toggle
+                variant="settings"
+                label="SSL/HTTPS"
+                description="Use a secure HTTPS connection."
+                value={field.value}
+                onPress={onSSLChange}
+              />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
-        <View style={[styles.row]}>
+        <SettingsFieldRow>
           <Controller
             name="useAuth"
             control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <Toggle
-                  label="AUTHENTICATION"
-                  description="Username and password required"
-                  value={field.value}
-                  onPress={onUseAuthChange}
-                />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
+            render={({ field }) => (
+              <Toggle
+                variant="settings"
+                label="Authentication"
+                description="Require username and password."
+                value={field.value}
+                onPress={onUseAuthChange}
+              />
             )}
           />
-        </View>
+        </SettingsFieldRow>
 
         {useAuth && (
           <>
-            <View style={styles.row}>
-              <Text style={styles.label}>
-                USERNAME <Required />
-              </Text>
-              <Controller
-                name="username"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        fieldState.error ? { borderColor: red } : {},
-                      ]}
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
+            <Controller
+              name="username"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label={
+                    <Text style={styles.label}>
+                      Username <Required />
                     </Text>
-                  </>
-                )}
-              />
-            </View>
+                  }
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
 
-            <View style={styles.row}>
-              <Text style={styles.label}>
-                PASSWORD <Required />
-              </Text>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        fieldState.error ? { borderColor: red } : {},
-                      ]}
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      secureTextEntry
-                    />
-                    <Text style={[styles.error, { color: red }]}>
-                      {fieldState.error?.message}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label={
+                    <Text style={styles.label}>
+                      Password <Required />
                     </Text>
-                  </>
-                )}
-              />
-            </View>
+                  }
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    secureTextEntry
+                  />
+                </SettingsFieldRow>
+              )}
+            />
           </>
         )}
 
-        <View style={[styles.row, styles.connection, { borderColor: gray }]}>
-          <Text style={styles.label}>CONNECTION STATUS</Text>
-          <Text>{status}</Text>
+        <View style={[styles.connectionCard, { borderColor: gray }]}>
+          <View style={styles.connectionHeader}>
+            <Text style={styles.label}>Connection</Text>
+            <Text color={statusColor} style={styles.connectionState}>
+              {status}
+            </Text>
+          </View>
           <ProgressBar progress={100} color={statusColor} />
         </View>
 
@@ -547,24 +532,24 @@ export default function ConnectionScreen() {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    marginBottom: 12,
-  },
   label: {
-    fontSize: 16,
-    marginBottom: 8,
-    textTransform: "uppercase",
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 13,
   },
-  input: {},
-  error: {
-    fontSize: 12,
-    textTransform: "lowercase",
+  connectionCard: {
     marginTop: 4,
-  },
-  connection: {
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
     gap: 8,
+  },
+  connectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  connectionState: {
+    fontSize: 12,
   },
 });

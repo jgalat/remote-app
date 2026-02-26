@@ -14,14 +14,22 @@ import { useTheme } from "~/hooks/use-theme-color";
 export type TextInputProps = {
   containerStyle?: StyleProp<ViewStyle>;
   icon?: React.ComponentProps<typeof Feather>["name"];
+  variant?: "default" | "settings";
 } & _TextInputProps;
 
 export default React.forwardRef<_TextInput, TextInputProps>(
   function TextInput(
-    { style, editable = true, containerStyle, icon, ...props },
+    { style, editable = true, containerStyle, icon, variant = "default", ...props },
     ref
   ) {
     const { background, text, lightGray, gray } = useTheme();
+
+    const settings = variant === "settings";
+    const borderColor = editable
+      ? settings
+        ? lightGray
+        : text
+      : lightGray;
 
     return (
       <View
@@ -34,13 +42,13 @@ export default React.forwardRef<_TextInput, TextInputProps>(
           autoCorrect={false}
           autoComplete="off"
           style={[
-            styles.input,
+            settings ? styles.settingsInput : styles.input,
             {
               backgroundColor: background,
               color: editable ? text : lightGray,
-              borderColor: editable ? text : lightGray,
+              borderColor,
             },
-            icon ? { paddingLeft: 40 } : {},
+            icon ? { paddingLeft: settings ? 36 : 40 } : {},
             style,
           ]}
           placeholderTextColor={lightGray}
@@ -64,6 +72,14 @@ const styles = StyleSheet.create({
     padding: 8,
     height: 48,
     borderRadius: 8,
+  },
+  settingsInput: {
+    fontFamily: "RobotoMono-Regular",
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 12,
+    fontSize: 14,
   },
   icon: {
     position: "absolute",

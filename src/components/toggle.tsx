@@ -13,6 +13,7 @@ export type ToggleProps = {
   description?: string;
   onPress?: (checked: boolean) => void;
   iconStyle?: React.ComponentProps<typeof FontAwesome>["style"];
+  variant?: "default" | "settings";
 } & Omit<PressableProps, "onPress">;
 
 export default React.memo(function Toggle({
@@ -23,30 +24,48 @@ export default React.memo(function Toggle({
   style,
   iconStyle,
   disabled,
+  variant = "default",
 }: ToggleProps) {
   const { text, gray, tint, yellow } = useTheme();
+  const settings = variant === "settings";
+  const hasCopy = Boolean(label || description);
 
   return (
     <Pressable
       onPress={() => (disabled ? null : onPress?.(!value))}
-      style={[styles.toggle, style]}
+      style={[styles.toggle, !hasCopy && styles.toggleIconOnly, style]}
       disabled={disabled}
     >
-      <View>
-        {label && (
-          <Text
-            style={[
-              label && description ? styles.composed : styles.label,
-              { color: disabled ? gray : text },
-            ]}
-          >
-            {label}
-          </Text>
-        )}
-        {description && (
-          <Text style={[styles.label, { color: gray }]}>{description}</Text>
-        )}
-      </View>
+      {hasCopy ? (
+        <View>
+          {label && (
+            <Text
+              style={[
+                label && description
+                  ? settings
+                    ? styles.settingsComposed
+                    : styles.composed
+                  : settings
+                    ? styles.settingsLabel
+                    : styles.label,
+                { color: disabled ? gray : text },
+              ]}
+            >
+              {label}
+            </Text>
+          )}
+          {description && (
+            <Text
+              style={[
+                settings ? styles.settingsDescription : styles.label,
+                { color: gray },
+              ]}
+            >
+              {description}
+            </Text>
+          )}
+        </View>
+      ) : null}
       <FontAwesome
         style={iconStyle}
         name={disabled ? "warning" : value ? "toggle-on" : "toggle-off"}
@@ -63,12 +82,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  toggleIconOnly: {
+    justifyContent: "center",
+    minWidth: 36,
+  },
   label: {
     fontSize: 14,
   },
   composed: {
     fontSize: 16,
     marginBottom: 4,
-    textTransform: "uppercase",
+  },
+  settingsLabel: {
+    fontSize: 13,
+    fontFamily: "RobotoMono-Medium",
+  },
+  settingsComposed: {
+    fontSize: 13,
+    fontFamily: "RobotoMono-Medium",
+    marginBottom: 2,
+  },
+  settingsDescription: {
+    fontSize: 12,
   },
 });

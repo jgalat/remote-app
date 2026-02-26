@@ -68,7 +68,7 @@ export default function AppLayout() {
           />
           <Stack.Screen
             name="settings/security"
-            options={{ title: "Security" }}
+            options={{ title: "Authentication" }}
           />
           <Stack.Screen name="settings/theme" options={{ title: "Theme" }} />
           <Stack.Screen name="settings/about" options={{ title: "About" }} />

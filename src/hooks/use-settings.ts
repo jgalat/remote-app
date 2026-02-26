@@ -212,6 +212,10 @@ export function useColorScheme(): "light" | "dark" {
   return colorScheme;
 }
 
+export function useColorSchemePreference(): ColorScheme {
+  return usePreferencesQuery().data.colorScheme;
+}
+
 export function useAuthentication() {
   return usePreferencesQuery().data.authentication;
 }

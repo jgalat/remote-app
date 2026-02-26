@@ -6,6 +6,7 @@ import Screen from "~/components/screen";
 import View from "~/components/view";
 import Text from "~/components/text";
 import Pressable from "~/components/pressable";
+import { SettingsListRow } from "~/components/settings";
 import { useTheme } from "~/hooks/use-theme-color";
 import { getAppVersion } from "~/utils/app-version";
 
@@ -52,21 +53,22 @@ export default function AboutScreen() {
         </Text>
       </View>
       {links.map((link) => (
-        <Pressable
-          key={link.url}
-          style={styles.card}
-          onPress={() => Linking.openURL(link.url).catch(() => undefined)}
-        >
-          <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: tint }]}>
-              {link.title}{" "}
+        <SettingsListRow key={link.url} style={styles.cardWrap}>
+          <Pressable
+            style={styles.card}
+            onPress={() => Linking.openURL(link.url).catch(() => undefined)}
+          >
+            <View style={styles.cardHeader}>
+              <Text style={[styles.cardTitle, { color: tint }]}>
+                {link.title}{" "}
+              </Text>
+              <Feather name="external-link" color={tint} size={16} />
+            </View>
+            <Text style={[styles.cardDescription, { color: gray }]}>
+              {link.description}
             </Text>
-            <Feather name="external-link" color={tint} size={16} />
-          </View>
-          <Text style={[styles.cardDescription, { color: gray }]}>
-            {link.description}
-          </Text>
-        </Pressable>
+          </Pressable>
+        </SettingsListRow>
       ))}
     </Screen>
   );
@@ -97,7 +99,10 @@ const styles = StyleSheet.create({
   },
   card: {
     paddingVertical: 12,
-    paddingHorizontal: 4,
+    paddingHorizontal: 12,
+  },
+  cardWrap: {
+    marginBottom: 8,
   },
   cardHeader: {
     flexDirection: "row",

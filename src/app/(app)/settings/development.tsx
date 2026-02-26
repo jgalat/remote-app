@@ -3,10 +3,10 @@ import { StyleSheet } from "react-native";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 
-import View from "~/components/view";
 import Text from "~/components/text";
 import Screen from "~/components/screen";
 import Button from "~/components/button";
+import { SettingsListRow, SettingsSectionTitle } from "~/components/settings";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
 import { useServersStore } from "~/hooks/use-settings";
 import { usePro, getDeviceId, updateDeviceId } from "@remote-app/pro";
@@ -19,17 +19,17 @@ export default function Development() {
   const [deviceId, setDeviceId] = React.useState(() => getDeviceId());
   return (
     <Screen variant="scroll">
-      <Text style={[styles.title]}>Navigation</Text>
-      <View style={styles.row}>
+      <SettingsSectionTitle title="Navigation" first />
+      <SettingsListRow style={styles.row}>
         <Button
           title="Go to _sitemap"
           onPress={async () => {
             router.push("/_sitemap");
           }}
         />
-      </View>
-      <Text style={[styles.title]}>Task</Text>
-      <View style={styles.row}>
+      </SettingsListRow>
+      <SettingsSectionTitle title="Task" />
+      <SettingsListRow style={styles.row}>
         <Button
           title="Trigger background task"
           onPress={async () => {
@@ -37,9 +37,9 @@ export default function Development() {
             console.log("[dev] Task result:", result);
           }}
         />
-      </View>
-      <Text style={[styles.title]}>Notifications</Text>
-      <View style={styles.row}>
+      </SettingsListRow>
+      <SettingsSectionTitle title="Notifications" />
+      <SettingsListRow style={styles.row}>
         <Button
           title="Trigger test notification"
           onPress={async () => {
@@ -53,16 +53,16 @@ export default function Development() {
             });
           }}
         />
-      </View>
-      <Text style={[styles.title]}>Pro</Text>
-      <View style={styles.row}>
+      </SettingsListRow>
+      <SettingsSectionTitle title="Pro" />
+      <SettingsListRow style={styles.row}>
         <Button
           title={devOverride ? "Disable Pro Override" : "Enable Pro Override"}
           onPress={() => setDevOverride(!devOverride)}
         />
-      </View>
-      <Text style={[styles.title]}>Servers</Text>
-      <View style={styles.row}>
+      </SettingsListRow>
+      <SettingsSectionTitle title="Servers" />
+      <SettingsListRow style={styles.row}>
         <Button
           title="Mock server"
           onPress={async () => {
@@ -114,29 +114,24 @@ export default function Development() {
             });
           }}
         />
-      </View>
-      <Text style={[styles.title]}>Device ID</Text>
-      <View style={styles.row}>
+      </SettingsListRow>
+      <SettingsSectionTitle title="Device ID" />
+      <SettingsListRow style={styles.row}>
         <Text selectable style={styles.deviceId}>{deviceId}</Text>
         <Button
           title="Update Device ID"
           onPress={() => setDeviceId(updateDeviceId())}
         />
-      </View>
+      </SettingsListRow>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
-    marginBottom: 16,
-    marginTop: 0,
-  },
   row: {
     gap: 16,
-    marginBottom: 16,
+    marginBottom: 12,
+    padding: 12,
   },
   deviceId: {
     fontFamily: "RobotoMono-Medium",

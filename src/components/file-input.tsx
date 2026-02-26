@@ -9,6 +9,7 @@ import { useTheme } from "~/hooks/use-theme-color";
 export type FileInputProps = {
   title: string;
   titleStyle?: TextStyle;
+  variant?: "default" | "settings";
 } & PressableProps;
 
 export default React.memo(function FileInput({
@@ -17,17 +18,20 @@ export default React.memo(function FileInput({
   disabled,
   onPress,
   titleStyle,
+  variant = "default",
   ...props
 }: FileInputProps) {
   const { text, lightGray, background, gray } = useTheme();
+  const settings = variant === "settings";
+
   return (
     <Pressable
       style={[
-        styles.button,
+        settings ? styles.settingsButton : styles.button,
         {
-          borderWidth: 2,
+          borderWidth: settings ? 1 : 2,
           backgroundColor: background,
-          borderColor: disabled ? lightGray : text,
+          borderColor: disabled ? lightGray : settings ? lightGray : text,
         },
         style,
       ]}
@@ -36,7 +40,14 @@ export default React.memo(function FileInput({
       {...props}
     >
       <Feather color={gray} size={16} name="share" />
-      <Text color={gray} style={[styles.buttonText, titleStyle]}>
+      <Text
+        color={gray}
+        style={[
+          styles.buttonText,
+          settings && styles.settingsButtonText,
+          titleStyle,
+        ]}
+      >
         {title}
       </Text>
     </Pressable>
@@ -52,9 +63,20 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 8,
   },
+  settingsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 12,
+  },
   buttonText: {
     flex: 1,
     textTransform: "lowercase",
     paddingLeft: 8,
+  },
+  settingsButtonText: {
+    textTransform: "none",
+    fontSize: 14,
   },
 });
