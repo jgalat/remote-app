@@ -2,10 +2,7 @@ import * as SystemUI from "expo-system-ui";
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 
-import {
-  unregisterTorrentsNotifierTask,
-  registerTorrentsNotifierTask,
-} from "~/tasks/torrents-notifier";
+import { registerTorrentsNotifierTask } from "~/tasks/torrents-notifier";
 import { useColorScheme } from "./use-settings";
 import colors from "~/constants/colors";
 
@@ -17,7 +14,6 @@ async function load(
     if (!(await Notifications.getPermissionsAsync()).granted) {
       await Notifications.requestPermissionsAsync();
     }
-    await unregisterTorrentsNotifierTask();
     await registerTorrentsNotifierTask();
   } catch {
     // ignore

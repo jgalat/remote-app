@@ -8,6 +8,7 @@ import Text from "~/components/text";
 import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Option from "~/components/option";
+import Separator from "~/components/separator";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useListingStore, useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import { useTorrents, useSession } from "~/hooks/torrent";
@@ -200,7 +201,7 @@ function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
               </View>
               <Feather name="book" size={24} color={text} />
             </Pressable>
-            <View style={[styles.separator, { backgroundColor: text, opacity: 0.15 }]} />
+            <Separator style={styles.separator} />
           </>
         )}
         {options.map((option) => (
@@ -253,7 +254,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   separator: {
-    height: 1,
     marginVertical: 12,
   },
   option: {

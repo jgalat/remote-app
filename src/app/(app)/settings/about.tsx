@@ -1,13 +1,13 @@
 import * as React from "react";
 import { Image, Linking, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import Constants from "expo-constants";
 
 import Screen from "~/components/screen";
 import View from "~/components/view";
 import Text from "~/components/text";
 import Pressable from "~/components/pressable";
 import { useTheme } from "~/hooks/use-theme-color";
+import { getAppVersion } from "~/utils/app-version";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const icon = require("../../../../assets/images/icon.png");
@@ -37,6 +37,7 @@ const links = [
 
 export default function AboutScreen() {
   const { tint, gray, lightGray } = useTheme();
+  const appVersion = getAppVersion();
 
   return (
     <Screen variant="scroll" contentContainerStyle={styles.content}>
@@ -47,7 +48,7 @@ export default function AboutScreen() {
         />
         <Text style={styles.title}>Remote for Transmission</Text>
         <Text style={[styles.version, { color: lightGray }]}>
-          {Constants.expoConfig?.version}
+          {appVersion}
         </Text>
       </View>
       {links.map((link) => (

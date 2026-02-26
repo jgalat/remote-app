@@ -10,6 +10,7 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import Screen from "~/components/screen";
+import Separator from "~/components/separator";
 import { LoadingScreen, NetworkErrorScreen } from "~/components/utility-screens";
 import {
   useServers,
@@ -27,11 +28,6 @@ type DirectoryEntry = {
   isDefault: boolean;
   isGlobal: boolean;
 };
-
-function Separator() {
-  const { lightGray } = useTheme();
-  return <View style={[styles.separator, { backgroundColor: lightGray }]} />;
-}
 
 function DirectoryRow({
   entry,
@@ -200,7 +196,7 @@ function DirectoriesList({ server }: { server: Server }) {
             onLongPress={() => toggleSelection(item.path)}
           />
         )}
-        ItemSeparatorComponent={Separator}
+        ItemSeparatorComponent={() => <Separator style={styles.separator} />}
       />
       {selectionActive ? (
         <View style={styles.footer}>
@@ -315,8 +311,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   separator: {
-    height: 1,
-    opacity: 0.2,
+    marginVertical: 0,
   },
   footer: {
     paddingVertical: 16,

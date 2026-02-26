@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Application from "expo-application";
 import { StyleSheet, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -7,6 +6,7 @@ import Text from "~/components/text";
 import Option, { OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
 import { useColorScheme, useServers } from "~/hooks/use-settings";
+import { getAppVersion } from "~/utils/app-version";
 
 import { usePro } from "@remote-app/pro";
 
@@ -15,6 +15,7 @@ export default function SettingsScreen() {
   const servers = useServers();
   const { isPro, available } = usePro();
   const router = useRouter();
+  const appVersion = getAppVersion();
 
   const options: OptionProps[] = React.useMemo<OptionProps[]>(() => {
     const connection: OptionProps[] = [
@@ -124,7 +125,7 @@ export default function SettingsScreen() {
         keyExtractor={(item) => item.label}
       />
       <Text style={styles.text}>
-        Version {Application.nativeApplicationVersion}
+        Version {appVersion}
       </Text>
     </Screen>
   );
