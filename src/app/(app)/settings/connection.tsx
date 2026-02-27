@@ -24,6 +24,9 @@ import { useTestConnection } from "~/hooks/use-test-connection";
 import { defaultPortForSSL, typeDefaults } from "~/utils/server-connection-defaults";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
+import Pressable from "~/components/pressable";
+import { Feather } from "@expo/vector-icons";
+import { debugHref } from "~/lib/debug-href";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -277,11 +280,12 @@ export default function ConnectionScreen() {
     mutate: test,
   } = useTestConnection();
 
-  const status = isPending ? "Connecting..." : data ? data : "Not connected";
+  const status = isPending ? "Connecting..." : data ? data.message : "Not connected";
+  const hasError = data ? !data.connected : false;
   const statusColor =
     status === "Not connected" || status === "Connecting..."
       ? gray
-      : status === "Connected"
+      : data?.connected
       ? green
       : red;
 
@@ -508,9 +512,32 @@ export default function ConnectionScreen() {
         <View style={[styles.connectionCard, { borderColor: gray }]}>
           <View style={styles.connectionHeader}>
             <Text style={styles.label}>Connection</Text>
-            <Text color={statusColor} style={styles.connectionState}>
-              {status}
-            </Text>
+            {hasError && data?.error ? (
+              <Pressable
+                style={styles.statusPressable}
+                onPress={() => {
+                  const f = getValues();
+                  const url = renderUrl({ ...f, type: f.type ?? "transmission" });
+                  const username = f.useAuth ? f.username?.trim() || undefined : undefined;
+                  const password = f.useAuth ? f.password || undefined : undefined;
+                  const e = data.error!;
+                  router.push(debugHref({
+                    url, username, password,
+                    errorName: e.name, errorMessage: e.message,
+                    errorStatus: e.status, errorBody: e.body,
+                  }));
+                }}
+              >
+                <Text color={statusColor} style={styles.connectionState}>
+                  {status}
+                </Text>
+                <Feather name="chevron-right" size={14} color={statusColor} />
+              </Pressable>
+            ) : (
+              <Text color={statusColor} style={styles.connectionState}>
+                {status}
+              </Text>
+            )}
           </View>
           <ProgressBar progress={100} color={statusColor} />
         </View>
@@ -551,5 +578,11 @@ const styles = StyleSheet.create({
   },
   connectionState: {
     fontSize: 12,
+  },
+  statusPressable: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flexShrink: 1,
   },
 });

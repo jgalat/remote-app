@@ -12,7 +12,6 @@ declare module "@remote-app/pro" {
   export const SearchConfigScreen: ComponentType;
   export const ProSettingsScreen: ComponentType;
   export const BackupSettingsScreen: ComponentType;
-
   export function getDeviceId(): string;
   export function updateDeviceId(): string;
 }

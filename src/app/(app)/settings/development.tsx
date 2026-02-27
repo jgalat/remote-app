@@ -11,6 +11,7 @@ import TorrentsNotifierTask from "~/tasks/torrents-notifier";
 import { useServersStore } from "~/hooks/use-settings";
 import { usePro, getDeviceId, updateDeviceId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
+import { debugHref } from "~/lib/debug-href";
 
 export default function Development() {
   const router = useRouter();
@@ -112,6 +113,23 @@ export default function Development() {
               }],
               activeServerId: id,
             });
+          }}
+        />
+      </SettingsListRow>
+      <SettingsSectionTitle title="Debug Screen" />
+      <SettingsListRow style={styles.row}>
+        <Button
+          title="Test debug (long error)"
+          onPress={() => {
+            router.push(debugHref({
+              url: "https://my-server.example.com:9091/transmission/rpc",
+              username: "admin",
+              password: "hunter2",
+              errorName: "HTTPError",
+              errorMessage: "<!DOCTYPE html><html><head><title>401 Unauthorized</title></head><body><h1>401 Unauthorized</h1><p>This server could not verify that you are authorized to access the document requested. Either you supplied the wrong credentials (e.g., bad password), or your browser doesn't understand how to supply the credentials required.</p><p>Additionally, a 401 Unauthorized error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache/2.4.41 (Ubuntu) Server at my-server.example.com Port 9091</address></body></html>",
+              errorStatus: 401,
+              errorBody: "<html><body><h1>401 Unauthorized</h1></body></html>",
+            }));
           }}
         />
       </SettingsListRow>

@@ -86,6 +86,7 @@ export default function AppLayout() {
               options={{ title: "Configuration Backup" }}
             />
           </Stack.Protected>
+          <Stack.Screen name="settings/debug" options={{ title: "Debug" }} />
           <Stack.Screen
             name="settings/directories"
             options={{ title: "Download Directories" }}

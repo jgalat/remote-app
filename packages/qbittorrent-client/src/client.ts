@@ -45,12 +45,13 @@ export class QBittorrentClient {
         Referer: baseUrl,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      credentials: "include",
+      credentials: "omit",
       body: body.toString(),
     });
 
     if (!response.ok) {
-      throw new HTTPError(response.status, response.statusText);
+      const body = await response.text();
+      throw new HTTPError(response.status, response.statusText, body);
     }
 
     const text = await response.text();
@@ -111,7 +112,7 @@ export class QBittorrentClient {
       fetchBody = body;
     }
 
-    const response = await fetch(url, { method, headers, body: fetchBody, credentials: "include" });
+    const response = await fetch(url, { method, headers, body: fetchBody, credentials: "omit" });
 
     if (response.status === 403 && retry) {
       this.sid = null;
@@ -120,7 +121,8 @@ export class QBittorrentClient {
     }
 
     if (!response.ok) {
-      throw new HTTPError(response.status, response.statusText);
+      const body = await response.text();
+      throw new HTTPError(response.status, response.statusText, body);
     }
 
     const text = await response.text();

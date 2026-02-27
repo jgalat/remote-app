@@ -13,9 +13,20 @@ type TestConnectionParams = {
   password?: string;
 };
 
-async function testConnection(params: TestConnectionParams): Promise<string> {
+export type TestConnectionResult = {
+  connected: boolean;
+  message: string;
+  error?: {
+    name: string;
+    message: string;
+    status?: number;
+    body?: string;
+  };
+};
+
+async function testConnection(params: TestConnectionParams): Promise<TestConnectionResult> {
   if (isTestingServer(params)) {
-    return "Connected";
+    return { connected: true, message: "Connected" };
   }
 
   const config = { url: params.url, username: params.username, password: params.password };
@@ -26,12 +37,21 @@ async function testConnection(params: TestConnectionParams): Promise<string> {
 
   try {
     await client.ping();
-    return "Connected";
+    return { connected: true, message: "Connected" };
   } catch (e) {
     if (e instanceof Error) {
-      return `Error: ${e.message}`;
+      const error: TestConnectionResult["error"] = {
+        name: e.name,
+        message: e.message,
+      };
+      if ("status" in e && typeof e.status === "number") error.status = e.status;
+      if ("body" in e && typeof e.body === "string") error.body = e.body;
+      const msg = error.status
+        ? e.message ? `${error.status}: ${e.message}` : `HTTP ${error.status}`
+        : e.message || "Unknown error";
+      return { connected: false, message: msg, error };
     }
-    return "Unknown error";
+    return { connected: false, message: "Unknown error" };
   }
 }
 

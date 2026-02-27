@@ -1,13 +1,13 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { useLinkTo } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
-import { File, Paths } from "expo-file-system/next";
-
 import View, { ViewProps } from "./view";
 import Text from "./text";
 import Button from "./button";
 import { useTheme } from "~/hooks/use-theme-color";
+import { useServer } from "~/hooks/use-settings";
+import { debugHref } from "~/lib/debug-href";
 
 export type NetworkErrorMessageProps = {
   error: Error;
@@ -28,8 +28,9 @@ export default React.memo(function NetworkErrorMessage({
   style,
   ...props
 }: NetworkErrorMessageProps) {
-  const linkTo = useLinkTo();
+  const router = useRouter();
   const { red } = useTheme();
+  const server = useServer();
 
   let title = "Failed to connect";
   let message = error.message || "Unknown error";
@@ -43,10 +44,23 @@ export default React.memo(function NetworkErrorMessage({
     title = "Server Error";
   }
 
-  if (hasBody(error)) {
+  if (hasBody(error) && !hasStatus(error)) {
     title = "Unexpected response";
     message = "";
   }
+
+  const onDebug = React.useCallback(() => {
+    if (!server) return;
+    router.push(debugHref({
+      url: server.url,
+      username: server.username,
+      password: server.password,
+      errorName: error.name,
+      errorMessage: error.message,
+      errorStatus: hasStatus(error) ? error.status : undefined,
+      errorBody: hasBody(error) ? error.body : undefined,
+    }));
+  }, [server, error, router]);
 
   return (
     <View style={[styles.container, style]} {...props}>
@@ -60,27 +74,14 @@ export default React.memo(function NetworkErrorMessage({
       ) : null}
       <View style={styles.buttons}>
         <Button
-          onPress={() => linkTo("/settings/connection")}
+          onPress={() => router.push("/settings/connection")}
           title="Connection Settings"
         />
         <Button
           onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
           title="Network Settings"
         />
-        {hasBody(error) && (
-          <Button
-            onPress={() => {
-              const file = new File(Paths.cache, "response.html");
-              file.write(error.body);
-              startActivityAsync("android.intent.action.VIEW", {
-                data: file.contentUri,
-                flags: 1,
-                type: "text/html",
-              });
-            }}
-            title="Show response"
-          />
-        )}
+        <Button onPress={onDebug} title="Debug" />
         <Button onPress={refetch} title="Retry" />
       </View>
     </View>
