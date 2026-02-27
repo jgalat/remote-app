@@ -21,9 +21,6 @@ export function createProModule(): ProModule {
     async getPrice() {
       return null;
     },
-    async isStoreAvailable() {
-      return false;
-    },
     async switchUser() {
       return stubEntitlement;
     },

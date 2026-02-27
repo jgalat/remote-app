@@ -7,7 +7,6 @@ const stubValue: ProContextValue = {
   isPro: false,
   isLoading: false,
   price: null,
-  storeAvailable: false,
   purchasePro: async () => {},
   restorePurchases: async () => false,
   switchAppId: async () => false,

@@ -5,7 +5,6 @@ export type ProContextValue = {
   isPro: boolean;
   isLoading: boolean;
   price: string | null;
-  storeAvailable: boolean;
   purchasePro: () => Promise<void>;
   restorePurchases: () => Promise<boolean>;
   switchAppId: (id: string) => Promise<boolean>;
@@ -43,7 +42,6 @@ export interface ProModule {
   purchasePro(): Promise<EntitlementState>;
   restorePurchases(): Promise<EntitlementState>;
   getPrice(): Promise<string | null>;
-  isStoreAvailable(): Promise<boolean>;
   switchUser(appId: string): Promise<EntitlementState>;
   search(config: SearchConfig, query: string): Promise<SearchResult[]>;
   testSearchConnection(config: SearchConfig): Promise<void>;
