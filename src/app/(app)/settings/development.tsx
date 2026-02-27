@@ -9,7 +9,7 @@ import Button from "~/components/button";
 import { SettingsListRow, SettingsSectionTitle } from "~/components/settings";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
 import { useServersStore } from "~/hooks/use-settings";
-import { usePro, getDeviceId, updateDeviceId } from "@remote-app/pro";
+import { usePro, getAppId, generateAppId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
 import { debugHref } from "~/lib/debug-href";
 
@@ -17,7 +17,7 @@ export default function Development() {
   const router = useRouter();
   const { store } = useServersStore();
   const { devOverride, setDevOverride } = usePro();
-  const [deviceId, setDeviceId] = React.useState(() => getDeviceId());
+  const [appId, setAppId] = React.useState(() => getAppId());
   return (
     <Screen variant="scroll">
       <SettingsSectionTitle title="Navigation" first />
@@ -133,12 +133,12 @@ export default function Development() {
           }}
         />
       </SettingsListRow>
-      <SettingsSectionTitle title="Device ID" />
+      <SettingsSectionTitle title="App ID" />
       <SettingsListRow style={styles.row}>
-        <Text selectable style={styles.deviceId}>{deviceId}</Text>
+        <Text selectable style={styles.appId}>{appId}</Text>
         <Button
-          title="Update Device ID"
-          onPress={() => setDeviceId(updateDeviceId())}
+          title="Generate App ID"
+          onPress={() => setAppId(generateAppId())}
         />
       </SettingsListRow>
     </Screen>
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 12,
   },
-  deviceId: {
+  appId: {
     fontFamily: "RobotoMono-Medium",
     fontSize: 12,
   },

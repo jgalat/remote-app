@@ -34,9 +34,9 @@ const Form = z
     type: z.enum(["transmission", "qbittorrent"]).default("transmission"),
     name: z
       .string()
-      .min(1, "Name is required")
-      .max(16, "Max. of 16 characters"),
-    host: z.string().min(1, "Host / IP address is required"),
+      .min(1, "name is required")
+      .max(16, "max. of 16 characters"),
+    host: z.string().min(1, "host / IP address is required"),
     port: z.coerce.number().optional(),
     path: z.string().optional(),
     useSSL: z.boolean(),
@@ -50,14 +50,14 @@ const Form = z
         ctx.addIssue({
           path: ["username"],
           code: z.ZodIssueCode.custom,
-          message: "Username is required",
+          message: "username is required",
         });
       }
       if (!data.password) {
         ctx.addIssue({
           path: ["password"],
           code: z.ZodIssueCode.custom,
-          message: "Password is required",
+          message: "password is required",
         });
       }
     }

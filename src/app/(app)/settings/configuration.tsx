@@ -74,12 +74,12 @@ type Form = z.infer<typeof Form>;
 const Form = z
   .object({
     "speed-limit-down-enabled": z.boolean(),
-    "speed-limit-down": z.coerce.number({ message: "Expected a number" }),
+    "speed-limit-down": z.coerce.number({ message: "expected a number" }),
     "speed-limit-up-enabled": z.boolean(),
-    "speed-limit-up": z.coerce.number({ message: "Expected a number" }),
+    "speed-limit-up": z.coerce.number({ message: "expected a number" }),
     "alt-speed-enabled": z.boolean(),
-    "alt-speed-down": z.coerce.number({ message: "Expected a number" }),
-    "alt-speed-up": z.coerce.number({ message: "Expected a number" }),
+    "alt-speed-down": z.coerce.number({ message: "expected a number" }),
+    "alt-speed-up": z.coerce.number({ message: "expected a number" }),
     "alt-speed-time-enabled": z.boolean(),
     "alt-speed-time-begin-hour": z.coerce.number(),
     "alt-speed-time-begin-min": z.coerce.number(),
@@ -88,15 +88,15 @@ const Form = z
     "alt-speed-time-day": z.number(),
 
     "seedRatioLimited": z.boolean(),
-    "seedRatioLimit": z.coerce.number({ message: "Expected a number" }),
+    "seedRatioLimit": z.coerce.number({ message: "expected a number" }),
 
     "idle-seeding-limit-enabled": z.boolean(),
-    "idle-seeding-limit": z.coerce.number({ message: "Expected a number" }),
+    "idle-seeding-limit": z.coerce.number({ message: "expected a number" }),
 
     "download-queue-enabled": z.boolean(),
-    "download-queue-size": z.coerce.number({ message: "Expected a number" }),
+    "download-queue-size": z.coerce.number({ message: "expected a number" }),
     "seed-queue-enabled": z.boolean(),
-    "seed-queue-size": z.coerce.number({ message: "Expected a number" }),
+    "seed-queue-size": z.coerce.number({ message: "expected a number" }),
 
     "dht-enabled": z.boolean().optional(),
     "lpd-enabled": z.boolean().optional(),
@@ -107,42 +107,42 @@ const Form = z
       ctx.addIssue({
         path: ["speed-limit-down"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["speed-limit-up-enabled"] && !data["speed-limit-up"]) {
       ctx.addIssue({
         path: ["speed-limit-up"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["seedRatioLimited"] && !data["seedRatioLimit"]) {
       ctx.addIssue({
         path: ["seedRatioLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["idle-seeding-limit-enabled"] && !data["idle-seeding-limit"]) {
       ctx.addIssue({
         path: ["idle-seeding-limit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["download-queue-enabled"] && !data["download-queue-size"]) {
       ctx.addIssue({
         path: ["download-queue-size"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["seed-queue-enabled"] && !data["seed-queue-size"]) {
       ctx.addIssue({
         path: ["seed-queue-size"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
   });

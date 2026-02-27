@@ -30,42 +30,42 @@ const Form = z
 
     honorsSessionLimits: z.boolean().optional(),
     downloadLimited: z.boolean(),
-    downloadLimit: z.coerce.number({ message: "Expected a number" }),
+    downloadLimit: z.coerce.number({ message: "expected a number" }),
     uploadLimited: z.boolean(),
-    uploadLimit: z.coerce.number({ message: "Expected a number" }),
+    uploadLimit: z.coerce.number({ message: "expected a number" }),
 
     seedIdleMode: z.number(),
-    seedIdleLimit: z.coerce.number({ message: "Expected a number" }),
+    seedIdleLimit: z.coerce.number({ message: "expected a number" }),
     seedRatioMode: z.number(),
-    seedRatioLimit: z.coerce.number({ message: "Expected a number" }),
+    seedRatioLimit: z.coerce.number({ message: "expected a number" }),
   })
   .superRefine((data, ctx) => {
     if (data["downloadLimited"] && !data["downloadLimit"]) {
       ctx.addIssue({
         path: ["downloadLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["uploadLimited"] && !data["uploadLimit"]) {
       ctx.addIssue({
         path: ["uploadLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["seedRatioMode"] === Mode.SINGLE && !data["seedRatioLimit"]) {
       ctx.addIssue({
         path: ["seedRatioLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
     if (data["seedIdleMode"] === Mode.SINGLE && !data["seedIdleLimit"]) {
       ctx.addIssue({
         path: ["seedIdleLimit"],
         code: z.ZodIssueCode.custom,
-        message: "Field is required",
+        message: "field is required",
       });
     }
   });

@@ -6,12 +6,16 @@ export {
   SearchConfigScreen,
   ProSettingsScreen,
   BackupSettingsScreen,
+  AppIdScreen,
 } from "./screens";
 
-export function getDeviceId(): string {
+export function getAppId(): string {
   return "";
 }
 
-export function updateDeviceId(): string {
+export function generateAppId(): string {
   return "";
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function setAppId(_id: string): void {}
