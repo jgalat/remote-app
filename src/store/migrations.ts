@@ -119,3 +119,14 @@ const LEGACY_KEY = "user.settings";
 
   storage.delete(LEGACY_KEY);
 })();
+
+(function migrateAppId() {
+  const OLD_KEY = "internal.pro-device-id";
+  const NEW_KEY = "user.app-id";
+
+  const value = storage.getString(OLD_KEY);
+  if (value === undefined) return;
+
+  storage.set(NEW_KEY, value);
+  storage.delete(OLD_KEY);
+})();
