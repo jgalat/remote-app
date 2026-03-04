@@ -104,7 +104,19 @@ export default defineConfig([
     },
   },
   {
-    files: ["src/hooks/use-non-null-context.ts"],
+    files: ["packages/sw/public/**/*.js"],
+    languageOptions: {
+      globals: globals.serviceworker,
+    },
+  },
+  {
+    files: ["packages/sw/scripts/**/*.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ["src/hooks/use-non-null-context.ts", "packages/pro/src/context.tsx"],
     rules: {
       "no-restricted-syntax": "off",
     },

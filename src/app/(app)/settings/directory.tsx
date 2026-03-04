@@ -51,8 +51,8 @@ export default function DirectoryScreen() {
   const { mutate: setSession } = useServerSessionSet(server);
   const { directories, store } = useDirectoriesStore();
 
-  const { canUse } = usePro();
-  const showGlobal = !isDefault && canUse("multi-server");
+  const { isPro } = usePro();
+  const showGlobal = !isDefault && isPro;
 
   const isDefaultDir = isDefault === "true";
   const isNew = !initialPath;

@@ -10,7 +10,7 @@ import { SERVER_SELECTOR_SHEET_ID } from "./ids";
 function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>) {
   const router = useRouter();
   const { servers, store } = useServersStore();
-  const { canUse, available } = usePro();
+  const { isPro, available } = usePro();
   const active = useServer();
 
   const options = React.useMemo<OptionProps[]>(() => {
@@ -21,7 +21,7 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
       onPress: () => store({ activeServerId: server.id }),
     }));
 
-    const canAdd = servers.length === 0 || canUse("multi-server");
+    const canAdd = servers.length === 0 || isPro;
 
     if (!available && servers.length > 0) {
       return serverOptions;
@@ -38,7 +38,7 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
             : router.push("/paywall"),
       },
     ];
-  }, [servers, active?.id, store, router, available, canUse]);
+  }, [servers, active?.id, store, router, available, isPro]);
 
   return <ActionSheet title="Servers" options={options} {...props} />;
 }

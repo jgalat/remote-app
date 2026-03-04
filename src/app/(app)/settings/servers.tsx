@@ -95,7 +95,7 @@ function ServerRow({
 export default function ServersScreen() {
   const router = useRouter();
   const { servers } = useServersStore();
-  const { canUse, available } = usePro();
+  const { isPro, available } = usePro();
   const { gray, red } = useTheme();
   const health = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
@@ -141,12 +141,12 @@ export default function ServersScreen() {
   }, [selectedIds, servers, deleteSheet, clearSelection]);
 
   const onAdd = React.useCallback(() => {
-    if (servers.length === 0 || (available && canUse("multi-server"))) {
+    if (servers.length === 0 || (available && isPro)) {
       router.push("/settings/connection");
     } else if (available) {
       router.push("/paywall");
     }
-  }, [servers.length, available, canUse, router]);
+  }, [servers.length, available, isPro, router]);
 
   return (
     <Screen>

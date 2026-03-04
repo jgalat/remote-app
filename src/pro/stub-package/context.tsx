@@ -5,12 +5,6 @@ import useNonNullContext from "~/hooks/use-non-null-context";
 const stubValue: ProContextValue = {
   available: false,
   isPro: false,
-  isLoading: false,
-  price: null,
-  purchasePro: async () => {},
-  restorePurchases: async () => false,
-  switchAppId: async () => false,
-  canUse: () => false,
   devOverride: false,
   setDevOverride: () => {},
 };

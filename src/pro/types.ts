@@ -1,14 +1,6 @@
-export type ProFeature = "multi-server" | "search";
-
 export type ProContextValue = {
   available: boolean;
   isPro: boolean;
-  isLoading: boolean;
-  price: string | null;
-  purchasePro: () => Promise<void>;
-  restorePurchases: () => Promise<boolean>;
-  switchAppId: (id: string) => Promise<boolean>;
-  canUse: (feature: ProFeature) => boolean;
   devOverride: boolean;
   setDevOverride: (value: boolean) => void;
 };
