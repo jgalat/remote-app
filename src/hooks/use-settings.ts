@@ -25,6 +25,7 @@ import {
   storeDirectories,
   type DirectoriesData,
 } from "~/store/directories";
+import { cleanupOrphanedData } from "~/store/cleanup";
 
 const serversKey = ["settings", "servers"] as const;
 const listingKey = ["settings", "listing"] as const;
@@ -93,6 +94,7 @@ export function useServersStore() {
       const current = loadServers();
       const updated = { ...current, ...diff };
       storeServers(updated);
+      cleanupOrphanedData(new Set(updated.servers.map((s) => s.id)));
       return updated;
     },
     onSettled: (data) => {
