@@ -18,7 +18,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-  globalIgnores(["**/*.config.js", ".expo*", "**/dist/**"]),
+  globalIgnores(["**/*.config.js", ".expo*", "**/dist/**", "packages/web/**"]),
   {
     extends: fixupConfigRules(
       compat.extends(

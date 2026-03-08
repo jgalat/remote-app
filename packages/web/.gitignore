@@ -1,1 +1,4 @@
 .wrangler/
+.output/
+.tanstack/
+.dev.vars
