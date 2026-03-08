@@ -91,6 +91,47 @@ describe("TransmissionClient session negotiation", () => {
     expect(global.fetch).toHaveBeenCalledTimes(3);
   });
 
+  it("stores session id when server responds 200 with header", async () => {
+    let rpcSessionIds: string[] = [];
+
+    global.fetch = vi.fn(async (input: FetchInput) => {
+      const request = input as Request;
+      const sessionId = request.headers.get("x-transmission-session-id");
+
+      if (!sessionId) {
+        return new Response(JSON.stringify({ result: "success", arguments: {} }), {
+          status: 200,
+          headers: { "x-transmission-session-id": "sid-200" },
+        });
+      }
+
+      rpcSessionIds.push(sessionId);
+      return successSessionStats();
+    }) as typeof global.fetch;
+
+    const client = new TransmissionClient({ url: URL });
+    const response = await client.request({ method: "session-stats" });
+
+    expect(response.result).toBe("success");
+    expect(rpcSessionIds).toEqual(["sid-200"]);
+  });
+
+  it("proceeds with empty session when server responds 200 without header", async () => {
+    let calls = 0;
+
+    global.fetch = vi.fn(async () => {
+      calls += 1;
+      return successSessionStats();
+    }) as typeof global.fetch;
+
+    const client = new TransmissionClient({ url: URL });
+    const response = await client.request({ method: "session-stats" });
+
+    expect(response.result).toBe("success");
+    // 1 bootstrap (200 no header) + 1 actual request
+    expect(calls).toBe(2);
+  });
+
   it("throws when a 409 response does not provide session id", async () => {
     global.fetch = vi.fn(async () => conflict()) as typeof global.fetch;
 

@@ -45,16 +45,14 @@ export class TransmissionClient {
     );
 
     if (response.status !== 409) {
-      const body = await response.text();
       if (!response.ok) {
+        const body = await response.text();
         throw new HTTPError(response.status, response.statusText, body);
       }
 
-      throw new HTTPError(
-        response.status,
-        "Expected Transmission session negotiation response",
-        body
-      );
+      this.session =
+        response.headers.get("x-transmission-session-id") ?? "";
+      return;
     }
 
     const nextSession = response.headers.get("x-transmission-session-id");
