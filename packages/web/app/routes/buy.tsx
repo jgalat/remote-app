@@ -79,7 +79,7 @@ function BuyPage() {
         Back to homepage
       </a>
 
-      <h1 className="mb-3 text-[clamp(2rem,5.2vw,3rem)] leading-[0.98] tracking-[-0.02em]">
+      <h1 className="mb-3 font-bold text-[clamp(2rem,5.2vw,3rem)] leading-[0.98] tracking-[-0.02em]">
         Unlock Pro
       </h1>
       <p className="mb-4 max-w-[52ch] leading-[1.6] text-[#444]">

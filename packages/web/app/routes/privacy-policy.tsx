@@ -79,22 +79,25 @@ export const Route = createFileRoute("/privacy-policy")({
   component: PrivacyPolicy,
 });
 
+const linkClass =
+  "text-inherit no-underline hover:text-[#cc0063] hover:underline hover:underline-offset-[0.22em]";
+
 function PrivacyPolicy() {
   return (
-    <main className="mx-auto max-w-[1080px] px-[1.1rem] pt-[2.4rem] pb-[1.6rem]">
+    <main className="mx-auto max-w-[900px] px-[1.1rem] pt-[2rem] pb-[1.5rem]">
       <div className="mb-[1.1rem] flex flex-wrap justify-between gap-[0.8rem] text-[#888]">
         <span>Remote for Transmission</span>
-        <span>Privacy</span>
+        <span>privacy</span>
       </div>
 
       <a
-        className="mb-[1.2rem] inline-block font-medium text-[#cc0063] underline decoration-1 underline-offset-[0.2em] hover:text-[#a90052]"
+        className="mb-4 inline-block text-inherit no-underline hover:text-[#cc0063] hover:underline hover:underline-offset-[0.22em]"
         href="/"
       >
         Back to homepage
       </a>
 
-      <h1 className="mb-[0.8rem] text-[clamp(2rem,5.2vw,3rem)] leading-[0.98] tracking-[-0.02em]">
+      <h1 className="mb-[0.55rem] font-bold text-[clamp(1.75rem,4.4vw,2.4rem)] leading-[1.05]">
         Privacy Policy
       </h1>
       <p className="mt-[0.65rem] leading-[1.6] text-[#888]">
@@ -106,28 +109,28 @@ function PrivacyPolicy() {
         Galat. This page explains how the app handles data.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">Summary</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Summary</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         The app is a client for your own Transmission server. It does not
         require an account with us, and it does not run a hosted backend
         operated by us.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">Data Collected by the App</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Data Collected by the App</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         The app itself does not collect personal data on remote.jg.ar servers.
         Connection details and preferences you enter in the app are stored on
         your device to make the app work.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">How Network Data Flows</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">How Network Data Flows</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         When you use the app, it communicates directly with the Transmission
         instance you configure. Credentials and torrent-management requests are
         sent to that server endpoint, not to an app-owned cloud service.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">Third-Party Services</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Third-Party Services</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         App distribution and platform-level services may process technical data
         according to their own privacy policies. These services may include:
@@ -135,7 +138,7 @@ function PrivacyPolicy() {
       <ul className="mt-1 list-disc pl-[1.15rem] marker:text-[#cc0063]">
         <li className="mt-[0.65rem] leading-[1.6] text-[#444]">
           <a
-            className="font-medium text-[#cc0063] underline decoration-1 underline-offset-[0.2em] hover:text-[#a90052]"
+            className={linkClass}
             href="https://www.google.com/policies/privacy/"
             target="_blank"
             rel="noopener noreferrer"
@@ -145,7 +148,7 @@ function PrivacyPolicy() {
         </li>
         <li className="mt-[0.65rem] leading-[1.6] text-[#444]">
           <a
-            className="font-medium text-[#cc0063] underline decoration-1 underline-offset-[0.2em] hover:text-[#a90052]"
+            className={linkClass}
             href="https://expo.dev/privacy"
             target="_blank"
             rel="noopener noreferrer"
@@ -155,7 +158,7 @@ function PrivacyPolicy() {
         </li>
         <li className="mt-[0.65rem] leading-[1.6] text-[#444]">
           <a
-            className="font-medium text-[#cc0063] underline decoration-1 underline-offset-[0.2em] hover:text-[#a90052]"
+            className={linkClass}
             href="https://www.revenuecat.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
@@ -165,29 +168,29 @@ function PrivacyPolicy() {
         </li>
       </ul>
 
-      <h2 className="mt-6 text-[1.08rem]">Children&apos;s Privacy</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Children&apos;s Privacy</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         The app is not directed to children under 13. We do not knowingly
         collect personal information from children.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">External Links</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">External Links</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         The app and this website may link to external sites. We are not
         responsible for the content or privacy practices of third-party sites.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">Changes to This Policy</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Changes to This Policy</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         This policy may be updated over time. Changes will be posted on this
         page with an updated date.
       </p>
 
-      <h2 className="mt-6 text-[1.08rem]">Contact</h2>
+      <h2 className="mt-[1.45rem] font-bold text-[1.02rem]">Contact</h2>
       <p className="mt-[0.65rem] leading-[1.6] text-[#444]">
         Questions about this policy can be sent to{" "}
         <a
-          className="font-medium text-[#cc0063] underline decoration-1 underline-offset-[0.2em] hover:text-[#a90052]"
+          className={linkClass}
           href="mailto:remote@jg.ar"
         >
           remote@jg.ar
@@ -195,7 +198,7 @@ function PrivacyPolicy() {
         .
       </p>
 
-      <footer className="mt-[2.1rem] text-[0.9rem] text-[#888]">
+      <footer className="mt-[1.8rem] text-[0.9rem] text-[#888]">
         Remote for Transmission
       </footer>
     </main>

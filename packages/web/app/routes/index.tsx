@@ -126,7 +126,7 @@ function Home() {
   return (
     <main className="mx-auto max-w-[1080px] px-[1.1rem] pt-[2.4rem] pb-[1.6rem]">
       <section
-        className="animate-reveal grid min-h-[min(78vh,760px)] grid-cols-[1fr_minmax(280px,360px)] items-center gap-8 max-[920px]:min-h-auto max-[920px]:grid-cols-1"
+        className="animate-reveal grid min-h-[min(78vh,760px)] grid-cols-[1fr_minmax(280px,360px)] items-center gap-8 [animation-delay:0.05s] max-[920px]:min-h-auto max-[920px]:grid-cols-1"
         aria-labelledby="hero-title"
       >
         <div className="max-[920px]:text-center">
@@ -135,7 +135,7 @@ function Home() {
           </p>
           <h1
             id="hero-title"
-            className="mb-4 text-[clamp(2rem,5.2vw,3.7rem)] leading-[0.95] tracking-[-0.02em]"
+            className="mb-4 font-bold text-[clamp(2rem,5.2vw,3.7rem)] leading-[0.95] tracking-[-0.02em]"
           >
             Control your torrents remotely.
           </h1>
@@ -223,7 +223,7 @@ function Home() {
         className="animate-reveal mt-8 [animation-delay:0.12s]"
         aria-labelledby="features-title"
       >
-        <h2 id="features-title" className="mb-[0.7rem] text-[1.08rem]">
+        <h2 id="features-title" className="mb-[0.7rem] font-bold text-[1.08rem]">
           What you can do
         </h2>
         <ul className="m-0 list-disc pl-[1.15rem] leading-[1.6] text-[#444] marker:text-[#cc0063]">
