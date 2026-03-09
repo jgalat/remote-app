@@ -84,7 +84,7 @@ const linkClass =
 
 function PrivacyPolicy() {
   return (
-    <main className="mx-auto max-w-[900px] px-[1.1rem] pt-[2rem] pb-[1.5rem]">
+    <main className="mx-auto max-w-[1080px] px-[1.1rem] pt-[2.4rem] pb-[1.6rem]">
       <div className="mb-[1.1rem] flex flex-wrap justify-between gap-[0.8rem] text-[#888]">
         <span>Remote for Transmission</span>
         <span>privacy</span>
@@ -198,8 +198,9 @@ function PrivacyPolicy() {
         .
       </p>
 
-      <footer className="mt-[1.8rem] text-[0.9rem] text-[#888]">
-        Remote for Transmission
+      <footer className="mt-[2.1rem] flex flex-wrap justify-between gap-[0.8rem] text-[0.9rem] text-[#888]">
+        <span>Remote for Transmission</span>
+        <span>Privacy Policy</span>
       </footer>
     </main>
   );

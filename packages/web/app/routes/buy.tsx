@@ -75,11 +75,14 @@ function BuyPage() {
         <span>Pro</span>
       </div>
 
-      <a className={`mb-6 inline-block ${linkClass}`} href="/">
+      <a
+        className="mb-6 inline-block text-inherit no-underline hover:text-[#cc0063] hover:underline hover:underline-offset-[0.22em]"
+        href="/"
+      >
         Back to homepage
       </a>
 
-      <h1 className="mb-3 font-bold text-[clamp(2rem,5.2vw,3rem)] leading-[0.98] tracking-[-0.02em]">
+      <h1 className="mb-3 font-bold text-[clamp(2rem,5.2vw,3.7rem)] leading-[0.98] tracking-[-0.02em]">
         Unlock Pro
       </h1>
       <p className="mb-4 max-w-[52ch] leading-[1.6] text-[#444]">
@@ -129,8 +132,14 @@ function BuyPage() {
         </a>
       </p>
 
-      <footer className="mt-[2.1rem] text-[0.9rem] text-[#888]">
-        Remote for Transmission
+      <footer className="mt-[2.1rem] flex flex-wrap justify-between gap-[0.8rem] text-[0.9rem] text-[#888]">
+        <span>Remote for Transmission</span>
+        <a
+          className="text-inherit no-underline hover:text-[#cc0063] hover:underline hover:underline-offset-[0.22em]"
+          href="/privacy-policy"
+        >
+          Privacy Policy
+        </a>
       </footer>
     </main>
   );
@@ -148,6 +157,7 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button
+      type="button"
       onClick={copy}
       className="shrink-0 text-xs text-[#888] underline decoration-1 underline-offset-[0.2em] hover:text-[#cc0063]"
     >
@@ -209,6 +219,7 @@ function ConnectWallet() {
           {address.slice(0, 6)}...{address.slice(-4)}
         </code>
         <button
+          type="button"
           onClick={() => disconnect()}
           className="text-sm leading-none text-[#888] underline decoration-1 underline-offset-[0.2em] hover:text-[#cc0063]"
         >
@@ -222,6 +233,7 @@ function ConnectWallet() {
     <div className="flex flex-wrap gap-2">
       {connectors.map((connector) => (
         <button
+          type="button"
           key={connector.uid}
           onClick={() => connect({ connector })}
           disabled={isPending}
