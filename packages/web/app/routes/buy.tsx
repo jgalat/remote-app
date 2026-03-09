@@ -83,47 +83,16 @@ function BuyPage() {
         Unlock Pro
       </h1>
       <p className="mb-4 max-w-[52ch] leading-[1.6] text-[#444]">
-        Send 2 USDC to the address below to get a lifetime pro license. Your
-        license is tied to your App ID.
+        Send 2 USDC to get a lifetime pro license. Your license is tied to your
+        App ID.
       </p>
-      <div className="mb-8">
-        <div className="flex items-start gap-5 max-[560px]:flex-col max-[560px]:items-center">
-          <QRCodeSVG
-            value={RECIPIENT}
-            size={96}
-            bgColor="transparent"
-            fgColor="#222"
-          />
-          <div className="min-w-0 flex-1 max-[560px]:text-center">
-            <p className="mb-1 text-xs tracking-wide text-[#888] uppercase">
-              Recipient
-            </p>
-            <div className="flex items-baseline gap-2 max-[560px]:justify-center">
-              <code className="break-all text-[0.82rem] leading-[1.5] text-[#222]">
-                {RECIPIENT}
-              </code>
-              <CopyButton text={RECIPIENT} />
-            </div>
-            <div className="mt-3 flex flex-wrap gap-[0.35rem]">
-              {SUPPORTED_CHAINS.map((c: (typeof SUPPORTED_CHAINS)[number]) => (
-                <span
-                  key={c.id}
-                  className="border border-[#ddd] px-[0.45rem] py-[0.1rem] text-[0.7rem] text-[#666]"
-                >
-                  {c.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
       <nav className="mb-8 flex gap-6 border-b border-[#ddd]">
         {(
           [
-            ["wallet", "Pay"],
+            ["wallet", "Pay with Wallet"],
             ["recover", "Recover"],
-            ["manual", "Verify"],
+            ["manual", "Pay from Exchange"],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -309,9 +278,40 @@ function ManualVerification() {
         Your license is permanently tied to this App ID. Save it securely -- it
         cannot be recovered if lost.
       </p>
-      <p className="text-sm leading-[1.6] text-[#444]">
-        Sent 2 USDC from an exchange or another wallet? Enter the transaction
-        details below to activate your license manually.
+      <p className="mb-1 text-sm font-medium text-[#222]">
+        Step 1: Send 2 USDC to the address below
+      </p>
+      <div className="mb-2 flex items-start gap-5 max-[560px]:flex-col max-[560px]:items-center">
+        <QRCodeSVG
+          value={RECIPIENT}
+          size={96}
+          bgColor="transparent"
+          fgColor="#222"
+        />
+        <div className="min-w-0 flex-1 max-[560px]:text-center">
+          <p className="mb-1 text-xs tracking-wide text-[#888] uppercase">
+            Recipient
+          </p>
+          <div className="flex items-baseline gap-2 max-[560px]:justify-center">
+            <code className="break-all text-[0.82rem] leading-[1.5] text-[#222]">
+              {RECIPIENT}
+            </code>
+            <CopyButton text={RECIPIENT} />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-[0.35rem]">
+            {SUPPORTED_CHAINS.map((c: (typeof SUPPORTED_CHAINS)[number]) => (
+              <span
+                key={c.id}
+                className="border border-[#ddd] px-[0.45rem] py-[0.1rem] text-[0.7rem] text-[#666]"
+              >
+                {c.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="mt-6 mb-1 text-sm font-medium text-[#222]">
+        Step 2: Enter your App ID and transaction hash to activate
       </p>
       <Field label="App ID" error={errors.appId?.message}>
         <input
@@ -320,6 +320,7 @@ function ManualVerification() {
           {...register("appId")}
           className={inputClass}
         />
+        <p className="mt-1 text-xs text-[#888]">Found in Settings &gt; Pro in the app</p>
       </Field>
       <Field label="Transaction Hash" error={errors.txHash?.message}>
         <input
@@ -423,6 +424,7 @@ function WalletTransfer() {
               {...register("appId")}
               className={inputClass}
             />
+            <p className="mt-1 text-xs text-[#888]">Found in Settings &gt; Pro in the app</p>
           </Field>
           <Field label="Chain" error={errors.chainId?.message}>
             <ChainSelect
@@ -492,8 +494,9 @@ function RecoverLicense() {
       className="max-w-lg space-y-5"
     >
       <p className="text-sm leading-[1.6] text-[#444]">
-        Recover your App ID by signing with the same wallet used to pay. Only
-        works for purchases made via the wallet option.
+        Already purchased with a wallet? Recover your App ID by signing with the
+        same wallet used to pay. Only works for purchases made via the wallet
+        option.
       </p>
       <Field label="Wallet">
         <ConnectWallet />
