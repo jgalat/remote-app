@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "publish": "wrangler pages deploy .output/public",
+    "deploy": "vite build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "license": "MIT",
