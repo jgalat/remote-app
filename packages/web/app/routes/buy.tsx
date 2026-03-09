@@ -44,6 +44,12 @@ export const Route = createFileRoute("/buy")({
         content:
           "Purchase a pro license for Remote for Transmission using USDC.",
       },
+      {
+        property: "og:image",
+        content: "https://remote.jg.ar/assets/og_preview.jpg",
+      },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
     ],
     links: [{ rel: "canonical", href: "https://remote.jg.ar/buy" }],
   }),

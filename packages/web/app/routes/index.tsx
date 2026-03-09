@@ -47,10 +47,10 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:image",
-        content: "https://remote.jg.ar/assets/screen.jpg",
+        content: "https://remote.jg.ar/assets/og_preview.jpg",
       },
-      { property: "og:image:width", content: "385" },
-      { property: "og:image:height", content: "842" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
         content: "Remote for Transmission Android app screen preview",

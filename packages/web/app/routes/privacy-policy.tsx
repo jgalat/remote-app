@@ -35,7 +35,7 @@ export const Route = createFileRoute("/privacy-policy")({
       },
       {
         property: "og:image",
-        content: "https://remote.jg.ar/assets/screen.jpg",
+        content: "https://remote.jg.ar/assets/og_preview.jpg",
       },
       { name: "twitter:card", content: "summary_large_image" },
       {
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/privacy-policy")({
       },
       {
         name: "twitter:image",
-        content: "https://remote.jg.ar/assets/screen.jpg",
+        content: "https://remote.jg.ar/assets/og_preview.jpg",
       },
     ],
     links: [
