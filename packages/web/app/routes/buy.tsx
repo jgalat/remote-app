@@ -96,7 +96,7 @@ function BuyPage() {
           />
           <div className="min-w-0 flex-1 max-[560px]:text-center">
             <p className="mb-1 text-xs tracking-wide text-[#888] uppercase">
-              Send 2 USDC to
+              Recipient
             </p>
             <div className="flex items-baseline gap-2 max-[560px]:justify-center">
               <code className="break-all text-[0.82rem] leading-[1.5] text-[#222]">
