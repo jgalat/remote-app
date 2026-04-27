@@ -258,6 +258,22 @@ export class QBittorrentClient {
     await this.post("/api/v2/torrents/rename", body);
   }
 
+  async renameFile(hash: string, oldPath: string, newPath: string): Promise<void> {
+    const body = new URLSearchParams();
+    body.set("hash", hash);
+    body.set("oldPath", oldPath);
+    body.set("newPath", newPath);
+    await this.post("/api/v2/torrents/renameFile", body);
+  }
+
+  async renameFolder(hash: string, oldPath: string, newPath: string): Promise<void> {
+    const body = new URLSearchParams();
+    body.set("hash", hash);
+    body.set("oldPath", oldPath);
+    body.set("newPath", newPath);
+    await this.post("/api/v2/torrents/renameFolder", body);
+  }
+
   async filePrio(hash: string, fileIds: number[], priority: number): Promise<void> {
     const body = new URLSearchParams();
     body.set("hash", hash);

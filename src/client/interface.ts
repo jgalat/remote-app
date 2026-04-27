@@ -11,6 +11,7 @@ import type {
   AddTorrentResult,
   SetTorrentParams,
   SetLocationParams,
+  RenamePathParams,
   Session,
   SessionStats,
 } from "./types";
@@ -32,6 +33,7 @@ export interface TorrentClient {
   reannounceTorrents(ids: TorrentId[]): Promise<void>;
   setTorrent(ids: TorrentId[], params: SetTorrentParams): Promise<void>;
   setLocation(params: SetLocationParams): Promise<void>;
+  renamePath(params: RenamePathParams): Promise<void>;
   queueMoveTop(ids: TorrentId[]): Promise<void>;
   queueMoveUp(ids: TorrentId[]): Promise<void>;
   queueMoveDown(ids: TorrentId[]): Promise<void>;

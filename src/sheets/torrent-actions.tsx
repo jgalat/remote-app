@@ -11,6 +11,7 @@ import type { OptionProps } from "~/components/option";
 import {
   MOVE_TORRENT_SHEET_ID,
   REMOVE_CONFIRM_SHEET_ID,
+  RENAME_PATH_SHEET_ID,
   TORRENT_ACTIONS_SHEET_ID,
 } from "./ids";
 
@@ -76,7 +77,7 @@ function TorrentActionsSheet({
   ];
 
   if (torrents.length === 1) {
-    const [{ name, magnetLink }] = torrents;
+    const [{ id, name, magnetLink }] = torrents;
     options = [
       {
         label: "Share",
@@ -95,6 +96,24 @@ function TorrentActionsSheet({
               ToastAndroid.SHORT
             );
           }
+        },
+      },
+      {
+        label: "Rename",
+        left: "edit-2",
+        onPress: () => {
+          setTimeout(
+            () =>
+              SheetManager.show(RENAME_PATH_SHEET_ID, {
+                payload: {
+                  id,
+                  path: name,
+                  currentName: name,
+                  kind: "torrent",
+                },
+              }),
+            100
+          );
         },
       },
       ...options,

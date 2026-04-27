@@ -16,14 +16,14 @@ import Pressable from "~/components/pressable";
 import FileItem from "~/components/file-item";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "~/components/checkbox";
-import { useTorrentPrioritySheet } from "~/hooks/use-action-sheet";
+import { useFileActionsSheet } from "~/hooks/use-action-sheet";
 import { useIsFocused } from "@react-navigation/native";
 import useTorrentBrowser from "~/hooks/use-torrent-browser";
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { data: torrent, error, isLoading, refetch } = useTorrentFiles(id);
-  const prioritySheet = useTorrentPrioritySheet(id);
+  const fileActionsSheet = useFileActionsSheet();
   const torrentSet = useTorrentSet(id);
   const isFocused = useIsFocused();
   const { text } = useTheme();
@@ -72,7 +72,13 @@ export default function FilesScreen() {
           <FileItem
             onPress={file.isFile ? undefined : () => enterFolder(file.path)}
             onLongPress={() =>
-              prioritySheet({ content: file.content.map((f) => f.id) })
+              fileActionsSheet({
+                id,
+                path: file.path,
+                name: file.name,
+                isFile: file.isFile,
+                content: file.content.map((f) => f.id),
+              })
             }
             data={file}
             right={

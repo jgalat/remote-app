@@ -384,6 +384,7 @@ export default class MockClient implements TorrentClient {
   }
 
   async setLocation(): Promise<void> {}
+  async renamePath(): Promise<void> {}
   async queueMoveTop(): Promise<void> {}
   async queueMoveUp(): Promise<void> {}
   async queueMoveDown(): Promise<void> {}

@@ -19,6 +19,7 @@ import type {
   AddTorrentResult,
   SetTorrentParams,
   SetLocationParams,
+  RenamePathParams,
   Session,
   SessionStats,
 } from "./types";
@@ -334,6 +335,13 @@ export class TransmissionAdapter implements TorrentClient {
         location: params.location,
         move: params.move,
       },
+    });
+  }
+
+  async renamePath({ id, path, name }: RenamePathParams): Promise<void> {
+    await this.client.request({
+      method: "torrent-rename-path",
+      arguments: { ids: toNumericIds([id]), path, name },
     });
   }
 

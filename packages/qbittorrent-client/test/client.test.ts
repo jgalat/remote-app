@@ -195,6 +195,16 @@ describeIfQBittorrent("QBittorrentClient", () => {
       await client.rename(HASH, originalName);
     });
 
+    it("renameFile", async () => {
+      const files = await client.files(HASH);
+      const original = files[0].name;
+      const renamed = "renamed-file.txt";
+      await client.renameFile(HASH, original, renamed);
+      const updated = await client.files(HASH);
+      expect(updated[0].name).toBe(renamed);
+      await client.renameFile(HASH, renamed, original);
+    });
+
     it("queue priority", async () => {
       await client.topPrio([HASH]);
       await client.bottomPrio([HASH]);

@@ -27,6 +27,7 @@ import type {
   AddTorrentResult,
   SetTorrentParams,
   SetLocationParams,
+  RenamePathParams,
   Session,
   SessionStats,
   QBitPreferences,
@@ -367,6 +368,36 @@ export class QBittorrentAdapter implements TorrentClient {
 
   async setLocation(params: SetLocationParams): Promise<void> {
     await this.client.setLocation(params.ids.map(String), params.location);
+  }
+
+  async renamePath({ id, path, name, kind }: RenamePathParams): Promise<void> {
+    const hash = String(id);
+
+    if (kind === "torrent") {
+      const files = await this.client.files(hash);
+      const first = files[0]?.name;
+      if (first) {
+        const slash = first.indexOf("/");
+        if (slash >= 0) {
+          const root = first.slice(0, slash);
+          if (root !== name) {
+            await this.client.renameFolder(hash, root, name);
+          }
+        } else if (first !== name) {
+          await this.client.renameFile(hash, first, name);
+        }
+      }
+      await this.client.rename(hash, name);
+      return;
+    }
+
+    const slash = path.lastIndexOf("/");
+    const newPath = slash >= 0 ? path.slice(0, slash + 1) + name : name;
+    if (kind === "folder") {
+      await this.client.renameFolder(hash, path, newPath);
+      return;
+    }
+    await this.client.renameFile(hash, path, newPath);
   }
 
   async queueMoveTop(ids: TorrentId[]): Promise<void> {

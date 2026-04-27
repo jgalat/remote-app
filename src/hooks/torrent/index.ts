@@ -9,6 +9,7 @@ export {
   useTorrentActions,
   useTorrentSet,
   useTorrentSetLocation,
+  useRenamePath,
   useAddTorrent,
   type Torrent,
   type TorrentInfo,

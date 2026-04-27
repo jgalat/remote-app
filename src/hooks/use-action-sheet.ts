@@ -5,8 +5,12 @@ import type { Payload as TorrentActionsPayload } from "~/sheets/torrent-actions"
 import type { Payload as TorrentPriorityPayload } from "~/sheets/torrent-priority";
 import type { Payload as ServerDeleteConfirmPayload } from "~/sheets/server-delete-confirm";
 import type { Payload as SearchConfigDeleteConfirmPayload } from "~/sheets/search-config-delete-confirm";
+import type { Payload as RenamePathPayload } from "~/sheets/rename-path";
+import type { Payload as FileActionsPayload } from "~/sheets/file-actions";
 import {
+  FILE_ACTIONS_SHEET_ID,
   LISTING_SHEET_ID,
+  RENAME_PATH_SHEET_ID,
   SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID,
   SERVER_DELETE_CONFIRM_SHEET_ID,
   SERVER_SELECTOR_SHEET_ID,
@@ -46,6 +50,22 @@ export function useServerDeleteConfirmSheet() {
   return React.useCallback(
     (payload: ServerDeleteConfirmPayload) =>
       SheetManager.show(SERVER_DELETE_CONFIRM_SHEET_ID, { payload }),
+    []
+  );
+}
+
+export function useRenamePathSheet() {
+  return React.useCallback(
+    (payload: RenamePathPayload) =>
+      SheetManager.show(RENAME_PATH_SHEET_ID, { payload }),
+    []
+  );
+}
+
+export function useFileActionsSheet() {
+  return React.useCallback(
+    (payload: FileActionsPayload) =>
+      SheetManager.show(FILE_ACTIONS_SHEET_ID, { payload }),
     []
   );
 }

@@ -6,5 +6,7 @@ export const SELECT_SHEET_ID = "select" as const;
 export const SERVER_SELECTOR_SHEET_ID = "server-selector" as const;
 export const SERVER_DELETE_CONFIRM_SHEET_ID = "server-delete-confirm" as const;
 export const MOVE_TORRENT_SHEET_ID = "move-torrent" as const;
+export const RENAME_PATH_SHEET_ID = "rename-path" as const;
+export const FILE_ACTIONS_SHEET_ID = "file-actions" as const;
 export const SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID =
   "search-config-delete-confirm" as const;

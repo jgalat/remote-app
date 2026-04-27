@@ -18,13 +18,21 @@ import ServerDeleteConfirmSheet, {
 import MoveTorrentSheet, {
   type Payload as MoveTorrentPayload,
 } from "./move-torrent";
+import RenamePathSheet, {
+  type Payload as RenamePathPayload,
+} from "./rename-path";
+import FileActionsSheet, {
+  type Payload as FileActionsPayload,
+} from "./file-actions";
 import SearchConfigDeleteConfirmSheet, {
   type Payload as SearchConfigDeleteConfirmPayload,
 } from "./search-config-delete-confirm";
 import {
+  FILE_ACTIONS_SHEET_ID,
   LISTING_SHEET_ID,
   MOVE_TORRENT_SHEET_ID,
   REMOVE_CONFIRM_SHEET_ID,
+  RENAME_PATH_SHEET_ID,
   SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID,
   SELECT_SHEET_ID,
   SERVER_DELETE_CONFIRM_SHEET_ID,
@@ -55,6 +63,12 @@ declare module "react-native-actions-sheet" {
     [MOVE_TORRENT_SHEET_ID]: SheetDefinition<{
       payload: MoveTorrentPayload;
     }>;
+    [RENAME_PATH_SHEET_ID]: SheetDefinition<{
+      payload: RenamePathPayload;
+    }>;
+    [FILE_ACTIONS_SHEET_ID]: SheetDefinition<{
+      payload: FileActionsPayload;
+    }>;
     [SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID]: SheetDefinition<{
       payload: SearchConfigDeleteConfirmPayload;
     }>;
@@ -69,6 +83,8 @@ registerSheet(SELECT_SHEET_ID, SelectSheet);
 registerSheet(SERVER_SELECTOR_SHEET_ID, ServerSelectorSheet);
 registerSheet(SERVER_DELETE_CONFIRM_SHEET_ID, ServerDeleteConfirmSheet);
 registerSheet(MOVE_TORRENT_SHEET_ID, MoveTorrentSheet);
+registerSheet(RENAME_PATH_SHEET_ID, RenamePathSheet);
+registerSheet(FILE_ACTIONS_SHEET_ID, FileActionsSheet);
 registerSheet(SEARCH_CONFIG_DELETE_CONFIRM_SHEET_ID, SearchConfigDeleteConfirmSheet);
 
 export {};

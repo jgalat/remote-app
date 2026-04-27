@@ -224,3 +224,12 @@ export type SetLocationParams = {
   location: string;
   move?: boolean;
 };
+
+export type RenamePathKind = "torrent" | "file" | "folder";
+
+export type RenamePathParams = {
+  id: TorrentId;
+  path: string;
+  name: string;
+  kind: RenamePathKind;
+};

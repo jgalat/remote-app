@@ -19,6 +19,7 @@ import type {
   AddTorrentResult,
   SetTorrentParams,
   SetLocationParams,
+  RenamePathParams,
 } from "~/client";
 import { TorrentStatus, Priority } from "~/client";
 import { useServer } from "~/hooks/use-settings";
@@ -280,6 +281,27 @@ export function useTorrentActions() {
   );
 
   return { start, startNow, stop, verify, reannounce, remove };
+}
+
+export function useRenamePath() {
+  const queryClient = useQueryClient();
+  const client = useClient();
+  const server = useServer();
+
+  return useMutation({
+    mutationFn: async (params: RenamePathParams) => {
+      await client?.renamePath(params);
+    },
+    onError: () => {
+      ToastAndroid.show("Failed to rename", ToastAndroid.SHORT);
+    },
+    onSettled: () => {
+      setTimeout(
+        () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
+        optimisticInvalidationDelayMs,
+      );
+    },
+  });
 }
 
 export function useTorrentSetLocation() {
