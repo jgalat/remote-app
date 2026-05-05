@@ -37,7 +37,7 @@ export default React.memo(function Toggle({
       disabled={disabled}
     >
       {hasCopy ? (
-        <View>
+        <View style={styles.copy}>
           {label && (
             <Text
               style={[
@@ -81,10 +81,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   toggleIconOnly: {
     justifyContent: "center",
     minWidth: 36,
+  },
+  // Constrain the label/description column so long descriptions wrap
+  // instead of pushing the toggle icon off-screen.
+  copy: {
+    flex: 1,
+    flexShrink: 1,
   },
   label: {
     fontSize: 14,

@@ -1,7 +1,16 @@
 import "tsx/cjs";
 import { ExpoConfig } from "expo/config";
+import * as fs from "fs";
+import * as path from "path";
 
 import packageJson from "./package.json";
+
+const proPackagePath = path.resolve(__dirname, "packages/pro/package.json");
+const hasProPackage = fs.existsSync(proPackagePath);
+
+const proPlugins: (string | [string, unknown])[] = hasProPackage
+  ? ["./packages/pro/plugins/with-torrent-engine.ts"]
+  : [];
 
 export default {
   name:
@@ -84,6 +93,7 @@ export default {
     "expo-background-task",
     "./plugins/with-intents.ts",
     "./plugins/with-user-ca.ts",
+    ...proPlugins,
   ],
   experiments: {
     typedRoutes: true,

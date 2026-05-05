@@ -33,7 +33,15 @@ export default function TrackersScreen() {
       <FlatList
         data={torrent.trackerStats}
         renderItem={({ item: tracker }) => {
-          const url = new URL(tracker.announce);
+          // Tracker URLs can be udp://, http://, https://, ws[s]://. URL()
+          // handles them all, but it throws on empty/garbage strings — fall
+          // back to the raw string instead of crashing the row.
+          let host = tracker.announce || "(unknown)";
+          try {
+            host = new URL(tracker.announce).host || host;
+          } catch {
+            // keep fallback
+          }
           const lastAnnounce =
             tracker.lastAnnounceTime > 0
               ? new Date(tracker.lastAnnounceTime * 1_000).toLocaleString()
@@ -55,7 +63,7 @@ export default function TrackersScreen() {
           return (
             <View style={{ gap: 8 }}>
               <Text numberOfLines={1} style={styles.title}>
-                Tier {tracker.tier + 1} - {url.host}
+                Tier {tracker.tier + 1} - {host}
               </Text>
               <View>
                 <KeyValue

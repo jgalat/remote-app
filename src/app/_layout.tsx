@@ -17,7 +17,7 @@ import "react-native-reanimated";
 import View from "~/components/view";
 import useLoader from "~/hooks/use-loader";
 import { useColorScheme } from "~/hooks/use-settings";
-import { ProProvider } from "@remote-app/pro";
+import { ProProvider, LocalEngineProvider } from "@remote-app/pro";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
 
@@ -104,9 +104,11 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <KeyboardProvider>
           <ProProvider>
-            <AuthProvider>
-              <Root />
-            </AuthProvider>
+            <LocalEngineProvider>
+              <AuthProvider>
+                <Root />
+              </AuthProvider>
+            </LocalEngineProvider>
           </ProProvider>
         </KeyboardProvider>
       </QueryClientProvider>

@@ -9,6 +9,23 @@ export {
   AppIdScreen,
 } from "./screens";
 
+export {
+  LOCAL_SERVER_ID,
+  createLocalTorrentClient,
+  isLocalEngineAvailable,
+  LocalEngineProvider,
+  useLocalEngineStatus,
+  useEnsureLocalServer,
+  useRemoveLocalServer,
+  useResumeLocalEngine,
+  useStopLocalEngine,
+  useAllFilesAccess,
+  useBatteryOptIgnored,
+  pickLocalDirectory,
+  loadLocalEngineSettings,
+  storeLocalEngineSettings,
+} from "./local-engine";
+
 export function getAppId(): string {
   return "";
 }

@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions, Torrent } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
+import { useIsLocalServer } from "~/hooks/use-settings";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { OptionProps } from "~/components/option";
 import {
@@ -30,6 +31,7 @@ function TorrentActionsSheet({
   const { red } = useTheme();
   const { clear } = useTorrentSelection();
   const actions = useTorrentActions();
+  const isLocal = useIsLocalServer();
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
@@ -98,24 +100,30 @@ function TorrentActionsSheet({
           }
         },
       },
-      {
-        label: "Rename",
-        left: "edit-2",
-        onPress: () => {
-          setTimeout(
-            () =>
-              SheetManager.show(RENAME_PATH_SHEET_ID, {
-                payload: {
-                  id,
-                  path: name,
-                  currentName: name,
-                  kind: "torrent",
-                },
-              }),
-            100
-          );
-        },
-      },
+      // Rename is hidden for local servers — see file-actions.tsx for the
+      // rationale (libtorrent4j 2.x rename quirks make it unreliable).
+      ...(isLocal
+        ? []
+        : [
+            {
+              label: "Rename",
+              left: "edit-2" as const,
+              onPress: () => {
+                setTimeout(
+                  () =>
+                    SheetManager.show(RENAME_PATH_SHEET_ID, {
+                      payload: {
+                        id,
+                        path: name,
+                        currentName: name,
+                        kind: "torrent" as const,
+                      },
+                    }),
+                  100,
+                );
+              },
+            },
+          ]),
       ...options,
     ];
   }

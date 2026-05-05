@@ -20,7 +20,12 @@ import Button from "~/components/button";
 import Screen from "~/components/screen";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useAddTorrent, useSession } from "~/hooks/torrent";
-import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
+import {
+  useActiveServerId,
+  useDirectories,
+  useIsLocalServer,
+} from "~/hooks/use-settings";
+import { pickLocalDirectory } from "@remote-app/pro";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
 import type { SelectOption } from "~/sheets/select";
@@ -37,13 +42,7 @@ const Form = z
     magnet: z.string().optional(),
     file: z.string().optional(),
     content: z.string().optional(),
-    path: z
-      .string()
-      .min(1, "path cannot be empty")
-      .regex(
-        /^([a-zA-Z]:\\|\/)([^<>:"|?*\n\r]+(\/|\\)?)*$/,
-        "invalid path format"
-      ),
+    path: z.string(),
     start: z.boolean(),
   })
   .superRefine((data, ctx) => {
@@ -62,8 +61,8 @@ const Form = z
   });
 
 function values(
-  session?: Session,
-  magnet?: string
+  session: Session | undefined,
+  magnet: string | undefined,
 ): Form | undefined {
   if (!session) {
     return undefined;
@@ -94,6 +93,7 @@ export default function AddTorrentScreen() {
   const { red, text, gray, lightGray, background } = useTheme();
   const { data: session } = useSession();
   const serverId = useActiveServerId();
+  const isLocal = useIsLocalServer(serverId);
   const directories = useDirectories(serverId);
 
   const { magnet, file, intent } = useLocalSearchParams<{
@@ -137,6 +137,12 @@ export default function AddTorrentScreen() {
         : "Unknown error";
     ToastAndroid.show(`Failed to read shared file: ${message}`, ToastAndroid.SHORT);
   }, [sharedTorrent.error]);
+
+  const onPickFolderViaSAF = React.useCallback(() => {
+    pickLocalDirectory().then((path) => {
+      if (path) setValue("path", path);
+    });
+  }, [setValue]);
 
   const onPickDirectory = React.useCallback(() => {
     const defaultDir = session?.["download-dir"];
@@ -194,8 +200,17 @@ export default function AddTorrentScreen() {
           return;
         }
 
+        // Remote servers (Transmission/qBittorrent) need a real path; local
+        // accepts empty (the engine resolves to its default). The schema is
+        // permissive because zod can't see `isLocal`, so we gate here.
+        const trimmedPath = f.path.trim();
+        if (!isLocal && trimmedPath.length === 0) {
+          ToastAndroid.show("path is required", ToastAndroid.SHORT);
+          return;
+        }
+
         const options: Partial<AddTorrentParams> = {
-          ...(f.path ? { "download-dir": f.path } : {}),
+          ...(trimmedPath ? { "download-dir": trimmedPath } : {}),
           paused: !f.start,
         };
 
@@ -224,7 +239,7 @@ export default function AddTorrentScreen() {
         );
       }
     },
-    [addTorrent, goBack]
+    [addTorrent, goBack, isLocal]
   );
 
   return (
@@ -293,15 +308,32 @@ export default function AddTorrentScreen() {
               reserveErrorSpace
             >
               <SettingsInlineGroup>
-                <TextInput
-                  variant="settings"
-                  placeholder="/downloads"
-                  icon="folder"
-                  style={fieldState.error ? { borderColor: red } : undefined}
-                  containerStyle={{ flex: 1 }}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                />
+                {isLocal ? (
+                  <Pressable
+                    style={{ flex: 1 }}
+                    onPress={onPickFolderViaSAF}
+                  >
+                    <TextInput
+                      variant="settings"
+                      placeholder="tap to pick folder"
+                      icon="folder"
+                      style={fieldState.error ? { borderColor: red } : undefined}
+                      value={field.value?.toString() || ""}
+                      onChangeText={field.onChange}
+                      editable={false}
+                    />
+                  </Pressable>
+                ) : (
+                  <TextInput
+                    variant="settings"
+                    placeholder="/downloads"
+                    icon="folder"
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    containerStyle={{ flex: 1 }}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                )}
                 <Pressable
                   style={[
                     styles.pickButton,

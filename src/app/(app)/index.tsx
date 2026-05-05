@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BackHandler, FlatList, StyleSheet } from "react-native";
+import { BackHandler, FlatList, RefreshControl, StyleSheet } from "react-native";
 import type { TextInput as RNTextInput } from "react-native";
 import Pressable from "~/components/pressable";
 import { useRouter, useNavigation } from "expo-router";
@@ -302,10 +302,20 @@ export default function TorrentsScreen() {
   if (torrents.length === 0) {
     return (
       <Screen>
-        <View style={styles.message}>
-          <Text style={styles.title}>No torrents found</Text>
-          <Button title="Add a torrent" onPress={() => router.push("/add")} />
-        </View>
+        <FlatList
+          data={[]}
+          renderItem={() => null}
+          contentContainerStyle={styles.emptyList}
+          ListEmptyComponent={
+            <View style={styles.message}>
+              <Text style={styles.title}>No torrents found</Text>
+              <Button title="Add a torrent" onPress={() => router.push("/add")} />
+            </View>
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+          }
+        />
         <Stats />
       </Screen>
     );

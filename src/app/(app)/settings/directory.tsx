@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import Pressable from "~/components/pressable";
 import Text from "~/components/text";
 import TextInput from "~/components/text-input";
 import Button from "~/components/button";
@@ -20,7 +21,7 @@ import {
 } from "~/hooks/use-settings";
 import { useServerSessionSet } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
-import { usePro } from "@remote-app/pro";
+import { usePro, pickLocalDirectory } from "@remote-app/pro";
 
 type Form = z.infer<typeof Form>;
 const Form = z.object({
@@ -52,7 +53,11 @@ export default function DirectoryScreen() {
   const { directories, store } = useDirectoriesStore();
 
   const { isPro } = usePro();
-  const showGlobal = !isDefault && isPro;
+  const isLocal = server?.type === "local";
+  // Local-engine directories are device-specific filesystem paths (or SAF
+  // tree URIs resolved to paths) — sharing them across remote servers makes
+  // no sense, so the global toggle is hidden for the local server.
+  const showGlobal = !isDefault && isPro && !isLocal;
 
   const isDefaultDir = isDefault === "true";
   const isNew = !initialPath;
@@ -61,14 +66,19 @@ export default function DirectoryScreen() {
     ? directories.global.includes(initialPath)
     : false;
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, setValue } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
     defaultValues: {
-      path: initialPath ?? "/",
+      path: initialPath ?? (isLocal ? "" : "/"),
       global: existingIsGlobal,
     },
   });
+
+  const onPickFolder = React.useCallback(async () => {
+    const path = await pickLocalDirectory();
+    if (path) setValue("path", path, { shouldValidate: true });
+  }, [setValue]);
 
   const onDelete = React.useCallback(() => {
     if (!serverId || !initialPath) return;
@@ -177,18 +187,28 @@ export default function DirectoryScreen() {
         <Controller
           name="path"
           control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow label="Path" error={fieldState.error?.message}>
+          render={({ field, fieldState }) => {
+            const input = (
               <TextInput
                 variant="settings"
-                placeholder="/downloads"
+                placeholder={isLocal ? "tap to pick folder" : "/downloads"}
                 icon="folder"
                 value={field.value}
                 onChangeText={field.onChange}
+                editable={!isLocal}
                 style={fieldState.error ? { borderColor: red } : undefined}
               />
-            </SettingsFieldRow>
-          )}
+            );
+            return (
+              <SettingsFieldRow label="Path" error={fieldState.error?.message}>
+                {isLocal ? (
+                  <Pressable onPress={onPickFolder}>{input}</Pressable>
+                ) : (
+                  input
+                )}
+              </SettingsFieldRow>
+            );
+          }}
         />
 
         {showGlobal && (

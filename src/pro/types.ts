@@ -24,6 +24,53 @@ export type SearchResult = {
 
 export type SearchConfig = { url: string; apiKey: string; type: "jackett" | "prowlarr" };
 
+export type EngineState =
+  | "stopped"
+  | "starting"
+  | "running"
+  | "stopping"
+  | "error";
+
+export type EngineEncryption = "forced" | "enabled" | "disabled";
+
+export type EngineSettings = {
+  downloadDir: string;
+  listenPortStart: number;
+  listenPortEnd: number;
+  maxConnections: number;
+  maxUploads: number;
+  maxActiveDownloads: number;
+  maxActiveSeeds: number;
+  dht: boolean;
+  pex: boolean;
+  lsd: boolean;
+  utp: boolean;
+  encryption: EngineEncryption;
+  uploadRateLimit: number;
+  downloadRateLimit: number;
+  seedRatioLimit: number;
+};
+
+export type EngineSessionStats = {
+  numTorrents: number;
+  numActive: number;
+  numPaused: number;
+  downloadRate: number;
+  uploadRate: number;
+  totalDownload: number;
+  totalUpload: number;
+  dhtNodes: number;
+  listenPort: number;
+};
+
+export type LocalEngineStatus = {
+  available: boolean;
+  state: EngineState;
+  stats: EngineSessionStats | null;
+  settings: EngineSettings | null;
+  error: string | null;
+};
+
 export interface ProModule {
   initialize(config: {
     androidApiKey?: string;

@@ -74,7 +74,13 @@ export default React.memo(function NetworkErrorMessage({
       ) : null}
       <View style={styles.buttons}>
         <Button
-          onPress={() => router.push("/settings/connection")}
+          onPress={() =>
+            router.push(
+              server
+                ? `/settings/connection?id=${server.id}`
+                : "/settings/connection",
+            )
+          }
           title="Connection Settings"
         />
         <Button

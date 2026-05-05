@@ -4,6 +4,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import type { OptionProps } from "~/components/option";
 import type { TorrentId } from "~/client";
+import { useIsLocalServer } from "~/hooks/use-settings";
 import {
   FILE_ACTIONS_SHEET_ID,
   RENAME_PATH_SHEET_ID,
@@ -27,6 +28,7 @@ function FileActionsSheet({
   const name = payload?.name ?? "";
   const isFile = payload?.isFile ?? true;
   const content = payload?.content ?? [];
+  const isLocal = useIsLocalServer();
 
   const options: OptionProps[] = [
     {
@@ -42,24 +44,33 @@ function FileActionsSheet({
         );
       },
     },
-    {
-      label: "Rename",
-      left: "edit-2",
-      onPress: () => {
-        setTimeout(
-          () =>
-            SheetManager.show(RENAME_PATH_SHEET_ID, {
-              payload: {
-                id,
-                path,
-                currentName: name,
-                kind: isFile ? "file" : "folder",
-              },
-            }),
-          100
-        );
-      },
-    },
+    // Rename isn't reliable on the local libtorrent4j engine — torrent_info
+    // doesn't reflect renames in 2.x, and rename info doesn't survive
+    // resume-data round trips, so a restart re-downloads under the original
+    // name. Hidden for local servers; remote (Transmission/qBittorrent)
+    // continues to expose it.
+    ...(isLocal
+      ? []
+      : [
+          {
+            label: "Rename",
+            left: "edit-2" as const,
+            onPress: () => {
+              setTimeout(
+                () =>
+                  SheetManager.show(RENAME_PATH_SHEET_ID, {
+                    payload: {
+                      id,
+                      path,
+                      currentName: name,
+                      kind: isFile ? ("file" as const) : ("folder" as const),
+                    },
+                  }),
+                100,
+              );
+            },
+          },
+        ]),
   ];
 
   return <ActionSheet title={name} options={options} {...props} />;

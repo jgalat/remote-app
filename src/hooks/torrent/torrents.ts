@@ -182,6 +182,7 @@ function useAction(
     old: Torrent[] | undefined,
     ids: TorrentId[],
   ) => Torrent[] | undefined,
+  successToast?: string,
 ) {
   const queryClient = useQueryClient();
   const client = useClient();
@@ -211,6 +212,9 @@ function useAction(
     onError: (_error, _params, context) => {
       queryClient.setQueryData(queryKeys.torrentGet(server), context?.previous);
       ToastAndroid.show("Failed to perform action", ToastAndroid.SHORT);
+    },
+    onSuccess: () => {
+      if (successToast) ToastAndroid.show(successToast, ToastAndroid.SHORT);
     },
     onSettled: () => {
       clear();
@@ -271,9 +275,14 @@ export function useTorrentActions() {
       old?.map((t) =>
         ids.includes(t.id) ? { ...t, status: getOptimisticStatus("verify", t) } : t,
       ),
+    "Verifying…",
   );
 
-  const reannounce = useAction((c) => (p) => c.reannounceTorrents(p.ids));
+  const reannounce = useAction(
+    (c) => (p) => c.reannounceTorrents(p.ids),
+    undefined,
+    "Reannounced to trackers",
+  );
 
   const remove = useAction(
     (c) => (p) => c.removeTorrents(p.ids, p.deleteData),

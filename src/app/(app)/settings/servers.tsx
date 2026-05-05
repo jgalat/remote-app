@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, FlatList, BackHandler } from "react-native";
+import { StyleSheet, FlatList, BackHandler, RefreshControl } from "react-native";
 import ActivityIndicator from "~/components/activity-indicator";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -20,13 +20,14 @@ import type { Server } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { useHealthPing, type HealthStatus } from "~/hooks/torrent";
 
-function extractHostPort(url: string): string {
+function extractHostPort(server: Server): string {
+  if (server.type === "local") return "libtorrent4j";
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(server.url);
     const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
     return `${parsed.hostname}:${port}`;
   } catch {
-    return url;
+    return server.url;
   }
 }
 
@@ -77,14 +78,18 @@ function ServerRow({
           color={selected ? tint : text}
         />
       ) : (
-        <Feather name="server" size={20} color={text} />
+        <Feather
+          name={server.type === "local" ? "hard-drive" : "server"}
+          size={20}
+          color={text}
+        />
       )}
       <View style={styles.serverInfo}>
         <Text style={styles.serverName} numberOfLines={1}>
           {server.name}
         </Text>
         <Text style={styles.serverUrl} numberOfLines={1}>
-          {extractHostPort(server.url)}
+          {extractHostPort(server)}
         </Text>
       </View>
       <HealthIndicator status={health} />
@@ -96,8 +101,8 @@ export default function ServersScreen() {
   const router = useRouter();
   const { servers } = useServersStore();
   const { isPro, available } = usePro();
-  const { gray, red } = useTheme();
-  const health = useHealthPing(servers);
+  const { gray, red, text } = useTheme();
+  const { statuses: health, refetch, isFetching } = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
 
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
@@ -160,6 +165,14 @@ export default function ServersScreen() {
         <FlatList
           data={servers}
           keyExtractor={(s) => s.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching}
+              onRefresh={refetch}
+              colors={[text]}
+              tintColor={text}
+            />
+          }
           renderItem={({ item: server }) => (
             <ServerRow
               server={server}

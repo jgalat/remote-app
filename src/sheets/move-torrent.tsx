@@ -11,7 +11,12 @@ import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useSession, useTorrentSetLocation } from "~/hooks/torrent";
-import { useActiveServerId, useDirectories } from "~/hooks/use-settings";
+import {
+  useActiveServerId,
+  useDirectories,
+  useIsLocalServer,
+} from "~/hooks/use-settings";
+import { pickLocalDirectory } from "@remote-app/pro";
 import { MOVE_TORRENT_SHEET_ID, SELECT_SHEET_ID } from "./ids";
 
 import type { SheetProps } from "react-native-actions-sheet";
@@ -31,6 +36,7 @@ function MoveTorrentSheet({
   const insets = useSafeAreaInsets();
   const { data: session } = useSession({ stale: true });
   const serverId = useActiveServerId();
+  const isLocal = useIsLocalServer(serverId);
   const directories = useDirectories(serverId);
   const setLocation = useTorrentSetLocation();
 
@@ -42,6 +48,12 @@ function MoveTorrentSheet({
   }, [initialDir]);
 
   const defaultDir = session?.["download-dir"];
+
+  const onPickFolderViaSAF = React.useCallback(() => {
+    pickLocalDirectory().then((path) => {
+      if (path) setLocationText(path);
+    });
+  }, []);
 
   const onPickDirectory = React.useCallback(() => {
     const allDirs = [
@@ -101,13 +113,25 @@ function MoveTorrentSheet({
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
         <Text style={styles.title}>Move</Text>
         <View style={styles.inputRow}>
-          <TextInput
-            placeholder="/downloads"
-            icon="folder"
-            value={location}
-            onChangeText={setLocationText}
-            containerStyle={styles.input}
-          />
+          {isLocal ? (
+            <Pressable style={styles.input} onPress={onPickFolderViaSAF}>
+              <TextInput
+                placeholder="tap to pick folder"
+                icon="folder"
+                value={location}
+                onChangeText={setLocationText}
+                editable={false}
+              />
+            </Pressable>
+          ) : (
+            <TextInput
+              placeholder="/downloads"
+              icon="folder"
+              value={location}
+              onChangeText={setLocationText}
+              containerStyle={styles.input}
+            />
+          )}
           <Pressable style={styles.pickButton} onPress={onPickDirectory}>
             <Feather name="book" size={20} color={text} />
           </Pressable>

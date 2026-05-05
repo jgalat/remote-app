@@ -185,6 +185,10 @@ function ConfigurationForm({ server }: { server: Server }) {
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
+  // libtorrent4j doesn't expose alt-speed scheduling, idle-seeding-limit, or
+  // a runtime PEX toggle. Hide those rows when configuring a local engine
+  // rather than show controls that don't do anything.
+  const isLocal = server.type === "local";
 
   const formValues = React.useMemo(
     () => session && sessionToFormValues(session),
@@ -307,11 +311,13 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
-        <SettingsSectionTitle title="Alternative speed limits" />
+        {!isLocal && (
+          <>
+            <SettingsSectionTitle title="Alternative speed limits" />
 
-        <View style={styles.row}>
-          <Controller
-            name="alt-speed-enabled"
+            <View style={styles.row}>
+              <Controller
+                name="alt-speed-enabled"
             control={control}
             render={({ field }) => (
               <SettingsToggle
@@ -466,6 +472,8 @@ function ConfigurationForm({ server }: { server: Server }) {
             </View>
           </>
         )}
+          </>
+        )}
 
         <SettingsSectionTitle title="Seed" />
 
@@ -501,37 +509,39 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
-        <View style={styles.row}>
-          <Controller
-            name="idle-seeding-limit-enabled"
-            control={control}
-            render={({ field }) => (
-              <SettingsToggleFieldLabel
-                label="Stop seeding if idle (minutes)"
-                value={field.value}
-                onPress={field.onChange}
-              />
-            )}
-          />
-          <Controller
-            name="idle-seeding-limit"
-            control={control}
-            render={({ field, fieldState }) => (
-              <>
-                <SettingsTextInput
-                  keyboardType="numeric"
-                  editable={watch("idle-seeding-limit-enabled")}
-                  value={field.value?.toString() || ""}
-                  onChangeText={field.onChange}
-                  style={[fieldState.error ? { borderColor: red } : {}]}
+        {!isLocal && (
+          <View style={styles.row}>
+            <Controller
+              name="idle-seeding-limit-enabled"
+              control={control}
+              render={({ field }) => (
+                <SettingsToggleFieldLabel
+                  label="Stop seeding if idle (minutes)"
+                  value={field.value}
+                  onPress={field.onChange}
                 />
-                <Text style={[styles.error, { color: red }]}>
-                  {fieldState.error?.message}
-                </Text>
-              </>
-            )}
-          />
-        </View>
+              )}
+            />
+            <Controller
+              name="idle-seeding-limit"
+              control={control}
+              render={({ field, fieldState }) => (
+                <>
+                  <SettingsTextInput
+                    keyboardType="numeric"
+                    editable={watch("idle-seeding-limit-enabled")}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                    style={[fieldState.error ? { borderColor: red } : {}]}
+                  />
+                  <Text style={[styles.error, { color: red }]}>
+                    {fieldState.error?.message}
+                  </Text>
+                </>
+              )}
+            />
+          </View>
+        )}
 
         <SettingsSectionTitle title="Queue" />
 
@@ -599,7 +609,7 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
-        {server.type === "transmission" && (
+        {(server.type === "transmission" || server.type === "local") && (
           <>
             <SettingsSectionTitle title="Peer discovery" />
 
@@ -628,18 +638,20 @@ function ConfigurationForm({ server }: { server: Server }) {
                   />
                 )}
               />
-              <Controller
-                name="pex-enabled"
-                control={control}
-                render={({ field }) => (
-                  <SettingsToggle
-                    value={field.value ?? false}
-                    onPress={field.onChange}
-                    label="Enable Peer Exchange"
-                    description="Exchange peer lists with connected peers."
-                  />
-                )}
-              />
+              {!isLocal && (
+                <Controller
+                  name="pex-enabled"
+                  control={control}
+                  render={({ field }) => (
+                    <SettingsToggle
+                      value={field.value ?? false}
+                      onPress={field.onChange}
+                      label="Enable Peer Exchange"
+                      description="Exchange peer lists with connected peers."
+                    />
+                  )}
+                />
+              )}
             </View>
           </>
         )}

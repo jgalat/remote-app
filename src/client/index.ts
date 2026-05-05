@@ -22,6 +22,14 @@ export function createClient(server: Server): TorrentClient {
     case "qbittorrent":
       client = new QBittorrentAdapter(server);
       break;
+    case "local": {
+      // Lazy-required so the open-source build (with the stub package)
+      // doesn't pull native bindings into its module graph.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { createLocalTorrentClient } = require("@remote-app/pro");
+      client = createLocalTorrentClient(server);
+      break;
+    }
     case "transmission":
     default:
       client = new TransmissionAdapter(server);

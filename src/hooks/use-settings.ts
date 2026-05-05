@@ -201,6 +201,15 @@ export function useActiveServerId() {
   return useServersQuery().data.activeServerId;
 }
 
+// Whether the active (or given) server is the embedded libtorrent4j engine.
+// Centralized so screens don't keep re-deriving it from useServer / useServers.
+export function useIsLocalServer(serverId?: string): boolean {
+  const { servers, activeServerId } = useServersQuery().data;
+  const id = serverId ?? activeServerId;
+  if (!id) return false;
+  return servers.find((s) => s.id === id)?.type === "local";
+}
+
 export function useListing() {
   return useListingQuery().data;
 }

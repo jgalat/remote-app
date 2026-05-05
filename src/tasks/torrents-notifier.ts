@@ -12,24 +12,29 @@ import {
   setServerLastUpdate,
 } from "~/store/task-torrents-notifier";
 import { isTestingServer } from "~/utils/mock-transmission-client";
+import { isLocalEngineAvailable } from "@remote-app/pro";
 
 export const TORRENTS_NOTIFIER_TASK = "torrents-notifier";
 
 export default async function TorrentsNotifierTask(): Promise<BackgroundTask.BackgroundTaskResult> {
-  const state = await Network.getNetworkStateAsync();
-  if (!state.isConnected || !state.isInternetReachable) {
-    return BackgroundTask.BackgroundTaskResult.Success;
-  }
-
   const { servers } = loadServers();
   if (servers.length === 0) {
     return BackgroundTask.BackgroundTaskResult.Success;
+  }
+
+  const remoteOnly = servers.filter((s) => s.type !== "local");
+  if (remoteOnly.length > 0) {
+    const state = await Network.getNetworkStateAsync();
+    if (!state.isConnected || !state.isInternetReachable) {
+      return BackgroundTask.BackgroundTaskResult.Success;
+    }
   }
 
   let notifierState = loadState();
 
   for (const server of servers) {
     if (isTestingServer(server)) continue;
+    if (server.type === "local" && !isLocalEngineAvailable()) continue;
 
     const client = createClient(server);
 

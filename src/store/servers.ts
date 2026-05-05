@@ -3,8 +3,10 @@ import { randomUUID } from "expo-crypto";
 
 import { storage } from "./storage";
 
-const ServerTypeSchema = z.enum(["transmission", "qbittorrent"]);
+const ServerTypeSchema = z.enum(["transmission", "qbittorrent", "local"]);
 export type ServerType = z.infer<typeof ServerTypeSchema>;
+
+export const LOCAL_SERVER_ID = "local";
 
 const ServerSchema = z.object({
   id: z.string(),
@@ -66,4 +68,8 @@ export function getActiveServer(settings: {
 
 export function generateServerId(): string {
   return randomUUID();
+}
+
+export function getLocalServer(servers: Server[]): Server | undefined {
+  return servers.find((s) => s.type === "local");
 }

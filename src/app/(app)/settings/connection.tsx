@@ -1,11 +1,14 @@
 import * as React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { Platform, ScrollView, StyleSheet, ToastAndroid } from "react-native";
 import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import * as IntentLauncher from "expo-intent-launcher";
+import * as Application from "expo-application";
+import * as Notifications from "expo-notifications";
 import Text from "~/components/text";
 import View from "~/components/view";
 import Screen from "~/components/screen";
@@ -16,7 +19,7 @@ import SelectInput from "~/components/select-input";
 import { SettingsFieldRow, SettingsSectionTitle } from "~/components/settings";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
-import type { Server, ServerType } from "~/store/settings";
+import type { Server } from "~/store/settings";
 import { generateServerId } from "~/store/settings";
 import { useServerDeleteConfirmSheet } from "~/hooks/use-action-sheet";
 import { isTestingServer } from "~/utils/mock-transmission-client";
@@ -27,16 +30,26 @@ import ProgressBar from "~/components/progress-bar";
 import Pressable from "~/components/pressable";
 import { Feather } from "@expo/vector-icons";
 import { debugHref } from "~/lib/debug-href";
+import {
+  isLocalEngineAvailable,
+  useEnsureLocalServer,
+  useResumeLocalEngine,
+  useStopLocalEngine,
+  useLocalEngineStatus,
+  useAllFilesAccess,
+  useBatteryOptIgnored,
+  usePro,
+  LOCAL_SERVER_ID,
+} from "@remote-app/pro";
 
 type Form = z.infer<typeof Form>;
 const Form = z
   .object({
-    type: z.enum(["transmission", "qbittorrent"]).default("transmission"),
-    name: z
-      .string()
-      .min(1, "name is required")
-      .max(16, "max. of 16 characters"),
-    host: z.string().min(1, "host / IP address is required"),
+    type: z
+      .enum(["transmission", "qbittorrent", "local"])
+      .default("transmission"),
+    name: z.string().max(16, "max. of 16 characters"),
+    host: z.string(),
     port: z.coerce.number().optional(),
     path: z.string().optional(),
     useSSL: z.boolean(),
@@ -45,7 +58,21 @@ const Form = z
     password: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.useAuth) {
+    if (data.type !== "local" && data.name.trim().length === 0) {
+      ctx.addIssue({
+        path: ["name"],
+        code: z.ZodIssueCode.custom,
+        message: "name is required",
+      });
+    }
+    if (data.type !== "local" && !data.host) {
+      ctx.addIssue({
+        path: ["host"],
+        code: z.ZodIssueCode.custom,
+        message: "host / IP address is required",
+      });
+    }
+    if (data.type !== "local" && data.useAuth) {
       if (!data.username) {
         ctx.addIssue({
           path: ["username"],
@@ -124,6 +151,20 @@ function defaultValues(server?: Server): Form {
     };
   }
 
+  if (server.type === "local") {
+    return {
+      type: "local",
+      name: server.name,
+      host: "",
+      port: 0,
+      path: "",
+      useSSL: false,
+      useAuth: false,
+      username: "",
+      password: "",
+    };
+  }
+
   if (isTestingServer(server)) {
     return {
       type: server.type,
@@ -183,8 +224,54 @@ export default function ConnectionScreen() {
 
   const useAuth = watch("useAuth");
   const useSSL = watch("useSSL");
-  const type = watch("type") ?? "transmission";
+  const watchedType = watch("type") ?? "transmission";
+  const isLocal = watchedType === "local";
+  const type: "transmission" | "qbittorrent" =
+    watchedType === "qbittorrent" ? "qbittorrent" : "transmission";
   const scroll = React.useRef<ScrollView>(null);
+
+  const { isPro, available } = usePro();
+  const { mutate: ensureLocalServer } = useEnsureLocalServer();
+  const { mutate: resumeLocalEngine, isPending: isResuming } =
+    useResumeLocalEngine();
+  const { mutate: stopLocalEngine, isPending: isStopping } =
+    useStopLocalEngine();
+  const engineStatus = useLocalEngineStatus();
+  const allFiles = useAllFilesAccess();
+  const batteryOpt = useBatteryOptIgnored();
+  const localEngineAvailable = isLocalEngineAvailable();
+  const hasLocalServer = servers.some((s) => s.type === "local");
+  // Only offer the "Local (libtorrent4j)" option in the type picker when:
+  //   - the native module is loaded (pro build), and
+  //   - either there's no local server yet, or the user is editing the
+  //     existing one.
+  const canPickLocal =
+    available &&
+    localEngineAvailable &&
+    (!hasLocalServer || editServer?.id === LOCAL_SERVER_ID);
+
+  // Editing an existing local server: Save is replaced with Restart/Stop +
+  // ignore-battery deep link. Creating a new local server keeps Save.
+  const editingLocal = isLocal && editServer?.id === LOCAL_SERVER_ID;
+
+  const typeOptions = React.useMemo(() => {
+    const out: Array<{
+      label: string;
+      left: "server" | "hard-drive";
+      value: "transmission" | "qbittorrent" | "local";
+    }> = [
+      { label: "Transmission", left: "server", value: "transmission" },
+      { label: "qBittorrent", left: "server", value: "qbittorrent" },
+    ];
+    if (canPickLocal) {
+      out.push({
+        label: "Local (libtorrent4j) — beta",
+        left: "hard-drive",
+        value: "local",
+      });
+    }
+    return out;
+  }, [canPickLocal]);
 
   const onSSLChange = React.useCallback(
     (enabled: boolean) => {
@@ -197,8 +284,15 @@ export default function ConnectionScreen() {
 
   const onTypeChange = React.useCallback(
     (value: string | number) => {
-      const t = value as ServerType;
+      const t = (
+        value === "qbittorrent"
+          ? "qbittorrent"
+          : value === "local"
+          ? "local"
+          : "transmission"
+      ) as "transmission" | "qbittorrent" | "local";
       setValue("type", t);
+      if (t === "local") return;
       const defaults = typeDefaults[t];
       if (!useSSL) setValue("port", defaults.port);
       setValue("path", defaults.path);
@@ -241,6 +335,31 @@ export default function ConnectionScreen() {
 
   const onSubmit = React.useCallback(
     (f: Form) => {
+      if (f.type === "local") {
+        if (!isPro) {
+          router.replace("/paywall");
+          return;
+        }
+        // Best-effort: ensure POST_NOTIFICATIONS is granted so the foreground
+        // service notification is visible. The system handles "already granted".
+        Notifications.getPermissionsAsync()
+          .then((perm) => {
+            if (perm.status !== "granted") {
+              return Notifications.requestPermissionsAsync();
+            }
+            return perm;
+          })
+          .catch(() => {});
+
+        ensureLocalServer(f.name?.trim() || "remote", {
+          onSuccess: () => router.back(),
+          onError: () => {
+            ToastAndroid.show("Failed to save local service", ToastAndroid.SHORT);
+          },
+        });
+        return;
+      }
+
       const now = Date.now();
       const url = renderUrl(f);
       const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
@@ -271,8 +390,9 @@ export default function ConnectionScreen() {
       }
       router.back();
     },
-    [editServer, servers, router, store]
+    [editServer, servers, router, store, isPro, ensureLocalServer]
   );
+
 
   const {
     data,
@@ -325,106 +445,147 @@ export default function ConnectionScreen() {
                 variant="settings"
                 value={field.value}
                 onChange={onTypeChange}
-                options={[
-                  { label: "Transmission", left: "server" as const, value: "transmission" },
-                  { label: "qBittorrent", left: "server" as const, value: "qbittorrent" },
-                ]}
+                options={typeOptions}
                 title="Client Type"
               />
             )}
           />
         </SettingsFieldRow>
 
-        <Controller
-          name="name"
-          control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow
-              label={
-                <Text style={styles.label}>
-                  Name <Required />
-                </Text>
-              }
-              error={fieldState.error?.message}
-              reserveErrorSpace
-            >
-              <TextInput
-                variant="settings"
-                placeholder="remote server"
-                style={fieldState.error ? { borderColor: red } : undefined}
-                onChangeText={field.onChange}
-                value={field.value?.toString() || ""}
-              />
-            </SettingsFieldRow>
-          )}
-        />
+        {!isLocal && (
+          <Controller
+            name="name"
+            control={control}
+            render={({ field, fieldState }) => (
+              <SettingsFieldRow
+                label={
+                  <Text style={styles.label}>
+                    Name <Required />
+                  </Text>
+                }
+                error={fieldState.error?.message}
+                reserveErrorSpace
+              >
+                <TextInput
+                  variant="settings"
+                  placeholder="remote server"
+                  style={fieldState.error ? { borderColor: red } : undefined}
+                  onChangeText={field.onChange}
+                  value={field.value?.toString() || ""}
+                />
+              </SettingsFieldRow>
+            )}
+          />
+        )}
 
-        <Controller
-          name="host"
-          control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow
-              label={
-                <Text style={styles.label}>
-                  Host / IP address <Required />
-                </Text>
-              }
-              error={fieldState.error?.message}
-              reserveErrorSpace
-            >
-              <TextInput
-                variant="settings"
-                placeholder="192.168.1.100"
-                style={fieldState.error ? { borderColor: red } : undefined}
-                value={field.value?.toString() || ""}
-                onChangeText={field.onChange}
-              />
-            </SettingsFieldRow>
-          )}
-        />
+        {isLocal && (allFiles.available || batteryOpt.available) && (
+          <>
+            <SettingsSectionTitle title="Permissions" />
+            {allFiles.available && (
+              <SettingsFieldRow>
+                <Toggle
+                  variant="settings"
+                  label="All files access"
+                  description={
+                    allFiles.granted
+                      ? "Downloads write directly to your Downloads folder."
+                      : "Required to write into /storage/emulated/0/Download."
+                  }
+                  value={allFiles.granted}
+                  onPress={() => {
+                    if (!allFiles.granted) allFiles.request();
+                  }}
+                />
+              </SettingsFieldRow>
+            )}
+            {batteryOpt.available && (
+              <SettingsFieldRow>
+                <Toggle
+                  variant="settings"
+                  label="Ignore battery optimization"
+                  description={
+                    batteryOpt.ignored
+                      ? "Doze won't throttle the engine."
+                      : "Doze may throttle peer activity in the background."
+                  }
+                  value={batteryOpt.ignored}
+                  onPress={() => {
+                    if (!batteryOpt.ignored) batteryOpt.request();
+                  }}
+                />
+              </SettingsFieldRow>
+            )}
+          </>
+        )}
 
-        <Controller
-          name="port"
-          control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow
-              label="Port"
-              error={fieldState.error?.message}
-              reserveErrorSpace
-            >
-              <TextInput
-                variant="settings"
-                placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
-                keyboardType="numeric"
-                style={fieldState.error ? { borderColor: red } : undefined}
-                value={field.value?.toString() || ""}
-                onChangeText={field.onChange}
-              />
-            </SettingsFieldRow>
-          )}
-        />
+        {!isLocal && (
+          <>
+            <Controller
+              name="host"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label={
+                    <Text style={styles.label}>
+                      Host / IP address <Required />
+                    </Text>
+                  }
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    placeholder="192.168.1.100"
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
 
-        <Controller
-          name="path"
-          control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow
-              label="Path"
-              error={fieldState.error?.message}
-              reserveErrorSpace
-            >
-              <TextInput
-                variant="settings"
-                placeholder={typeDefaults[type].path || "/"}
-                style={fieldState.error ? { borderColor: red } : undefined}
-                value={field.value?.toString() || ""}
-                onChangeText={field.onChange}
-              />
-            </SettingsFieldRow>
-          )}
-        />
+            <Controller
+              name="port"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Port"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
+                    keyboardType="numeric"
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
 
-        <SettingsSectionTitle title="Security" />
+            <Controller
+              name="path"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SettingsFieldRow
+                  label="Path"
+                  error={fieldState.error?.message}
+                  reserveErrorSpace
+                >
+                  <TextInput
+                    variant="settings"
+                    placeholder={typeDefaults[type].path || "/"}
+                    style={fieldState.error ? { borderColor: red } : undefined}
+                    value={field.value?.toString() || ""}
+                    onChangeText={field.onChange}
+                  />
+                </SettingsFieldRow>
+              )}
+            />
+
+            <SettingsSectionTitle title="Security" />
 
         <SettingsFieldRow>
           <Controller
@@ -509,50 +670,100 @@ export default function ConnectionScreen() {
           </>
         )}
 
-        <View style={[styles.connectionCard, { borderColor: gray }]}>
-          <View style={styles.connectionHeader}>
-            <Text style={styles.label}>Connection</Text>
-            {hasError && data?.error ? (
-              <Pressable
-                style={styles.statusPressable}
-                onPress={() => {
-                  const f = getValues();
-                  const url = renderUrl({ ...f, type: f.type ?? "transmission" });
-                  const username = f.useAuth ? f.username?.trim() || undefined : undefined;
-                  const password = f.useAuth ? f.password || undefined : undefined;
-                  const e = data.error!;
-                  router.push(debugHref({
-                    url, username, password,
-                    errorName: e.name, errorMessage: e.message,
-                    errorStatus: e.status, errorBody: e.body,
-                  }));
-                }}
-              >
-                <Text color={statusColor} style={styles.connectionState}>
-                  {status}
-                </Text>
-                <Feather name="chevron-right" size={14} color={statusColor} />
-              </Pressable>
-            ) : (
-              <Text color={statusColor} style={styles.connectionState}>
-                {status}
-              </Text>
+            <View style={[styles.connectionCard, { borderColor: gray }]}>
+              <View style={styles.connectionHeader}>
+                <Text style={styles.label}>Connection</Text>
+                {hasError && data?.error ? (
+                  <Pressable
+                    style={styles.statusPressable}
+                    onPress={() => {
+                      const f = getValues();
+                      const url = renderUrl({ ...f, type: f.type ?? "transmission" });
+                      const username = f.useAuth ? f.username?.trim() || undefined : undefined;
+                      const password = f.useAuth ? f.password || undefined : undefined;
+                      const e = data.error!;
+                      router.push(debugHref({
+                        url, username, password,
+                        errorName: e.name, errorMessage: e.message,
+                        errorStatus: e.status, errorBody: e.body,
+                      }));
+                    }}
+                  >
+                    <Text color={statusColor} style={styles.connectionState}>
+                      {status}
+                    </Text>
+                    <Feather name="chevron-right" size={14} color={statusColor} />
+                  </Pressable>
+                ) : (
+                  <Text color={statusColor} style={styles.connectionState}>
+                    {status}
+                  </Text>
+                )}
+              </View>
+              <ProgressBar progress={100} color={statusColor} />
+            </View>
+
+            <Button
+              title="test connection"
+              onPress={handleSubmit(onTest)}
+              style={{ marginTop: 8, marginBottom: 8, backgroundColor: green }}
+            />
+          </>
+        )}
+
+        {editingLocal ? (
+          <>
+            {(() => {
+              const running = engineStatus.state === "running";
+              const stateColor = running
+                ? green
+                : engineStatus.state === "stopped"
+                  ? red
+                  : gray;
+              return (
+                <View
+                  style={[
+                    styles.connectionCard,
+                    { borderColor: gray, marginTop: 4 },
+                  ]}
+                >
+                  <View style={styles.connectionHeader}>
+                    <Text style={styles.label}>Service</Text>
+                    <Text color={stateColor} style={styles.connectionState}>
+                      {engineStatus.state}
+                    </Text>
+                  </View>
+                  <ProgressBar progress={100} color={stateColor} />
+                </View>
+              );
+            })()}
+
+            <Button
+              title={
+                engineStatus.state === "running"
+                  ? "restart local service"
+                  : "start local service"
+              }
+              onPress={() => resumeLocalEngine(undefined)}
+              disabled={isResuming || isStopping}
+              style={{ marginTop: 8, marginBottom: 8, backgroundColor: green }}
+            />
+            {engineStatus.state !== "stopped" && (
+              <Button
+                title="stop local service"
+                onPress={() => stopLocalEngine(undefined)}
+                disabled={isStopping || isResuming}
+                style={{ marginTop: 0, marginBottom: 16, backgroundColor: red }}
+              />
             )}
-          </View>
-          <ProgressBar progress={100} color={statusColor} />
-        </View>
-
-        <Button
-          title="test connection"
-          onPress={handleSubmit(onTest)}
-          style={{ marginTop: 8, marginBottom: 8, backgroundColor: green }}
-        />
-
-        <Button
-          title="save"
-          onPress={handleSubmit(onSubmit)}
-          style={{ marginTop: 8, marginBottom: 16 }}
-        />
+          </>
+        ) : (
+          <Button
+            title="save"
+            onPress={handleSubmit(onSubmit)}
+            style={{ marginTop: 8, marginBottom: 16 }}
+          />
+        )}
       </KeyboardAwareScrollView>
     </Screen>
   );
@@ -584,5 +795,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     flexShrink: 1,
+  },
+  localCallout: {
+    marginTop: 4,
+    marginBottom: 8,
+    paddingVertical: 4,
+    gap: 8,
+  },
+  localCalloutTitle: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 14,
+  },
+  localCalloutBody: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  localCalloutEmph: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 12,
   },
 });

@@ -3,4 +3,9 @@ export type { Sort, Direction, Filter } from "./listing";
 export type { SearchConfig } from "./search";
 export type { ColorScheme } from "./preferences";
 export type { DirectoriesData } from "./directories";
-export { getActiveServer, generateServerId } from "./servers";
+export {
+  getActiveServer,
+  generateServerId,
+  getLocalServer,
+  LOCAL_SERVER_ID,
+} from "./servers";
