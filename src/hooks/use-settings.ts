@@ -181,9 +181,17 @@ export function useDirectoriesStore() {
 
 export function useDirectories(serverId: string | undefined) {
   const { data } = useDirectoriesQuery();
+  const { servers } = useServersQuery().data;
   const serverDirs = serverId ? data.servers[serverId] ?? [] : [];
-  const combined = [...new Set([...data.global, ...serverDirs])];
-  return combined;
+  // Global directories are filesystem paths shared across remote servers
+  // (e.g. /downloads on every Transmission instance pointing at the same
+  // mount). They make no sense for the local libtorrent4j engine, whose
+  // valid paths are device-local.
+  const isLocal =
+    serverId !== undefined &&
+    servers.find((s) => s.id === serverId)?.type === "local";
+  const globals = isLocal ? [] : data.global;
+  return [...new Set([...globals, ...serverDirs])];
 }
 
 // Read-only hooks

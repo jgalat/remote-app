@@ -95,7 +95,11 @@ function DirectoriesList({ server }: { server: Server }) {
   const { data: session, isLoading, error, refetch } = useServerSession(server);
   const { directories, store } = useDirectoriesStore();
 
-  const globalDirs = directories.global;
+  // Global directories don't apply to the local libtorrent4j engine — they
+  // describe filesystem paths shared across remote servers. Hide them here
+  // (and the global toggle is already hidden in directory.tsx for local).
+  const isLocal = server.type === "local";
+  const globalDirs = isLocal ? [] : directories.global;
   const serverDirs = React.useMemo(
     () => directories.servers[server.id] ?? [],
     [directories.servers, server.id]
