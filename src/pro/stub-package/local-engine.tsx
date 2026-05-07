@@ -171,14 +171,6 @@ export function useStopLocalEngine() {
   };
 }
 
-export function useAllFilesAccess() {
-  return {
-    granted: true,
-    available: false,
-    request: async () => {},
-  };
-}
-
 export function useBatteryOptIgnored() {
   return {
     ignored: true,
@@ -187,8 +179,17 @@ export function useBatteryOptIgnored() {
   };
 }
 
-export async function pickLocalDirectory(): Promise<string | null> {
-  return null;
+export function useExportToDownloads() {
+  return {
+    mutate: (
+      _params: { infoHash: string },
+      options?: { onSuccess?: () => void; onError?: () => void; onSettled?: () => void },
+    ) => {
+      options?.onError?.();
+      options?.onSettled?.();
+    },
+    isPending: false,
+  };
 }
 
 export function loadLocalEngineSettings(): EngineSettings {

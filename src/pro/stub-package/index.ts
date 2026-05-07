@@ -19,9 +19,8 @@ export {
   useRemoveLocalServer,
   useResumeLocalEngine,
   useStopLocalEngine,
-  useAllFilesAccess,
   useBatteryOptIgnored,
-  pickLocalDirectory,
+  useExportToDownloads,
   loadLocalEngineSettings,
   storeLocalEngineSettings,
 } from "./local-engine";

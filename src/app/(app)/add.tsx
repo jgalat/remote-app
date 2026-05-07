@@ -25,7 +25,6 @@ import {
   useDirectories,
   useIsLocalServer,
 } from "~/hooks/use-settings";
-import { pickLocalDirectory } from "@remote-app/pro";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
 import type { SelectOption } from "~/sheets/select";
@@ -42,7 +41,7 @@ const Form = z
     magnet: z.string().optional(),
     file: z.string().optional(),
     content: z.string().optional(),
-    path: z.string(),
+    path: z.string().optional(),
     start: z.boolean(),
   })
   .superRefine((data, ctx) => {
@@ -63,13 +62,17 @@ const Form = z
 function values(
   session: Session | undefined,
   magnet: string | undefined,
+  isLocal: boolean,
 ): Form | undefined {
   if (!session) {
     return undefined;
   }
   return {
     magnet: magnet,
-    path: session["download-dir"],
+    // Local server: the engine writes to its app-scoped Downloads dir and
+    // there's no UI to pick a path. Leave undefined so onSubmit doesn't pass
+    // download-dir to the adapter.
+    path: isLocal ? undefined : session["download-dir"],
     start: true,
   };
 }
@@ -113,7 +116,7 @@ export default function AddTorrentScreen() {
   const { control, handleSubmit, setValue, reset } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
-    values: values(session, magnet),
+    values: values(session, magnet, isLocal),
   });
 
   const sharedTorrent = useQuery({
@@ -137,12 +140,6 @@ export default function AddTorrentScreen() {
         : "Unknown error";
     ToastAndroid.show(`Failed to read shared file: ${message}`, ToastAndroid.SHORT);
   }, [sharedTorrent.error]);
-
-  const onPickFolderViaSAF = React.useCallback(() => {
-    pickLocalDirectory().then((path) => {
-      if (path) setValue("path", path);
-    });
-  }, [setValue]);
 
   const onPickDirectory = React.useCallback(() => {
     const defaultDir = session?.["download-dir"];
@@ -201,9 +198,9 @@ export default function AddTorrentScreen() {
         }
 
         // Remote servers (Transmission/qBittorrent) need a real path; local
-        // accepts empty (the engine resolves to its default). The schema is
-        // permissive because zod can't see `isLocal`, so we gate here.
-        const trimmedPath = f.path.trim();
+        // doesn't render the path field at all (engine writes to its
+        // app-scoped Downloads dir).
+        const trimmedPath = (f.path ?? "").trim();
         if (!isLocal && trimmedPath.length === 0) {
           ToastAndroid.show("path is required", ToastAndroid.SHORT);
           return;
@@ -298,32 +295,17 @@ export default function AddTorrentScreen() {
           )}
         />
 
-        <Controller
-          name="path"
-          control={control}
-          render={({ field, fieldState }) => (
-            <SettingsFieldRow
-              label="Download path"
-              error={fieldState.error?.message}
-              reserveErrorSpace
-            >
-              <SettingsInlineGroup>
-                {isLocal ? (
-                  <Pressable
-                    style={{ flex: 1 }}
-                    onPress={onPickFolderViaSAF}
-                  >
-                    <TextInput
-                      variant="settings"
-                      placeholder="tap to pick folder"
-                      icon="folder"
-                      style={fieldState.error ? { borderColor: red } : undefined}
-                      value={field.value?.toString() || ""}
-                      onChangeText={field.onChange}
-                      editable={false}
-                    />
-                  </Pressable>
-                ) : (
+        {!isLocal && (
+          <Controller
+            name="path"
+            control={control}
+            render={({ field, fieldState }) => (
+              <SettingsFieldRow
+                label="Download path"
+                error={fieldState.error?.message}
+                reserveErrorSpace
+              >
+                <SettingsInlineGroup>
                   <TextInput
                     variant="settings"
                     placeholder="/downloads"
@@ -333,23 +315,23 @@ export default function AddTorrentScreen() {
                     value={field.value?.toString() || ""}
                     onChangeText={field.onChange}
                   />
-                )}
-                <Pressable
-                  style={[
-                    styles.pickButton,
-                    {
-                      borderColor: lightGray,
-                      backgroundColor: background,
-                    },
-                  ]}
-                  onPress={onPickDirectory}
-                >
-                  <Feather name="book" size={16} color={gray} />
-                </Pressable>
-              </SettingsInlineGroup>
-            </SettingsFieldRow>
-          )}
-        />
+                  <Pressable
+                    style={[
+                      styles.pickButton,
+                      {
+                        borderColor: lightGray,
+                        backgroundColor: background,
+                      },
+                    ]}
+                    onPress={onPickDirectory}
+                  >
+                    <Feather name="book" size={16} color={gray} />
+                  </Pressable>
+                </SettingsInlineGroup>
+              </SettingsFieldRow>
+            )}
+          />
+        )}
 
         <SettingsFieldRow>
           <Controller

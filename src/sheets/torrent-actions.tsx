@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Share, ToastAndroid } from "react-native";
+import { Platform, Share, ToastAndroid } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 import { router } from "expo-router";
 
@@ -7,6 +7,7 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import { useTorrentActions, Torrent } from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useIsLocalServer } from "~/hooks/use-settings";
+import { useExportToDownloads } from "@remote-app/pro";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { OptionProps } from "~/components/option";
 import {
@@ -32,6 +33,7 @@ function TorrentActionsSheet({
   const { clear } = useTorrentSelection();
   const actions = useTorrentActions();
   const isLocal = useIsLocalServer();
+  const exportToDownloads = useExportToDownloads();
 
   const ids: Torrent["id"][] = torrents.map((t) => t.id);
 
@@ -61,22 +63,52 @@ function TorrentActionsSheet({
       left: "radio",
       onPress: () => actions.reannounce.mutate({ ids }),
     },
-    {
-      label: "Move",
-      left: "folder",
-      onPress: () => {
-        const downloadDir =
-          torrents.length === 1 ? torrents[0].downloadDir ?? undefined : undefined;
-        setTimeout(
-          () =>
-            SheetManager.show(MOVE_TORRENT_SHEET_ID, {
-              payload: { ids, downloadDir },
-            }),
-          100
-        );
-      },
-    },
+    // Move is hidden on local servers — the engine writes to a fixed
+    // app-scoped Downloads dir and there's no destination to choose.
+    ...(isLocal
+      ? []
+      : [
+          {
+            label: "Move",
+            left: "folder" as const,
+            onPress: () => {
+              const downloadDir =
+                torrents.length === 1
+                  ? torrents[0].downloadDir ?? undefined
+                  : undefined;
+              setTimeout(
+                () =>
+                  SheetManager.show(MOVE_TORRENT_SHEET_ID, {
+                    payload: { ids, downloadDir },
+                  }),
+                100,
+              );
+            },
+          },
+        ]),
   ];
+
+  // Export to Downloads is a local-only action: copies every file in the
+  // torrent into the public MediaStore.Downloads collection, preserving
+  // folder structure. Android 10+ only — pre-10 share is small and the
+  // action would need WRITE_EXTERNAL_STORAGE which we no longer declare.
+  // Gated on 100% complete: exporting a half-downloaded torrent would
+  // surface a partial file in Downloads, which is misleading.
+  if (
+    isLocal &&
+    Platform.OS === "android" &&
+    typeof Platform.Version === "number" &&
+    Platform.Version >= 29 &&
+    torrents.length === 1 &&
+    torrents[0].percentDone >= 1
+  ) {
+    const [{ id }] = torrents;
+    options.push({
+      label: "Export to Downloads",
+      left: "download",
+      onPress: () => exportToDownloads.mutate({ infoHash: String(id) }),
+    });
+  }
 
   if (torrents.length === 1) {
     const [{ id, name, magnetLink }] = torrents;

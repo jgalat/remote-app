@@ -92,7 +92,7 @@ describe("TransmissionClient session negotiation", () => {
   });
 
   it("stores session id when server responds 200 with header", async () => {
-    let rpcSessionIds: string[] = [];
+    const rpcSessionIds: string[] = [];
 
     global.fetch = vi.fn(async (input: FetchInput) => {
       const request = input as Request;

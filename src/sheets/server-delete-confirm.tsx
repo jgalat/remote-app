@@ -57,7 +57,7 @@ function ServerDeleteConfirmSheet({
       ? remaining[0]?.id
       : active?.id;
     store({ servers: remaining, activeServerId });
-  }, [payload, servers, active, store, removeLocal]);
+  }, [payload, servers, active, store, removeLocal, queryClient]);
 
   return (
     <ActionSheet

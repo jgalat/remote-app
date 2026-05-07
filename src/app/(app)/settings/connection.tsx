@@ -1,13 +1,11 @@
 import * as React from "react";
-import { Platform, ScrollView, StyleSheet, ToastAndroid } from "react-native";
+import { ScrollView, StyleSheet, ToastAndroid } from "react-native";
 import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import * as IntentLauncher from "expo-intent-launcher";
-import * as Application from "expo-application";
 import * as Notifications from "expo-notifications";
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -36,7 +34,6 @@ import {
   useResumeLocalEngine,
   useStopLocalEngine,
   useLocalEngineStatus,
-  useAllFilesAccess,
   useBatteryOptIgnored,
   usePro,
   LOCAL_SERVER_ID,
@@ -237,7 +234,6 @@ export default function ConnectionScreen() {
   const { mutate: stopLocalEngine, isPending: isStopping } =
     useStopLocalEngine();
   const engineStatus = useLocalEngineStatus();
-  const allFiles = useAllFilesAccess();
   const batteryOpt = useBatteryOptIgnored();
   const localEngineAvailable = isLocalEngineAvailable();
   const hasLocalServer = servers.some((s) => s.type === "local");
@@ -478,43 +474,24 @@ export default function ConnectionScreen() {
           />
         )}
 
-        {isLocal && (allFiles.available || batteryOpt.available) && (
+        {isLocal && batteryOpt.available && (
           <>
             <SettingsSectionTitle title="Permissions" />
-            {allFiles.available && (
-              <SettingsFieldRow>
-                <Toggle
-                  variant="settings"
-                  label="All files access"
-                  description={
-                    allFiles.granted
-                      ? "Downloads write directly to your Downloads folder."
-                      : "Required to write into /storage/emulated/0/Download."
-                  }
-                  value={allFiles.granted}
-                  onPress={() => {
-                    if (!allFiles.granted) allFiles.request();
-                  }}
-                />
-              </SettingsFieldRow>
-            )}
-            {batteryOpt.available && (
-              <SettingsFieldRow>
-                <Toggle
-                  variant="settings"
-                  label="Ignore battery optimization"
-                  description={
-                    batteryOpt.ignored
-                      ? "Doze won't throttle the engine."
-                      : "Doze may throttle peer activity in the background."
-                  }
-                  value={batteryOpt.ignored}
-                  onPress={() => {
-                    if (!batteryOpt.ignored) batteryOpt.request();
-                  }}
-                />
-              </SettingsFieldRow>
-            )}
+            <SettingsFieldRow>
+              <Toggle
+                variant="settings"
+                label="Ignore battery optimization"
+                description={
+                  batteryOpt.ignored
+                    ? "Doze won't throttle the engine."
+                    : "Doze may throttle peer activity in the background."
+                }
+                value={batteryOpt.ignored}
+                onPress={() => {
+                  if (!batteryOpt.ignored) batteryOpt.request();
+                }}
+              />
+            </SettingsFieldRow>
           </>
         )}
 

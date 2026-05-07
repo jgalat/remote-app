@@ -99,7 +99,10 @@ function DirectoriesList({ server }: { server: Server }) {
   // describe filesystem paths shared across remote servers. Hide them here
   // (and the global toggle is already hidden in directory.tsx for local).
   const isLocal = server.type === "local";
-  const globalDirs = isLocal ? [] : directories.global;
+  const globalDirs = React.useMemo(
+    () => (isLocal ? [] : directories.global),
+    [isLocal, directories.global],
+  );
   const serverDirs = React.useMemo(
     () => directories.servers[server.id] ?? [],
     [directories.servers, server.id]
@@ -222,7 +225,7 @@ function DirectoriesList({ server }: { server: Server }) {
             style={{ marginTop: 8 }}
           />
         </View>
-      ) : (
+      ) : isLocal ? null : (
         <View style={styles.footer}>
           <Button
             title="Add Directory"

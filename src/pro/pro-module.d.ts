@@ -49,17 +49,18 @@ declare module "@remote-app/pro" {
     mutate: (_: undefined, options?: MutationOptions) => void;
     isPending: boolean;
   };
-  export function useAllFilesAccess(): {
-    granted: boolean;
-    available: boolean;
-    request: () => Promise<void>;
-  };
   export function useBatteryOptIgnored(): {
     ignored: boolean;
     available: boolean;
     request: () => Promise<void>;
   };
-  export function pickLocalDirectory(): Promise<string | null>;
+  export function useExportToDownloads(): {
+    mutate: (
+      params: { infoHash: string },
+      options?: MutationOptions,
+    ) => void;
+    isPending: boolean;
+  };
   export function loadLocalEngineSettings(): EngineSettings;
   export function storeLocalEngineSettings(s: EngineSettings): void;
   export const LOCAL_SERVER_ID: "local";
