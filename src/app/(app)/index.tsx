@@ -100,6 +100,20 @@ export default function TorrentsScreen() {
     return () => sub.remove();
   }, [searching, exitSearch]);
 
+  const resolvedPath = pathFilter || null;
+
+  const render = React.useMemo(
+    () =>
+      torrents
+        ? [...torrents]
+            .sort(compare(direction, sort))
+            .filter(predicate(filter))
+            .filter(pathPredicate(resolvedPath))
+            .filter(searchPredicate(searchQuery))
+        : [],
+    [torrents, direction, sort, filter, resolvedPath, searchQuery]
+  );
+
   React.useEffect(() => {
     const title = !server || server.name === "" ? "Remote" : server.name;
     if (searching) {
@@ -149,7 +163,7 @@ export default function TorrentsScreen() {
                     if (selection.size === 0) {
                       return;
                     }
-                    select(...torrents.map((t) => t.id));
+                    select(...render.map((t) => t.id));
                   }}
                   name="list"
                 />
@@ -240,6 +254,7 @@ export default function TorrentsScreen() {
     serverSelectorSheet,
     torrentActionsSheet,
     torrents,
+    render,
     searching,
     exitSearch,
   ]);
@@ -249,20 +264,6 @@ export default function TorrentsScreen() {
     await refetch();
     setRefreshing(false);
   }, [refetch]);
-
-  const resolvedPath = pathFilter || null;
-
-  const render = React.useMemo(
-    () =>
-      torrents
-        ? [...torrents]
-            .sort(compare(direction, sort))
-            .filter(predicate(filter))
-            .filter(pathPredicate(resolvedPath))
-            .filter(searchPredicate(searchQuery))
-        : [],
-    [torrents, direction, sort, filter, resolvedPath, searchQuery]
-  );
 
   const renderTorrentItem = React.useCallback(
     ({ item: torrent }: { item: (typeof render)[number] }) => (
