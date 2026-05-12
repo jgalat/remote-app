@@ -1,0 +1,11 @@
+packages:
+  - packages/*
+
+nodeLinker: hoisted
+
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
+
+overrides:
+  expo-modules-core: 3.0.30

@@ -5,22 +5,20 @@
   "main": "expo-router/entry",
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",
-  "workspaces": [
-    "./packages/*"
-  ],
+  "packageManager": "pnpm@10.32.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/jgalat/remote-app"
   },
   "scripts": {
-    "dev": "npx expo start",
-    "dev:android": "npx expo start --android",
-    "prebuild": "npx expo prebuild --clean --platform android",
-    "build:android:development": "npx eas build --platform android --local --profile development",
-    "build:android:production": "npx eas build --platform android --local --profile production",
+    "dev": "expo start",
+    "dev:android": "expo start --android",
+    "prebuild": "expo prebuild --clean --platform android",
+    "build:android:development": "pnpm dlx eas-cli build --platform android --local --profile development",
+    "build:android:production": "pnpm dlx eas-cli build --platform android --local --profile production",
     "lint": "eslint --max-warnings=0 .",
-    "test:transmission": "npm -w @remote-app/transmission-client test",
-    "test:qbittorrent": "npm -w @remote-app/qbittorrent-client test",
+    "test:transmission": "pnpm --filter @remote-app/transmission-client test",
+    "test:qbittorrent": "pnpm --filter @remote-app/qbittorrent-client test",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
@@ -30,7 +28,8 @@
     "@hookform/resolvers": "^5.1.1",
     "@react-navigation/material-top-tabs": "^7.3.6",
     "@react-navigation/native": "^7.1.6",
-    "@remote-app/transmission-client": "*",
+    "@remote-app/qbittorrent-client": "workspace:*",
+    "@remote-app/transmission-client": "workspace:*",
     "@shopify/react-native-skia": "2.2.12",
     "@tanstack/react-query": "^5.59.13",
     "expo": "~54.0.34",
@@ -71,6 +70,9 @@
     "react-native-screens": "~4.16.0",
     "react-native-worklets": "0.5.1",
     "zod": "^3.25.67"
+  },
+  "optionalDependencies": {
+    "@remote-app/pro": "workspace:*"
   },
   "expo": {
     "autolinking": {
