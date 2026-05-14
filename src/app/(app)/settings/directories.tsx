@@ -41,25 +41,24 @@ function DirectoryRow({
   entry: DirectoryEntry;
   selected: boolean;
   selectionActive: boolean;
-  onPress: () => void;
-  onLongPress: () => void;
+  onPress: (entry: DirectoryEntry) => void;
+  onLongPress: (path: string) => void;
 }) {
   const { text, gray, tint } = useTheme();
+
+  const handlePress = React.useCallback(() => onPress(entry), [onPress, entry]);
+  const handleLongPress = React.useCallback(async () => {
+    await Haptics.performAndroidHapticsAsync(
+      Haptics.AndroidHaptics.Long_Press
+    );
+    onLongPress(entry.path);
+  }, [onLongPress, entry.path]);
 
   return (
     <Pressable
       style={styles.row}
-      onPress={onPress}
-      onLongPress={
-        entry.isDefault
-          ? undefined
-          : async () => {
-              await Haptics.performAndroidHapticsAsync(
-                Haptics.AndroidHaptics.Long_Press
-              );
-              onLongPress();
-            }
-      }
+      onPress={handlePress}
+      onLongPress={entry.isDefault ? undefined : handleLongPress}
     >
       {selectionActive ? (
         entry.isDefault ? (
@@ -90,7 +89,7 @@ function DirectoryRow({
 }
 
 function DirectoriesList({ server }: { server: Server }) {
-  const router = useRouter();
+  const { push } = useRouter();
   const { red } = useTheme();
   const { data: session, isLoading, error, refetch } = useServerSession(server);
   const { directories, store } = useDirectoriesStore();
@@ -175,6 +174,39 @@ function DirectoriesList({ server }: { server: Server }) {
     clearSelection();
   }, [selectedPaths, globalDirs, serverDirs, directories.servers, server.id, store, clearSelection]);
 
+  const onRowPress = React.useCallback(
+    (entry: DirectoryEntry) => {
+      if (selectionActive) {
+        if (!entry.isDefault) toggleSelection(entry.path);
+        return;
+      }
+      push(
+        `/settings/directory?serverId=${server.id}&path=${encodeURIComponent(entry.path)}&isDefault=${entry.isDefault}`
+      );
+    },
+    [selectionActive, toggleSelection, push, server.id]
+  );
+
+  const onRowLongPress = React.useCallback(
+    (path: string) => toggleSelection(path),
+    [toggleSelection]
+  );
+
+  const renderItem = React.useCallback(
+    ({ item }: { item: DirectoryEntry }) => (
+      <View>
+        <DirectoryRow
+          entry={item}
+          selected={selectedPaths.has(item.path)}
+          selectionActive={selectionActive}
+          onPress={onRowPress}
+          onLongPress={onRowLongPress}
+        />
+      </View>
+    ),
+    [selectedPaths, selectionActive, onRowPress, onRowLongPress]
+  );
+
   if (error) {
     return <NetworkErrorScreen error={error} refetch={refetch} />;
   }
@@ -188,25 +220,7 @@ function DirectoriesList({ server }: { server: Server }) {
       <FlatList
         data={entries}
         keyExtractor={(item) => item.path}
-        renderItem={({ item }) => (
-          <View>
-            <DirectoryRow
-              entry={item}
-              selected={selectedPaths.has(item.path)}
-              selectionActive={selectionActive}
-              onPress={() => {
-                if (selectionActive) {
-                  if (!item.isDefault) toggleSelection(item.path);
-                  return;
-                }
-                router.push(
-                  `/settings/directory?serverId=${server.id}&path=${encodeURIComponent(item.path)}&isDefault=${item.isDefault}`
-                );
-              }}
-              onLongPress={() => toggleSelection(item.path)}
-            />
-          </View>
-        )}
+        renderItem={renderItem}
         ItemSeparatorComponent={() => <SettingsInsetDivider inset={12} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
@@ -230,7 +244,7 @@ function DirectoriesList({ server }: { server: Server }) {
           <Button
             title="Add Directory"
             onPress={() =>
-              router.push(`/settings/directory?serverId=${server.id}`)
+              push(`/settings/directory?serverId=${server.id}`)
             }
           />
         </View>

@@ -27,24 +27,19 @@ const ICON_BY_KIND: Record<RenamePathKind, "package" | "folder" | "file"> = {
   file: "file",
 };
 
-function RenamePathSheet({
-  payload,
-  ...props
-}: SheetProps<typeof RENAME_PATH_SHEET_ID>) {
-  const { background, text } = useTheme();
-  const insets = useSafeAreaInsets();
+function RenameForm({
+  id,
+  path,
+  currentName,
+  kind,
+}: {
+  id: TorrentId | undefined;
+  path: string;
+  currentName: string;
+  kind: RenamePathKind;
+}) {
   const renamePath = useRenamePath();
-
-  const id = payload?.id;
-  const path = payload?.path ?? "";
-  const currentName = payload?.currentName ?? "";
-  const kind: RenamePathKind = payload?.kind ?? "torrent";
-
   const [name, setName] = React.useState(currentName);
-
-  React.useEffect(() => {
-    setName(currentName);
-  }, [currentName]);
 
   const onRename = React.useCallback(() => {
     const trimmed = name.trim();
@@ -56,6 +51,38 @@ function RenamePathSheet({
 
   const trimmed = name.trim();
   const disabled = !trimmed || trimmed === currentName;
+
+  return (
+    <>
+      <Text style={styles.title}>Rename</Text>
+      <TextInput
+        placeholder="new name"
+        icon={ICON_BY_KIND[kind]}
+        value={name}
+        onChangeText={setName}
+        selectTextOnFocus
+      />
+      <Button
+        title="rename"
+        onPress={onRename}
+        disabled={disabled}
+        style={styles.button}
+      />
+    </>
+  );
+}
+
+function RenamePathSheet({
+  payload,
+  ...props
+}: SheetProps<typeof RENAME_PATH_SHEET_ID>) {
+  const { background, text } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const id = payload?.id;
+  const path = payload?.path ?? "";
+  const currentName = payload?.currentName ?? "";
+  const kind: RenamePathKind = payload?.kind ?? "torrent";
 
   return (
     <_ActionSheet
@@ -76,20 +103,12 @@ function RenamePathSheet({
       gestureEnabled
     >
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-        <Text style={styles.title}>Rename</Text>
-        <TextInput
-          placeholder="new name"
-          icon={ICON_BY_KIND[kind]}
-          value={name}
-          onChangeText={setName}
-          autoFocus
-          selectTextOnFocus
-        />
-        <Button
-          title="rename"
-          onPress={onRename}
-          disabled={disabled}
-          style={styles.button}
+        <RenameForm
+          key={currentName}
+          id={id}
+          path={path}
+          currentName={currentName}
+          kind={kind}
         />
       </View>
     </_ActionSheet>

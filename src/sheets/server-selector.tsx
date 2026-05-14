@@ -13,7 +13,7 @@ import type { OptionProps } from "~/components/option";
 import { SERVER_SELECTOR_SHEET_ID } from "./ids";
 
 function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>) {
-  const router = useRouter();
+  const { push } = useRouter();
   const { servers, store } = useServersStore();
   const { isPro, available } = usePro();
   const active = useServer();
@@ -58,15 +58,15 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
         left: "plus" as const,
         onPress: () =>
           canAdd
-            ? router.push("/settings/connection")
-            : router.push("/paywall"),
+            ? push("/settings/connection")
+            : push("/paywall"),
       },
     ];
   }, [
     servers,
     active?.id,
     store,
-    router,
+    push,
     available,
     isPro,
     engineStatus.available,

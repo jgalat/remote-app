@@ -54,15 +54,21 @@ export default function ThemeScreen() {
     [colorScheme, select]
   );
 
+  const lastIndex = options.length - 1;
+  const renderItem = React.useCallback(
+    ({ item, index }: { item: OptionProps; index: number }) => (
+      <View style={[styles.row, index === lastIndex && styles.rowLast]}>
+        <Option {...item} />
+      </View>
+    ),
+    [lastIndex]
+  );
+
   return (
     <Screen>
       <FlatList
         data={options}
-        renderItem={({ item, index }) => (
-          <View style={[styles.row, index === options.length - 1 && styles.rowLast]}>
-            <Option {...item} />
-          </View>
-        )}
+        renderItem={renderItem}
         keyExtractor={(item) => item.label}
         showsVerticalScrollIndicator={false}
       />

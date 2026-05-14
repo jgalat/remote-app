@@ -35,7 +35,7 @@ const Form = z.object({
 });
 
 export default function DirectoryScreen() {
-  const router = useRouter();
+  const { back } = useRouter();
   const navigation = useNavigation();
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
@@ -86,8 +86,8 @@ export default function DirectoryScreen() {
       },
     });
 
-    router.back();
-  }, [serverId, initialPath, directories, store, router]);
+    back();
+  }, [serverId, initialPath, directories, store, back]);
 
   React.useEffect(() => {
     if (isDefaultDir || isNew) return;
@@ -109,7 +109,7 @@ export default function DirectoryScreen() {
           {
             onSuccess: () => {
               ToastAndroid.show("Default directory updated", ToastAndroid.SHORT);
-              router.back();
+              back();
             },
             onError: () => {
               ToastAndroid.show("Failed to update", ToastAndroid.SHORT);
@@ -136,7 +136,7 @@ export default function DirectoryScreen() {
             });
           }
         }
-        router.back();
+        back();
         return;
       }
 
@@ -157,9 +157,9 @@ export default function DirectoryScreen() {
         },
       });
 
-      router.back();
+      back();
     },
-    [isDefaultDir, isNew, serverId, initialPath, directories, store, setSession, router]
+    [isDefaultDir, isNew, serverId, initialPath, directories, store, setSession, back]
   );
 
   if (!server) {

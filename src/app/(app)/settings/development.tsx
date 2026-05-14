@@ -96,7 +96,7 @@ function tryFormatJson(value: string): string {
 }
 
 export default function Development() {
-  const router = useRouter();
+  const { push } = useRouter();
   const { store } = useServersStore();
   const { devOverride, setDevOverride } = usePro();
   const [appId, setAppId] = React.useState(() => getAppId());
@@ -109,7 +109,7 @@ export default function Development() {
         label: "Sitemap",
         showChevron: true,
         variant: "compact",
-        onPress: () => router.push("/_sitemap"),
+        onPress: () => push("/_sitemap"),
       },
     ];
 
@@ -147,7 +147,7 @@ export default function Development() {
         showChevron: true,
         variant: "compact",
         onPress: () => {
-          router.push(debugHref({
+          push(debugHref({
             url: "https://my-server.example.com:9091/transmission/rpc",
             username: "admin",
             password: "hunter2",
@@ -251,7 +251,27 @@ export default function Development() {
       { key: "servers", title: "Servers", data: servers },
       { key: "appid", title: "App ID", data: appIdSection },
     ];
-  }, [devOverride, router, setDevOverride, store]);
+  }, [devOverride, push, setDevOverride, store]);
+
+  const renderItem = React.useCallback(
+    ({
+      item,
+      index,
+      section,
+    }: {
+      item: OptionProps;
+      index: number;
+      section: { data: OptionProps[] };
+    }) => {
+      const isLast = index === section.data.length - 1;
+      return (
+        <View style={[styles.rowContainer, isLast && styles.rowLast]}>
+          <Option {...item} />
+        </View>
+      );
+    },
+    []
+  );
 
   return (
     <Screen style={styles.screen}>
@@ -282,14 +302,7 @@ export default function Development() {
             )}
           </>
         )}
-        renderItem={({ item, index, section }) => {
-          const isLast = index === section.data.length - 1;
-          return (
-            <View style={[styles.rowContainer, isLast && styles.rowLast]}>
-              <Option {...item} />
-            </View>
-          );
-        }}
+        renderItem={renderItem}
         ListFooterComponent={<StorageInspector />}
       />
     </Screen>

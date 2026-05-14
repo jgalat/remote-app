@@ -92,7 +92,7 @@ async function readSharedTorrent(filePath: string): Promise<{ name: string; cont
 }
 
 export default function AddTorrentScreen() {
-  const router = useRouter();
+  const { back, dismissTo } = useRouter();
   const { red, text, gray, lightGray, background } = useTheme();
   const { data: session } = useSession();
   const serverId = useActiveServerId();
@@ -107,11 +107,11 @@ export default function AddTorrentScreen() {
 
   const goBack = React.useCallback(() => {
     if (intent) {
-      router.dismissTo("/");
+      dismissTo("/");
     } else {
-      router.back();
+      back();
     }
-  }, [intent, router]);
+  }, [intent, back, dismissTo]);
 
   const { control, handleSubmit, setValue, reset } = useForm({
     mode: "onSubmit",

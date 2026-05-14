@@ -13,12 +13,50 @@ import {
 import Separator from "~/components/separator";
 import { useTheme } from "~/hooks/use-theme-color";
 import Pressable from "~/components/pressable";
-import FileItem from "~/components/file-item";
+import FileItem, { type RenderFile } from "~/components/file-item";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "~/components/checkbox";
 import { useFileActionsSheet } from "~/hooks/use-action-sheet";
 import { useIsFocused } from "@react-navigation/native";
 import useTorrentBrowser from "~/hooks/use-torrent-browser";
+
+function FileRow({
+  file,
+  onPress,
+  onLongPress,
+  setWanted,
+}: {
+  file: RenderFile;
+  onPress: (path: string) => void;
+  onLongPress: (file: RenderFile) => void;
+  setWanted: (file: RenderFile, value: boolean) => void;
+}) {
+  const handlePress = React.useCallback(
+    () => onPress(file.path),
+    [onPress, file.path]
+  );
+  const handleLongPress = React.useCallback(
+    () => onLongPress(file),
+    [onLongPress, file]
+  );
+  const handleCheckbox = React.useCallback(
+    (value: boolean) => setWanted(file, value),
+    [setWanted, file]
+  );
+  return (
+    <FileItem
+      onPress={file.isFile ? undefined : handlePress}
+      onLongPress={handleLongPress}
+      data={file}
+      right={
+        <Checkbox
+          value={file.content.some((f) => f.wanted)}
+          onPress={handleCheckbox}
+        />
+      }
+    />
+  );
+}
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -29,6 +67,45 @@ export default function FilesScreen() {
   const { text } = useTheme();
 
   const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(torrent);
+
+  const onFilePress = React.useCallback(
+    (path: string) => enterFolder(path),
+    [enterFolder]
+  );
+
+  const onFileLongPress = React.useCallback(
+    (file: RenderFile) =>
+      fileActionsSheet({
+        id,
+        path: file.path,
+        name: file.name,
+        isFile: file.isFile,
+        content: file.content.map((f) => f.id),
+      }),
+    [fileActionsSheet, id]
+  );
+
+  const setWanted = React.useCallback(
+    (file: RenderFile, value: boolean) =>
+      torrentSet.mutate({
+        [value ? "files-wanted" : "files-unwanted"]: file.content.map(
+          (f) => f.id
+        ),
+      }),
+    [torrentSet]
+  );
+
+  const renderItem = React.useCallback(
+    ({ item: file }: { item: RenderFile }) => (
+      <FileRow
+        file={file}
+        onPress={onFilePress}
+        onLongPress={onFileLongPress}
+        setWanted={setWanted}
+      />
+    ),
+    [onFilePress, onFileLongPress, setWanted]
+  );
 
   React.useEffect(() => {
     if (!isFocused || !canGoUp) {
@@ -68,32 +145,7 @@ export default function FilesScreen() {
       <FlatList
         // fadingEdgeLength={64}
         data={items}
-        renderItem={({ item: file }) => (
-          <FileItem
-            onPress={file.isFile ? undefined : () => enterFolder(file.path)}
-            onLongPress={() =>
-              fileActionsSheet({
-                id,
-                path: file.path,
-                name: file.name,
-                isFile: file.isFile,
-                content: file.content.map((f) => f.id),
-              })
-            }
-            data={file}
-            right={
-              <Checkbox
-                value={file.content.some((f) => f.wanted)}
-                onPress={(value) =>
-                  torrentSet.mutate({
-                    [value ? "files-wanted" : "files-unwanted"]:
-                      file.content.map((f) => f.id),
-                  })
-                }
-              />
-            }
-          />
-        )}
+        renderItem={renderItem}
         keyExtractor={({ path }) => path}
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={

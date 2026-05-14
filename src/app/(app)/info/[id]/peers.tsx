@@ -12,6 +12,9 @@ import {
 } from "~/components/utility-screens";
 import PeerItem from "~/components/peer-item";
 import Separator from "~/components/separator";
+import type { Peer } from "~/client";
+
+const renderPeerItem = ({ item }: { item: Peer }) => <PeerItem data={item} />;
 
 export default function PeersScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -28,7 +31,7 @@ export default function PeersScreen() {
     <Screen style={styles.container}>
       <FlatList
         data={torrent.peers}
-        renderItem={({ item: peer }) => <PeerItem data={peer} />}
+        renderItem={renderPeerItem}
         keyExtractor={({ address, port }) => `${address}:${port}`}
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={

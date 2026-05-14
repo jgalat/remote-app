@@ -131,15 +131,21 @@ export default function TorrentDetailsScreen() {
       <SectionList
         // fadingEdgeLength={64}
         sections={data}
-        renderSectionHeader={({ section }) => (
-          <Text style={styles.title}>{section.section}</Text>
-        )}
-        renderItem={({ item }) => <KeyValue {...item} />}
+        renderSectionHeader={renderSectionHeader}
+        renderItem={renderItem}
         keyExtractor={({ field }) => field}
       />
     </Screen>
   );
 }
+
+const renderSectionHeader = ({
+  section,
+}: {
+  section: { section: string };
+}) => <Text style={styles.title}>{section.section}</Text>;
+
+const renderItem = ({ item }: { item: KeyValueProps }) => <KeyValue {...item} />;
 
 const styles = StyleSheet.create({
   title: {

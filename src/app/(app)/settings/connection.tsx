@@ -202,7 +202,7 @@ function Required() {
 }
 
 export default function ConnectionScreen() {
-  const router = useRouter();
+  const { back, push, replace, dismissTo } = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { servers, store } = useServersStore();
   const { red, gray, green } = useTheme();
@@ -316,9 +316,9 @@ export default function ConnectionScreen() {
 
   React.useEffect(() => {
     if (id && !editServer) {
-      router.dismissTo("/settings/servers");
+      dismissTo("/settings/servers");
     }
-  }, [id, editServer, router]);
+  }, [id, editServer, dismissTo]);
 
   React.useEffect(() => {
     if (!isEdit) return;
@@ -333,7 +333,7 @@ export default function ConnectionScreen() {
     (f: Form) => {
       if (f.type === "local") {
         if (!isPro) {
-          router.replace("/paywall");
+          replace("/paywall");
           return;
         }
         // Best-effort: ensure POST_NOTIFICATIONS is granted so the foreground
@@ -348,7 +348,7 @@ export default function ConnectionScreen() {
           .catch(() => {});
 
         ensureLocalServer(f.name?.trim() || "remote", {
-          onSuccess: () => router.back(),
+          onSuccess: () => back(),
           onError: () => {
             ToastAndroid.show("Failed to save local service", ToastAndroid.SHORT);
           },
@@ -384,9 +384,9 @@ export default function ConnectionScreen() {
           activeServerId: newServer.id,
         });
       }
-      router.back();
+      back();
     },
-    [editServer, servers, router, store, isPro, ensureLocalServer]
+    [editServer, servers, back, replace, store, isPro, ensureLocalServer]
   );
 
 
@@ -659,7 +659,7 @@ export default function ConnectionScreen() {
                       const username = f.useAuth ? f.username?.trim() || undefined : undefined;
                       const password = f.useAuth ? f.password || undefined : undefined;
                       const e = data.error!;
-                      router.push(debugHref({
+                      push(debugHref({
                         url, username, password,
                         errorName: e.name, errorMessage: e.message,
                         errorStatus: e.status, errorBody: e.body,
