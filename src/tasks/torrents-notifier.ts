@@ -32,47 +32,35 @@ export default async function TorrentsNotifierTask(): Promise<BackgroundTask.Bac
 
   let notifierState = loadState();
 
-  const eligible = servers.filter(
-    (s) =>
-      !isTestingServer(s) && (s.type !== "local" || isLocalEngineAvailable())
-  );
+  for (const server of servers) {
+    if (isTestingServer(server)) continue;
+    if (server.type === "local" && !isLocalEngineAvailable()) continue;
 
-  const results = await Promise.all(
-    eligible.map(async (server) => {
+    const client = createClient(server);
+
+    try {
+      const torrents = await client.getTorrents();
+
       const lastUpdate = getServerLastUpdate(notifierState, server.id);
-      const now = Math.floor(Date.now() / 1_000);
-      try {
-        const torrents = await createClient(server).getTorrents();
-        const doneCount = torrents.reduce(
-          (n, t) => (t.doneDate > lastUpdate ? n + 1 : n),
-          0
-        );
-        return { server, lastUpdate, now, doneCount, ok: true as const };
-      } catch {
-        return { server, lastUpdate, now, doneCount: 0, ok: false as const };
-      }
-    })
-  );
+      const done = torrents.filter((t) => t.doneDate > lastUpdate);
 
-  const notifications: Promise<unknown>[] = [];
-  for (const { server, lastUpdate, now, doneCount, ok } of results) {
-    if (!ok) continue;
-    notifierState = setServerLastUpdate(notifierState, server.id, now);
-    if (doneCount === 0 || lastUpdate === 0) continue;
-    notifications.push(
-      Notifications.scheduleNotificationAsync({
+      const now = Math.floor(Date.now() / 1_000);
+      notifierState = setServerLastUpdate(notifierState, server.id, now);
+
+      if (done.length === 0 || lastUpdate === 0) continue;
+
+      await Notifications.scheduleNotificationAsync({
         content: {
           title: "Finished torrents",
-          body: `${server.name}: ${doneCount} ${
-            doneCount === 1 ? "torrent has" : "torrents have"
+          body: `${server.name}: ${done.length} ${
+            done.length === 1 ? "torrent has" : "torrents have"
           } finished downloading`,
         },
         trigger: null,
-      })
-    );
-  }
-  if (notifications.length > 0) {
-    await Promise.all(notifications);
+      });
+    } catch {
+      // continue to next server
+    }
   }
 
   storeState(notifierState);

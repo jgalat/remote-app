@@ -15,56 +15,52 @@ export type TextInputProps = {
   containerStyle?: StyleProp<ViewStyle>;
   icon?: React.ComponentProps<typeof Feather>["name"];
   variant?: "default" | "settings";
-  ref?: React.Ref<_TextInput>;
 } & _TextInputProps;
 
-export default function TextInput({
-  style,
-  editable = true,
-  containerStyle,
-  icon,
-  variant = "default",
-  ref,
-  ...props
-}: TextInputProps) {
-  const { background, text, lightGray, gray } = useTheme();
+export default React.forwardRef<_TextInput, TextInputProps>(
+  function TextInput(
+    { style, editable = true, containerStyle, icon, variant = "default", ...props },
+    ref
+  ) {
+    const { background, text, lightGray, gray } = useTheme();
 
-  const settings = variant === "settings";
-  const borderColor = editable
-    ? settings
-      ? lightGray
-      : text
-    : lightGray;
+    const settings = variant === "settings";
+    const borderColor = editable
+      ? settings
+        ? lightGray
+        : text
+      : lightGray;
 
-  return (
-    <View
-      pointerEvents={editable ? undefined : "none"}
-      style={[styles.container, containerStyle]}
-    >
-      <_TextInput
-        ref={ref}
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete="off"
-        style={[
-          settings ? styles.settingsInput : styles.input,
-          {
-            backgroundColor: background,
-            color: editable ? text : lightGray,
-            borderColor,
-          },
-          icon ? { paddingLeft: settings ? 36 : 40 } : {},
-          style,
-        ]}
-        placeholderTextColor={lightGray}
-        {...props}
-      />
-      {icon ? (
-        <Feather color={gray} size={16} name={icon} style={styles.icon} />
-      ) : null}
-    </View>
-  );
-}
+    return (
+      <View
+        pointerEvents={editable ? undefined : "none"}
+        style={[styles.container, containerStyle]}
+      >
+        <_TextInput
+          ref={ref}
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="off"
+          style={[
+            settings ? styles.settingsInput : styles.input,
+            {
+              backgroundColor: background,
+              color: editable ? text : lightGray,
+              borderColor,
+            },
+            icon ? { paddingLeft: settings ? 36 : 40 } : {},
+            style,
+          ]}
+          placeholderTextColor={lightGray}
+          {...props}
+        />
+        {icon ? (
+          <Feather color={gray} size={16} name={icon} style={styles.icon} />
+        ) : null}
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {

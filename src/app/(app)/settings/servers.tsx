@@ -55,24 +55,20 @@ function ServerRow({
   health: HealthStatus;
   selected: boolean;
   selectionActive: boolean;
-  onPress: (id: string) => void;
-  onLongPress: (id: string) => void;
+  onPress: () => void;
+  onLongPress: () => void;
 }) {
   const { text, tint } = useTheme();
-  const id = server.id;
-
-  const handlePress = React.useCallback(() => onPress(id), [onPress, id]);
-  const handleLongPress = React.useCallback(async () => {
-    await Haptics.performAndroidHapticsAsync(
-      Haptics.AndroidHaptics.Long_Press
-    );
-    onLongPress(id);
-  }, [onLongPress, id]);
 
   return (
     <Pressable
-      onPress={handlePress}
-      onLongPress={handleLongPress}
+      onPress={onPress}
+      onLongPress={async () => {
+        await Haptics.performAndroidHapticsAsync(
+          Haptics.AndroidHaptics.Long_Press
+        );
+        onLongPress();
+      }}
       style={styles.serverRow}
     >
       {selectionActive ? (
@@ -102,7 +98,7 @@ function ServerRow({
 }
 
 export default function ServersScreen() {
-  const { push } = useRouter();
+  const router = useRouter();
   const { servers } = useServersStore();
   const { isPro, available } = usePro();
   const { gray, red, text } = useTheme();
@@ -151,41 +147,11 @@ export default function ServersScreen() {
 
   const onAdd = React.useCallback(() => {
     if (servers.length === 0 || (available && isPro)) {
-      push("/settings/connection");
+      router.push("/settings/connection");
     } else if (available) {
-      push("/paywall");
+      router.push("/paywall");
     }
-  }, [servers.length, available, isPro, push]);
-
-  const onRowPress = React.useCallback(
-    (id: string) => {
-      if (selectionActive) {
-        toggleSelection(id);
-      } else {
-        push(`/settings/connection?id=${id}`);
-      }
-    },
-    [selectionActive, toggleSelection, push]
-  );
-
-  const onRowLongPress = React.useCallback(
-    (id: string) => toggleSelection(id),
-    [toggleSelection]
-  );
-
-  const renderItem = React.useCallback(
-    ({ item: server }: { item: Server }) => (
-      <ServerRow
-        server={server}
-        health={health[server.id] ?? "pending"}
-        selected={selectedIds.has(server.id)}
-        selectionActive={selectionActive}
-        onPress={onRowPress}
-        onLongPress={onRowLongPress}
-      />
-    ),
-    [health, selectedIds, selectionActive, onRowPress, onRowLongPress]
-  );
+  }, [servers.length, available, isPro, router]);
 
   return (
     <Screen>
@@ -207,7 +173,22 @@ export default function ServersScreen() {
               tintColor={text}
             />
           }
-          renderItem={renderItem}
+          renderItem={({ item: server }) => (
+            <ServerRow
+              server={server}
+              health={health[server.id] ?? "pending"}
+              selected={selectedIds.has(server.id)}
+              selectionActive={selectionActive}
+              onPress={() => {
+                if (selectionActive) {
+                  toggleSelection(server.id);
+                } else {
+                  router.push(`/settings/connection?id=${server.id}`);
+                }
+              }}
+              onLongPress={() => toggleSelection(server.id)}
+            />
+          )}
           ItemSeparatorComponent={() => <SettingsInsetDivider inset={12} />}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}

@@ -96,7 +96,7 @@ function tryFormatJson(value: string): string {
 }
 
 export default function Development() {
-  const { push } = useRouter();
+  const router = useRouter();
   const { store } = useServersStore();
   const { devOverride, setDevOverride } = usePro();
   const [appId, setAppId] = React.useState(() => getAppId());
@@ -109,7 +109,7 @@ export default function Development() {
         label: "Sitemap",
         showChevron: true,
         variant: "compact",
-        onPress: () => push("/_sitemap"),
+        onPress: () => router.push("/_sitemap"),
       },
     ];
 
@@ -147,7 +147,7 @@ export default function Development() {
         showChevron: true,
         variant: "compact",
         onPress: () => {
-          push(debugHref({
+          router.push(debugHref({
             url: "https://my-server.example.com:9091/transmission/rpc",
             username: "admin",
             password: "hunter2",
@@ -251,27 +251,7 @@ export default function Development() {
       { key: "servers", title: "Servers", data: servers },
       { key: "appid", title: "App ID", data: appIdSection },
     ];
-  }, [devOverride, push, setDevOverride, store]);
-
-  const renderItem = React.useCallback(
-    ({
-      item,
-      index,
-      section,
-    }: {
-      item: OptionProps;
-      index: number;
-      section: { data: OptionProps[] };
-    }) => {
-      const isLast = index === section.data.length - 1;
-      return (
-        <View style={[styles.rowContainer, isLast && styles.rowLast]}>
-          <Option {...item} />
-        </View>
-      );
-    },
-    []
-  );
+  }, [devOverride, router, setDevOverride, store]);
 
   return (
     <Screen style={styles.screen}>
@@ -302,7 +282,14 @@ export default function Development() {
             )}
           </>
         )}
-        renderItem={renderItem}
+        renderItem={({ item, index, section }) => {
+          const isLast = index === section.data.length - 1;
+          return (
+            <View style={[styles.rowContainer, isLast && styles.rowLast]}>
+              <Option {...item} />
+            </View>
+          );
+        }}
         ListFooterComponent={<StorageInspector />}
       />
     </Screen>

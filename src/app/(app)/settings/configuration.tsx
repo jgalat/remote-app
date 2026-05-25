@@ -269,7 +269,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   editable={watch("speed-limit-down-enabled")}
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -301,7 +301,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   editable={watch("speed-limit-up-enabled")}
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -341,7 +341,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   keyboardType="numeric"
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -362,7 +362,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   keyboardType="numeric"
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -499,7 +499,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   editable={watch("seedRatioLimited")}
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -532,7 +532,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                     editable={watch("idle-seeding-limit-enabled")}
                     value={field.value?.toString() || ""}
                     onChangeText={field.onChange}
-                    style={fieldState.error ? { borderColor: red } : undefined}
+                    style={[fieldState.error ? { borderColor: red } : {}]}
                   />
                   <Text style={[styles.error, { color: red }]}>
                     {fieldState.error?.message}
@@ -567,7 +567,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   editable={watch("download-queue-enabled")}
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}
@@ -599,7 +599,7 @@ function ConfigurationForm({ server }: { server: Server }) {
                   editable={watch("seed-queue-enabled")}
                   value={field.value?.toString() || ""}
                   onChangeText={field.onChange}
-                  style={fieldState.error ? { borderColor: red } : undefined}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
                 />
                 <Text style={[styles.error, { color: red }]}>
                   {fieldState.error?.message}

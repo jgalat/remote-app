@@ -18,7 +18,7 @@ function validHref(href: string): href is "/add" | "/" {
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const authentication = useAuthentication();
   const [locked, setLocked] = React.useState(authentication);
-  const { replace } = useRouter();
+  const router = useRouter();
 
   const unlock = React.useCallback(
     async (href?: string) => {
@@ -26,10 +26,10 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       if (success) {
         setLocked(false);
         const redirect = href ? decodeURIComponent(href) : "/";
-        replace(validHref(redirect) ? redirect : "/");
+        router.replace(validHref(redirect) ? redirect : "/");
       }
     },
-    [replace]
+    [router]
   );
 
   const value = React.useMemo(() => ({ locked, unlock }), [locked, unlock]);

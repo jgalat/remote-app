@@ -41,11 +41,13 @@ function ServerDeleteConfirmSheet({
         // Compute the new server-id set from the in-memory `servers` list
         // minus the local id, prune MMKV, then push the fresh value into
         // the directories query cache so the Directories screen rerenders.
-        const remainingIds = new Set<string>();
-        for (const s of servers) {
-          if (s.id !== LOCAL_SERVER_ID) remainingIds.add(s.id);
-        }
-        cleanupOrphanedData(remainingIds);
+        cleanupOrphanedData(
+          new Set(
+            servers
+              .filter((s) => s.id !== LOCAL_SERVER_ID)
+              .map((s) => s.id),
+          ),
+        );
         queryClient.setQueryData(["settings", "directories"], loadDirectories());
         return;
       }

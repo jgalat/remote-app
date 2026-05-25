@@ -18,36 +18,13 @@ export type ActionSheetProps = {
   options?: OptionProps[];
 } & SheetProps;
 
-const EMPTY_OPTIONS: OptionProps[] = [];
-
 export default function ActionSheet({
   title,
-  options = EMPTY_OPTIONS,
+  options = [],
   sheetId,
 }: ActionSheetProps) {
   const { background, text } = useTheme();
   const insets = useSafeAreaInsets()
-
-  const renderItem = React.useMemo(
-    () =>
-      function RenderOption({
-        item: { style, onPress, ...rest },
-      }: {
-        item: OptionProps;
-      }) {
-        return (
-          <Option
-            {...rest}
-            onPress={async (event: GestureResponderEvent) => {
-              await SheetManager.hide(sheetId);
-              onPress?.(event);
-            }}
-            style={[styles.option, style]}
-          />
-        );
-      },
-    [sheetId]
-  );
 
   return (
     <_ActionSheet
@@ -71,7 +48,16 @@ export default function ActionSheet({
         {title ? <Text style={styles.title}>{title}</Text> : null}
         <FlatList
           data={options}
-          renderItem={renderItem}
+          renderItem={({ item: { style, onPress, ...props } }) => (
+            <Option
+              {...props}
+              onPress={async (event: GestureResponderEvent) => {
+                await SheetManager.hide(sheetId);
+                onPress?.(event);
+              }}
+              style={[styles.option, style]}
+            />
+          )}
           keyExtractor={(item) => item.id ?? item.label}
         />
       </View>

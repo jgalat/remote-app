@@ -48,7 +48,7 @@ export default function SettingsScreen() {
   const servers = useServers();
   const { isPro, available } = usePro();
   const { lightGray } = useTheme();
-  const { push } = useRouter();
+  const router = useRouter();
   const appVersion = getAppVersion();
 
   const themeLabel = React.useMemo(
@@ -66,7 +66,7 @@ export default function SettingsScreen() {
         id: "servers",
         left: "server",
         label: "Servers",
-        onPress: () => push("/settings/servers"),
+        onPress: () => router.push("/settings/servers"),
         showChevron: true,
         variant: "compact",
       },
@@ -78,7 +78,7 @@ export default function SettingsScreen() {
           id: "configuration",
           left: "sliders",
           label: "Server Configuration",
-          onPress: () => push("/settings/configuration"),
+          onPress: () => router.push("/settings/configuration"),
           showChevron: true,
           variant: "compact",
         },
@@ -86,7 +86,7 @@ export default function SettingsScreen() {
           id: "directories",
           left: "folder",
           label: "Download Directories",
-          onPress: () => push("/settings/directories"),
+          onPress: () => router.push("/settings/directories"),
           showChevron: true,
           variant: "compact",
         }
@@ -97,7 +97,7 @@ export default function SettingsScreen() {
           id: "search",
           left: "search",
           label: "Search",
-          onPress: () => push("/settings/search"),
+          onPress: () => router.push("/settings/search"),
           showChevron: true,
           variant: "compact",
         });
@@ -110,7 +110,7 @@ export default function SettingsScreen() {
         left: "lock",
         label: "Authentication",
         value: authenticationLabel,
-        onPress: () => push("/settings/security"),
+        onPress: () => router.push("/settings/security"),
         showChevron: true,
         variant: "compact",
       },
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
         left: colorScheme === "dark" ? "moon" : "sun",
         label: "Theme",
         value: themeLabel,
-        onPress: () => push("/settings/theme"),
+        onPress: () => router.push("/settings/theme"),
         showChevron: true,
         variant: "compact",
       },
@@ -130,7 +130,7 @@ export default function SettingsScreen() {
         id: "backup",
         left: "download",
         label: "Configuration Backup",
-        onPress: () => push("/settings/backup"),
+        onPress: () => router.push("/settings/backup"),
         showChevron: true,
         variant: "compact",
       });
@@ -142,7 +142,7 @@ export default function SettingsScreen() {
         left: "star",
         label: "Pro",
         value: isPro ? "Active" : "Upgrade",
-        onPress: () => push(isPro ? "/settings/pro" : "/paywall"),
+        onPress: () => router.push(isPro ? "/settings/pro" : "/paywall"),
         showChevron: true,
         variant: "compact",
       });
@@ -152,7 +152,7 @@ export default function SettingsScreen() {
       id: "about",
       left: "info",
       label: "About",
-      onPress: () => push("/settings/about"),
+      onPress: () => router.push("/settings/about"),
       showChevron: true,
       variant: "compact",
     });
@@ -163,7 +163,7 @@ export default function SettingsScreen() {
             id: "development",
             left: "code",
             label: "Development",
-            onPress: () => push("/settings/development"),
+            onPress: () => router.push("/settings/development"),
             showChevron: true,
             variant: "compact",
           },
@@ -185,41 +185,10 @@ export default function SettingsScreen() {
     available,
     colorScheme,
     isPro,
-    push,
+    router,
     servers.length,
     themeLabel,
   ]);
-
-  const firstSectionKey = sections[0]?.key;
-  const renderSectionHeader = React.useCallback(
-    ({ section }: { section: { title: string; key: string } }) => (
-      <SettingsSectionTitle
-        title={section.title}
-        variant="settings"
-        first={section.key === firstSectionKey}
-      />
-    ),
-    [firstSectionKey]
-  );
-  const renderItem = React.useCallback(
-    ({
-      item,
-      index,
-      section,
-    }: {
-      item: OptionProps;
-      index: number;
-      section: { data: OptionProps[] };
-    }) => {
-      const isLast = index === section.data.length - 1;
-      return (
-        <View style={[styles.rowContainer, isLast && styles.rowLast]}>
-          <Option {...item} />
-        </View>
-      );
-    },
-    []
-  );
 
   return (
     <Screen style={styles.screen}>
@@ -229,8 +198,22 @@ export default function SettingsScreen() {
         stickySectionHeadersEnabled={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
-        renderSectionHeader={renderSectionHeader}
-        renderItem={renderItem}
+        renderSectionHeader={({ section }) => (
+          <SettingsSectionTitle
+            title={section.title}
+            variant="settings"
+            first={section.key === sections[0]?.key}
+          />
+        )}
+        renderItem={({ item, index, section }) => {
+          const isLast = index === section.data.length - 1;
+
+          return (
+            <View style={[styles.rowContainer, isLast && styles.rowLast]}>
+              <Option {...item} />
+            </View>
+          );
+        }}
         ListFooterComponent={
           <Text color={lightGray} style={styles.version}>
             Version {appVersion}

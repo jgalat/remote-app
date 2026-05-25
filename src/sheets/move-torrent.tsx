@@ -26,21 +26,25 @@ export type Payload = {
   downloadDir?: string;
 };
 
-function MoveForm({
-  ids,
-  initialDir,
-  defaultDir,
-  directories,
-  iconColor,
-}: {
-  ids: TorrentId[];
-  initialDir: string;
-  defaultDir: string | undefined;
-  directories: string[];
-  iconColor: string;
-}) {
+function MoveTorrentSheet({
+  payload: { ids, downloadDir } = { ids: [] },
+  ...props
+}: SheetProps<typeof MOVE_TORRENT_SHEET_ID>) {
+  const { background, text } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { data: session } = useSession({ stale: true });
+  const serverId = useActiveServerId();
+  const directories = useDirectories(serverId);
   const setLocation = useTorrentSetLocation();
+
+  const initialDir = downloadDir ?? session?.["download-dir"] ?? "";
   const [location, setLocationText] = React.useState(initialDir);
+
+  React.useEffect(() => {
+    if (initialDir) setLocationText(initialDir);
+  }, [initialDir]);
+
+  const defaultDir = session?.["download-dir"];
 
   const onPickDirectory = React.useCallback(() => {
     const allDirs = [
@@ -80,44 +84,6 @@ function MoveForm({
   }, [ids, location, setLocation]);
 
   return (
-    <>
-      <Text style={styles.title}>Move</Text>
-      <View style={styles.inputRow}>
-        <TextInput
-          placeholder="/downloads"
-          icon="folder"
-          value={location}
-          onChangeText={setLocationText}
-          containerStyle={styles.input}
-        />
-        <Pressable style={styles.pickButton} onPress={onPickDirectory}>
-          <Feather name="book" size={20} color={iconColor} />
-        </Pressable>
-      </View>
-      <Button
-        title="move"
-        onPress={onMove}
-        disabled={!location.trim()}
-        style={styles.button}
-      />
-    </>
-  );
-}
-
-function MoveTorrentSheet({
-  payload: { ids, downloadDir } = { ids: [] },
-  ...props
-}: SheetProps<typeof MOVE_TORRENT_SHEET_ID>) {
-  const { background, text } = useTheme();
-  const insets = useSafeAreaInsets();
-  const { data: session } = useSession({ stale: true });
-  const serverId = useActiveServerId();
-  const directories = useDirectories(serverId);
-
-  const initialDir = downloadDir ?? session?.["download-dir"] ?? "";
-  const defaultDir = session?.["download-dir"];
-
-  return (
     <_ActionSheet
       id={props.sheetId}
       containerStyle={{
@@ -136,13 +102,24 @@ function MoveTorrentSheet({
       gestureEnabled
     >
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-        <MoveForm
-          key={initialDir}
-          ids={ids}
-          initialDir={initialDir}
-          defaultDir={defaultDir}
-          directories={directories}
-          iconColor={text}
+        <Text style={styles.title}>Move</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            placeholder="/downloads"
+            icon="folder"
+            value={location}
+            onChangeText={setLocationText}
+            containerStyle={styles.input}
+          />
+          <Pressable style={styles.pickButton} onPress={onPickDirectory}>
+            <Feather name="book" size={20} color={text} />
+          </Pressable>
+        </View>
+        <Button
+          title="move"
+          onPress={onMove}
+          disabled={!location.trim()}
+          style={styles.button}
         />
       </View>
     </_ActionSheet>

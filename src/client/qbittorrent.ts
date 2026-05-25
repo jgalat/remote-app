@@ -142,16 +142,14 @@ function mapPeers(peersResp: TorrentPeersResponse | null): TorrentPeersDetail {
 }
 
 function mapTrackers(qTrackers: TorrentTracker[]): TorrentTrackersDetail {
-  const trackerStats: TrackerStats[] = [];
-  for (const t of qTrackers) {
-    if (
-      t.url === "** [DHT] **" ||
-      t.url === "** [PeX] **" ||
-      t.url === "** [LSD] **"
-    ) {
-      continue;
-    }
-    trackerStats.push({
+  const trackerStats: TrackerStats[] = qTrackers
+    .filter(
+      (t) =>
+        t.url !== "** [DHT] **" &&
+        t.url !== "** [PeX] **" &&
+        t.url !== "** [LSD] **",
+    )
+    .map((t) => ({
       announce: t.url,
       tier: t.tier,
       seederCount: t.num_seeds,
@@ -167,8 +165,7 @@ function mapTrackers(qTrackers: TorrentTracker[]): TorrentTrackersDetail {
       lastScrapeResult: t.msg || "OK",
       nextScrapeTime: 0,
       scrape: "",
-    });
-  }
+    }));
   return { trackerStats };
 }
 
@@ -324,30 +321,23 @@ export class QBittorrentAdapter implements TorrentClient {
   async setTorrent(ids: TorrentId[], params: SetTorrentParams): Promise<void> {
     const hashes = ids.map(String);
 
-    const client = this.client;
-    const setPrio = (hash: string, files: number[], priority: number) =>
-      client.filePrio(hash, files, priority);
-    const prioJobs: Promise<unknown>[] = [];
     for (const hash of hashes) {
       if (params["files-wanted"]) {
-        prioJobs.push(setPrio(hash, params["files-wanted"], 1));
+        await this.client.filePrio(hash, params["files-wanted"], 1);
       }
       if (params["files-unwanted"]) {
-        prioJobs.push(setPrio(hash, params["files-unwanted"], 0));
+        await this.client.filePrio(hash, params["files-unwanted"], 0);
       }
       if (params["priority-high"]) {
-        prioJobs.push(setPrio(hash, params["priority-high"], 6));
+        await this.client.filePrio(hash, params["priority-high"], 6);
       }
       if (params["priority-normal"]) {
-        prioJobs.push(setPrio(hash, params["priority-normal"], 1));
+        await this.client.filePrio(hash, params["priority-normal"], 1);
       }
       if (params["priority-low"]) {
         // qBit has no "low" priority; 1 (normal) is the closest non-zero option
-        prioJobs.push(setPrio(hash, params["priority-low"], 1));
+        await this.client.filePrio(hash, params["priority-low"], 1);
       }
-    }
-    if (prioJobs.length > 0) {
-      await Promise.all(prioJobs);
     }
 
     if (params.downloadLimited !== undefined || params.downloadLimit !== undefined) {

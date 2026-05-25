@@ -49,7 +49,7 @@ export default function PiecesCanvas({
     const missingPaint = Skia.Paint();
     missingPaint.setColor(Skia.Color(offColor));
 
-    const rectData: Array<{ id: string; rect: SkRRect; paint: SkPaint }> = [];
+    const rectData: Array<{ rect: SkRRect; paint: SkPaint }> = [];
 
     let pieceIndex = 0;
     for (let row = 0; row < rows && pieceIndex < pieceCount; row++) {
@@ -62,7 +62,6 @@ export default function PiecesCanvas({
         const y = row * (finalCellSize + gap);
 
         rectData.push({
-          id: `${row}:${col}`,
           rect: Skia.RRectXY(
             Skia.XYWHRect(x, y, finalCellSize, finalCellSize),
             2,
@@ -85,8 +84,8 @@ export default function PiecesCanvas({
   return (
     <Canvas style={{ width: canvasWidth, height: canvasHeight }}>
       <Group>
-        {rects.map((item) => (
-          <RoundedRect key={item.id} rect={item.rect} paint={item.paint} />
+        {rects.map((item, index) => (
+          <RoundedRect key={index} rect={item.rect} paint={item.paint} />
         ))}
       </Group>
     </Canvas>

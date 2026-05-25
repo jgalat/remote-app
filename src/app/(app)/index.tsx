@@ -56,7 +56,7 @@ function SearchInput({ onSubmit }: { onSubmit: (query: string) => void }) {
 
 export default function TorrentsScreen() {
   const navigation = useNavigation();
-  const { push } = useRouter();
+  const router = useRouter();
   const isFocused = useIsFocused();
   const searchConfig = useSearchConfig();
   const server = useServer();
@@ -102,19 +102,17 @@ export default function TorrentsScreen() {
 
   const resolvedPath = pathFilter || null;
 
-  const render = React.useMemo(() => {
-    if (!torrents) return [];
-    const matchesFilter = predicate(filter);
-    const matchesPath = pathPredicate(resolvedPath);
-    const matchesSearch = searchPredicate(searchQuery);
-    const matched: typeof torrents = [];
-    for (const t of torrents) {
-      if (matchesFilter(t) && matchesPath(t) && matchesSearch(t)) {
-        matched.push(t);
-      }
-    }
-    return matched.toSorted(compare(direction, sort));
-  }, [torrents, direction, sort, filter, resolvedPath, searchQuery]);
+  const render = React.useMemo(
+    () =>
+      torrents
+        ? [...torrents]
+            .sort(compare(direction, sort))
+            .filter(predicate(filter))
+            .filter(pathPredicate(resolvedPath))
+            .filter(searchPredicate(searchQuery))
+        : [],
+    [torrents, direction, sort, filter, resolvedPath, searchQuery]
+  );
 
   React.useEffect(() => {
     const title = !server || server.name === "" ? "Remote" : server.name;
@@ -187,14 +185,14 @@ export default function TorrentsScreen() {
 
           const onIndexerSearch = () => {
             if (!isPro) {
-              push("/paywall");
+              router.push("/paywall");
               return;
             }
 
             if (searchConfig) {
-              push("/search");
+              router.push("/search");
             } else {
-              push("/settings/search");
+              router.push("/settings/search");
             }
           };
 
@@ -202,7 +200,7 @@ export default function TorrentsScreen() {
             ? [
                 <ActionIcon
                   key="add"
-                  onPress={() => push("/add")}
+                  onPress={() => router.push("/add")}
                   name="plus"
                 />,
                 <ActionIcon
@@ -232,7 +230,7 @@ export default function TorrentsScreen() {
               {actions}
               <ActionIcon
                 style={{ paddingRight: 0 }}
-                onPress={() => push("/settings")}
+                onPress={() => router.push("/settings")}
                 name="settings"
               />
             </ActionList>
@@ -241,7 +239,7 @@ export default function TorrentsScreen() {
       });
     }
   }, [
-    push,
+    router,
     activeSelection,
     clear,
     listingSheet,
@@ -288,7 +286,7 @@ export default function TorrentsScreen() {
         <Text style={styles.title}>No connection found</Text>
         <Button
           title="Setup connection"
-          onPress={() => push("/settings/connection")}
+          onPress={() => router.push("/settings/connection")}
         />
       </Screen>
     );
@@ -306,13 +304,13 @@ export default function TorrentsScreen() {
     return (
       <Screen>
         <FlatList
-          data={EMPTY_DATA}
-          renderItem={renderNull}
+          data={[]}
+          renderItem={() => null}
           contentContainerStyle={styles.emptyList}
           ListEmptyComponent={
             <View style={styles.message}>
               <Text style={styles.title}>No torrents found</Text>
-              <Button title="Add a torrent" onPress={() => push("/add")} />
+              <Button title="Add a torrent" onPress={() => router.push("/add")} />
             </View>
           }
           refreshControl={
@@ -345,9 +343,6 @@ export default function TorrentsScreen() {
     </Screen>
   );
 }
-
-const EMPTY_DATA: never[] = [];
-const renderNull = () => null;
 
 const styles = StyleSheet.create({
   message: {
