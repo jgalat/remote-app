@@ -54,7 +54,7 @@ class TrampolineActivity : Activity() {
       return Intent(Intent.ACTION_VIEW).apply { this.data = cacheUri }
     }
 
-    return Intent(intent)
+    return Intent(Intent.ACTION_VIEW).apply { this.data = data }
   }
 
   private fun copyToCache(uri: Uri): Uri? {
