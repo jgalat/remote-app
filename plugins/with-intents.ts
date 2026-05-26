@@ -25,6 +25,8 @@ const plugin: ConfigPlugin = (config) => {
         "android:exported": "true",
         "android:noHistory": "true",
         "android:excludeFromRecents": "true",
+        "android:taskAffinity": "",
+        "android:launchMode": "singleInstance",
         "android:theme": "@android:style/Theme.NoDisplay",
       },
       "intent-filter": [
