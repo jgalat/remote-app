@@ -30,7 +30,7 @@ services:
       - "./docker/qbittorrent/custom-cont-init.d:/custom-cont-init.d:ro"
 
   jackett:
-    image: linuxserver/jackett:latest
+    image: linuxserver/jackett:v0.24.1985-ls417
     container_name: jackett-test
     environment:
       - PUID=1000
@@ -41,7 +41,7 @@ services:
       - "jackett-config:/config"
 
   prowlarr:
-    image: linuxserver/prowlarr:latest
+    image: linuxserver/prowlarr:2.3.5.5327-ls147
     container_name: prowlarr-test
     environment:
       - PUID=1000

@@ -19,6 +19,7 @@
     "lint": "eslint --max-warnings=0 .",
     "test:transmission": "pnpm --filter @remote-app/transmission-client test",
     "test:qbittorrent": "pnpm --filter @remote-app/qbittorrent-client test",
+    "test:pro": "pnpm --filter @remote-app/pro test",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },

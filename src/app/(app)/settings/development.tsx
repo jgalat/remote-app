@@ -10,7 +10,7 @@ import Screen from "~/components/screen";
 import Option, { OptionProps } from "~/components/option";
 import { SettingsSectionTitle } from "~/components/settings";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
-import { useServersStore } from "~/hooks/use-settings";
+import { useServersStore, useSearchStore } from "~/hooks/use-settings";
 import { useTheme } from "~/hooks/use-theme-color";
 import { usePro, getAppId, generateAppId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
@@ -98,6 +98,7 @@ function tryFormatJson(value: string): string {
 export default function Development() {
   const router = useRouter();
   const { store } = useServersStore();
+  const { store: storeSearch } = useSearchStore();
   const { devOverride, setDevOverride } = usePro();
   const [appId, setAppId] = React.useState(() => getAppId());
 
@@ -234,6 +235,33 @@ export default function Development() {
       },
     ];
 
+    const search: OptionProps[] = [
+      {
+        id: "search-jackett",
+        left: "search",
+        label: "Jackett (test)",
+        variant: "compact",
+        onPress: () =>
+          storeSearch({
+            url: "http://192.168.0.201:9117/api/v2.0/indexers/all/results/torznab",
+            apiKey: "xpl1bxyzmuucojf4gyvlkupafdv1cyw2",
+            type: "jackett" as const,
+          }),
+      },
+      {
+        id: "search-prowlarr",
+        left: "search",
+        label: "Prowlarr (test)",
+        variant: "compact",
+        onPress: () =>
+          storeSearch({
+            url: "http://192.168.0.201:9696/api/v1/search",
+            apiKey: "2734bd05b127419a92f1aaf3e7e8ed28",
+            type: "prowlarr" as const,
+          }),
+      },
+    ];
+
     const appIdSection: OptionProps[] = [
       {
         id: "regenerate-appid",
@@ -249,9 +277,10 @@ export default function Development() {
       { key: "actions", title: "Actions", data: actions },
       { key: "pro", title: "Pro", data: pro },
       { key: "servers", title: "Servers", data: servers },
+      { key: "search", title: "Search", data: search },
       { key: "appid", title: "App ID", data: appIdSection },
     ];
-  }, [devOverride, router, setDevOverride, store]);
+  }, [devOverride, router, setDevOverride, store, storeSearch]);
 
   return (
     <Screen style={styles.screen}>
