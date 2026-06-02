@@ -18,7 +18,7 @@ export default function ThemeScreen() {
       store({ colorScheme: option });
 
       let scheme = option === "system" ? systemColorScheme : option;
-      if (!scheme) {
+      if (scheme !== "light" && scheme !== "dark") {
         scheme = "light";
       }
 

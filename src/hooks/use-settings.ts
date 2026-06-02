@@ -226,7 +226,7 @@ export function useColorScheme(): "light" | "dark" {
   const { colorScheme } = usePreferencesQuery().data;
   const systemColorScheme = _useColorScheme();
   if (colorScheme === "system") {
-    return systemColorScheme ?? "light";
+    return systemColorScheme === "dark" ? "dark" : "light";
   }
   return colorScheme;
 }

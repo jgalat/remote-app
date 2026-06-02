@@ -1,11 +1,14 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, ToastAndroid } from "react-native";
+import { StyleSheet, ToastAndroid } from "react-native";
 import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import {
+  KeyboardAwareScrollView,
+  type KeyboardAwareScrollViewRef,
+} from "react-native-keyboard-controller";
 import * as Notifications from "expo-notifications";
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -225,7 +228,7 @@ export default function ConnectionScreen() {
   const isLocal = watchedType === "local";
   const type: "transmission" | "qbittorrent" =
     watchedType === "qbittorrent" ? "qbittorrent" : "transmission";
-  const scroll = React.useRef<ScrollView>(null);
+  const scroll = React.useRef<KeyboardAwareScrollViewRef>(null);
 
   const { isPro, available } = usePro();
   const { mutate: ensureLocalServer } = useEnsureLocalServer();

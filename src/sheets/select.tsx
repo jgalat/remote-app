@@ -4,7 +4,7 @@ import ActionSheet, { SheetProps } from "~/components/action-sheet";
 import type { OptionProps } from "~/components/option";
 import { SELECT_SHEET_ID } from "./ids";
 
-export type SelectOption = Omit<OptionProps, "onPress"> & {
+export type SelectOption = Omit<OptionProps, "onPress" | "value"> & {
   value: string | number;
 };
 
