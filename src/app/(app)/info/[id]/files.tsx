@@ -17,7 +17,7 @@ import FileItem from "~/components/file-item";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "~/components/checkbox";
 import { useFileActionsSheet } from "~/hooks/use-action-sheet";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "expo-router/react-navigation";
 import useTorrentBrowser from "~/hooks/use-torrent-browser";
 
 export default function FilesScreen() {

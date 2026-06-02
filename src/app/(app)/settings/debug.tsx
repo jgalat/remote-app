@@ -2,7 +2,7 @@ import * as React from "react";
 import { Share, StyleSheet } from "react-native";
 import { useNavigation, useLocalSearchParams } from "expo-router";
 import { startActivityAsync } from "expo-intent-launcher";
-import { File, Paths } from "expo-file-system/next";
+import { File, Paths } from "expo-file-system";
 import { Feather } from "@expo/vector-icons";
 
 import Screen from "~/components/screen";

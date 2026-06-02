@@ -1,8 +1,5 @@
-import {
-  ConfigPlugin,
-  AndroidConfig,
-  withAndroidManifest,
-} from "expo/config-plugins";
+import type { ConfigPlugin } from "@expo/config-plugins";
+import { AndroidConfig, withAndroidManifest } from "@expo/config-plugins";
 
 const plugin: ConfigPlugin = (config) => {
   const { getMainApplicationOrThrow, getMainActivityOrThrow } =

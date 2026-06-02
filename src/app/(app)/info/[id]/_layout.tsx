@@ -2,12 +2,14 @@ import * as React from "react";
 import type {
   ParamListBase,
   TabNavigationState,
-} from "@react-navigation/native";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import type {
-  MaterialTopTabNavigationOptions,
-  MaterialTopTabNavigationEventMap,
-} from "@react-navigation/material-top-tabs";
+} from "expo-router/react-navigation";
+
+import {
+  createMaterialTopTabNavigator,
+  type MaterialTopTabNavigationOptions,
+  type MaterialTopTabNavigationEventMap,
+} from "expo-router/js-top-tabs";
+
 import {
   useGlobalSearchParams,
   useNavigation,

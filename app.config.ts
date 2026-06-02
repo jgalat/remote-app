@@ -1,14 +1,16 @@
 import "tsx/cjs";
-import { ExpoConfig } from "expo/config";
+import type { ExpoConfig } from "expo/config";
 import * as fs from "fs";
 import * as path from "path";
 
-import packageJson from "./package.json";
+const packageJson = JSON.parse(
+  fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf8"),
+);
 
 const [major, minor, patch] = packageJson.version.split(".").map(Number);
 const versionCode = major * 10_000 + minor * 100 + patch;
 
-const proPackagePath = path.resolve(__dirname, "packages/pro/package.json");
+const proPackagePath = path.resolve(process.cwd(), "packages/pro/package.json");
 const hasProPackage = fs.existsSync(proPackagePath);
 
 const proPlugins: (string | [string, unknown])[] = hasProPackage
@@ -25,7 +27,6 @@ export default {
   icon: "./assets/images/icon.png",
   scheme: "remote",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
   platforms: ["android", "ios"],
   updates: {
     fallbackToCacheTimeout: 0,
@@ -46,7 +47,6 @@ export default {
         ? "ar.jg.remote.dev"
         : "ar.jg.remote",
     versionCode,
-    edgeToEdgeEnabled: true,
     softwareKeyboardLayoutMode: "pan",
   },
   plugins: [

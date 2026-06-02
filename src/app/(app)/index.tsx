@@ -3,7 +3,7 @@ import { BackHandler, FlatList, RefreshControl, StyleSheet } from "react-native"
 import type { TextInput as RNTextInput } from "react-native";
 import Pressable from "~/components/pressable";
 import { useRouter, useNavigation } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "expo-router/react-navigation";
 
 import Text from "~/components/text";
 import TextInput from "~/components/text-input";

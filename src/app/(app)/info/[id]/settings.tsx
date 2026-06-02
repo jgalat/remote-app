@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ToastAndroid } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "expo-router/react-navigation";
 import { z } from "zod";
 import { Mode, Priority } from "~/client";
 

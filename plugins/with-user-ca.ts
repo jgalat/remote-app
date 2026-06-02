@@ -1,5 +1,5 @@
+import type { ConfigPlugin } from "@expo/config-plugins";
 import {
-  ConfigPlugin,
   AndroidConfig,
   withAndroidManifest,
   withDangerousMod,

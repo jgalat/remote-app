@@ -2,7 +2,9 @@ packages:
   - packages/*
 
 allowBuilds:
+  '@shopify/react-native-skia': true
   esbuild: true
+  msgpackr-extract: true
   unrs-resolver: true
 
 ignoredBuiltDependencies:
@@ -11,6 +13,8 @@ ignoredBuiltDependencies:
 nodeLinker: hoisted
 
 overrides:
-  expo-modules-core: 3.0.30
+  react: "$react"
+  react-native: "$react-native"
+  expo-modules-core: 56.0.14
   expo-file-system: "$expo-file-system"
   expo-router: "$expo-router"
