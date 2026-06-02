@@ -5,6 +5,9 @@ import * as path from "path";
 
 import packageJson from "./package.json";
 
+const [major, minor, patch] = packageJson.version.split(".").map(Number);
+const versionCode = major * 10_000 + minor * 100 + patch;
+
 const proPackagePath = path.resolve(__dirname, "packages/pro/package.json");
 const hasProPackage = fs.existsSync(proPackagePath);
 
@@ -42,7 +45,7 @@ export default {
       process.env.APP_ENV === "development"
         ? "ar.jg.remote.dev"
         : "ar.jg.remote",
-    versionCode: +packageJson.version.replaceAll(".", ""),
+    versionCode,
     edgeToEdgeEnabled: true,
     softwareKeyboardLayoutMode: "pan",
   },
