@@ -12,3 +12,5 @@ nodeLinker: hoisted
 
 overrides:
   expo-modules-core: 3.0.30
+  expo-file-system: "$expo-file-system"
+  expo-router: "$expo-router"
