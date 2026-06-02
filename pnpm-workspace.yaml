@@ -12,9 +12,20 @@ ignoredBuiltDependencies:
 
 nodeLinker: hoisted
 
+# Pin every dependency shared with the root app to the root's version, so packages/*
+# (including the pinned pro submodule) never drift. "$name" means "use whatever version
+# the root package.json declares", so this auto-tracks future upgrades.
 overrides:
-  react: "$react"
-  react-native: "$react-native"
-  expo-modules-core: 56.0.14
+  "@hookform/resolvers": "$@hookform/resolvers"
+  "@tanstack/react-query": "$@tanstack/react-query"
+  "@types/react": "$@types/react"
   expo-file-system: "$expo-file-system"
   expo-router: "$expo-router"
+  react: "$react"
+  react-hook-form: "$react-hook-form"
+  react-native: "$react-native"
+  react-native-purchases: "$react-native-purchases"
+  tsdown: "$tsdown"
+  typescript: "$typescript"
+  vitest: "$vitest"
+  zod: "$zod"
