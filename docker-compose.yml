@@ -15,7 +15,7 @@ services:
       - "data:/downloads"
 
   qbittorrent:
-    image: linuxserver/qbittorrent:5.0.4
+    image: linuxserver/qbittorrent:5.2.1
     container_name: qbittorrent-test
     environment:
       - PUID=1000

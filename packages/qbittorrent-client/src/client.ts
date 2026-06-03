@@ -49,21 +49,28 @@ export class QBittorrentClient {
       body: body.toString(),
     });
 
+    // Wrong credentials: <5.2.0 replies 200 "Fails."; >=5.2.0 replies 401.
+    if (response.status === 401) {
+      throw new QBittorrentError("Login failed: invalid credentials");
+    }
+
     if (!response.ok) {
       const body = await response.text();
       throw new HTTPError(response.status, response.statusText, body);
     }
 
+    // Success: <5.2.0 replies 200 "Ok."; >=5.2.0 replies 204 with an empty body.
     const text = await response.text();
-    if (text !== "Ok.") {
+    if (text.trim() === "Fails.") {
       throw new QBittorrentError("Login failed: invalid credentials");
     }
 
     const cookie = response.headers.get("set-cookie");
     if (cookie) {
-      const match = cookie.match(/SID=([^;]+)/);
+      // qBittorrent <5.2.0 names the session cookie "SID"; >=5.2.0 uses "QBT_SID_<port>".
+      const match = cookie.match(/(QBT_SID(?:_\d+)?|SID)=([^;]+)/);
       if (match) {
-        this.sid = match[1];
+        this.sid = `${match[1]}=${match[2]}`;
       }
     }
 
@@ -100,7 +107,7 @@ export class QBittorrentClient {
       Referer: baseUrl,
     };
     if (this.sid) {
-      headers["Cookie"] = `SID=${this.sid}`;
+      headers["Cookie"] = this.sid;
     }
 
     // URLSearchParams is not a valid fetch body type in React Native
@@ -235,12 +242,15 @@ export class QBittorrentClient {
     ratioLimit: number,
     seedingTimeLimit: number,
     inactiveSeedingTimeLimit: number,
+    shareLimitAction = -1,
   ): Promise<void> {
     const body = new URLSearchParams();
     body.set("hashes", this.hashes(hashes));
     body.set("ratioLimit", String(ratioLimit));
     body.set("seedingTimeLimit", String(seedingTimeLimit));
     body.set("inactiveSeedingTimeLimit", String(inactiveSeedingTimeLimit));
+    // Required since qBittorrent 5.2.0; -1 = keep the global action. Ignored by older versions.
+    body.set("shareLimitAction", String(shareLimitAction));
     await this.post("/api/v2/torrents/setShareLimits", body);
   }
 
