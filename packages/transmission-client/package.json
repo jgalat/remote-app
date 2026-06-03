@@ -44,6 +44,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown",
     "test": "vitest run"

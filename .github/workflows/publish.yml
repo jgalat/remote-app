@@ -6,13 +6,15 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @remote-app/transmission-client run build
@@ -22,8 +24,4 @@ jobs:
           pnpm --filter @remote-app/transmission-client exec npm version "$VERSION" --no-git-tag-version
           pnpm --filter @remote-app/qbittorrent-client exec npm version "$VERSION" --no-git-tag-version
       - run: pnpm --filter @remote-app/transmission-client publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: pnpm --filter @remote-app/qbittorrent-client publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
