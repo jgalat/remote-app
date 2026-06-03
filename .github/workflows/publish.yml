@@ -21,7 +21,7 @@ jobs:
       - run: pnpm --filter @remote-app/qbittorrent-client run build
       - run: |
           VERSION=${GITHUB_REF_NAME#v}
-          pnpm --filter @remote-app/transmission-client exec npm version "$VERSION" --no-git-tag-version
-          pnpm --filter @remote-app/qbittorrent-client exec npm version "$VERSION" --no-git-tag-version
+          pnpm --filter @remote-app/transmission-client version "$VERSION" --no-git-tag-version
+          pnpm --filter @remote-app/qbittorrent-client version "$VERSION" --no-git-tag-version
       - run: pnpm --filter @remote-app/transmission-client publish --access public --no-git-checks
       - run: pnpm --filter @remote-app/qbittorrent-client publish --access public --no-git-checks
