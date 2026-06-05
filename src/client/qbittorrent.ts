@@ -7,8 +7,6 @@ import type {
   TorrentPeersResponse,
   TorrentTracker,
 } from "@remote-app/qbittorrent-client";
-import * as FileSystem from "expo-file-system/legacy";
-import { randomUUID } from "expo-crypto";
 
 import { TorrentStatus, Priority } from "./types";
 import type { TorrentClient } from "./interface";
@@ -250,32 +248,18 @@ export class QBittorrentAdapter implements TorrentClient {
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {
     const qParams: { urls?: string; torrents?: TorrentFileInput; savepath?: string; paused?: boolean } = {};
-    let tempPath: string | undefined;
 
     if (params.filename) qParams.urls = params.filename;
     if (params.metainfo) {
-      const cacheDir = FileSystem.cacheDirectory;
-      if (!cacheDir) {
-        throw new Error("Cache directory is unavailable");
-      }
-
-      tempPath = `${cacheDir}upload-${Date.now()}-${randomUUID()}.torrent`;
-      await FileSystem.writeAsStringAsync(tempPath, params.metainfo, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      qParams.torrents = { uri: tempPath, type: "application/x-bittorrent", name: "torrent" };
+      qParams.torrents = {
+        bytes: Uint8Array.from(atob(params.metainfo), (c) => c.charCodeAt(0)),
+        filename: "upload.torrent",
+      };
     }
     if (params["download-dir"]) qParams.savepath = params["download-dir"];
     if (params.paused !== undefined) qParams.paused = params.paused;
 
-    try {
-      await this.client.add(qParams);
-    } finally {
-      if (tempPath) {
-        await FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
-      }
-    }
-
+    await this.client.add(qParams);
     return null;
   }
 

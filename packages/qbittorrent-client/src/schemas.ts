@@ -276,15 +276,17 @@ const TorrentFileInputBlobSchema = z.custom<Blob>(
   "Expected Blob"
 );
 
-const TorrentFileInputObjectSchema = z.object({
-  uri: z.string(),
-  type: z.string(),
-  name: z.string(),
+const TorrentFileInputBytesSchema = z.object({
+  bytes: z.custom<Uint8Array>(
+    (value) => value instanceof Uint8Array,
+    "Expected Uint8Array"
+  ),
+  filename: z.string().optional(),
 });
 
 export const TorrentFileInputSchema = z.union([
   TorrentFileInputBlobSchema,
-  TorrentFileInputObjectSchema,
+  TorrentFileInputBytesSchema,
 ]);
 
 export const AddTorrentParamsSchema = z.object({

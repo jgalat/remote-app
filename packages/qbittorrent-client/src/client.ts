@@ -9,8 +9,52 @@ import type {
   TransferInfo,
   Preferences,
   AddTorrentParams,
+  TorrentFileInput,
 } from "./types";
 import { HTTPError, QBittorrentError } from "./error";
+
+type MultipartFile = { bytes: Uint8Array; filename: string };
+type MultipartBody = { bytes: Uint8Array<ArrayBuffer>; contentType: string };
+
+// Built by hand because no FormData implementation works across every
+// runtime we target: Expo's fetch rejects React Native's uri-based file
+// parts, and React Native's FormData can't carry raw bytes.
+function buildMultipart(
+  fields: Record<string, string>,
+  file: MultipartFile | undefined,
+): MultipartBody {
+  const boundary =
+    "----qbittorrent-client-" + Math.random().toString(36).slice(2);
+  const encoder = new TextEncoder();
+  const parts: Uint8Array[] = [];
+
+  for (const [name, value] of Object.entries(fields)) {
+    parts.push(
+      encoder.encode(
+        `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`,
+      ),
+    );
+  }
+  if (file) {
+    parts.push(
+      encoder.encode(
+        `--${boundary}\r\nContent-Disposition: form-data; name="torrents"; filename="${file.filename}"\r\nContent-Type: application/x-bittorrent\r\n\r\n`,
+      ),
+    );
+    parts.push(file.bytes);
+    parts.push(encoder.encode("\r\n"));
+  }
+  parts.push(encoder.encode(`--${boundary}--\r\n`));
+
+  const bytes = new Uint8Array(parts.reduce((n, p) => n + p.byteLength, 0));
+  let offset = 0;
+  for (const part of parts) {
+    bytes.set(part, offset);
+    offset += part.byteLength;
+  }
+
+  return { bytes, contentType: `multipart/form-data; boundary=${boundary}` };
+}
 
 export class QBittorrentClient {
   private sid: string | null = null;
@@ -81,7 +125,7 @@ export class QBittorrentClient {
     return this.request<T>("GET", path, params);
   }
 
-  private async post<T = void>(path: string, body?: URLSearchParams | FormData): Promise<T> {
+  private async post<T = void>(path: string, body?: URLSearchParams | MultipartBody): Promise<T> {
     return this.request<T>("POST", path, undefined, body);
   }
 
@@ -89,7 +133,7 @@ export class QBittorrentClient {
     method: string,
     path: string,
     params?: Record<string, string>,
-    body?: URLSearchParams | FormData,
+    body?: URLSearchParams | MultipartBody,
     retry = true,
   ): Promise<T> {
     if (!this.loggedIn) {
@@ -111,12 +155,13 @@ export class QBittorrentClient {
     }
 
     // URLSearchParams is not a valid fetch body type in React Native
-    let fetchBody: string | FormData | undefined;
+    let fetchBody: string | Uint8Array<ArrayBuffer> | undefined;
     if (body instanceof URLSearchParams) {
       headers["Content-Type"] = "application/x-www-form-urlencoded";
       fetchBody = body.toString();
-    } else {
-      fetchBody = body;
+    } else if (body) {
+      headers["Content-Type"] = body.contentType;
+      fetchBody = body.bytes;
     }
 
     const response = await fetch(url, { method, headers, body: fetchBody, credentials: "omit" });
@@ -175,18 +220,34 @@ export class QBittorrentClient {
   }
 
   async add(params: AddTorrentParams): Promise<void> {
-    const form = new FormData();
+    const fields: Record<string, string> = {};
     for (const [key, value] of Object.entries(params)) {
-      if (value === undefined) continue;
-      if (key === "torrents") {
-        // Support both Blob (Node/web) and {uri, type, name} (React Native)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        form.append("torrents", value as any, "torrent");
+      if (value === undefined || key === "torrents") continue;
+      fields[key] = String(value);
+    }
+
+    let file: MultipartFile | undefined;
+    const torrents = params.torrents;
+    if (torrents) {
+      if (typeof Blob !== "undefined" && torrents instanceof Blob) {
+        file = {
+          bytes: new Uint8Array(await torrents.arrayBuffer()),
+          filename: "upload.torrent",
+        };
       } else {
-        form.append(key, String(value));
+        // The `typeof Blob` guard above keeps TypeScript from narrowing the union
+        const input = torrents as Exclude<TorrentFileInput, Blob>;
+        file = {
+          bytes: input.bytes,
+          filename: input.filename ?? "upload.torrent",
+        };
       }
     }
-    const result = await this.post<string>("/api/v2/torrents/add", form);
+
+    const result = await this.post<string>(
+      "/api/v2/torrents/add",
+      buildMultipart(fields, file),
+    );
     if (result === "Fails.") {
       throw new QBittorrentError("Failed to add torrent");
     }
