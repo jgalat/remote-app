@@ -14,7 +14,6 @@ import type {
   TorrentFilesDetail,
   TorrentPeersDetail,
   TorrentTrackersDetail,
-  TorrentPiecesDetail,
   AddTorrentParams,
   AddTorrentResult,
   SetTorrentParams,
@@ -33,7 +32,6 @@ export type TorrentSettings = TorrentSettingsDetail;
 export type TorrentFiles = TorrentFilesDetail;
 export type TorrentPeers = TorrentPeersDetail;
 export type TorrentTrackers = TorrentTrackersDetail;
-export type TorrentPieces = TorrentPiecesDetail;
 
 type QueryProps = { stale?: boolean };
 const optimisticInvalidationDelayMs = 2_000;
@@ -138,18 +136,6 @@ export function useTorrentTrackers(
     id,
     queryKeys.torrentTrackers(server, id),
     async (torrentId) => client?.getTorrentTrackers(torrentId),
-  );
-}
-
-export function useTorrentPieces(
-  id: TorrentId,
-): UseQueryResult<TorrentPieces | undefined, Error> {
-  const server = useServer();
-  const client = useClient();
-  return useTorrentDetailQuery(
-    id,
-    queryKeys.torrentPieces(server, id),
-    async (torrentId) => client?.getTorrentPieces(torrentId),
   );
 }
 

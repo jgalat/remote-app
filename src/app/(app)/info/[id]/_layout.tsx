@@ -127,12 +127,6 @@ function LayoutInner() {
           title: "Peers",
         }}
       />
-      <MaterialTopTabs.Screen
-        name="pieces"
-        options={{
-          title: "Pieces",
-        }}
-      />
     </MaterialTopTabs>
   );
 }

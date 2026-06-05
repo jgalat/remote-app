@@ -14,7 +14,6 @@ import type {
   TorrentFilesDetail,
   TorrentPeersDetail,
   TorrentTrackersDetail,
-  TorrentPiecesDetail,
   AddTorrentParams,
   AddTorrentResult,
   SetTorrentParams,
@@ -78,7 +77,6 @@ const settingsFields = [
 const filesFields = ["files", "fileStats"] as const satisfies readonly TransmissionTorrentField[];
 const peersFields = ["peers"] as const satisfies readonly TransmissionTorrentField[];
 const trackersFields = ["trackerStats"] as const satisfies readonly TransmissionTorrentField[];
-const piecesFields = ["pieceCount", "pieceSize", "pieces"] as const satisfies readonly TransmissionTorrentField[];
 
 const sessionFields = [
   "speed-limit-down-enabled",
@@ -238,12 +236,6 @@ export class TransmissionAdapter implements TorrentClient {
     const torrent = await this.getSingleTorrent(id, trackersFields);
     if (!torrent) return undefined;
     return toTorrentTrackersDetail(torrent);
-  }
-
-  async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined> {
-    const torrent = await this.getSingleTorrent(id, piecesFields);
-    if (!torrent) return undefined;
-    return torrent;
   }
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {

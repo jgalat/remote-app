@@ -29,9 +29,6 @@ export const queryKeys = {
   torrentTrackers: (server: Server | undefined, id: TorrentId) =>
     [...queryKeys.torrents(server), "trackers", id] as const,
 
-  torrentPieces: (server: Server | undefined, id: TorrentId) =>
-    [...queryKeys.torrents(server), "pieces", id] as const,
-
   sessionGet: (server: Server | undefined) =>
     [...queryKeys.session(server), "get"] as const,
 

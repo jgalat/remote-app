@@ -20,7 +20,6 @@ import type {
   TorrentFilesDetail,
   TorrentPeersDetail,
   TorrentTrackersDetail,
-  TorrentPiecesDetail,
   Peer,
   TrackerStats,
   AddTorrentParams,
@@ -247,19 +246,6 @@ export class QBittorrentAdapter implements TorrentClient {
     const hash = String(id);
     const qTrackers = await this.client.trackers(hash);
     return mapTrackers(qTrackers);
-  }
-
-  async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail> {
-    const hash = String(id);
-    const [props, pieceStates] = await Promise.all([
-      this.client.properties(hash),
-      this.client.pieceStates(hash).catch((): number[] => []),
-    ]);
-    return {
-      pieceCount: props.pieces_num,
-      pieceSize: props.piece_size,
-      pieces: pieceStatesToBitfield(pieceStates),
-    };
   }
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {

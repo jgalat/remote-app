@@ -5,7 +5,6 @@ export {
   useTorrentFiles,
   useTorrentPeers,
   useTorrentTrackers,
-  useTorrentPieces,
   useTorrentActions,
   useTorrentSet,
   useTorrentSetLocation,
@@ -17,7 +16,6 @@ export {
   type TorrentFiles,
   type TorrentPeers,
   type TorrentTrackers,
-  type TorrentPieces,
 } from "./torrents";
 
 export {

@@ -33,9 +33,6 @@ const unavailableLocalClient: TorrentClient = {
   async getTorrentTrackers() {
     return undefined;
   },
-  async getTorrentPieces() {
-    return undefined;
-  },
   async addTorrent() {
     reject();
   },

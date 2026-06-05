@@ -6,7 +6,6 @@ import type {
   TorrentFilesDetail,
   TorrentPeersDetail,
   TorrentTrackersDetail,
-  TorrentPiecesDetail,
   AddTorrentParams,
   AddTorrentResult,
   SetTorrentParams,
@@ -23,7 +22,6 @@ export interface TorrentClient {
   getTorrentFiles(id: TorrentId): Promise<TorrentFilesDetail | undefined>;
   getTorrentPeers(id: TorrentId): Promise<TorrentPeersDetail | undefined>;
   getTorrentTrackers(id: TorrentId): Promise<TorrentTrackersDetail | undefined>;
-  getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined>;
   addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null>;
   removeTorrents(ids: TorrentId[], deleteData?: boolean): Promise<void>;
   startTorrents(ids: TorrentId[]): Promise<void>;

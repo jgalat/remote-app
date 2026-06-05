@@ -108,12 +108,6 @@ export type TorrentTrackersDetail = {
   trackerStats: TrackerStats[];
 };
 
-export type TorrentPiecesDetail = {
-  pieceCount: number;
-  pieceSize: number;
-  pieces: string;
-};
-
 export type Session = {
   "speed-limit-down-enabled": boolean;
   "speed-limit-down": number;

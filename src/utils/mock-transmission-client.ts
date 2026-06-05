@@ -8,7 +8,6 @@ import {
   type TorrentFilesDetail,
   type TorrentPeersDetail,
   type TorrentTrackersDetail,
-  type TorrentPiecesDetail,
   type AddTorrentResult,
   type SetTorrentParams,
   type Session,
@@ -273,14 +272,6 @@ function toTrackersDetail(t: StoredTorrent): TorrentTrackersDetail {
   return { trackerStats: t.trackerStats };
 }
 
-function toPiecesDetail(t: StoredTorrent): TorrentPiecesDetail {
-  return {
-    pieceCount: t.pieceCount,
-    pieceSize: t.pieceSize,
-    pieces: t.pieces,
-  };
-}
-
 export default class MockClient implements TorrentClient {
   async getTorrents(): Promise<TorrentListItem[]> {
     return storage.torrents.map(toListItem);
@@ -309,11 +300,6 @@ export default class MockClient implements TorrentClient {
   async getTorrentTrackers(id: TorrentId): Promise<TorrentTrackersDetail | undefined> {
     const torrent = storage.torrents.find((t) => t.id == id);
     return torrent ? toTrackersDetail(torrent) : undefined;
-  }
-
-  async getTorrentPieces(id: TorrentId): Promise<TorrentPiecesDetail | undefined> {
-    const torrent = storage.torrents.find((t) => t.id == id);
-    return torrent ? toPiecesDetail(torrent) : undefined;
   }
 
   async addTorrent(): Promise<AddTorrentResult | null> {
