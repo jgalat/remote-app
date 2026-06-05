@@ -63,12 +63,19 @@ function values(
   session: Session | undefined,
   magnet: string | undefined,
   isLocal: boolean,
+  shared: { name: string; content: string } | undefined,
 ): Form | undefined {
   if (!session) {
     return undefined;
   }
   return {
     magnet: magnet,
+    // The shared file lives here instead of a setValue call: react-hook-form
+    // re-applies `values` whenever it changes (e.g. when the session query
+    // resolves after the file was read on cold start), wiping anything set
+    // outside of it.
+    file: shared?.name,
+    content: shared?.content,
     // Local server: the engine writes to its app-scoped Downloads dir and
     // there's no UI to pick a path. Leave undefined so onSubmit doesn't pass
     // download-dir to the adapter.
@@ -113,12 +120,6 @@ export default function AddTorrentScreen() {
     }
   }, [intent, router]);
 
-  const { control, handleSubmit, setValue, reset } = useForm({
-    mode: "onSubmit",
-    resolver: zodResolver(Form),
-    values: values(session, magnet, isLocal),
-  });
-
   const sharedTorrent = useQuery({
     queryKey: ["add-torrent", "shared-file", file],
     queryFn: async () => readSharedTorrent(file!),
@@ -126,11 +127,11 @@ export default function AddTorrentScreen() {
     staleTime: Infinity,
   });
 
-  React.useEffect(() => {
-    if (!sharedTorrent.data) return;
-    setValue("file", sharedTorrent.data.name);
-    setValue("content", sharedTorrent.data.content);
-  }, [sharedTorrent.data, setValue]);
+  const { control, handleSubmit, setValue, reset } = useForm({
+    mode: "onSubmit",
+    resolver: zodResolver(Form),
+    values: values(session, magnet, isLocal, sharedTorrent.data),
+  });
 
   React.useEffect(() => {
     if (!sharedTorrent.error) return;
