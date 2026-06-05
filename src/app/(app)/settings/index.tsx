@@ -44,7 +44,7 @@ function getAuthenticationLabel(authentication: boolean): string {
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const colorSchemePreference = useColorSchemePreference();
-  const { authentication } = usePreferencesStore();
+  const { authentication, developmentMode } = usePreferencesStore();
   const servers = useServers();
   const { isPro, available } = usePro();
   const { lightGray } = useTheme();
@@ -157,17 +157,18 @@ export default function SettingsScreen() {
       variant: "compact",
     });
 
-    // TEMP: always enabled for internal testing build, revert to __DEV__ gate before production release
-    const devRows: OptionProps[] = [
-      {
-        id: "development",
-        left: "code",
-        label: "Development",
-        onPress: () => router.push("/settings/development"),
-        showChevron: true,
-        variant: "compact",
-      },
-    ];
+    const devRows: OptionProps[] = __DEV__ || developmentMode
+      ? [
+          {
+            id: "development",
+            left: "code",
+            label: "Development",
+            onPress: () => router.push("/settings/development"),
+            showChevron: true,
+            variant: "compact",
+          },
+        ]
+      : [];
 
     const list: SettingsSection[] = [
       { key: "server", title: "Server", data: serverRows },
@@ -183,6 +184,7 @@ export default function SettingsScreen() {
     authenticationLabel,
     available,
     colorScheme,
+    developmentMode,
     isPro,
     router,
     servers.length,

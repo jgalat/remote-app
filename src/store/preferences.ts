@@ -8,6 +8,7 @@ export type ColorScheme = z.infer<typeof ColorSchemeSchema>;
 export const PreferencesSchema = z.object({
   colorScheme: ColorSchemeSchema,
   authentication: z.boolean(),
+  developmentMode: z.boolean().default(false),
 });
 
 type PreferencesData = z.infer<typeof PreferencesSchema>;
@@ -17,6 +18,7 @@ const KEY = "user.preferences";
 const defaults: PreferencesData = {
   colorScheme: "system",
   authentication: false,
+  developmentMode: false,
 };
 
 export function loadPreferences(): PreferencesData {

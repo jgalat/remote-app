@@ -72,7 +72,7 @@ const LEGACY_KEY = "user.settings";
       storeServers({ servers: d.servers.map((s) => ({ ...s, type: "transmission" as const })), activeServerId: d.activeServerId });
       storeListing({ ...d.listing, pathFilter: "" });
       storeSearch(d.searchConfig ?? null);
-      storePreferences({ colorScheme: d.colorScheme, authentication: d.authentication });
+      storePreferences({ colorScheme: d.colorScheme, authentication: d.authentication, developmentMode: false });
       storage.delete(LEGACY_KEY);
       return;
     }
@@ -109,6 +109,7 @@ const LEGACY_KEY = "user.settings";
       storePreferences({
         colorScheme: d.colorScheme ?? "system",
         authentication: d.authentication ?? false,
+        developmentMode: false,
       });
       storage.delete(LEGACY_KEY);
       return;

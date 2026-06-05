@@ -34,7 +34,11 @@ const preferencesKey = ["settings", "preferences"] as const;
 const directoriesKey = ["settings", "directories"] as const;
 
 type ServersData = { servers: Server[]; activeServerId?: string };
-type PreferencesData = { colorScheme: ColorScheme; authentication: boolean };
+type PreferencesData = {
+  colorScheme: ColorScheme;
+  authentication: boolean;
+  developmentMode: boolean;
+};
 
 const queryOptions = { staleTime: Infinity } as const;
 
@@ -237,6 +241,10 @@ export function useColorSchemePreference(): ColorScheme {
 
 export function useAuthentication() {
   return usePreferencesQuery().data.authentication;
+}
+
+export function useDevelopmentMode() {
+  return usePreferencesQuery().data.developmentMode;
 }
 
 export function useSearchConfig() {

@@ -10,7 +10,11 @@ import Screen from "~/components/screen";
 import Option, { OptionProps } from "~/components/option";
 import { SettingsSectionTitle } from "~/components/settings";
 import TorrentsNotifierTask from "~/tasks/torrents-notifier";
-import { useServersStore, useSearchStore } from "~/hooks/use-settings";
+import {
+  useServersStore,
+  useSearchStore,
+  usePreferencesStore,
+} from "~/hooks/use-settings";
 import { useTheme } from "~/hooks/use-theme-color";
 import { usePro, getAppId, generateAppId } from "@remote-app/pro";
 import { generateServerId } from "~/store/settings";
@@ -99,21 +103,11 @@ export default function Development() {
   const router = useRouter();
   const { store } = useServersStore();
   const { store: storeSearch } = useSearchStore();
+  const { store: storePreferences } = usePreferencesStore();
   const { devOverride, setDevOverride } = usePro();
   const [appId, setAppId] = React.useState(() => getAppId());
 
   const sections = React.useMemo<DevSection[]>(() => {
-    const navigation: OptionProps[] = [
-      {
-        id: "sitemap",
-        left: "map",
-        label: "Sitemap",
-        showChevron: true,
-        variant: "compact",
-        onPress: () => router.push("/_sitemap"),
-      },
-    ];
-
     const actions: OptionProps[] = [
       {
         id: "task",
@@ -272,15 +266,28 @@ export default function Development() {
       },
     ];
 
+    const mode: OptionProps[] = [
+      {
+        id: "disable",
+        left: "eye-off",
+        label: "Disable Development Mode",
+        variant: "compact",
+        onPress: () => {
+          storePreferences({ developmentMode: false });
+          if (!__DEV__) router.back();
+        },
+      },
+    ];
+
     return [
-      { key: "navigation", title: "Navigation", data: navigation },
       { key: "actions", title: "Actions", data: actions },
       { key: "pro", title: "Pro", data: pro },
       { key: "servers", title: "Servers", data: servers },
       { key: "search", title: "Search", data: search },
       { key: "appid", title: "App ID", data: appIdSection },
+      { key: "mode", title: "Development Mode", data: mode },
     ];
-  }, [devOverride, router, setDevOverride, store, storeSearch]);
+  }, [devOverride, router, setDevOverride, store, storeSearch, storePreferences]);
 
   return (
     <Screen style={styles.screen}>

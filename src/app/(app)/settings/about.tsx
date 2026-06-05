@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Image, Linking, StyleSheet } from "react-native";
+import { Image, Linking, StyleSheet, ToastAndroid } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import Screen from "~/components/screen";
@@ -8,7 +8,10 @@ import Text from "~/components/text";
 import Pressable from "~/components/pressable";
 import { SettingsListRow } from "~/components/settings";
 import { useTheme } from "~/hooks/use-theme-color";
+import { usePreferencesStore } from "~/hooks/use-settings";
 import { getAppVersion } from "~/utils/app-version";
+
+const tapsToEnable = 10;
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const icon = require("../../../../assets/images/icon.png");
@@ -39,6 +42,17 @@ const links = [
 export default function AboutScreen() {
   const { tint, gray, lightGray } = useTheme();
   const appVersion = getAppVersion();
+  const { developmentMode, store } = usePreferencesStore();
+  const taps = React.useRef(0);
+
+  const onVersionPress = React.useCallback(() => {
+    if (developmentMode) return;
+    taps.current += 1;
+    if (taps.current < tapsToEnable) return;
+    taps.current = 0;
+    store({ developmentMode: true });
+    ToastAndroid.show("Development mode enabled", ToastAndroid.SHORT);
+  }, [developmentMode, store]);
 
   return (
     <Screen variant="scroll" contentContainerStyle={styles.content}>
@@ -48,9 +62,11 @@ export default function AboutScreen() {
           style={styles.icon}
         />
         <Text style={styles.title}>Remote for Transmission</Text>
-        <Text style={[styles.version, { color: lightGray }]}>
-          {appVersion}
-        </Text>
+        <Pressable onPress={onVersionPress}>
+          <Text style={[styles.version, { color: lightGray }]}>
+            {appVersion}
+          </Text>
+        </Pressable>
       </View>
       {links.map((link) => (
         <SettingsListRow key={link.url} style={styles.cardWrap}>
