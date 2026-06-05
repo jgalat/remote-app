@@ -157,18 +157,17 @@ export default function SettingsScreen() {
       variant: "compact",
     });
 
-    const devRows: OptionProps[] = __DEV__
-      ? [
-          {
-            id: "development",
-            left: "code",
-            label: "Development",
-            onPress: () => router.push("/settings/development"),
-            showChevron: true,
-            variant: "compact",
-          },
-        ]
-      : [];
+    // TEMP: always enabled for internal testing build, revert to __DEV__ gate before production release
+    const devRows: OptionProps[] = [
+      {
+        id: "development",
+        left: "code",
+        label: "Development",
+        onPress: () => router.push("/settings/development"),
+        showChevron: true,
+        variant: "compact",
+      },
+    ];
 
     const list: SettingsSection[] = [
       { key: "server", title: "Server", data: serverRows },
