@@ -51,6 +51,8 @@ export function useSessionSet() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryMatchers.session(server));
+      queryClient.invalidateQueries({ queryKey: queryKeys.configSession(server) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.configPreferences(server) });
     },
   });
 }
@@ -110,6 +112,7 @@ export function useServerPreferencesSet(server: Server | undefined) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: key });
+      queryClient.invalidateQueries(queryMatchers.session(server));
     },
   });
 }
@@ -137,6 +140,7 @@ export function useServerSessionSet(server: Server | undefined) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: key });
+      queryClient.invalidateQueries(queryMatchers.session(server));
     },
   });
 }
