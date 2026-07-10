@@ -101,7 +101,7 @@ export default function ServersScreen() {
   const router = useRouter();
   const { servers } = useServersStore();
   const { isPro, available } = usePro();
-  const { gray, red, text } = useTheme();
+  const { gray, red } = useTheme();
   const { statuses: health, refetch, isFetching } = useHealthPing(servers);
   const deleteSheet = useServerDeleteConfirmSheet();
 
@@ -166,12 +166,7 @@ export default function ServersScreen() {
           data={servers}
           keyExtractor={(s) => s.id}
           refreshControl={
-            <RefreshControl
-              refreshing={isFetching}
-              onRefresh={refetch}
-              colors={[text]}
-              tintColor={text}
-            />
+            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
           }
           renderItem={({ item: server }) => (
             <ServerRow
