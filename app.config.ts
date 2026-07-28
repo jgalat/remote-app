@@ -82,7 +82,11 @@ export default {
           compileSdkVersion: 36,
           targetSdkVersion: 36,
           buildToolsVersion: "36.0.0",
-          enableMinifyInReleaseBuilds: false,
+          enableMinifyInReleaseBuilds: true,
+          // expo-task-manager boots headless JS via Class.forName on a class
+          // name stored in manifest meta-data, which R8 can't see.
+          extraProguardRules:
+            "-keep class expo.modules.adapters.react.apploader.RNHeadlessAppLoader { *; }",
         },
       },
     ],
