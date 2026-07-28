@@ -4,6 +4,7 @@ export const QBittorrentConfigSchema = z.object({
   url: z.string(),
   username: z.string().optional(),
   password: z.string().optional(),
+  requestTimeoutMs: z.number().positive().optional(),
 });
 
 export const TorrentStateSchema = z.enum([

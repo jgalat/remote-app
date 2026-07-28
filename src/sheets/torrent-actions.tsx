@@ -63,8 +63,7 @@ function TorrentActionsSheet({
       left: "radio",
       onPress: () => actions.reannounce.mutate({ ids }),
     },
-    // Move is hidden on local servers — the engine writes to a fixed
-    // app-scoped Downloads dir and there's no destination to choose.
+    // Move is hidden on local servers because their app-private path is fixed.
     ...(isLocal
       ? []
       : [
@@ -88,12 +87,7 @@ function TorrentActionsSheet({
         ]),
   ];
 
-  // Export to Downloads is a local-only action: copies every file in the
-  // torrent into the public MediaStore.Downloads collection, preserving
-  // folder structure. Android 10+ only — pre-10 share is small and the
-  // action would need WRITE_EXTERNAL_STORAGE which we no longer declare.
-  // Gated on 100% complete: exporting a half-downloaded torrent would
-  // surface a partial file in Downloads, which is misleading.
+  // Completed local torrents can be copied to public Downloads.
   if (
     isLocal &&
     Platform.OS === "android" &&
@@ -104,7 +98,7 @@ function TorrentActionsSheet({
   ) {
     const [{ id }] = torrents;
     options.push({
-      label: "Export to Downloads",
+      label: "Save to Downloads",
       left: "download",
       onPress: () => exportToDownloads.mutate({ infoHash: String(id) }),
     });

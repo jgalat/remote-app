@@ -11,10 +11,12 @@ import type {
   AddTorrentParams,
   TorrentFileInput,
 } from "./types";
-import { HTTPError, QBittorrentError } from "./error";
+import { HTTPError, QBittorrentError, RequestTimeoutError } from "./error";
 
 type MultipartFile = { bytes: Uint8Array; filename: string };
 type MultipartBody = { bytes: Uint8Array<ArrayBuffer>; contentType: string };
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 
 // Built by hand because no FormData implementation works across every
 // runtime we target: Expo's fetch rejects React Native's uri-based file
@@ -63,6 +65,23 @@ export class QBittorrentClient {
 
   constructor(private config: QBittorrentConfig) {}
 
+  private async fetch(input: RequestInfo | URL, init: RequestInit): Promise<Response> {
+    const timeoutMs = this.config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await fetch(input, { ...init, signal: controller.signal });
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new RequestTimeoutError(timeoutMs);
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   private baseUrl(): string {
     return this.config.url.replace(/\/+$/, "");
   }
@@ -83,7 +102,7 @@ export class QBittorrentClient {
     if (this.config.username) body.set("username", this.config.username);
     if (this.config.password) body.set("password", this.config.password);
 
-    const response = await fetch(`${baseUrl}/api/v2/auth/login`, {
+    const response = await this.fetch(`${baseUrl}/api/v2/auth/login`, {
       method: "POST",
       headers: {
         Referer: baseUrl,
@@ -164,7 +183,12 @@ export class QBittorrentClient {
       fetchBody = body.bytes;
     }
 
-    const response = await fetch(url, { method, headers, body: fetchBody, credentials: "omit" });
+    const response = await this.fetch(url, {
+      method,
+      headers,
+      body: fetchBody,
+      credentials: "omit",
+    });
 
     if (response.status === 403 && retry) {
       this.sid = null;

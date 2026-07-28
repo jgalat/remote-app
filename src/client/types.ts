@@ -29,6 +29,7 @@ export type TorrentListItem = {
   activityDate: number;
   magnetLink: string;
   downloadDir: string;
+  storageMode?: "appScopedFallback" | "legacy";
 };
 
 export type Torrent = TorrentListItem;

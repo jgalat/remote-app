@@ -20,12 +20,23 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   const [locked, setLocked] = React.useState(authentication);
   const router = useRouter();
 
+  React.useEffect(() => {
+    setLocked(authentication);
+  }, [authentication]);
+
   const unlock = React.useCallback(
     async (href?: string) => {
       const { success } = await LocalAuthentication.authenticateAsync();
       if (success) {
         setLocked(false);
-        const redirect = href ? decodeURIComponent(href) : "/";
+        let redirect = "/";
+        if (href) {
+          try {
+            redirect = decodeURIComponent(href);
+          } catch {
+            redirect = "/";
+          }
+        }
         router.replace(validHref(redirect) ? redirect : "/");
       }
     },

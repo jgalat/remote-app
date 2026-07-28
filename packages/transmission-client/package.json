@@ -1,6 +1,7 @@
 {
   "name": "@remote-app/transmission-client",
   "version": "0.1.4",
+  "type": "module",
   "description": "Transmission RPC client",
   "keywords": [
     "transmission",

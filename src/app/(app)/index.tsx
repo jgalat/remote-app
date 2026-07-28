@@ -261,8 +261,11 @@ export default function TorrentsScreen() {
 
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
   }, [refetch]);
 
   const renderTorrentItem = React.useCallback(

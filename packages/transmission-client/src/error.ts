@@ -25,3 +25,10 @@ export class ResponseParseError extends Error {
     this.name = "ResponseParseError";
   }
 }
+
+export class RequestTimeoutError extends Error {
+  constructor(public readonly timeoutMs: number) {
+    super(`Request timed out after ${timeoutMs}ms`);
+    this.name = "RequestTimeoutError";
+  }
+}

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransmissionClient } from "../src/client";
-import { HTTPError } from "../src/error";
+import { HTTPError, RequestTimeoutError } from "../src/error";
 
 const URL = "http://localhost:9091/transmission/rpc";
 
@@ -192,5 +192,25 @@ describe("TransmissionClient session negotiation", () => {
       status: 409,
     });
     expect(calls).toBe(4);
+  });
+
+  it("aborts requests after the configured timeout", async () => {
+    global.fetch = vi.fn(
+      async (_input: FetchInput, init?: RequestInit) =>
+        await new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("Aborted", "AbortError"));
+          });
+        })
+    ) as typeof global.fetch;
+
+    const client = new TransmissionClient({
+      url: URL,
+      requestTimeoutMs: 5,
+    });
+
+    await expect(client.request({ method: "session-stats" })).rejects.toBeInstanceOf(
+      RequestTimeoutError
+    );
   });
 });

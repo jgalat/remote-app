@@ -155,16 +155,18 @@ export default function Development() {
       },
     ];
 
-    const pro: OptionProps[] = [
-      {
-        id: "pro-override",
-        left: "star",
-        label: "Pro Override",
-        value: devOverride ? "On" : "Off",
-        variant: "compact",
-        onPress: () => setDevOverride(!devOverride),
-      },
-    ];
+    const pro: OptionProps[] = __DEV__
+      ? [
+          {
+            id: "pro-override",
+            left: "star",
+            label: "Pro Override",
+            value: devOverride ? "On" : "Off",
+            variant: "compact",
+            onPress: () => setDevOverride(!devOverride),
+          },
+        ]
+      : [];
 
     const servers: OptionProps[] = [
       {
@@ -281,7 +283,9 @@ export default function Development() {
 
     return [
       { key: "actions", title: "Actions", data: actions },
-      { key: "pro", title: "Pro", data: pro },
+      ...(pro.length > 0
+        ? [{ key: "pro", title: "Pro", data: pro }]
+        : []),
       { key: "servers", title: "Servers", data: servers },
       { key: "search", title: "Search", data: search },
       { key: "appid", title: "App ID", data: appIdSection },

@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import java.io.File
+import java.util.UUID
 
 class TrampolineActivity : Activity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,19 +59,36 @@ class TrampolineActivity : Activity() {
   }
 
   private fun copyToCache(uri: Uri): Uri? {
-    val filename = contentResolver.query(
+    val displayName = contentResolver.query(
       uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
     )?.use { cursor ->
       if (cursor.moveToFirst()) cursor.getString(0) else null
     } ?: "shared.torrent"
 
-    val cacheFile = File(cacheDir, filename)
+    val parent = File(cacheDir, "shared-intents/${UUID.randomUUID()}")
+    if (!parent.mkdirs()) return null
+    val filename = File(displayName).name.ifBlank { "shared.torrent" }
+    val cacheFile = File(parent, filename)
+    if (!cacheFile.canonicalPath.startsWith(parent.canonicalPath + File.separator)) {
+      parent.deleteRecursively()
+      return null
+    }
 
-    contentResolver.openInputStream(uri)?.use { input ->
-      cacheFile.outputStream().use { output ->
-        input.copyTo(output)
+    try {
+      val inputStream = contentResolver.openInputStream(uri)
+      if (inputStream == null) {
+        parent.deleteRecursively()
+        return null
       }
-    } ?: return null
+      inputStream.use { input ->
+        cacheFile.outputStream().use { output ->
+          input.copyTo(output)
+        }
+      }
+    } catch (_: Throwable) {
+      parent.deleteRecursively()
+      return null
+    }
 
     return Uri.fromFile(cacheFile)
   }

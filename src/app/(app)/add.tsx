@@ -76,26 +76,22 @@ function values(
     // outside of it.
     file: shared?.name,
     content: shared?.content,
-    // Local server: the engine writes to its app-scoped Downloads dir and
-    // there's no UI to pick a path. Leave undefined so onSubmit doesn't pass
-    // download-dir to the adapter.
+    // Local torrents use the engine's fixed app-private directory.
     path: isLocal ? undefined : session["download-dir"],
     start: true,
   };
 }
 
 async function readSharedTorrent(filePath: string): Promise<{ name: string; content: string }> {
-  const dst = FileSystem.cacheDirectory + "shared.torrent";
-  await FileSystem.copyAsync({
-    from: filePath,
-    to: dst,
-  });
-  const content = await FileSystem.readAsStringAsync(dst, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-
   const name = SendIntent.getDisplayName(filePath) ?? "file.torrent";
-  return { name, content };
+  try {
+    const content = await FileSystem.readAsStringAsync(filePath, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    return { name, content };
+  } finally {
+    SendIntent.cleanupSharedFile(filePath);
+  }
 }
 
 export default function AddTorrentScreen() {
@@ -199,8 +195,7 @@ export default function AddTorrentScreen() {
         }
 
         // Remote servers (Transmission/qBittorrent) need a real path; local
-        // doesn't render the path field at all (engine writes to its
-        // app-scoped Downloads dir).
+        // doesn't render the path field because its destination is fixed.
         const trimmedPath = (f.path ?? "").trim();
         if (!isLocal && trimmedPath.length === 0) {
           ToastAndroid.show("path is required", ToastAndroid.SHORT);

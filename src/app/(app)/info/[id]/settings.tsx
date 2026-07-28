@@ -77,7 +77,8 @@ export default function TorrentSettingsScreen() {
 
   const { mutate } = useTorrentSet(id);
   const { red } = useTheme();
-  const isTransmission = server?.type !== "qbittorrent";
+  const isTransmission = server?.type === "transmission";
+  const isLocal = server?.type === "local";
   const inset = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const { setAction } = useHeaderAction();
@@ -118,7 +119,10 @@ export default function TorrentSettingsScreen() {
   );
 
   const onSubmitRef = React.useRef(onSubmit);
-  onSubmitRef.current = onSubmit;
+
+  React.useEffect(() => {
+    onSubmitRef.current = onSubmit;
+  }, [onSubmit]);
 
   React.useEffect(() => {
     if (isFocused) {
@@ -318,9 +322,11 @@ export default function TorrentSettingsScreen() {
           </>
         )}
 
-        <SettingsSectionTitle title="Seed" />
+        {!isLocal && (
+          <>
+            <SettingsSectionTitle title="Seed" />
 
-        <SettingsFieldRow label="Stop seeding at ratio">
+            <SettingsFieldRow label="Stop seeding at ratio">
           <Controller
             name="seedRatioMode"
             control={control}
@@ -350,9 +356,9 @@ export default function TorrentSettingsScreen() {
               />
             )}
           />
-        </SettingsFieldRow>
+            </SettingsFieldRow>
 
-        <Controller
+            <Controller
           name="seedRatioLimit"
           control={control}
           render={({ field, fieldState }) => (
@@ -371,9 +377,9 @@ export default function TorrentSettingsScreen() {
               />
             </SettingsFieldRow>
           )}
-        />
+            />
 
-        <SettingsFieldRow label="Stop seeding if idle">
+            <SettingsFieldRow label="Stop seeding if idle">
           <Controller
             name="seedIdleMode"
             control={control}
@@ -403,9 +409,9 @@ export default function TorrentSettingsScreen() {
               />
             )}
           />
-        </SettingsFieldRow>
+            </SettingsFieldRow>
 
-        <Controller
+            <Controller
           name="seedIdleLimit"
           control={control}
           render={({ field, fieldState }) => (
@@ -424,7 +430,9 @@ export default function TorrentSettingsScreen() {
               />
             </SettingsFieldRow>
           )}
-        />
+            />
+          </>
+        )}
       </KeyboardAwareScrollView>
     </Screen>
   );

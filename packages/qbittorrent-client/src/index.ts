@@ -16,4 +16,4 @@ export type {
   TorrentFileInput,
 } from "./types";
 
-export { HTTPError, QBittorrentError } from "./error";
+export { HTTPError, QBittorrentError, RequestTimeoutError } from "./error";

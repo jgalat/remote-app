@@ -24,7 +24,7 @@ import useAuth from "~/hooks/use-auth";
 import "~/tasks";
 import "~/sheets";
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

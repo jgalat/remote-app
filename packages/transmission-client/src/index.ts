@@ -49,6 +49,11 @@ export type {
 
 export type { Methods } from "./rpc-call";
 
-export { HTTPError, TransmissionError, ResponseParseError } from "./error";
+export {
+  HTTPError,
+  TransmissionError,
+  ResponseParseError,
+  RequestTimeoutError,
+} from "./error";
 
 export { TransmissionClient as default } from "./client";

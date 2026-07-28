@@ -2,13 +2,37 @@ import { encode } from "base-64";
 
 import type { TransmissionConfig } from "./config";
 import type { AnyRequest, ResponseForRequest } from "./rpc-call";
-import { HTTPError, TransmissionError, ResponseParseError } from "./error";
+import {
+  HTTPError,
+  TransmissionError,
+  ResponseParseError,
+  RequestTimeoutError,
+} from "./error";
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 
 export class TransmissionClient {
   private session: string | null = null;
   private sessionPromise: Promise<void> | null = null;
 
   constructor(private config: TransmissionConfig) {}
+
+  private async fetch(request: Request): Promise<Response> {
+    const timeoutMs = this.config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await fetch(request, { signal: controller.signal });
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new RequestTimeoutError(timeoutMs);
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 
   private authHeader(): string | null {
     if (!this.config.username && !this.config.password) return null;
@@ -36,7 +60,7 @@ export class TransmissionClient {
     const auth = this.authHeader();
     if (auth) headers.set("Authorization", auth);
 
-    const response = await fetch(
+    const response = await this.fetch(
       new Request(this.config.url, {
         method: "POST",
         headers,
@@ -83,7 +107,7 @@ export class TransmissionClient {
       body: JSON.stringify(req),
     });
 
-    const response: Response = await fetch(request);
+    const response = await this.fetch(request);
 
     if (response.status === 409 && retry) {
       this.session = null;
