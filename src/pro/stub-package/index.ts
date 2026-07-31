@@ -21,6 +21,9 @@ export {
   useStopLocalEngine,
   useBatteryOptIgnored,
   useExportToDownloads,
+  useCopyLocalFileToDownloads,
+  useOpenLocalFile,
+  useShareLocalFile,
   loadLocalEngineSettings,
   storeLocalEngineSettings,
 } from "./local-engine";

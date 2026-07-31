@@ -10,6 +10,7 @@ export {
   useTorrentSetLocation,
   useRenamePath,
   useAddTorrent,
+  useServerAddTorrent,
   type Torrent,
   type TorrentInfo,
   type TorrentSettings,
@@ -29,3 +30,9 @@ export {
 } from "./session";
 
 export { useHealthPing, type HealthStatus } from "./health";
+
+export {
+  useAllTorrents,
+  type ServerTorrent,
+  type ServerConnectionError,
+} from "./all-servers";

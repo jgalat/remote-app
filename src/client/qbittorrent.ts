@@ -184,7 +184,12 @@ function pieceStatesToBitfield(states: number[]): string {
 export class QBittorrentAdapter implements TorrentClient {
   private client: QBittorrentClient;
 
-  constructor(config: { url: string; username?: string; password?: string }) {
+  constructor(config: {
+    url: string;
+    username?: string;
+    password?: string;
+    requestTimeoutMs?: number;
+  }) {
     this.client = new QBittorrentClient(config);
   }
 

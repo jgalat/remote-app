@@ -28,6 +28,7 @@ export type TorrentItemProps = {
   onActions?: (payload: { torrents: Torrent[] }) => void;
   onStart?: (params: { ids: TorrentId[] }) => void;
   onStop?: (params: { ids: TorrentId[] }) => void;
+  badge?: string;
 };
 
 export default React.memo(function TorrentItem({
@@ -39,6 +40,7 @@ export default React.memo(function TorrentItem({
   onActions,
   onStart,
   onStop,
+  badge,
 }: TorrentItemProps) {
   const { text: color, green, yellow, red, gray } = useTheme();
 
@@ -114,9 +116,18 @@ export default React.memo(function TorrentItem({
       <View style={styles.container}>
         {left ? <View style={styles.left}>{left}</View> : null}
         <View style={styles.stats}>
-          <Text numberOfLines={1} style={styles.name}>
-            {torrent.name}
-          </Text>
+          <View style={styles.nameRow}>
+            <Text numberOfLines={1} style={styles.name}>
+              {torrent.name}
+            </Text>
+            {badge ? (
+              <View style={[styles.badge, { borderColor: gray }]}>
+                <Text color={gray} numberOfLines={1} style={styles.badgeText}>
+                  {badge}
+                </Text>
+              </View>
+            ) : null}
+          </View>
           <View style={styles.row}>
             <View style={styles.columnFlex}>
               <Text
@@ -190,8 +201,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
+    flex: 1,
     fontFamily: "RobotoMono-Medium",
     marginBottom: 4,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  badge: {
+    maxWidth: "40%",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontSize: 10,
   },
   data: {
     fontSize: 12,

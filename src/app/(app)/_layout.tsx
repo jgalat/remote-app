@@ -63,6 +63,10 @@ export default function AppLayout() {
             options={{ title: "Server" }}
           />
           <Stack.Screen
+            name="settings/connection-address"
+            options={{ title: "Address" }}
+          />
+          <Stack.Screen
             name="settings/configuration"
             options={{ title: "Server Configuration" }}
           />

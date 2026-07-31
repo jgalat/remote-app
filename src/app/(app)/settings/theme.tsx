@@ -1,16 +1,18 @@
-import { FlatList, StyleSheet, useColorScheme } from "react-native";
+import { SectionList, StyleSheet, useColorScheme } from "react-native";
 import * as React from "react";
 import * as SystemUI from "expo-system-ui";
 
 import Option, { type OptionProps } from "~/components/option";
 import Screen from "~/components/screen";
 import View from "~/components/view";
+import { SettingsSectionTitle } from "~/components/settings";
 import { usePreferencesStore } from "~/hooks/use-settings";
 import colors from "~/constants/colors";
 import type { ColorScheme } from "~/store/settings";
+import type { FontFamily } from "~/store/settings";
 
 export default function ThemeScreen() {
-  const { colorScheme, store } = usePreferencesStore();
+  const { colorScheme, fontFamily, store } = usePreferencesStore();
   const systemColorScheme = useColorScheme();
 
   const select = React.useCallback(
@@ -27,43 +29,89 @@ export default function ThemeScreen() {
     [store, systemColorScheme]
   );
 
-  const options: OptionProps[] = React.useMemo<OptionProps[]>(
+  const selectFont = React.useCallback(
+    (option: FontFamily) => () => store({ fontFamily: option }),
+    [store],
+  );
+
+  const sections = React.useMemo<
+    { key: "appearance" | "typography"; title: string; data: OptionProps[] }[]
+  >(
     () => [
       {
-        left: "smartphone",
-        label: "System default",
-        right: colorScheme === "system" ? "check" : undefined,
-        onPress: select("system"),
-        variant: "compact",
+        key: "appearance",
+        title: "Appearance",
+        data: [
+          {
+            left: "smartphone",
+            label: "System default",
+            right: colorScheme === "system" ? "check" : undefined,
+            onPress: select("system"),
+            variant: "compact",
+          },
+          {
+            left: "moon",
+            label: "Dark",
+            right: colorScheme === "dark" ? "check" : undefined,
+            onPress: select("dark"),
+            variant: "compact",
+          },
+          {
+            left: "sun",
+            label: "Light",
+            right: colorScheme === "light" ? "check" : undefined,
+            onPress: select("light"),
+            variant: "compact",
+          },
+        ],
       },
       {
-        left: "moon",
-        label: "Dark",
-        right: colorScheme === "dark" ? "check" : undefined,
-        onPress: select("dark"),
-        variant: "compact",
-      },
-      {
-        left: "sun",
-        label: "Light",
-        right: colorScheme === "light" ? "check" : undefined,
-        onPress: select("light"),
-        variant: "compact",
+        key: "typography",
+        title: "Typography",
+        data: [
+          {
+            left: "type",
+            label: "System font",
+            right: fontFamily === "system" ? "check" : undefined,
+            onPress: selectFont("system"),
+            variant: "compact",
+          },
+          {
+            left: "code",
+            label: "Monospace font",
+            right: fontFamily === "mono" ? "check" : undefined,
+            onPress: selectFont("mono"),
+            variant: "compact",
+          },
+        ],
       },
     ],
-    [colorScheme, select]
+    [colorScheme, fontFamily, select, selectFont]
   );
 
   return (
-    <Screen>
-      <FlatList
-        data={options}
-        renderItem={({ item, index }) => (
-          <View style={[styles.row, index === options.length - 1 && styles.rowLast]}>
+    <Screen style={styles.screen}>
+      <SectionList
+        sections={sections}
+        renderItem={({ item, index, section }) => (
+          <View
+            style={[
+              styles.row,
+              index === section.data.length - 1 && styles.rowLast,
+            ]}
+          >
             <Option {...item} />
           </View>
         )}
         keyExtractor={(item) => item.label}
+        renderSectionHeader={({ section }) => (
+          <SettingsSectionTitle
+            title={section.title}
+            variant="settings"
+            first={section.key === "appearance"}
+          />
+        )}
+        stickySectionHeadersEnabled={false}
         showsVerticalScrollIndicator={false}
       />
     </Screen>
@@ -71,6 +119,9 @@ export default function ThemeScreen() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    paddingTop: 8,
+  },
   row: {
     marginBottom: 8,
   },

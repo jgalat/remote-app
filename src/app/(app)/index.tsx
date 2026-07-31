@@ -1,9 +1,17 @@
 import * as React from "react";
-import { BackHandler, FlatList, RefreshControl, StyleSheet } from "react-native";
+import {
+  BackHandler,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  ToastAndroid,
+} from "react-native";
 import type { TextInput as RNTextInput } from "react-native";
 import Pressable from "~/components/pressable";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "expo-router/react-navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { SheetManager } from "react-native-actions-sheet";
 
 import Text from "~/components/text";
 import TextInput from "~/components/text-input";
@@ -15,12 +23,24 @@ import ActionIcon from "~/components/action-icon";
 import TorrentItem from "~/components/torrent-item";
 import Separator from "~/components/separator";
 import Stats from "~/components/stats";
+import CombinedStats from "~/components/combined-stats";
 import {
   NetworkErrorScreen,
   LoadingScreen,
 } from "~/components/utility-screens";
-import { useTorrentActions, useTorrents } from "~/hooks/torrent";
-import { useServer, useListing, useServers, useSearchConfig } from "~/hooks/use-settings";
+import {
+  useAllTorrents,
+  useTorrentActions,
+  useTorrents,
+  type ServerTorrent,
+} from "~/hooks/torrent";
+import {
+  useServer,
+  useListing,
+  useServers,
+  useSearchConfig,
+  useServersStore,
+} from "~/hooks/use-settings";
 import {
   useListingSheet,
   useTorrentActionsSheet,
@@ -30,6 +50,98 @@ import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { usePro } from "@remote-app/pro";
 import compare from "~/utils/sort";
 import predicate, { pathPredicate, searchPredicate } from "~/utils/filter";
+import { createClient } from "~/client";
+import { queryKeys } from "~/hooks/torrent/query-keys";
+import { SELECT_SHEET_ID } from "~/sheets/ids";
+import type { SelectOption } from "~/sheets/select";
+import { useTheme } from "~/hooks/use-theme-color";
+
+type HeaderActionsProps = {
+  onAdd: () => void;
+  onSearch: () => void;
+  onIndexerSearch?: () => void;
+  indexerSearchLabel?: string;
+  onListing: () => void;
+  onSettings: () => void;
+};
+
+function HeaderActions({
+  onAdd,
+  onSearch,
+  onIndexerSearch,
+  indexerSearchLabel,
+  onListing,
+  onSettings,
+}: HeaderActionsProps) {
+  const openMore = React.useCallback(() => {
+    const options: SelectOption[] = [
+      ...(onIndexerSearch
+        ? [
+            {
+              id: "indexer-search",
+              label: indexerSearchLabel ?? "Search indexers",
+              left: "globe" as const,
+              value: "indexer-search",
+            },
+          ]
+        : []),
+      {
+        id: "settings",
+        label: "Settings",
+        left: "settings" as const,
+        value: "settings",
+      },
+    ];
+
+    SheetManager.show(SELECT_SHEET_ID, {
+      payload: {
+        options,
+        onSelect: (value) => {
+          if (value === "indexer-search") {
+            onIndexerSearch?.();
+            return;
+          }
+          onSettings();
+        },
+      },
+    });
+  }, [indexerSearchLabel, onIndexerSearch, onSettings]);
+
+  return (
+    <ActionList spacing={2}>
+      <ActionIcon
+        name="plus"
+        onPress={onAdd}
+        accessibilityLabel="Add torrent"
+      />
+      <ActionIcon
+        name="search"
+        onPress={onSearch}
+        accessibilityLabel="Search torrents"
+      />
+      <ActionIcon
+        name="sliders"
+        onPress={onListing}
+        accessibilityLabel="Sort and filter torrents"
+      />
+      {onIndexerSearch ? (
+        <ActionIcon
+          name="more-vertical"
+          onPress={openMore}
+          accessibilityLabel="More actions"
+          style={{ paddingRight: 0 }}
+        />
+      ) : (
+        <ActionIcon
+          name="settings"
+          onPress={onSettings}
+          accessibilityLabel="Settings"
+          style={{ paddingRight: 0 }}
+        />
+      )}
+    </ActionList>
+  );
+}
 
 function SearchInput({ onSubmit }: { onSubmit: (query: string) => void }) {
   const [text, setText] = React.useState("");
@@ -55,6 +167,17 @@ function SearchInput({ onSubmit }: { onSubmit: (query: string) => void }) {
 }
 
 export default function TorrentsScreen() {
+  const { serverScope } = useListing();
+  const { isPro } = usePro();
+
+  if (serverScope === "all" && isPro) {
+    return <AllServersTorrentsScreen />;
+  }
+
+  return <ServerTorrentsScreen />;
+}
+
+function ServerTorrentsScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const isFocused = useIsFocused();
@@ -90,6 +213,25 @@ export default function TorrentsScreen() {
     setSearching(false);
     setSearchQuery("");
   }, []);
+
+  const openIndexerSearch = React.useCallback(() => {
+    if (!isPro) {
+      router.push("/paywall");
+      return;
+    }
+
+    router.push(searchConfig ? "/search" : "/settings/search");
+  }, [isPro, router, searchConfig]);
+
+  const openSettings = React.useCallback(
+    () => router.push("/settings"),
+    [router],
+  );
+
+  const openAdd = React.useCallback(() => router.push("/add"), [router]);
+  const indexerSearchLabel = searchConfig
+    ? `Search ${searchConfig.type === "prowlarr" ? "Prowlarr" : "Jackett"}`
+    : undefined;
 
   React.useEffect(() => {
     if (!searching) return;
@@ -178,62 +320,25 @@ export default function TorrentsScreen() {
                     });
                   }}
                   name="more-vertical"
+                  accessibilityLabel="More torrent actions"
                 />
               </ActionList>
             );
           }
 
-          const onIndexerSearch = () => {
-            if (!isPro) {
-              router.push("/paywall");
-              return;
-            }
-
-            if (searchConfig) {
-              router.push("/search");
-            } else {
-              router.push("/settings/search");
-            }
-          };
-
-          const actions = torrents
-            ? [
-                <ActionIcon
-                  key="add"
-                  onPress={() => router.push("/add")}
-                  name="plus"
-                />,
-                <ActionIcon
-                  key="local-search"
-                  onPress={() => setSearching(true)}
-                  name="search"
-                />,
-                ...(available
-                  ? [
-                      <ActionIcon
-                        key="indexer-search"
-                        onPress={onIndexerSearch}
-                        name="globe"
-                      />,
-                    ]
-                  : []),
-                <ActionIcon
-                  key="listing"
-                  onPress={listingSheet}
-                  name="sliders"
-                />,
-              ]
-            : [];
+          if (!torrents) return null;
 
           return (
-            <ActionList spacing={4}>
-              {actions}
-              <ActionIcon
-                style={{ paddingRight: 0 }}
-                onPress={() => router.push("/settings")}
-                name="settings"
-              />
-            </ActionList>
+            <HeaderActions
+              onAdd={openAdd}
+              onSearch={() => setSearching(true)}
+              onIndexerSearch={
+                available && searchConfig ? openIndexerSearch : undefined
+              }
+              indexerSearchLabel={indexerSearchLabel}
+              onListing={listingSheet}
+              onSettings={openSettings}
+            />
           );
         },
       });
@@ -257,6 +362,10 @@ export default function TorrentsScreen() {
     render,
     searching,
     exitSearch,
+    openAdd,
+    openIndexerSearch,
+    openSettings,
+    indexerSearchLabel,
   ]);
 
   const refresh = React.useCallback(async () => {
@@ -347,6 +456,237 @@ export default function TorrentsScreen() {
   );
 }
 
+function AllServersTorrentsScreen() {
+  const navigation = useNavigation();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const isFocused = useIsFocused();
+  const servers = useServers();
+  const searchConfig = useSearchConfig();
+  const { sort, direction, filter, pathFilter } = useListing();
+  const { store } = useServersStore();
+  const { available } = usePro();
+  const { gray } = useTheme();
+  const serverSelectorSheet = useServerSelectorSheet();
+  const torrentActionsSheet = useTorrentActionsSheet();
+  const listingSheet = useListingSheet();
+  const { data, errors, isLoading, refetch } = useAllTorrents({
+    stale: !isFocused,
+  });
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [searching, setSearching] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const exitSearch = React.useCallback(() => {
+    setSearching(false);
+    setSearchQuery("");
+  }, []);
+
+  const openIndexerSearch = React.useCallback(
+    () => router.push(searchConfig ? "/search" : "/settings/search"),
+    [router, searchConfig],
+  );
+
+  const openSettings = React.useCallback(
+    () => router.push("/settings"),
+    [router],
+  );
+  const indexerSearchLabel = searchConfig
+    ? `Search ${searchConfig.type === "prowlarr" ? "Prowlarr" : "Jackett"}`
+    : undefined;
+
+  const openAdd = React.useCallback(() => router.push("/add"), [router]);
+
+  React.useEffect(() => {
+    if (!searching) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      exitSearch();
+      return true;
+    });
+    return () => sub.remove();
+  }, [searching, exitSearch]);
+
+  const render = React.useMemo(
+    () =>
+      [...data]
+        .sort((a, b) => compare(direction, sort)(a.torrent, b.torrent))
+        .filter(({ torrent }) => predicate(filter)(torrent))
+        .filter(({ torrent }) => pathPredicate(pathFilter || null)(torrent))
+        .filter(({ torrent }) => searchPredicate(searchQuery)(torrent)),
+    [data, direction, sort, filter, pathFilter, searchQuery],
+  );
+
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
+
+  const runAction = React.useCallback(
+    async (
+      action: "start" | "stop",
+      { server, torrent }: ServerTorrent,
+    ) => {
+      const client = createClient(server);
+      try {
+        if (action === "start") {
+          await client.startTorrents([torrent.id]);
+        } else {
+          await client.stopTorrents([torrent.id]);
+        }
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.torrents(server),
+        });
+      } catch {
+        ToastAndroid.show(
+          `Failed to ${action} on ${server.name}`,
+          ToastAndroid.SHORT,
+        );
+      }
+    },
+    [queryClient],
+  );
+
+  const showActions = React.useCallback(
+    ({ server, torrent }: ServerTorrent) => {
+      store(
+        { activeServerId: server.id },
+        {
+          onSettled: () => torrentActionsSheet({ torrents: [torrent] }),
+        },
+      );
+    },
+    [store, torrentActionsSheet],
+  );
+
+  React.useEffect(() => {
+    if (searching) {
+      navigation.setOptions({
+        headerTitle: () => <SearchInput onSubmit={setSearchQuery} />,
+        headerLeft: () => (
+          <ActionIcon
+            name="arrow-left"
+            onPress={exitSearch}
+            style={{ paddingLeft: 0, paddingRight: 32 }}
+          />
+        ),
+        headerRight: () => null,
+      });
+      return;
+    }
+
+    navigation.setOptions({
+      headerTitle: () => (
+        <Pressable onPress={serverSelectorSheet} style={styles.headerTitleRow}>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            All servers
+          </Text>
+        </Pressable>
+      ),
+      headerLeft: () => null,
+      headerRight: () => (
+        <HeaderActions
+          onAdd={openAdd}
+          onSearch={() => setSearching(true)}
+          onIndexerSearch={
+            available && searchConfig ? openIndexerSearch : undefined
+          }
+          indexerSearchLabel={indexerSearchLabel}
+          onListing={listingSheet}
+          onSettings={openSettings}
+        />
+      ),
+    });
+  }, [
+    available,
+    exitSearch,
+    listingSheet,
+    navigation,
+    router,
+    searching,
+    searchConfig,
+    serverSelectorSheet,
+    openAdd,
+    openIndexerSearch,
+    openSettings,
+    indexerSearchLabel,
+  ]);
+
+  const renderTorrentItem = React.useCallback(
+    ({ item }: { item: ServerTorrent }) => (
+      <TorrentItem
+        torrent={item.torrent}
+        badge={item.server.name}
+        onActions={() => showActions(item)}
+        onStart={() => runAction("start", item)}
+        onStop={() => runAction("stop", item)}
+      />
+    ),
+    [runAction, showActions],
+  );
+
+  if (servers.length === 0) {
+    return (
+      <Screen style={styles.message}>
+        <Text style={styles.title}>No connection found</Text>
+        <Button
+          title="Setup connection"
+          onPress={() => router.push("/settings/connection")}
+        />
+      </Screen>
+    );
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <Screen style={{ paddingTop: 16 }}>
+      <FlatList
+        keyboardDismissMode="on-drag"
+        data={render}
+        renderItem={renderTorrentItem}
+        keyExtractor={({ server, torrent }) =>
+          `${server.id}:${torrent.id.toString()}`
+        }
+        ItemSeparatorComponent={Separator}
+        ListHeaderComponent={
+          errors.length > 0 ? (
+            <View style={styles.partialError}>
+              <Text style={styles.partialErrorTitle}>
+                {errors.length} {errors.length === 1 ? "server" : "servers"} unavailable
+              </Text>
+              <Text color={gray} style={styles.partialErrorDetail}>
+                {errors.map(({ server }) => server.name).join(", ")}
+              </Text>
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          <View style={styles.message}>
+            <Text style={data.length === 0 ? styles.title : styles.noResults}>
+              {data.length === 0 ? "No torrents found" : "No results"}
+            </Text>
+          </View>
+        }
+        contentContainerStyle={render.length === 0 && styles.emptyList}
+        onRefresh={refresh}
+        refreshing={refreshing}
+      />
+      <CombinedStats
+        torrents={data.map(({ torrent }) => torrent)}
+        servers={servers}
+        connectedServers={servers.length - errors.length}
+        totalServers={servers.length}
+      />
+    </Screen>
+  );
+}
+
 const styles = StyleSheet.create({
   message: {
     flex: 1,
@@ -367,10 +707,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "RobotoMono-Medium",
-    fontSize: 20,
+    fontSize: 18,
   },
   headerTitleRow: {
     flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -380,5 +721,20 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     fontSize: 18,
+  },
+  partialError: {
+    borderWidth: 1,
+    borderColor: "#c0392b",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  partialErrorTitle: {
+    fontFamily: "RobotoMono-Medium",
+    fontSize: 13,
+  },
+  partialErrorDetail: {
+    fontSize: 12,
+    marginTop: 4,
   },
 });

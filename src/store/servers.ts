@@ -1,32 +1,16 @@
-import { z } from "zod";
 import { randomUUID } from "expo-crypto";
 
 import { storage } from "./storage";
+import {
+  ServersSchema,
+  type Server,
+  type ServersData,
+  type ServerType,
+} from "./server-schema";
 
-const ServerTypeSchema = z.enum(["transmission", "qbittorrent", "local"]);
-export type ServerType = z.infer<typeof ServerTypeSchema>;
+export { ServersSchema, type Server, type ServersData, type ServerType };
 
 export const LOCAL_SERVER_ID = "local";
-
-const ServerSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  url: z.string(),
-  type: ServerTypeSchema.default("transmission"),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-});
-
-export type Server = z.infer<typeof ServerSchema>;
-
-export const ServersSchema = z.object({
-  servers: z.array(ServerSchema),
-  activeServerId: z.string().optional(),
-});
-
-type ServersData = z.infer<typeof ServersSchema>;
 
 const KEY = "user.servers";
 
@@ -40,8 +24,14 @@ export function loadServers(): ServersData {
   if (value === undefined) return defaults;
 
   try {
-    const result = ServersSchema.safeParse(JSON.parse(value));
-    if (result.success) return result.data;
+    const stored: unknown = JSON.parse(value);
+    const result = ServersSchema.safeParse(stored);
+    if (result.success) {
+      if (JSON.stringify(stored) !== JSON.stringify(result.data)) {
+        storeServers(result.data);
+      }
+      return result.data;
+    }
     storeServers(defaults);
     return defaults;
   } catch {

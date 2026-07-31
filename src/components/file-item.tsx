@@ -22,7 +22,12 @@ export type Props = {
   right?: React.ReactNode;
 } & PressableProps;
 
-export default React.memo(function FileItem({ data, right, ...props }: Props) {
+export default React.memo(function FileItem({
+  data,
+  right,
+  style,
+  ...props
+}: Props) {
   const { text, gray } = useTheme();
 
   const total = data.content.reduce((total, f) => total + f.length, 0);
@@ -34,8 +39,8 @@ export default React.memo(function FileItem({ data, right, ...props }: Props) {
   const priority = getPriority(data.content);
 
   return (
-    <Pressable {...props}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <Pressable {...props} style={[styles.content, style]}>
         <View style={styles.left}>
           <Feather
             name={data.isFile ? "file" : "folder"}
@@ -45,9 +50,7 @@ export default React.memo(function FileItem({ data, right, ...props }: Props) {
           />
         </View>
         <View style={styles.stats}>
-          <Text style={styles.name}>
-            {data.name}
-          </Text>
+          <Text style={styles.name}>{data.name}</Text>
           <ProgressBar
             style={styles.progress}
             progress={progress}
@@ -67,14 +70,19 @@ export default React.memo(function FileItem({ data, right, ...props }: Props) {
             </View>
           </View>
         </View>
-        {right ? <View style={styles.right}>{right}</View> : null}
-      </View>
-    </Pressable>
+      </Pressable>
+      {right ? <View style={styles.right}>{right}</View> : null}
+    </View>
   );
 });
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  content: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
   },

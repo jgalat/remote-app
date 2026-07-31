@@ -185,7 +185,12 @@ function toNumericIds(ids: TorrentId[]): number[] {
 export class TransmissionAdapter implements TorrentClient {
   private client: TransmissionClient;
 
-  constructor(config: { url: string; username?: string; password?: string }) {
+  constructor(config: {
+    url: string;
+    username?: string;
+    password?: string;
+    requestTimeoutMs?: number;
+  }) {
     this.client = new TransmissionClient(config);
   }
 

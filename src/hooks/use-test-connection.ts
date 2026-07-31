@@ -11,6 +11,7 @@ type TestConnectionParams = {
   url: string;
   username?: string;
   password?: string;
+  requestTimeoutMs?: number;
 };
 
 export type TestConnectionResult = {
@@ -29,7 +30,12 @@ async function testConnection(params: TestConnectionParams): Promise<TestConnect
     return { connected: true, message: "Connected" };
   }
 
-  const config = { url: params.url, username: params.username, password: params.password };
+  const config = {
+    url: params.url,
+    username: params.username,
+    password: params.password,
+    requestTimeoutMs: params.requestTimeoutMs,
+  };
   const client =
     params.type === "qbittorrent"
       ? new QBittorrentAdapter(config)

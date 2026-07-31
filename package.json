@@ -1,7 +1,7 @@
 {
   "name": "@remote-app/app",
   "version": "0.30.0",
-  "description": "A transmission remote session app",
+  "description": "A remote torrent manager for Transmission and qBittorrent",
   "main": "expo-router/entry",
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "license": "MIT",

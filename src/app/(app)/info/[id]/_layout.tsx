@@ -22,6 +22,7 @@ import ActionList from "~/components/action-list";
 import ActionIcon from "~/components/action-icon";
 import { useTorrents } from "~/hooks/torrent";
 import { HeaderActionProvider } from "~/contexts/header-action";
+import { useAppFontFamily } from "~/contexts/font";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -42,6 +43,7 @@ function LayoutInner() {
   const navigation = useNavigation();
   const { id } = useGlobalSearchParams<{ id: string }>();
   const { tint, text, background } = useTheme();
+  const fontFamily = useAppFontFamily("medium");
   const torrentActionsSheet = useTorrentActionsSheet();
   const { data: torrents } = useTorrents({ stale: true });
   const { action: saveAction } = useHeaderAction();
@@ -56,7 +58,11 @@ function LayoutInner() {
         !torrent && !saveAction ? null : (
           <ActionList>
             {saveAction && (
-              <ActionIcon name="save" onPress={saveAction} />
+              <ActionIcon
+                name="save"
+                onPress={saveAction}
+                accessibilityLabel="Save torrent settings"
+              />
             )}
             {torrent && (
               <ActionIcon
@@ -64,6 +70,7 @@ function LayoutInner() {
                   torrentActionsSheet({ torrents: [torrent], info: true })
                 }
                 name="more-vertical"
+                accessibilityLabel="More torrent actions"
               />
             )}
           </ActionList>
@@ -74,7 +81,7 @@ function LayoutInner() {
   const screenOptions = React.useMemo(
     () => ({
       tabBarLabelStyle: {
-        fontFamily: "RobotoMono-Medium" as const,
+        fontFamily,
         color: text,
         fontSize: 14,
         margin: 0,
@@ -92,7 +99,7 @@ function LayoutInner() {
       tabBarScrollEnabled: true,
       tabBarIndicatorStyle: { backgroundColor: tint, height: 2 },
     }),
-    [text, background, tint]
+    [text, background, tint, fontFamily]
   );
 
   return (

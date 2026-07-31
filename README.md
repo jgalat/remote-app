@@ -1,9 +1,12 @@
-# Remote for Transmission
+# Remote — Torrent Manager
 
 [<img alt="Get it on Google Play" height="60" src="https://play.google.com/intl/es-419/badges/static/images/badges/en_badge_web_generic.png" />](https://play.google.com/store/apps/details?id=ar.jg.remote)
 
-A React Native application client to remotely control a [Transmission BitTorrent client](https://transmissionbt.com/) instance.
-Transmission is a free and open source lightweight P2P client for the BitTorrent network.
+An Android torrent manager for remote [Transmission](https://transmissionbt.com/)
+and [qBittorrent](https://www.qbittorrent.org/) servers.
+
+Remote supports multiple servers, a combined dashboard, connection failover,
+Jackett and Prowlarr search, and an optional local torrent engine in beta.
 
 ## Screenshots
 

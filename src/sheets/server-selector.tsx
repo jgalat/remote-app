@@ -2,7 +2,12 @@ import * as React from "react";
 import { useRouter } from "expo-router";
 
 import ActionSheet, { SheetProps } from "~/components/action-sheet";
-import { useServersStore, useServer } from "~/hooks/use-settings";
+import {
+  useServersStore,
+  useServer,
+  useListing,
+  useListingStore,
+} from "~/hooks/use-settings";
 import {
   usePro,
   useLocalEngineStatus,
@@ -17,6 +22,8 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
   const { servers, store } = useServersStore();
   const { isPro, available } = usePro();
   const active = useServer();
+  const { serverScope } = useListing();
+  const { store: storeListing } = useListingStore();
   const engineStatus = useLocalEngineStatus();
   const { mutate: resumeLocalEngine } = useResumeLocalEngine();
 
@@ -27,9 +34,25 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
       id: server.id,
       label: server.name,
       left: server.id === LOCAL_SERVER_ID ? "hard-drive" : "server",
-      right: server.id === active?.id ? "check" : undefined,
-      onPress: () => store({ activeServerId: server.id }),
+      right:
+        serverScope === "active" && server.id === active?.id
+          ? "check"
+          : undefined,
+      onPress: () => {
+        store({ activeServerId: server.id });
+        storeListing({ serverScope: "active" });
+      },
     }));
+
+    if (isPro && servers.length > 1) {
+      serverOptions.unshift({
+        id: "all-servers",
+        label: "All servers",
+        left: "layers",
+        right: serverScope === "all" ? "check" : undefined,
+        onPress: () => storeListing({ serverScope: "all" }),
+      });
+    }
 
     const localActive = active?.id === LOCAL_SERVER_ID;
     const engineStopped =
@@ -54,7 +77,7 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
       ...head,
       ...serverOptions,
       {
-        label: "Add Server",
+        label: "Add server",
         left: "plus" as const,
         onPress: () =>
           canAdd
@@ -66,12 +89,14 @@ function ServerSelectorSheet(props: SheetProps<typeof SERVER_SELECTOR_SHEET_ID>)
     servers,
     active?.id,
     store,
+    storeListing,
     router,
     available,
     isPro,
     engineStatus.available,
     engineStatus.state,
     resumeLocalEngine,
+    serverScope,
   ]);
 
   return <ActionSheet title="Servers" options={options} {...props} />;

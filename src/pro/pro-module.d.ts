@@ -61,6 +61,27 @@ declare module "@remote-app/pro" {
     ) => void;
     isPending: boolean;
   };
+  export function useCopyLocalFileToDownloads(): {
+    mutate: (
+      params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => void;
+    isPending: boolean;
+  };
+  export function useOpenLocalFile(): {
+    mutate: (
+      params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => void;
+    isPending: boolean;
+  };
+  export function useShareLocalFile(): {
+    mutate: (
+      params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => void;
+    isPending: boolean;
+  };
   export function loadLocalEngineSettings(): EngineSettings;
   export function storeLocalEngineSettings(s: EngineSettings): void;
   export const LOCAL_SERVER_ID: "local";

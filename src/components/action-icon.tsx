@@ -14,10 +14,15 @@ export default React.memo(function ActionIcon({
   color,
   size = 24,
   style,
+  accessibilityLabel,
 }: ActionIconProps) {
   const { text } = useTheme();
   return (
-    <Pressable onPress={onPress}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+    >
       <Feather
         style={[styles.icon, style]}
         name={name}

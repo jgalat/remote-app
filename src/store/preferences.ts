@@ -4,11 +4,14 @@ import { storage } from "./storage";
 
 const ColorSchemeSchema = z.enum(["system", "dark", "light"]);
 export type ColorScheme = z.infer<typeof ColorSchemeSchema>;
+const FontFamilySchema = z.enum(["mono", "system"]);
+export type FontFamily = z.infer<typeof FontFamilySchema>;
 
 export const PreferencesSchema = z.object({
   colorScheme: ColorSchemeSchema,
   authentication: z.boolean(),
   developmentMode: z.boolean().default(false),
+  fontFamily: FontFamilySchema.default("mono"),
 });
 
 type PreferencesData = z.infer<typeof PreferencesSchema>;
@@ -19,6 +22,7 @@ const defaults: PreferencesData = {
   colorScheme: "system",
   authentication: false,
   developmentMode: false,
+  fontFamily: "mono",
 };
 
 export function loadPreferences(): PreferencesData {

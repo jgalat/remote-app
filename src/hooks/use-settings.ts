@@ -19,6 +19,7 @@ import {
   loadPreferences,
   storePreferences,
   type ColorScheme,
+  type FontFamily,
 } from "~/store/preferences";
 import {
   loadDirectories,
@@ -38,6 +39,7 @@ type PreferencesData = {
   colorScheme: ColorScheme;
   authentication: boolean;
   developmentMode: boolean;
+  fontFamily: FontFamily;
 };
 
 const queryOptions = { staleTime: Infinity } as const;
@@ -138,6 +140,19 @@ export function usePreferencesStore() {
       const updated = { ...current, ...diff };
       storePreferences(updated);
       return updated;
+    },
+    onMutate: (diff: Partial<PreferencesData>) => {
+      const previous = queryClient.getQueryData<PreferencesData>(preferencesKey);
+      queryClient.setQueryData<PreferencesData>(preferencesKey, (current) => ({
+        ...(current ?? data),
+        ...diff,
+      }));
+      return { previous };
+    },
+    onError: (_error, _diff, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(preferencesKey, context.previous);
+      }
     },
     onSettled: (data) => {
       if (data !== undefined) queryClient.setQueryData(preferencesKey, data);
@@ -245,6 +260,10 @@ export function useAuthentication() {
 
 export function useDevelopmentMode() {
   return usePreferencesQuery().data.developmentMode;
+}
+
+export function useFontFamilyPreference(): FontFamily {
+  return usePreferencesQuery().data.fontFamily;
 }
 
 export function useSearchConfig() {

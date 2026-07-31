@@ -69,10 +69,22 @@ const LEGACY_KEY = "user.settings";
     const multi = MultiServerSchema.safeParse(json);
     if (multi.success) {
       const d = multi.data;
-      storeServers({ servers: d.servers.map((s) => ({ ...s, type: "transmission" as const })), activeServerId: d.activeServerId });
-      storeListing({ ...d.listing, pathFilter: "" });
+      storeServers({
+        servers: d.servers.map((s) => ({
+          ...s,
+          type: "transmission" as const,
+          alternativeUrls: [],
+        })),
+        activeServerId: d.activeServerId,
+      });
+      storeListing({ ...d.listing, pathFilter: "", serverScope: "active" });
       storeSearch(d.searchConfig ?? null);
-      storePreferences({ colorScheme: d.colorScheme, authentication: d.authentication, developmentMode: false });
+      storePreferences({
+        colorScheme: d.colorScheme,
+        authentication: d.authentication,
+        developmentMode: false,
+        fontFamily: "mono",
+      });
       storage.delete(LEGACY_KEY);
       return;
     }
@@ -98,18 +110,27 @@ const LEGACY_KEY = "user.settings";
         activeServerId = id;
       }
 
-      storeServers({ servers: servers.map((s) => ({ ...s, type: "transmission" as const })), activeServerId });
+      storeServers({
+        servers: servers.map((s) => ({
+          ...s,
+          type: "transmission" as const,
+          alternativeUrls: [],
+        })),
+        activeServerId,
+      });
       storeListing({
         sort: d.listing?.sort ?? "queue",
         direction: d.listing?.direction ?? "asc",
         filter: d.listing?.filter ?? "all",
         pathFilter: "",
+        serverScope: "active",
       });
       storeSearch(null);
       storePreferences({
         colorScheme: d.colorScheme ?? "system",
         authentication: d.authentication ?? false,
         developmentMode: false,
+        fontFamily: "mono",
       });
       storage.delete(LEGACY_KEY);
       return;

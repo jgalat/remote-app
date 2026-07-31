@@ -3,13 +3,13 @@ import type { Server } from "~/store/settings";
 
 export const queryKeys = {
   torrents: (server: Server | undefined) =>
-    ["torrents", server?.id, server?.url] as const,
+    ["torrents", server?.id, server?.updatedAt] as const,
 
   session: (server: Server | undefined) =>
-    ["session", server?.id, server?.url] as const,
+    ["session", server?.id, server?.updatedAt] as const,
 
   sessionStats: (server: Server | undefined) =>
-    ["session-stats", server?.id, server?.url] as const,
+    ["session-stats", server?.id, server?.updatedAt] as const,
 
   torrentGet: (server: Server | undefined) =>
     [...queryKeys.torrents(server), "get"] as const,
@@ -33,13 +33,13 @@ export const queryKeys = {
     [...queryKeys.session(server), "get"] as const,
 
   configSession: (server: Server | undefined) =>
-    ["config-session", server?.id, server?.url] as const,
+    ["config-session", server?.id, server?.updatedAt] as const,
 
   configPreferences: (server: Server | undefined) =>
-    ["config-preferences", server?.id, server?.url] as const,
+    ["config-preferences", server?.id, server?.updatedAt] as const,
 
   serverScope: (server: Server | undefined) =>
-    [server?.id, server?.url] as const,
+    [server?.id, server?.updatedAt] as const,
 
   all: (server: Server | undefined) => queryKeys.serverScope(server),
 } as const;

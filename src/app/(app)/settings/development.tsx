@@ -170,6 +170,51 @@ export default function Development() {
 
     const servers: OptionProps[] = [
       {
+        id: "all-local-services",
+        left: "layers",
+        label: "All local services",
+        variant: "compact",
+        onPress: () => {
+          const now = Date.now();
+          const transmissionId = generateServerId();
+          const qbittorrentId = generateServerId();
+          store({
+            servers: [
+              {
+                id: transmissionId,
+                name: "Transmission",
+                url: "http://192.168.0.201:9091/transmission/rpc",
+                alternativeUrls: [
+                  "http://10.0.2.2:9091/transmission/rpc",
+                ],
+                type: "transmission" as const,
+                username: "test",
+                password: "test",
+                createdAt: now,
+                updatedAt: now,
+              },
+              {
+                id: qbittorrentId,
+                name: "qBittorrent",
+                url: "http://192.168.0.201:8080",
+                alternativeUrls: ["http://10.0.2.2:8080"],
+                type: "qbittorrent" as const,
+                username: "test",
+                password: "test",
+                createdAt: now,
+                updatedAt: now,
+              },
+            ],
+            activeServerId: transmissionId,
+          });
+          storeSearch({
+            url: "http://192.168.0.201:9696/api/v1/search",
+            apiKey: "2734bd05b127419a92f1aaf3e7e8ed28",
+            type: "prowlarr" as const,
+          });
+        },
+      },
+      {
         id: "mock",
         left: "radio",
         label: "Mock Server",
@@ -178,7 +223,7 @@ export default function Development() {
           const now = Date.now();
           const id = generateServerId();
           store({
-            servers: [{ id, name: "app", url: "app-testing-url", type: "transmission" as const, createdAt: now, updatedAt: now }],
+            servers: [{ id, name: "app", url: "app-testing-url", type: "transmission" as const, alternativeUrls: [], createdAt: now, updatedAt: now }],
             activeServerId: id,
           });
         },
@@ -197,6 +242,7 @@ export default function Development() {
               name: "transmission",
               url: "http://192.168.0.201:9091/transmission/rpc",
               type: "transmission" as const,
+              alternativeUrls: [],
               username: "test",
               password: "test",
               createdAt: now,
@@ -220,6 +266,7 @@ export default function Development() {
               name: "qbittorrent",
               url: "http://192.168.0.201:8080",
               type: "qbittorrent" as const,
+              alternativeUrls: [],
               username: "test",
               password: "test",
               createdAt: now,

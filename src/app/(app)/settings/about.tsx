@@ -61,7 +61,8 @@ export default function AboutScreen() {
           source={icon}
           style={styles.icon}
         />
-        <Text style={styles.title}>Remote for Transmission</Text>
+        <Text style={styles.title}>Remote</Text>
+        <Text style={[styles.subtitle, { color: gray }]}>Torrent Manager</Text>
         <Pressable onPress={onVersionPress}>
           <Text style={[styles.version, { color: lightGray }]}>
             {appVersion}
@@ -112,6 +113,10 @@ const styles = StyleSheet.create({
   version: {
     fontFamily: "RobotoMono-Regular",
     fontSize: 14,
+  },
+  subtitle: {
+    fontSize: 13,
+    marginBottom: 4,
   },
   card: {
     paddingVertical: 12,

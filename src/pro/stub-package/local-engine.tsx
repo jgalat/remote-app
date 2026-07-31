@@ -189,6 +189,45 @@ export function useExportToDownloads() {
   };
 }
 
+export function useCopyLocalFileToDownloads() {
+  return {
+    mutate: (
+      _params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => {
+      options?.onError?.();
+      options?.onSettled?.();
+    },
+    isPending: false,
+  };
+}
+
+export function useOpenLocalFile() {
+  return {
+    mutate: (
+      _params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => {
+      options?.onError?.();
+      options?.onSettled?.();
+    },
+    isPending: false,
+  };
+}
+
+export function useShareLocalFile() {
+  return {
+    mutate: (
+      _params: { infoHash: string; fileIndex: number },
+      options?: MutationOptions,
+    ) => {
+      options?.onError?.();
+      options?.onSettled?.();
+    },
+    isPending: false,
+  };
+}
+
 export function loadLocalEngineSettings(): EngineSettings {
   return {
     downloadDir: "",

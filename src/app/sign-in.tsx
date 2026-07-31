@@ -27,7 +27,8 @@ export default function SignIn() {
           source={icon}
           style={styles.icon}
         />
-        <Text style={styles.title}>Remote for Transmission</Text>
+        <Text style={styles.title}>Remote</Text>
+        <Text style={styles.product}>Torrent Manager</Text>
         <Text style={styles.subtitle}>Unlock to continue</Text>
       </View>
       <View style={footerStyle}>
@@ -64,6 +65,10 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
+  },
+  product: {
+    fontSize: 14,
+    marginBottom: 8,
   },
   footer: {
     width: "100%",

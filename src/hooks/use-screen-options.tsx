@@ -2,13 +2,15 @@ import * as React from "react";
 import { router } from "expo-router";
 
 import ActionIcon from "~/components/action-icon";
+import { useAppFontFamily } from "~/contexts/font";
 import { useTheme } from "./use-theme-color";
 
 export default function useScreenOptions() {
   const { text, background } = useTheme();
+  const fontFamily = useAppFontFamily("medium");
   return {
     headerTitleStyle: {
-      fontFamily: "RobotoMono-Medium",
+      fontFamily,
       color: text,
     },
     headerStyle: {

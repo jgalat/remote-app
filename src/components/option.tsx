@@ -10,6 +10,7 @@ import { useTheme } from "~/hooks/use-theme-color";
 export type OptionProps = {
   id?: string;
   label: string;
+  description?: string;
   left: React.ComponentProps<typeof Feather>["name"] | number;
   right?: React.ComponentProps<typeof Feather>["name"];
   value?: string;
@@ -20,6 +21,7 @@ export type OptionProps = {
 
 export default React.memo(function Option({
   label,
+  description,
   left,
   right,
   value,
@@ -56,6 +58,11 @@ export default React.memo(function Option({
         <Text color={optionColor} numberOfLines={1}>
           {label}
         </Text>
+        {description ? (
+          <Text color={gray} numberOfLines={1} style={styles.description}>
+            {description}
+          </Text>
+        ) : null}
       </View>
       {(value || rightIcon) && (
         <View style={styles.right}>
@@ -94,6 +101,10 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     marginLeft: 16,
+    gap: 3,
+  },
+  description: {
+    fontSize: 12,
   },
   right: {
     flexDirection: "row",

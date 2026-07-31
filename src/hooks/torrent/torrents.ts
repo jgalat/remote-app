@@ -23,7 +23,8 @@ import type {
 import { TorrentStatus, Priority } from "~/client";
 import { useServer } from "~/hooks/use-settings";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
-import { useClient } from "./client";
+import type { Server } from "~/store/settings";
+import { useClient, useServerClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
 
 export type Torrent = TorrentListItem;
@@ -140,9 +141,13 @@ export function useTorrentTrackers(
 }
 
 export function useAddTorrent() {
-  const queryClient = useQueryClient();
-  const client = useClient();
   const server = useServer();
+  return useServerAddTorrent(server);
+}
+
+export function useServerAddTorrent(server: Server | undefined) {
+  const queryClient = useQueryClient();
+  const client = useServerClient(server);
 
   return useMutation<AddTorrentResult | null | undefined, Error, AddTorrentParams>({
     mutationFn: async (params: AddTorrentParams) => client?.addTorrent(params),

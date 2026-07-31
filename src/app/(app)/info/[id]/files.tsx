@@ -13,12 +13,13 @@ import {
 import Separator from "~/components/separator";
 import { useTheme } from "~/hooks/use-theme-color";
 import Pressable from "~/components/pressable";
-import FileItem from "~/components/file-item";
+import FileItem, { type RenderFile } from "~/components/file-item";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "~/components/checkbox";
 import { useFileActionsSheet } from "~/hooks/use-action-sheet";
 import { useIsFocused } from "expo-router/react-navigation";
 import useTorrentBrowser from "~/hooks/use-torrent-browser";
+import { useIsLocalServer } from "~/hooks/use-settings";
 
 export default function FilesScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -26,9 +27,28 @@ export default function FilesScreen() {
   const fileActionsSheet = useFileActionsSheet();
   const torrentSet = useTorrentSet(id);
   const isFocused = useIsFocused();
+  const isLocal = useIsLocalServer();
   const { text } = useTheme();
 
   const { items, canGoUp, goUp, enterFolder } = useTorrentBrowser(torrent);
+
+  const openFileActions = (file: RenderFile) =>
+    fileActionsSheet({
+      id,
+      path: file.path,
+      name: file.name,
+      isFile: file.isFile,
+      content: file.content.map((item) => item.id),
+    });
+
+  const handlePress = (file: RenderFile) => {
+    if (!file.isFile) {
+      enterFolder(file.path);
+      return;
+    }
+
+    openFileActions(file);
+  };
 
   React.useEffect(() => {
     if (!isFocused || !canGoUp) {
@@ -70,16 +90,10 @@ export default function FilesScreen() {
         data={items}
         renderItem={({ item: file }) => (
           <FileItem
-            onPress={file.isFile ? undefined : () => enterFolder(file.path)}
-            onLongPress={() =>
-              fileActionsSheet({
-                id,
-                path: file.path,
-                name: file.name,
-                isFile: file.isFile,
-                content: file.content.map((f) => f.id),
-              })
+            onPress={
+              isLocal || !file.isFile ? () => handlePress(file) : undefined
             }
+            onLongPress={() => openFileActions(file)}
             data={file}
             right={
               <Checkbox

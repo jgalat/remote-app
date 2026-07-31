@@ -5,10 +5,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  KeyboardAwareScrollView,
-  type KeyboardAwareScrollViewRef,
-} from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Notifications from "expo-notifications";
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -17,7 +14,11 @@ import TextInput from "~/components/text-input";
 import Button from "~/components/button";
 import Toggle from "~/components/toggle";
 import SelectInput from "~/components/select-input";
-import { SettingsFieldRow, SettingsSectionTitle } from "~/components/settings";
+import {
+  SettingsFieldRow,
+  SettingsInsetDivider,
+  SettingsSectionTitle,
+} from "~/components/settings";
 import useThemeColor, { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
@@ -28,9 +29,20 @@ import { useTestConnection } from "~/hooks/use-test-connection";
 import { defaultPortForSSL, typeDefaults } from "~/utils/server-connection-defaults";
 import ActionIcon from "~/components/action-icon";
 import ProgressBar from "~/components/progress-bar";
+import ConnectionTest from "~/components/connection-test";
 import Pressable from "~/components/pressable";
+import Badge from "~/components/badge";
 import { Feather } from "@expo/vector-icons";
 import { debugHref } from "~/lib/debug-href";
+import ConnectionAddressRow from "~/components/connection-address-row";
+import { SheetManager } from "react-native-actions-sheet";
+import { SELECT_SHEET_ID } from "~/sheets/ids";
+import type { SelectOption } from "~/sheets/select";
+import {
+  parseServerAddress,
+  promoteServerAddress,
+  renderServerAddress,
+} from "~/utils/server-address";
 import {
   isLocalEngineAvailable,
   useEnsureLocalServer,
@@ -49,8 +61,13 @@ const Form = z
       .enum(["transmission", "qbittorrent", "local"])
       .default("transmission"),
     name: z.string().max(16, "max. of 16 characters"),
-    host: z.string(),
-    port: z.coerce.number().optional(),
+    host: z.string().trim(),
+    port: z.coerce
+      .number()
+      .int()
+      .min(0, "minimum port is 1")
+      .max(65_535, "maximum port is 65535")
+      .optional(),
     path: z.string().optional(),
     useSSL: z.boolean(),
     useAuth: z.boolean(),
@@ -72,6 +89,13 @@ const Form = z
         message: "host / IP address is required",
       });
     }
+    if (data.type !== "local" && (!data.port || data.port < 1)) {
+      ctx.addIssue({
+        path: ["port"],
+        code: z.ZodIssueCode.custom,
+        message: "minimum port is 1",
+      });
+    }
     if (data.type !== "local" && data.useAuth) {
       if (!data.username) {
         ctx.addIssue({
@@ -90,48 +114,17 @@ const Form = z
     }
   });
 
-function parseUrl(input: string) {
-  const url = new URL(input);
-  return {
-    host: url.hostname,
-    port: url.port ? Number(url.port) : url.protocol === "https:" ? 443 : 80,
-    path: url.pathname,
-    useSSL: url.protocol === "https:",
-  };
-}
-
-function fallbackParsedUrl(server: Server) {
-  const defaults = typeDefaults[server.type];
-  const raw = server.url.trim();
-  const withoutProtocol = raw.replace(/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//, "");
-  const slashIndex = withoutProtocol.indexOf("/");
-  const hostPort = slashIndex >= 0 ? withoutProtocol.slice(0, slashIndex) : withoutProtocol;
-  const rawPath = slashIndex >= 0 ? withoutProtocol.slice(slashIndex) : "";
-  const [host, rawPort] = hostPort.split(":");
-  const parsedPort = rawPort ? Number(rawPort) : NaN;
-  const path = rawPath && rawPath !== "/" ? rawPath : defaults.path;
-  return {
-    host: host || raw,
-    port: Number.isFinite(parsedPort) ? parsedPort : defaults.port,
-    path,
-    useSSL: raw.startsWith("https://"),
-  };
-}
-
 function renderUrl(form: Form): string {
   if (isTestingServer({ name: form.name, url: form.host })) {
     return form.host;
   }
 
-  const protocol = form.useSSL ? "https" : "http";
-  const port =
-    !form.port || (form.useSSL && form.port === 443) || (!form.useSSL && form.port === 80)
-      ? ""
-      : `:${form.port}`;
-  const pathInput = form.path?.trim() ?? "";
-  const path = pathInput ? (pathInput.startsWith("/") ? pathInput : `/${pathInput}`) : "";
-
-  return `${protocol}://${form.host}${port}${path}`;
+  return renderServerAddress({
+    host: form.host,
+    port: form.port ?? typeDefaults[form.type].port,
+    path: form.path ?? "",
+    useSSL: form.useSSL,
+  });
 }
 
 function defaultValues(server?: Server): Form {
@@ -179,19 +172,14 @@ function defaultValues(server?: Server): Form {
     };
   }
 
-  let parsed: ReturnType<typeof parseUrl>;
-  try {
-    parsed = parseUrl(server.url);
-  } catch {
-    parsed = fallbackParsedUrl(server);
-  }
+  const parsed = parseServerAddress(server.url, server.type);
 
   return {
     type: server.type,
     name: server.name,
     host: parsed.host,
     port: parsed.port,
-    path: server.type === "qbittorrent" && parsed.path === "/" ? "" : parsed.path,
+    path: parsed.path,
     useSSL: parsed.useSSL,
     useAuth: Boolean(server.username || server.password),
     username: server.username ?? "",
@@ -208,7 +196,7 @@ export default function ConnectionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { servers, store } = useServersStore();
-  const { red, gray, green } = useTheme();
+  const { red, gray, green, lightestGray, text } = useTheme();
 
   const editServer = id ? servers.find((s) => s.id === id) : undefined;
   const isEdit = Boolean(editServer);
@@ -228,7 +216,12 @@ export default function ConnectionScreen() {
   const isLocal = watchedType === "local";
   const type: "transmission" | "qbittorrent" =
     watchedType === "qbittorrent" ? "qbittorrent" : "transmission";
-  const scroll = React.useRef<KeyboardAwareScrollViewRef>(null);
+  const {
+    data,
+    isPending,
+    mutate: test,
+    reset: resetTest,
+  } = useTestConnection();
 
   const { isPro, available } = usePro();
   const { mutate: ensureLocalServer } = useEnsureLocalServer();
@@ -274,15 +267,17 @@ export default function ConnectionScreen() {
 
   const onSSLChange = React.useCallback(
     (enabled: boolean) => {
+      resetTest();
       setValue("useSSL", enabled);
       const selectedType = getValues("type") ?? "transmission";
       setValue("port", defaultPortForSSL(selectedType, enabled));
     },
-    [setValue, getValues]
+    [getValues, resetTest, setValue]
   );
 
   const onTypeChange = React.useCallback(
     (value: string | number) => {
+      resetTest();
       const t = (
         value === "qbittorrent"
           ? "qbittorrent"
@@ -296,18 +291,19 @@ export default function ConnectionScreen() {
       if (!useSSL) setValue("port", defaults.port);
       setValue("path", defaults.path);
     },
-    [setValue, useSSL]
+    [resetTest, setValue, useSSL]
   );
 
   const onUseAuthChange = React.useCallback(
     (enabled: boolean) => {
+      resetTest();
       setValue("useAuth", enabled);
       if (!enabled) {
         setValue("username", "");
         setValue("password", "");
       }
     },
-    [setValue]
+    [resetTest, setValue]
   );
 
   const navigation = useNavigation();
@@ -331,6 +327,56 @@ export default function ConnectionScreen() {
       ),
     });
   }, [isEdit, remove, navigation, red]);
+
+  const storeRemoteServer = React.useCallback(
+    (f: Form, onSuccess: () => void) => {
+      const now = Date.now();
+      const url = editServer?.url ?? renderUrl(f);
+      const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
+      const password = f.useAuth ? (f.password || undefined) : undefined;
+      const connectionTimeoutMs = editServer?.connectionTimeoutMs ?? 30_000;
+
+      if (editServer) {
+        const updated = servers.map((s) =>
+          s.id === editServer.id
+            ? {
+                ...s,
+                name: f.name,
+                url,
+                type: f.type,
+                username,
+                password,
+                connectionTimeoutMs,
+                updatedAt: now,
+              }
+            : s,
+        );
+        store({ servers: updated }, { onSuccess });
+        return;
+      }
+
+      const newServer: Server = {
+        id: generateServerId(),
+        name: f.name,
+        url,
+        type: f.type,
+        username,
+        password,
+        alternativeUrls: [],
+        connectionTimeoutMs,
+        createdAt: now,
+        updatedAt: now,
+      };
+      store(
+        {
+          servers: [...servers, newServer],
+          activeServerId: newServer.id,
+        },
+        { onSuccess },
+      );
+    },
+    [editServer, servers, store],
+  );
 
   const onSubmit = React.useCallback(
     (f: Form) => {
@@ -359,83 +405,168 @@ export default function ConnectionScreen() {
         return;
       }
 
-      const now = Date.now();
-      const url = renderUrl(f);
-      const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
-      const password = f.useAuth ? (f.password || undefined) : undefined;
-
-      if (editServer) {
-        const updated = servers.map((s) =>
-          s.id === editServer.id
-            ? { ...s, name: f.name, url, type: f.type, username, password, updatedAt: now }
-            : s
-        );
-        store({ servers: updated });
-      } else {
-        const newServer: Server = {
-          id: generateServerId(),
-          name: f.name,
-          url,
-          type: f.type,
-          username,
-          password,
-          createdAt: now,
-          updatedAt: now,
-        };
-        store({
-          servers: [...servers, newServer],
-          activeServerId: newServer.id,
-        });
-      }
-      router.back();
+      storeRemoteServer(f, () => router.back());
     },
-    [editServer, servers, router, store, isPro, ensureLocalServer]
+    [ensureLocalServer, isPro, router, storeRemoteServer],
   );
-
-
-  const {
-    data,
-    isPending,
-    mutate: test,
-  } = useTestConnection();
-
-  const status = isPending ? "Connecting..." : data ? data.message : "Not connected";
-  const hasError = data ? !data.connected : false;
-  const statusColor =
-    status === "Not connected" || status === "Connecting..."
-      ? gray
-      : data?.connected
-      ? green
-      : red;
 
   const onTest = React.useCallback(
     (f: Form) => {
       const username = f.useAuth ? (f.username?.trim() || undefined) : undefined;
       const password = f.useAuth ? (f.password || undefined) : undefined;
-      test(
-        { type: f.type, name: f.name, url: renderUrl(f), username, password },
-        {
-          onSettled: () => {
-            scroll.current?.scrollToEnd({ animated: true });
-          },
-        }
-      );
+      test({
+        type: f.type,
+        name: f.name,
+        url: renderUrl(f),
+        username,
+        password,
+        requestTimeoutMs: editServer?.connectionTimeoutMs ?? 30_000,
+      });
     },
-    [test]
+    [editServer?.connectionTimeoutMs, test]
+  );
+
+  const openTestDetails = React.useCallback(() => {
+    if (!data?.error) return;
+    const form = getValues();
+    const url = renderUrl({
+      ...form,
+      type: form.type ?? "transmission",
+    });
+    const username = form.useAuth
+      ? form.username?.trim() || undefined
+      : undefined;
+    const password = form.useAuth ? form.password || undefined : undefined;
+    router.push(
+      debugHref({
+        url,
+        username,
+        password,
+        errorName: data.error.name,
+        errorMessage: data.error.message,
+        errorStatus: data.error.status,
+        errorBody: data.error.body,
+      }),
+    );
+  }, [data, getValues, router]);
+
+  const openAddress = React.useCallback(
+    (address: "primary" | "new" | number) => {
+      if (!editServer) return;
+      void handleSubmit((form) =>
+        storeRemoteServer(form, () =>
+          router.push({
+            pathname: "/settings/connection-address",
+            params: {
+              serverId: editServer.id,
+              address: String(address),
+            },
+          }),
+        ),
+      )();
+    },
+    [editServer, handleSubmit, router, storeRemoteServer],
+  );
+
+  const updateAlternativeUrls = React.useCallback(
+    (url: string, alternativeUrls: string[]) => {
+      if (!editServer) return;
+      const updated = servers.map((server) =>
+        server.id === editServer.id
+          ? {
+              ...server,
+              url,
+              alternativeUrls,
+              updatedAt: Date.now(),
+            }
+          : server,
+      );
+      store({ servers: updated });
+    },
+    [editServer, servers, store],
+  );
+
+  const makePrimary = React.useCallback(
+    (index: number) => {
+      if (!editServer) return;
+      const promoted = promoteServerAddress(
+        editServer.url,
+        editServer.alternativeUrls,
+        index,
+      );
+      if (!promoted) return;
+      updateAlternativeUrls(promoted.url, promoted.alternativeUrls);
+    },
+    [editServer, updateAlternativeUrls],
+  );
+
+  const removeAlternative = React.useCallback(
+    (index: number) => {
+      if (!editServer) return;
+      const alternativeUrls = editServer.alternativeUrls.filter(
+        (_url, itemIndex) => itemIndex !== index,
+      );
+      updateAlternativeUrls(editServer.url, alternativeUrls);
+    },
+    [editServer, updateAlternativeUrls],
+  );
+
+  const openAddressActions = React.useCallback(
+    (index: number) => {
+      const options: SelectOption[] = [
+        {
+          id: "edit",
+          label: "Edit",
+          left: "edit-2",
+          value: "edit",
+        },
+        {
+          id: "primary",
+          label: "Make primary",
+          left: "home",
+          value: "primary",
+        },
+        {
+          id: "remove",
+          label: "Remove",
+          left: "trash-2",
+          color: red,
+          value: "remove",
+        },
+      ];
+
+      SheetManager.show(SELECT_SHEET_ID, {
+        payload: {
+          title: `Alternative ${index + 1}`,
+          options,
+          onSelect: (value) => {
+            if (value === "edit") {
+              openAddress(index);
+              return;
+            }
+            if (value === "primary") {
+              makePrimary(index);
+              return;
+            }
+            removeAlternative(index);
+          },
+        },
+      });
+    },
+    [makePrimary, openAddress, red, removeAlternative],
   );
 
   return (
     <Screen>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
-        ref={scroll}
         bottomOffset={8}
         contentInset={{ bottom: inset.bottom }}
         showsVerticalScrollIndicator={false}
       >
         <SettingsSectionTitle title="Connection" first />
 
-        <SettingsFieldRow label="Client type" reserveErrorSpace>
+        <SettingsFieldRow label="Client type">
           <Controller
             name="type"
             control={control}
@@ -446,6 +577,7 @@ export default function ConnectionScreen() {
                 onChange={onTypeChange}
                 options={typeOptions}
                 title="Client Type"
+                disabled={isEdit}
               />
             )}
           />
@@ -469,7 +601,10 @@ export default function ConnectionScreen() {
                   variant="settings"
                   placeholder="remote server"
                   style={fieldState.error ? { borderColor: red } : undefined}
-                  onChangeText={field.onChange}
+                  onChangeText={(value) => {
+                    resetTest();
+                    field.onChange(value);
+                  }}
                   value={field.value?.toString() || ""}
                 />
               </SettingsFieldRow>
@@ -500,194 +635,267 @@ export default function ConnectionScreen() {
 
         {!isLocal && (
           <>
-            <Controller
-              name="host"
-              control={control}
-              render={({ field, fieldState }) => (
-                <SettingsFieldRow
-                  label={
-                    <Text style={styles.label}>
-                      Host / IP address <Required />
-                    </Text>
-                  }
-                  error={fieldState.error?.message}
-                  reserveErrorSpace
-                >
-                  <TextInput
-                    variant="settings"
-                    placeholder="192.168.1.100"
-                    style={fieldState.error ? { borderColor: red } : undefined}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
-                  />
-                </SettingsFieldRow>
-              )}
-            />
+            {!isEdit ? (
+              <>
+                <SettingsSectionTitle title="Primary address" />
 
-            <Controller
-              name="port"
-              control={control}
-              render={({ field, fieldState }) => (
-                <SettingsFieldRow
-                  label="Port"
-                  error={fieldState.error?.message}
-                  reserveErrorSpace
-                >
-                  <TextInput
-                    variant="settings"
-                    placeholder={useSSL ? "443" : String(typeDefaults[type].port)}
-                    keyboardType="numeric"
-                    style={fieldState.error ? { borderColor: red } : undefined}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
-                  />
-                </SettingsFieldRow>
-              )}
-            />
+                <Controller
+                  name="host"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SettingsFieldRow
+                      label={
+                        <Text style={styles.label}>
+                          Host / IP address <Required />
+                        </Text>
+                      }
+                      error={fieldState.error?.message}
+                      reserveErrorSpace
+                    >
+                      <TextInput
+                        variant="settings"
+                        placeholder="192.168.1.100"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        style={
+                          fieldState.error ? { borderColor: red } : undefined
+                        }
+                        value={field.value?.toString() || ""}
+                        onChangeText={(value) => {
+                          resetTest();
+                          field.onChange(value);
+                        }}
+                      />
+                    </SettingsFieldRow>
+                  )}
+                />
 
-            <Controller
-              name="path"
-              control={control}
-              render={({ field, fieldState }) => (
-                <SettingsFieldRow
-                  label="Path"
-                  error={fieldState.error?.message}
-                  reserveErrorSpace
-                >
-                  <TextInput
-                    variant="settings"
-                    placeholder={typeDefaults[type].path || "/"}
-                    style={fieldState.error ? { borderColor: red } : undefined}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
+                <Controller
+                  name="port"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SettingsFieldRow
+                      label="Port"
+                      error={fieldState.error?.message}
+                      reserveErrorSpace
+                    >
+                      <TextInput
+                        variant="settings"
+                        placeholder={
+                          useSSL ? "443" : String(typeDefaults[type].port)
+                        }
+                        keyboardType="numeric"
+                        style={
+                          fieldState.error ? { borderColor: red } : undefined
+                        }
+                        value={field.value?.toString() || ""}
+                        onChangeText={(value) => {
+                          resetTest();
+                          field.onChange(value);
+                        }}
+                      />
+                    </SettingsFieldRow>
+                  )}
+                />
+
+                <Controller
+                  name="path"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SettingsFieldRow
+                      label="Path"
+                      error={fieldState.error?.message}
+                      reserveErrorSpace
+                    >
+                      <TextInput
+                        variant="settings"
+                        placeholder={typeDefaults[type].path || "/"}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        style={
+                          fieldState.error ? { borderColor: red } : undefined
+                        }
+                        value={field.value?.toString() || ""}
+                        onChangeText={(value) => {
+                          resetTest();
+                          field.onChange(value);
+                        }}
+                      />
+                    </SettingsFieldRow>
+                  )}
+                />
+
+                <SettingsFieldRow>
+                  <Controller
+                    name="useSSL"
+                    control={control}
+                    render={({ field }) => (
+                      <Toggle
+                        variant="settings"
+                        label="SSL/HTTPS"
+                        description="Use a secure HTTPS connection."
+                        value={field.value}
+                        onPress={onSSLChange}
+                      />
+                    )}
                   />
                 </SettingsFieldRow>
-              )}
-            />
+              </>
+            ) : null}
 
             <SettingsSectionTitle title="Security" />
 
-        <SettingsFieldRow>
-          <Controller
-            name="useSSL"
-            control={control}
-            render={({ field }) => (
-              <Toggle
-                variant="settings"
-                label="SSL/HTTPS"
-                description="Use a secure HTTPS connection."
-                value={field.value}
-                onPress={onSSLChange}
-              />
-            )}
-          />
-        </SettingsFieldRow>
-
-        <SettingsFieldRow>
-          <Controller
-            name="useAuth"
-            control={control}
-            render={({ field }) => (
-              <Toggle
-                variant="settings"
-                label="Authentication"
-                description="Require username and password."
-                value={field.value}
-                onPress={onUseAuthChange}
-              />
-            )}
-          />
-        </SettingsFieldRow>
-
-        {useAuth && (
-          <>
-            <Controller
-              name="username"
-              control={control}
-              render={({ field, fieldState }) => (
-                <SettingsFieldRow
-                  label={
-                    <Text style={styles.label}>
-                      Username <Required />
-                    </Text>
-                  }
-                  error={fieldState.error?.message}
-                  reserveErrorSpace
-                >
-                  <TextInput
+            <SettingsFieldRow>
+              <Controller
+                name="useAuth"
+                control={control}
+                render={({ field }) => (
+                  <Toggle
                     variant="settings"
-                    style={fieldState.error ? { borderColor: red } : undefined}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
+                    label="Authentication"
+                    description="Shared by every connection address."
+                    value={field.value}
+                    onPress={onUseAuthChange}
                   />
-                </SettingsFieldRow>
-              )}
-            />
-
-            <Controller
-              name="password"
-              control={control}
-              render={({ field, fieldState }) => (
-                <SettingsFieldRow
-                  label={
-                    <Text style={styles.label}>
-                      Password <Required />
-                    </Text>
-                  }
-                  error={fieldState.error?.message}
-                  reserveErrorSpace
-                >
-                  <TextInput
-                    variant="settings"
-                    style={fieldState.error ? { borderColor: red } : undefined}
-                    value={field.value?.toString() || ""}
-                    onChangeText={field.onChange}
-                    secureTextEntry
-                  />
-                </SettingsFieldRow>
-              )}
-            />
-          </>
-        )}
-
-            <View style={[styles.connectionCard, { borderColor: gray }]}>
-              <View style={styles.connectionHeader}>
-                <Text style={styles.label}>Connection</Text>
-                {hasError && data?.error ? (
-                  <Pressable
-                    style={styles.statusPressable}
-                    onPress={() => {
-                      const f = getValues();
-                      const url = renderUrl({ ...f, type: f.type ?? "transmission" });
-                      const username = f.useAuth ? f.username?.trim() || undefined : undefined;
-                      const password = f.useAuth ? f.password || undefined : undefined;
-                      const e = data.error!;
-                      router.push(debugHref({
-                        url, username, password,
-                        errorName: e.name, errorMessage: e.message,
-                        errorStatus: e.status, errorBody: e.body,
-                      }));
-                    }}
-                  >
-                    <Text color={statusColor} style={styles.connectionState}>
-                      {status}
-                    </Text>
-                    <Feather name="chevron-right" size={14} color={statusColor} />
-                  </Pressable>
-                ) : (
-                  <Text color={statusColor} style={styles.connectionState}>
-                    {status}
-                  </Text>
                 )}
-              </View>
-              <ProgressBar progress={100} color={statusColor} />
-            </View>
+              />
+            </SettingsFieldRow>
 
-            <Button
-              title="test connection"
-              onPress={handleSubmit(onTest)}
-              style={{ marginTop: 8, marginBottom: 8, backgroundColor: green }}
-            />
+            {useAuth ? (
+              <>
+                <Controller
+                  name="username"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SettingsFieldRow
+                      label={
+                        <Text style={styles.label}>
+                          Username <Required />
+                        </Text>
+                      }
+                      error={fieldState.error?.message}
+                      reserveErrorSpace
+                    >
+                      <TextInput
+                        variant="settings"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        style={
+                          fieldState.error ? { borderColor: red } : undefined
+                        }
+                        value={field.value?.toString() || ""}
+                        onChangeText={(value) => {
+                          resetTest();
+                          field.onChange(value);
+                        }}
+                      />
+                    </SettingsFieldRow>
+                  )}
+                />
+
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SettingsFieldRow
+                      label={
+                        <Text style={styles.label}>
+                          Password <Required />
+                        </Text>
+                      }
+                      error={fieldState.error?.message}
+                      reserveErrorSpace
+                    >
+                      <TextInput
+                        variant="settings"
+                        style={
+                          fieldState.error ? { borderColor: red } : undefined
+                        }
+                        value={field.value?.toString() || ""}
+                        onChangeText={(value) => {
+                          resetTest();
+                          field.onChange(value);
+                        }}
+                        secureTextEntry
+                      />
+                    </SettingsFieldRow>
+                  )}
+                />
+              </>
+            ) : null}
+
+            {isEdit && editServer ? (
+              <>
+                <SettingsSectionTitle title="Connection addresses" />
+                <View
+                  style={[styles.addressList, { borderColor: lightestGray }]}
+                >
+                  <ConnectionAddressRow
+                    label="Primary"
+                    url={editServer.url}
+                    primary
+                    onPress={() => openAddress("primary")}
+                  />
+                  {editServer.alternativeUrls.map((url, index) => (
+                    <React.Fragment key={url}>
+                      <SettingsInsetDivider inset={12} />
+                      <ConnectionAddressRow
+                        label={`Alternative ${index + 1}`}
+                        url={url}
+                        onPress={() =>
+                          isPro ? openAddress(index) : router.push("/paywall")
+                        }
+                        onMore={
+                          isPro ? () => openAddressActions(index) : undefined
+                        }
+                      />
+                    </React.Fragment>
+                  ))}
+                </View>
+
+                {isPro ? (
+                  <Button
+                    title="add address"
+                    variant="outline"
+                    onPress={() => openAddress("new")}
+                    style={styles.addAddressButton}
+                  />
+                ) : (
+                  <Pressable
+                    style={[
+                      styles.proFeatureCard,
+                      { borderColor: lightestGray },
+                    ]}
+                    onPress={() => router.push("/paywall")}
+                    accessibilityRole="button"
+                    accessibilityLabel="Learn about multiple connection addresses in Pro"
+                  >
+                    <Feather name="repeat" size={22} color={text} />
+                    <View style={styles.proFeatureCopy}>
+                      <View style={styles.proFeatureTitle}>
+                        <Text style={styles.label}>Multiple addresses</Text>
+                        <Badge label="PRO" style={styles.proBadge} />
+                      </View>
+                      <Text color={gray} style={styles.proFeatureDescription}>
+                        Add LAN, VPN, or public addresses with automatic
+                        failover.
+                      </Text>
+                    </View>
+                    <Feather name="chevron-right" size={20} color={gray} />
+                  </Pressable>
+                )}
+              </>
+            ) : (
+              <>
+                <SettingsSectionTitle title="Connection test" />
+                <ConnectionTest
+                  data={data}
+                  isPending={isPending}
+                  onPress={handleSubmit(onTest)}
+                  onDetails={data?.error ? openTestDetails : undefined}
+                />
+              </>
+            )}
           </>
         )}
 
@@ -741,7 +949,7 @@ export default function ConnectionScreen() {
           <Button
             title="save"
             onPress={handleSubmit(onSubmit)}
-            style={{ marginTop: 8, marginBottom: 16 }}
+            style={isEdit ? styles.editSaveButton : styles.saveButton}
           />
         )}
       </KeyboardAwareScrollView>
@@ -770,11 +978,48 @@ const styles = StyleSheet.create({
   connectionState: {
     fontSize: 12,
   },
-  statusPressable: {
+  addressList: {
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  addAddressButton: {
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  proFeatureCard: {
+    minHeight: 76,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  proFeatureCopy: {
+    flex: 1,
     gap: 4,
-    flexShrink: 1,
+  },
+  proFeatureTitle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  proFeatureDescription: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  proBadge: {
+    height: 20,
+    paddingHorizontal: 6,
+  },
+  saveButton: {
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  editSaveButton: {
+    marginBottom: 16,
   },
   localCallout: {
     marginTop: 4,

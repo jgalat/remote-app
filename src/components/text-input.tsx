@@ -10,6 +10,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 
 import { useTheme } from "~/hooks/use-theme-color";
+import { useAppFontFamily } from "~/contexts/font";
 
 export type TextInputProps = {
   containerStyle?: StyleProp<ViewStyle>;
@@ -23,6 +24,7 @@ export default React.forwardRef<_TextInput, TextInputProps>(
     ref
   ) {
     const { background, text, lightGray, gray } = useTheme();
+    const fontFamily = useAppFontFamily();
 
     const settings = variant === "settings";
     const borderColor = editable
@@ -50,6 +52,7 @@ export default React.forwardRef<_TextInput, TextInputProps>(
             },
             icon ? { paddingLeft: settings ? 36 : 40 } : {},
             style,
+            { fontFamily },
           ]}
           placeholderTextColor={lightGray}
           {...props}

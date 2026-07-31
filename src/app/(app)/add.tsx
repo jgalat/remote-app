@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import type { Session, AddTorrentParams } from "~/client";
+import type { AddTorrentParams } from "~/client";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
@@ -18,12 +18,16 @@ import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
 import Screen from "~/components/screen";
+import TorrentDestination, {
+  torrentDestinationDescription,
+  torrentDestinationName,
+} from "~/components/torrent-destination";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useAddTorrent, useSession } from "~/hooks/torrent";
+import { useServerAddTorrent, useServerSession } from "~/hooks/torrent";
 import {
   useActiveServerId,
   useDirectories,
-  useIsLocalServer,
+  useServers,
 } from "~/hooks/use-settings";
 import Toggle from "~/components/toggle";
 import FileInput from "~/components/file-input";
@@ -59,29 +63,6 @@ const Form = z
     }
   });
 
-function values(
-  session: Session | undefined,
-  magnet: string | undefined,
-  isLocal: boolean,
-  shared: { name: string; content: string } | undefined,
-): Form | undefined {
-  if (!session) {
-    return undefined;
-  }
-  return {
-    magnet: magnet,
-    // The shared file lives here instead of a setValue call: react-hook-form
-    // re-applies `values` whenever it changes (e.g. when the session query
-    // resolves after the file was read on cold start), wiping anything set
-    // outside of it.
-    file: shared?.name,
-    content: shared?.content,
-    // Local torrents use the engine's fixed app-private directory.
-    path: isLocal ? undefined : session["download-dir"],
-    start: true,
-  };
-}
-
 async function readSharedTorrent(filePath: string): Promise<{ name: string; content: string }> {
   const name = SendIntent.getDisplayName(filePath) ?? "file.torrent";
   try {
@@ -97,16 +78,31 @@ async function readSharedTorrent(filePath: string): Promise<{ name: string; cont
 export default function AddTorrentScreen() {
   const router = useRouter();
   const { red, text, gray, lightGray, background } = useTheme();
-  const { data: session } = useSession();
-  const serverId = useActiveServerId();
-  const isLocal = useIsLocalServer(serverId);
-  const directories = useDirectories(serverId);
+  const servers = useServers();
+  const activeServerId = useActiveServerId();
 
-  const { magnet, file, intent } = useLocalSearchParams<{
+  const { magnet, file, intent, serverId } = useLocalSearchParams<{
     magnet?: string;
     file?: string;
     intent?: string;
+    serverId?: string;
   }>();
+
+  const initialDestinationId =
+    servers.find((server) => server.id === serverId)?.id ??
+    servers.find((server) => server.id === activeServerId)?.id ??
+    servers[0]?.id;
+  const [destinationId, setDestinationId] =
+    React.useState(initialDestinationId);
+  const destination = servers.find((server) => server.id === destinationId);
+  const isLocal = destination?.type === "local";
+  const directories = useDirectories(destinationId);
+  const { data: session } = useServerSession(destination);
+
+  React.useEffect(() => {
+    if (destination) return;
+    setDestinationId(initialDestinationId);
+  }, [destination, initialDestinationId]);
 
   const goBack = React.useCallback(() => {
     if (intent) {
@@ -123,11 +119,33 @@ export default function AddTorrentScreen() {
     staleTime: Infinity,
   });
 
-  const { control, handleSubmit, setValue, reset } = useForm({
+  const { control, handleSubmit, setValue } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
-    values: values(session, magnet, isLocal, sharedTorrent.data),
+    defaultValues: {
+      magnet,
+      file: undefined,
+      content: undefined,
+      path: undefined,
+      start: true,
+    },
   });
+
+  React.useEffect(() => {
+    setValue("path", undefined);
+  }, [destinationId, setValue]);
+
+  React.useEffect(() => {
+    if (!session) return;
+    setValue("path", isLocal ? undefined : session["download-dir"]);
+  }, [isLocal, session, setValue]);
+
+  React.useEffect(() => {
+    if (!sharedTorrent.data) return;
+    setValue("file", sharedTorrent.data.name);
+    setValue("content", sharedTorrent.data.content);
+    setValue("magnet", "");
+  }, [setValue, sharedTorrent.data]);
 
   React.useEffect(() => {
     if (!sharedTorrent.error) return;
@@ -137,6 +155,26 @@ export default function AddTorrentScreen() {
         : "Unknown error";
     ToastAndroid.show(`Failed to read shared file: ${message}`, ToastAndroid.SHORT);
   }, [sharedTorrent.error]);
+
+  const onPickDestination = React.useCallback(() => {
+    if (servers.length < 2) return;
+
+    const options: SelectOption[] = servers.map((server) => ({
+      id: server.id,
+      label: torrentDestinationName(server),
+      description: torrentDestinationDescription(server),
+      left: server.type === "local" ? "hard-drive" : "server",
+      right: server.id === destinationId ? "check" : undefined,
+      value: server.id,
+    }));
+
+    SheetManager.show(SELECT_SHEET_ID, {
+      payload: {
+        options,
+        onSelect: (value) => setDestinationId(String(value)),
+      },
+    });
+  }, [destinationId, servers]);
 
   const onPickDirectory = React.useCallback(() => {
     const defaultDir = session?.["download-dir"];
@@ -162,7 +200,7 @@ export default function AddTorrentScreen() {
     });
   }, [session, directories, setValue]);
 
-  const addTorrent = useAddTorrent();
+  const addTorrent = useServerAddTorrent(destination);
 
   const onPickDocument = React.useCallback(async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -181,11 +219,10 @@ export default function AddTorrentScreen() {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    reset();
     setValue("file", file.name);
     setValue("content", content);
     setValue("magnet", "");
-  }, [setValue, reset]);
+  }, [setValue]);
 
   const onSubmit = React.useCallback(
     async (f: Form) => {
@@ -242,6 +279,16 @@ export default function AddTorrentScreen() {
         bottomOffset={8}
         showsVerticalScrollIndicator={false}
       >
+        {destination ? (
+          <SettingsFieldRow label="Destination">
+            <TorrentDestination
+              server={destination}
+              selectable={servers.length > 1}
+              onPress={onPickDestination}
+            />
+          </SettingsFieldRow>
+        ) : null}
+
         <Controller
           name="magnet"
           control={control}
@@ -349,7 +396,8 @@ export default function AddTorrentScreen() {
 
       <View style={styles.footer}>
         <Button
-          title="add torrent"
+          title="add"
+          disabled={!destination || addTorrent.isPending}
           onPress={handleSubmit(onSubmit)}
         />
         <Button

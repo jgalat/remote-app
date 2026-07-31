@@ -240,13 +240,24 @@ function DirectoriesList({ server }: { server: Server }) {
 }
 
 export default function DirectoriesScreen() {
-  const servers = useServers();
+  const allServers = useServers();
+  const servers = React.useMemo(
+    () => allServers.filter((server) => server.type !== "local"),
+    [allServers],
+  );
   const activeServerId = useActiveServerId();
   const { text } = useTheme();
 
   const [selectedId, setSelectedId] = React.useState<string | undefined>(
-    activeServerId ?? servers[0]?.id
+    servers.some((server) => server.id === activeServerId)
+      ? activeServerId
+      : servers[0]?.id,
   );
+
+  React.useEffect(() => {
+    if (servers.some((server) => server.id === selectedId)) return;
+    setSelectedId(servers[0]?.id);
+  }, [selectedId, servers]);
 
   const server = selectedId
     ? servers.find((s) => s.id === selectedId)
@@ -273,7 +284,7 @@ export default function DirectoriesScreen() {
   if (servers.length === 0) {
     return (
       <Screen>
-        <Text>No servers configured</Text>
+        <Text>No remote servers configured</Text>
       </Screen>
     );
   }

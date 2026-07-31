@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Platform, Share, ToastAndroid } from "react-native";
+import { Share, ToastAndroid } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 import { router } from "expo-router";
 
@@ -53,16 +53,20 @@ function TorrentActionsSheet({
       left: "pause",
       onPress: () => actions.stop.mutate({ ids }),
     },
-    {
-      label: "Verify",
-      left: "check-circle",
-      onPress: () => actions.verify.mutate({ ids }),
-    },
-    {
-      label: "Reannounce",
-      left: "radio",
-      onPress: () => actions.reannounce.mutate({ ids }),
-    },
+    ...(info
+      ? [
+          {
+            label: "Verify",
+            left: "check-circle" as const,
+            onPress: () => actions.verify.mutate({ ids }),
+          },
+          {
+            label: "Reannounce",
+            left: "radio" as const,
+            onPress: () => actions.reannounce.mutate({ ids }),
+          },
+        ]
+      : []),
     // Move is hidden on local servers because their app-private path is fixed.
     ...(isLocal
       ? []
@@ -87,12 +91,20 @@ function TorrentActionsSheet({
         ]),
   ];
 
-  // Completed local torrents can be copied to public Downloads.
+  if (isLocal && torrents.length === 1 && !info) {
+    const [{ id }] = torrents;
+    options.push({
+      label: "Files",
+      left: "folder",
+      onPress: () => {
+        router.push(`/info/${id}/files`);
+        clear();
+      },
+    });
+  }
+
   if (
     isLocal &&
-    Platform.OS === "android" &&
-    typeof Platform.Version === "number" &&
-    Platform.Version >= 29 &&
     torrents.length === 1 &&
     torrents[0].percentDone >= 1
   ) {

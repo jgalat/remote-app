@@ -20,6 +20,7 @@ import { useColorScheme } from "~/hooks/use-settings";
 import { ProProvider, LocalEngineProvider } from "@remote-app/pro";
 import { AuthProvider } from "~/contexts/auth";
 import useAuth from "~/hooks/use-auth";
+import { FontProvider } from "~/contexts/font";
 
 import "~/tasks";
 import "~/sheets";
@@ -50,31 +51,33 @@ function Root() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: "transparent" }}
-        edges={["right", "bottom", "left"]}
-      >
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-        <View style={{ flex: 1 }} onLayout={onRootLayout}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Protected guard={!locked}>
-              <Stack.Screen
-                name="(app)"
-                options={{
-                  animationTypeForReplace: "pop",
-                }}
-              />
-            </Stack.Protected>
-            <Stack.Protected guard={locked}>
-              <Stack.Screen name="sign-in" />
-            </Stack.Protected>
-          </Stack>
-        </View>
-      </SafeAreaView>
+      <FontProvider>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "transparent" }}
+          edges={["right", "bottom", "left"]}
+        >
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+          <View style={{ flex: 1 }} onLayout={onRootLayout}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Protected guard={!locked}>
+                <Stack.Screen
+                  name="(app)"
+                  options={{
+                    animationTypeForReplace: "pop",
+                  }}
+                />
+              </Stack.Protected>
+              <Stack.Protected guard={locked}>
+                <Stack.Screen name="sign-in" />
+              </Stack.Protected>
+            </Stack>
+          </View>
+        </SafeAreaView>
+      </FontProvider>
     </ThemeProvider>
   );
 }

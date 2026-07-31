@@ -29,11 +29,15 @@ const FilterSchema = z.enum([
 ]);
 export type Filter = z.infer<typeof FilterSchema>;
 
+const ServerScopeSchema = z.enum(["active", "all"]);
+export type ServerScope = z.infer<typeof ServerScopeSchema>;
+
 export const ListingSchema = z.object({
   sort: SortSchema,
   direction: DirectionSchema,
   filter: FilterSchema,
   pathFilter: z.string().default(""),
+  serverScope: ServerScopeSchema.default("active"),
 });
 
 export type ListingData = z.infer<typeof ListingSchema>;
@@ -45,6 +49,7 @@ export const defaults: ListingData = {
   direction: "asc",
   filter: "all",
   pathFilter: "",
+  serverScope: "active",
 };
 
 export function loadListing(): ListingData {

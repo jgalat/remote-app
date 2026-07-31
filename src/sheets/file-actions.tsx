@@ -6,6 +6,11 @@ import type { OptionProps } from "~/components/option";
 import type { TorrentId } from "~/client";
 import { useIsLocalServer } from "~/hooks/use-settings";
 import {
+  useCopyLocalFileToDownloads,
+  useOpenLocalFile,
+  useShareLocalFile,
+} from "@remote-app/pro";
+import {
   FILE_ACTIONS_SHEET_ID,
   RENAME_PATH_SHEET_ID,
   TORRENT_PRIORITY_SHEET_ID,
@@ -29,8 +34,42 @@ function FileActionsSheet({
   const isFile = payload?.isFile ?? true;
   const content = payload?.content ?? [];
   const isLocal = useIsLocalServer();
+  const copyLocalFileToDownloads = useCopyLocalFileToDownloads();
+  const openLocalFile = useOpenLocalFile();
+  const shareLocalFile = useShareLocalFile();
 
   const options: OptionProps[] = [
+    ...(isLocal && isFile && content.length === 1
+      ? [
+          {
+            label: "Open",
+            left: "external-link" as const,
+            onPress: () =>
+              openLocalFile.mutate({
+                infoHash: String(id),
+                fileIndex: content[0],
+              }),
+          },
+          {
+            label: "Copy to Downloads",
+            left: "download" as const,
+            onPress: () =>
+              copyLocalFileToDownloads.mutate({
+                infoHash: String(id),
+                fileIndex: content[0],
+              }),
+          },
+          {
+            label: "Share",
+            left: "share" as const,
+            onPress: () =>
+              shareLocalFile.mutate({
+                infoHash: String(id),
+                fileIndex: content[0],
+              }),
+          },
+        ]
+      : []),
     {
       label: "Set priority",
       left: "bar-chart-2",
@@ -73,7 +112,7 @@ function FileActionsSheet({
         ]),
   ];
 
-  return <ActionSheet title={name} options={options} {...props} />;
+  return <ActionSheet options={options} {...props} />;
 }
 
 FileActionsSheet.sheetId = FILE_ACTIONS_SHEET_ID;

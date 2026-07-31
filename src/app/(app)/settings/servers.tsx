@@ -10,9 +10,7 @@ import Text from "~/components/text";
 import View from "~/components/view";
 import Pressable from "~/components/pressable";
 import Button from "~/components/button";
-import {
-  SettingsInsetDivider,
-} from "~/components/settings";
+import Separator from "~/components/separator";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useServersStore } from "~/hooks/use-settings";
 import { usePro } from "@remote-app/pro";
@@ -41,6 +39,10 @@ function HealthIndicator({ status }: { status: HealthStatus }) {
     return <Feather name="check" size={20} color={green} />;
   }
   return <Feather name="x" size={20} color={red} />;
+}
+
+function ServerSeparator() {
+  return <Separator style={styles.separator} />;
 }
 
 function ServerRow({
@@ -184,7 +186,7 @@ export default function ServersScreen() {
               onLongPress={() => toggleSelection(server.id)}
             />
           )}
-          ItemSeparatorComponent={() => <SettingsInsetDivider inset={12} />}
+          ItemSeparatorComponent={ServerSeparator}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
         />
@@ -206,7 +208,7 @@ export default function ServersScreen() {
       ) : (
         (available || servers.length === 0) && (
           <View style={styles.footer}>
-            <Button title="Add Server" onPress={onAdd} />
+            <Button title="Add server" onPress={onAdd} />
           </View>
         )
       )}
@@ -236,6 +238,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 12,
+  },
+  separator: {
+    width: "auto",
+    marginHorizontal: 12,
+    marginVertical: 0,
   },
   empty: {
     flex: 1,
