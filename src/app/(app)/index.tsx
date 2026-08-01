@@ -168,9 +168,10 @@ function SearchInput({ onSubmit }: { onSubmit: (query: string) => void }) {
 
 export default function TorrentsScreen() {
   const { serverScope } = useListing();
+  const servers = useServers();
   const { isPro } = usePro();
 
-  if (serverScope === "all" && isPro) {
+  if (serverScope === "all" && isPro && servers.length > 1) {
     return <AllServersTorrentsScreen />;
   }
 

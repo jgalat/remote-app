@@ -14,6 +14,7 @@ import {
   storeListing,
   type ListingData,
 } from "~/store/listing";
+import { normalizeServerScope } from "~/utils/server-scope";
 import { loadSearch, storeSearch, type SearchConfig } from "~/store/search";
 import {
   loadPreferences,
@@ -53,11 +54,24 @@ function useServersQuery() {
   });
 }
 
+function loadAvailableListing(): ListingData {
+  const listing = loadListing();
+  const serverScope = normalizeServerScope(
+    listing.serverScope,
+    loadServers().servers.length,
+  );
+  if (serverScope === listing.serverScope) return listing;
+
+  const updated = { ...listing, serverScope };
+  storeListing(updated);
+  return updated;
+}
+
 function useListingQuery() {
   return useQuery({
     queryKey: listingKey,
-    queryFn: loadListing,
-    initialData: loadListing,
+    queryFn: loadAvailableListing,
+    initialData: loadAvailableListing,
     ...queryOptions,
   });
 }
@@ -100,11 +114,23 @@ export function useServersStore() {
       const current = loadServers();
       const updated = { ...current, ...diff };
       storeServers(updated);
+
+      const listing = loadListing();
+      const serverScope = normalizeServerScope(
+        listing.serverScope,
+        updated.servers.length,
+      );
+      if (serverScope !== listing.serverScope) {
+        storeListing({ ...listing, serverScope });
+      }
+
       cleanupOrphanedData(new Set(updated.servers.map((s) => s.id)));
       return updated;
     },
     onSettled: (data) => {
-      if (data !== undefined) queryClient.setQueryData(serversKey, data);
+      if (data === undefined) return;
+      queryClient.setQueryData(serversKey, data);
+      queryClient.setQueryData(listingKey, loadAvailableListing());
     },
   });
 
