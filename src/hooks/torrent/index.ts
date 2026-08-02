@@ -32,6 +32,7 @@ export {
 export { useHealthPing, type HealthStatus } from "./health";
 
 export {
+  useAllSessions,
   useAllTorrents,
   type ServerTorrent,
   type ServerConnectionError,

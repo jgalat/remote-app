@@ -239,6 +239,17 @@ export function useDirectories(serverId: string | undefined) {
   return [...new Set([...globals, ...serverDirs])];
 }
 
+export function useAllDirectories() {
+  const { data } = useDirectoriesQuery();
+  const { servers } = useServersQuery().data;
+  return [
+    ...new Set([
+      ...data.global,
+      ...servers.flatMap((server) => data.servers[server.id] ?? []),
+    ]),
+  ];
+}
+
 // Read-only hooks
 
 export function useServer() {

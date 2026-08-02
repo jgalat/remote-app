@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 
-import { createClient, type TorrentListItem } from "~/client";
+import { createClient, type Session, type TorrentListItem } from "~/client";
 import { useServers } from "~/hooks/use-settings";
 import type { Server } from "~/store/settings";
 import { queryKeys } from "./query-keys";
@@ -70,4 +70,21 @@ export function useAllTorrents({ stale = false }: { stale?: boolean } = {}) {
       data.length === 0 && queries.some((query) => query.isPending),
     refetch,
   };
+}
+
+export function useAllSessions({ stale = false }: { stale?: boolean } = {}) {
+  const servers = useServers();
+  const queries = useQueries({
+    queries: servers.map((server) => ({
+      queryKey: queryKeys.sessionGet(server),
+      queryFn: () => createClient(server).getSession(),
+      enabled: !stale,
+      staleTime: 5_000,
+    })),
+  });
+
+  return React.useMemo<Session[]>(
+    () => queries.flatMap((query) => (query.data ? [query.data] : [])),
+    [queries],
+  );
 }

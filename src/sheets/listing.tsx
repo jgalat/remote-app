@@ -13,8 +13,10 @@ import { useTheme } from "~/hooks/use-theme-color";
 import { useListingStore, useActiveServerId, useDirectories } from "~/hooks/use-settings";
 import { useTorrents, useSession } from "~/hooks/torrent";
 import predicate from "~/utils/filter";
+import { aggregateListingDirectories } from "~/utils/listing-directories";
 
 import type { SheetProps } from "react-native-actions-sheet";
+import type { TorrentListItem } from "~/client";
 import type { Sort, Filter } from "~/store/settings";
 import type { SelectOption } from "./select";
 import type { OptionProps } from "~/components/option";
@@ -23,17 +25,22 @@ import { LISTING_SHEET_ID, SELECT_SHEET_ID } from "./ids";
 const tabs = ["sort", "filter"] as const;
 type Tab = (typeof tabs)[number];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
+export type Payload = {
+  torrents: TorrentListItem[];
+  directories: string[];
+};
+
+function ListingSheet({ payload }: SheetProps<typeof LISTING_SHEET_ID>) {
   const { background, text, tint } = useTheme();
   const insets = useSafeAreaInsets();
-  const { data: torrents } = useTorrents({ stale: true });
+  const { data: activeTorrents } = useTorrents({ stale: true });
   const { data: session } = useSession({ stale: true });
   const activeServerId = useActiveServerId();
   const savedDirs = useDirectories(activeServerId);
   const { listing, store } = useListingStore();
   const { sort, direction, filter, pathFilter } = listing;
   const [tab, setTab] = React.useState<Tab>("sort");
+  const torrents = payload?.torrents ?? activeTorrents;
 
   const updateSort = React.useCallback(
     (s: Sort) => {
@@ -112,12 +119,18 @@ function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
 
   const defaultDir = session?.["download-dir"];
   const pathLabel = pathFilter || "Path";
+  const pathDirectories = React.useMemo(
+    () =>
+      payload?.directories ??
+      aggregateListingDirectories(
+        [defaultDir],
+        savedDirs,
+        torrents?.map((torrent) => torrent.downloadDir) ?? [],
+      ),
+    [payload?.directories, defaultDir, savedDirs, torrents],
+  );
 
   const openPathPicker = React.useCallback(() => {
-    const dirs = new Set<string>();
-    if (defaultDir) dirs.add(defaultDir);
-    for (const d of savedDirs) dirs.add(d);
-
     const countByDir = new Map<string, number>();
     if (torrents) {
       for (const t of torrents) {
@@ -132,7 +145,7 @@ function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
         left: torrents?.length ?? 0,
         right: pathFilter === "" ? "check" : undefined,
       },
-      ...[...dirs].map((dir) => ({
+      ...pathDirectories.map((dir) => ({
         value: dir,
         label: dir,
         left: countByDir.get(dir) ?? 0,
@@ -149,7 +162,7 @@ function ListingSheet(_: SheetProps<typeof LISTING_SHEET_ID>) {
         },
       },
     });
-  }, [pathFilter, defaultDir, savedDirs, torrents, store]);
+  }, [pathFilter, pathDirectories, torrents, store]);
 
   const options = tab === "sort" ? sortOptions : filterOptions;
 

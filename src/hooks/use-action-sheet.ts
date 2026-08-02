@@ -7,6 +7,7 @@ import type { Payload as ServerDeleteConfirmPayload } from "~/sheets/server-dele
 import type { Payload as SearchConfigDeleteConfirmPayload } from "~/sheets/search-config-delete-confirm";
 import type { Payload as RenamePathPayload } from "~/sheets/rename-path";
 import type { Payload as FileActionsPayload } from "~/sheets/file-actions";
+import type { Payload as ListingPayload } from "~/sheets/listing";
 import {
   FILE_ACTIONS_SHEET_ID,
   LISTING_SHEET_ID,
@@ -38,8 +39,17 @@ export function useTorrentPrioritySheet(id: number | string) {
   );
 }
 
-export function useListingSheet() {
-  return React.useCallback(() => SheetManager.show(LISTING_SHEET_ID), []);
+export function useListingSheet(payload?: ListingPayload) {
+  const payloadRef = React.useRef(payload);
+  payloadRef.current = payload;
+
+  return React.useCallback(
+    () =>
+      SheetManager.show(LISTING_SHEET_ID, {
+        payload: payloadRef.current,
+      }),
+    [],
+  );
 }
 
 export function useServerSelectorSheet() {

@@ -29,6 +29,7 @@ import {
   LoadingScreen,
 } from "~/components/utility-screens";
 import {
+  useAllSessions,
   useAllTorrents,
   useTorrentActions,
   useTorrents,
@@ -36,6 +37,7 @@ import {
 } from "~/hooks/torrent";
 import {
   useServer,
+  useAllDirectories,
   useListing,
   useServers,
   useSearchConfig,
@@ -50,6 +52,7 @@ import useTorrentSelection from "~/hooks/use-torrent-selection";
 import { usePro } from "@remote-app/pro";
 import compare from "~/utils/sort";
 import predicate, { pathPredicate, searchPredicate } from "~/utils/filter";
+import { aggregateListingDirectories } from "~/utils/listing-directories";
 import { createClient } from "~/client";
 import { queryKeys } from "~/hooks/torrent/query-keys";
 import { SELECT_SHEET_ID } from "~/sheets/ids";
@@ -463,6 +466,7 @@ function AllServersTorrentsScreen() {
   const queryClient = useQueryClient();
   const isFocused = useIsFocused();
   const servers = useServers();
+  const savedDirectories = useAllDirectories();
   const searchConfig = useSearchConfig();
   const { sort, direction, filter, pathFilter } = useListing();
   const { store } = useServersStore();
@@ -470,10 +474,27 @@ function AllServersTorrentsScreen() {
   const { gray } = useTheme();
   const serverSelectorSheet = useServerSelectorSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
-  const listingSheet = useListingSheet();
   const { data, errors, isLoading, refetch } = useAllTorrents({
     stale: !isFocused,
   });
+  const sessions = useAllSessions({ stale: !isFocused });
+  const listingDirectories = React.useMemo(
+    () =>
+      aggregateListingDirectories(
+        sessions.map((session) => session["download-dir"]),
+        savedDirectories,
+        data.map(({ torrent }) => torrent.downloadDir),
+      ),
+    [sessions, savedDirectories, data],
+  );
+  const listingPayload = React.useMemo(
+    () => ({
+      torrents: data.map(({ torrent }) => torrent),
+      directories: listingDirectories,
+    }),
+    [data, listingDirectories],
+  );
+  const listingSheet = useListingSheet(listingPayload);
   const [refreshing, setRefreshing] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");

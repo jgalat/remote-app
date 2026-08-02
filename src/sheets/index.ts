@@ -9,7 +9,7 @@ import TorrentPrioritySheet, {
 import RemoveConfirmSheet, {
   type Payload as RemoveConfirmPayload,
 } from "./remove-confirm";
-import ListingSheet from "./listing";
+import ListingSheet, { type Payload as ListingPayload } from "./listing";
 import SelectSheet, { type Payload as SelectPayload } from "./select";
 import ServerSelectorSheet from "./server-selector";
 import ServerDeleteConfirmSheet, {
@@ -52,7 +52,9 @@ declare module "react-native-actions-sheet" {
     [REMOVE_CONFIRM_SHEET_ID]: SheetDefinition<{
       payload: RemoveConfirmPayload;
     }>;
-    [LISTING_SHEET_ID]: SheetDefinition;
+    [LISTING_SHEET_ID]: SheetDefinition<{
+      payload: ListingPayload;
+    }>;
     [SELECT_SHEET_ID]: SheetDefinition<{
       payload: SelectPayload;
     }>;
