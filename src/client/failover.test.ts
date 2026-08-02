@@ -63,4 +63,43 @@ describe("createFailoverClient", () => {
     await expect(failover.ping()).rejects.toBe(unauthorized);
     expect(alternativePing).not.toHaveBeenCalled();
   });
+
+  it("does not replay mutations after an ambiguous timeout", async () => {
+    const timeout = Object.assign(new Error("Timed out"), {
+      name: "RequestTimeoutError",
+    });
+    const primaryMove = vi.fn().mockRejectedValue(timeout);
+    const alternativeMove = vi.fn().mockResolvedValue(undefined);
+    const failover = createFailoverClient([
+      { queueMoveUp: primaryMove } as unknown as TorrentClient,
+      { queueMoveUp: alternativeMove } as unknown as TorrentClient,
+    ]);
+
+    await expect(failover.queueMoveUp([1])).rejects.toBe(timeout);
+    expect(primaryMove).toHaveBeenCalledTimes(1);
+    expect(alternativeMove).not.toHaveBeenCalled();
+  });
+
+  it("runs mutations on the address selected by a successful read", async () => {
+    const primaryPing = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const alternativePing = vi.fn().mockResolvedValue(undefined);
+    const primaryMove = vi.fn().mockResolvedValue(undefined);
+    const alternativeMove = vi.fn().mockResolvedValue(undefined);
+    const failover = createFailoverClient([
+      {
+        ping: primaryPing,
+        queueMoveUp: primaryMove,
+      } as unknown as TorrentClient,
+      {
+        ping: alternativePing,
+        queueMoveUp: alternativeMove,
+      } as unknown as TorrentClient,
+    ]);
+
+    await failover.ping();
+    await failover.queueMoveUp([1]);
+
+    expect(primaryMove).not.toHaveBeenCalled();
+    expect(alternativeMove).toHaveBeenCalledTimes(1);
+  });
 });

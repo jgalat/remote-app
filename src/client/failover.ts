@@ -1,5 +1,18 @@
 import type { TorrentClient } from "./interface";
 
+const RETRYABLE_METHODS: ReadonlySet<keyof TorrentClient> = new Set([
+  "getTorrents",
+  "getTorrentInfo",
+  "getTorrentSettings",
+  "getTorrentFiles",
+  "getTorrentPeers",
+  "getTorrentTrackers",
+  "getSession",
+  "getPreferences",
+  "getSessionStats",
+  "ping",
+]);
+
 export function isRetryableConnectionError(error: unknown): boolean {
   if (error instanceof TypeError) return true;
   if (!(error instanceof Error)) return false;
@@ -41,6 +54,9 @@ export function createFailoverClient(clients: TorrentClient[]): TorrentClient {
             return result;
           } catch (error) {
             if (!isRetryableConnectionError(error)) throw error;
+            if (!RETRYABLE_METHODS.has(property as keyof TorrentClient)) {
+              throw error;
+            }
             lastError = error;
           }
         }
