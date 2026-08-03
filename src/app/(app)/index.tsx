@@ -301,7 +301,9 @@ function ServerTorrentsScreen() {
             />
           ) : null,
         headerRight: () => {
-          if (activeSelection && torrents) {
+          if (activeSelection) {
+            if (!torrents) return null;
+
             return (
               <ActionList>
                 <ActionIcon
@@ -329,8 +331,6 @@ function ServerTorrentsScreen() {
               </ActionList>
             );
           }
-
-          if (!torrents) return null;
 
           return (
             <HeaderActions
