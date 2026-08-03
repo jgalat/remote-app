@@ -57,7 +57,6 @@ import { createClient } from "~/client";
 import { queryKeys } from "~/hooks/torrent/query-keys";
 import { SELECT_SHEET_ID } from "~/sheets/ids";
 import type { SelectOption } from "~/sheets/select";
-import { useTheme } from "~/hooks/use-theme-color";
 
 type HeaderActionsProps = {
   onAdd: () => void;
@@ -471,7 +470,6 @@ function AllServersTorrentsScreen() {
   const { sort, direction, filter, pathFilter } = useListing();
   const { store } = useServersStore();
   const { available } = usePro();
-  const { gray } = useTheme();
   const serverSelectorSheet = useServerSelectorSheet();
   const torrentActionsSheet = useTorrentActionsSheet();
   const { data, errors, isLoading, refetch } = useAllTorrents({
@@ -676,18 +674,6 @@ function AllServersTorrentsScreen() {
           `${server.id}:${torrent.id.toString()}`
         }
         ItemSeparatorComponent={Separator}
-        ListHeaderComponent={
-          errors.length > 0 ? (
-            <View style={styles.partialError}>
-              <Text style={styles.partialErrorTitle}>
-                {errors.length} {errors.length === 1 ? "server" : "servers"} unavailable
-              </Text>
-              <Text color={gray} style={styles.partialErrorDetail}>
-                {errors.map(({ server }) => server.name).join(", ")}
-              </Text>
-            </View>
-          ) : null
-        }
         ListEmptyComponent={
           <View style={styles.message}>
             <Text style={data.length === 0 ? styles.title : styles.noResults}>
@@ -743,20 +729,5 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     fontSize: 18,
-  },
-  partialError: {
-    borderWidth: 1,
-    borderColor: "#c0392b",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  partialErrorTitle: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 13,
-  },
-  partialErrorDetail: {
-    fontSize: 12,
-    marginTop: 4,
   },
 });
