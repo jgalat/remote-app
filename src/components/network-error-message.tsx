@@ -8,19 +8,16 @@ import Button from "./button";
 import { useTheme } from "~/hooks/use-theme-color";
 import { useServer } from "~/hooks/use-settings";
 import { debugHref } from "~/lib/debug-href";
+import {
+  getNetworkErrorContent,
+  hasErrorBody,
+  hasErrorStatus,
+} from "~/utils/network-error";
 
 export type NetworkErrorMessageProps = {
   error: Error;
   refetch: () => void;
 } & ViewProps;
-
-function hasStatus(error: Error): error is Error & { status: number } {
-  return "status" in error && typeof (error as { status: unknown }).status === "number";
-}
-
-function hasBody(error: Error): error is Error & { body: string } {
-  return "body" in error && typeof (error as { body: unknown }).body === "string";
-}
 
 export default React.memo(function NetworkErrorMessage({
   error,
@@ -31,23 +28,7 @@ export default React.memo(function NetworkErrorMessage({
   const router = useRouter();
   const { red } = useTheme();
   const server = useServer();
-
-  let title = "Failed to connect";
-  let message = error.message || "Unknown error";
-
-  if (hasStatus(error)) {
-    title = error.message ? `${error.status}: ${error.message}` : `HTTP Status ${error.status}`;
-    message = "";
-  }
-
-  if (error.name === "TransmissionError" || error.name === "QBittorrentError") {
-    title = "Server Error";
-  }
-
-  if (hasBody(error) && !hasStatus(error)) {
-    title = "Unexpected response";
-    message = "";
-  }
+  const { title, message } = getNetworkErrorContent(error);
 
   const onDebug = React.useCallback(() => {
     if (!server) return;
@@ -57,8 +38,8 @@ export default React.memo(function NetworkErrorMessage({
       password: server.password,
       errorName: error.name,
       errorMessage: error.message,
-      errorStatus: hasStatus(error) ? error.status : undefined,
-      errorBody: hasBody(error) ? error.body : undefined,
+      errorStatus: hasErrorStatus(error) ? error.status : undefined,
+      errorBody: hasErrorBody(error) ? error.body : undefined,
     }));
   }, [server, error, router]);
 
