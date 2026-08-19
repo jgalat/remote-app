@@ -23,7 +23,11 @@ import TorrentDestination, {
   torrentDestinationName,
 } from "~/components/torrent-destination";
 import { useTheme } from "~/hooks/use-theme-color";
-import { useServerAddTorrent, useServerSession } from "~/hooks/torrent";
+import {
+  useDirectoryFreeSpace,
+  useServerAddTorrent,
+  useServerSession,
+} from "~/hooks/torrent";
 import {
   useActiveServerId,
   useDirectories,
@@ -38,6 +42,7 @@ import {
   SettingsFieldRow,
   SettingsInlineGroup,
 } from "~/components/settings";
+import { formatAvailableSpace } from "~/utils/free-space";
 
 type Form = z.infer<typeof Form>;
 const Form = z
@@ -98,6 +103,16 @@ export default function AddTorrentScreen() {
   const isLocal = destination?.type === "local";
   const directories = useDirectories(destinationId);
   const { data: session } = useServerSession(destination);
+  const defaultDir = session?.["download-dir"];
+  const downloadDirectories = React.useMemo(
+    () => [...new Set([...(defaultDir ? [defaultDir] : []), ...directories])],
+    [defaultDir, directories],
+  );
+  const { load: loadDirectoryFreeSpace } = useDirectoryFreeSpace(
+    destination,
+    downloadDirectories,
+    defaultDir,
+  );
 
   React.useEffect(() => {
     if (destination) return;
@@ -176,20 +191,26 @@ export default function AddTorrentScreen() {
     });
   }, [destinationId, servers]);
 
-  const onPickDirectory = React.useCallback(() => {
-    const defaultDir = session?.["download-dir"];
-    const allDirs = [
-      ...(defaultDir ? [defaultDir] : []),
-      ...directories,
-    ];
-    const unique = [...new Set(allDirs)];
-    if (unique.length === 0) return;
+  const onPickDirectory = React.useCallback(async () => {
+    if (downloadDirectories.length === 0) return;
 
-    const options: SelectOption[] = unique.map((dir) => ({
-      label: dir,
-      value: dir,
-      left: "folder" as const,
-    }));
+    const freeSpace = await loadDirectoryFreeSpace();
+    const options: SelectOption[] = downloadDirectories.map((dir) => {
+      const state = freeSpace[dir];
+      const description =
+        state?.status === "available"
+          ? formatAvailableSpace(state.bytes)
+          : state?.status === "unavailable"
+            ? "space unavailable"
+            : undefined;
+
+      return {
+        label: dir,
+        description,
+        value: dir,
+        left: "folder" as const,
+      };
+    });
 
     SheetManager.show(SELECT_SHEET_ID, {
       payload: {
@@ -198,7 +219,7 @@ export default function AddTorrentScreen() {
         onSelect: (value) => setValue("path", String(value)),
       },
     });
-  }, [session, directories, setValue]);
+  }, [downloadDirectories, loadDirectoryFreeSpace, setValue]);
 
   const addTorrent = useServerAddTorrent(destination);
 

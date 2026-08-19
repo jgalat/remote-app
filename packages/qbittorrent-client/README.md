@@ -78,6 +78,12 @@ The client handles cookie-based authentication automatically and re-authenticate
 | `setGlobalDownloadLimit(limit)` | Set global download limit (bytes/s) |
 | `setGlobalUploadLimit(limit)` | Set global upload limit (bytes/s) |
 
+### Sync
+
+| Method | Description |
+|---|---|
+| `mainData()` | Get torrents and global server state |
+
 ### App
 
 | Method | Description |

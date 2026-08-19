@@ -102,4 +102,17 @@ describe("createFailoverClient", () => {
     expect(primaryMove).not.toHaveBeenCalled();
     expect(alternativeMove).toHaveBeenCalledTimes(1);
   });
+
+  it("retries free-space reads on alternative addresses", async () => {
+    const primaryFreeSpace = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const alternativeFreeSpace = vi.fn().mockResolvedValue(1_024);
+    const failover = createFailoverClient([
+      { getFreeSpace: primaryFreeSpace } as unknown as TorrentClient,
+      { getFreeSpace: alternativeFreeSpace } as unknown as TorrentClient,
+    ]);
+
+    await expect(failover.getFreeSpace?.("/downloads")).resolves.toBe(1_024);
+    expect(primaryFreeSpace).toHaveBeenCalledOnce();
+    expect(alternativeFreeSpace).toHaveBeenCalledOnce();
+  });
 });

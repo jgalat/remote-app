@@ -19,8 +19,13 @@ import {
   useActiveServerId,
   useDirectoriesStore,
 } from "~/hooks/use-settings";
-import { useServerSession } from "~/hooks/torrent";
+import {
+  useDirectoryFreeSpace,
+  useServerSession,
+  type DirectoryFreeSpace,
+} from "~/hooks/torrent";
 import { useTheme } from "~/hooks/use-theme-color";
+import { formatAvailableSpace } from "~/utils/free-space";
 import type { SelectOption } from "~/sheets/select";
 import { SELECT_SHEET_ID } from "~/sheets/ids";
 import type { Server } from "~/store/settings";
@@ -33,18 +38,27 @@ type DirectoryEntry = {
 
 function DirectoryRow({
   entry,
+  freeSpace,
   selected,
   selectionActive,
   onPress,
   onLongPress,
 }: {
   entry: DirectoryEntry;
+  freeSpace?: DirectoryFreeSpace;
   selected: boolean;
   selectionActive: boolean;
   onPress: () => void;
   onLongPress: () => void;
 }) {
   const { text, gray, tint } = useTheme();
+  const tag = entry.isDefault ? "default" : entry.isGlobal ? "global" : "server";
+  let details = tag;
+  if (freeSpace?.status === "available") {
+    details += ` · ${formatAvailableSpace(freeSpace.bytes)}`;
+  } else if (freeSpace?.status === "unavailable") {
+    details += " · space unavailable";
+  }
 
   return (
     <Pressable
@@ -78,9 +92,7 @@ function DirectoryRow({
         <Text style={styles.rowPath} numberOfLines={1}>
           {entry.path}
         </Text>
-        <Text style={[styles.rowTag, { color: gray }]}>
-          {entry.isDefault ? "default" : entry.isGlobal ? "global" : "server"}
-        </Text>
+        <Text style={[styles.rowTag, { color: gray }]}>{details}</Text>
       </View>
       {!selectionActive && (
         <Feather name="chevron-right" size={20} color={text} />
@@ -132,6 +144,15 @@ function DirectoriesList({ server }: { server: Server }) {
 
     return result;
   }, [session, globalDirs, serverDirs]);
+  const paths = React.useMemo(
+    () => entries.map((entry) => entry.path),
+    [entries],
+  );
+  const { spaces } = useDirectoryFreeSpace(
+    server,
+    paths,
+    session?.["download-dir"],
+  );
 
   const [selectedPaths, setSelectedPaths] = React.useState<Set<string>>(new Set());
   const selectionActive = selectedPaths.size > 0;
@@ -192,6 +213,7 @@ function DirectoriesList({ server }: { server: Server }) {
           <View>
             <DirectoryRow
               entry={item}
+              freeSpace={spaces[item.path]}
               selected={selectedPaths.has(item.path)}
               selectionActive={selectionActive}
               onPress={() => {

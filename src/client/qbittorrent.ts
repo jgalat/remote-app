@@ -532,6 +532,18 @@ export class QBittorrentAdapter implements TorrentClient {
     };
   }
 
+  async getFreeSpace(path: string): Promise<number | undefined> {
+    const defaultPath = await this.client.defaultSavePath();
+    if (path !== defaultPath) return undefined;
+
+    const data = await this.client.mainData();
+    const bytes = data.server_state.free_space_on_disk;
+    if (bytes === undefined || !Number.isFinite(bytes) || bytes < 0) {
+      return undefined;
+    }
+    return bytes;
+  }
+
   async ping(): Promise<void> {
     await this.client.version();
   }

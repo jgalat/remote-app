@@ -394,6 +394,10 @@ export default class MockClient implements TorrentClient {
     return storage.sessionStats;
   }
 
+  async getFreeSpace(): Promise<number> {
+    return 128 * 1_024 ** 3;
+  }
+
   async ping(): Promise<void> {}
 
   private setStatus(ids: TorrentId[], status: TorrentStatus): void {

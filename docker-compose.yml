@@ -13,6 +13,8 @@ services:
       - 51413:51413/udp
     volumes:
       - "data:/downloads"
+    tmpfs:
+      - "/downloads/limited:size=64m,mode=1777,uid=1000,gid=1000"
 
   qbittorrent:
     image: linuxserver/qbittorrent:5.2.1

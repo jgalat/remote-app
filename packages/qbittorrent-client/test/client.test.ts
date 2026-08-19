@@ -9,6 +9,7 @@ import {
   TorrentPropertiesSchema,
   TorrentFileSchema,
   TorrentTrackerSchema,
+  MainDataSchema,
   TransferInfoSchema,
   PreferencesSchema,
 } from "../src/schemas";
@@ -113,6 +114,14 @@ describeIfQBittorrent("QBittorrentClient", () => {
       const info = await client.transferInfo();
       expect(info.up_rate_limit).toBe(512_000);
       await client.setGlobalUploadLimit(0);
+    });
+  });
+
+  describe("sync", () => {
+    it("mainData", async () => {
+      const data = await client.mainData();
+      MainDataSchema.parse(data);
+      expect(data.server_state.free_space_on_disk).toBeTypeOf("number");
     });
   });
 

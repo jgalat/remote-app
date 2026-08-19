@@ -6,6 +6,7 @@ import type {
   TorrentFile,
   TorrentTracker,
   TorrentPeersResponse,
+  MainData,
   TransferInfo,
   Preferences,
   AddTorrentParams,
@@ -414,6 +415,10 @@ export class QBittorrentClient {
     const params: Record<string, string> = { hash };
     if (rid !== undefined) params.rid = String(rid);
     return this.get<TorrentPeersResponse>("/api/v2/sync/torrentPeers", params);
+  }
+
+  async mainData(): Promise<MainData> {
+    return this.get<MainData>("/api/v2/sync/maindata");
   }
 
   // Transfer

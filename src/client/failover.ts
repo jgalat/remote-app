@@ -10,6 +10,7 @@ const RETRYABLE_METHODS: ReadonlySet<keyof TorrentClient> = new Set([
   "getSession",
   "getPreferences",
   "getSessionStats",
+  "getFreeSpace",
   "ping",
 ]);
 

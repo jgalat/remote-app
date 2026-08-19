@@ -38,6 +38,9 @@ export const queryKeys = {
   configPreferences: (server: Server | undefined) =>
     ["config-preferences", server?.id, server?.updatedAt] as const,
 
+  freeSpace: (server: Server | undefined, path: string) =>
+    ["free-space", server?.id, server?.updatedAt, path] as const,
+
   serverScope: (server: Server | undefined) =>
     [server?.id, server?.updatedAt] as const,
 

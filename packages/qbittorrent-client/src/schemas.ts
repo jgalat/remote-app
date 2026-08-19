@@ -210,6 +210,18 @@ export const TorrentPeersResponseSchema = z
   })
   .passthrough();
 
+export const MainDataSchema = z
+  .object({
+    rid: z.number(),
+    full_update: z.boolean().optional(),
+    server_state: z
+      .object({
+        free_space_on_disk: z.number().optional(),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+
 export const TransferInfoSchema = z
   .object({
     dl_info_speed: z.number(),
@@ -319,6 +331,7 @@ export type TorrentFile = z.infer<typeof TorrentFileSchema>;
 export type TorrentTracker = z.infer<typeof TorrentTrackerSchema>;
 export type TorrentPeer = z.infer<typeof TorrentPeerSchema>;
 export type TorrentPeersResponse = z.infer<typeof TorrentPeersResponseSchema>;
+export type MainData = z.infer<typeof MainDataSchema>;
 export type TransferInfo = z.infer<typeof TransferInfoSchema>;
 export type Preferences = z.infer<typeof PreferencesSchema>;
 export type TorrentFileInput = z.infer<typeof TorrentFileInputSchema>;

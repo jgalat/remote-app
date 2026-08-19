@@ -8,6 +8,7 @@ export type {
   TorrentTracker,
   TorrentPeer,
   TorrentPeersResponse,
+  MainData,
   TransferInfo,
   Preferences,
   AddTorrentParams,

@@ -32,6 +32,11 @@ export {
 export { useHealthPing, type HealthStatus } from "./health";
 
 export {
+  useDirectoryFreeSpace,
+  type DirectoryFreeSpace,
+} from "./free-space";
+
+export {
   useAllSessions,
   useAllTorrents,
   type ServerTorrent,
