@@ -57,6 +57,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/base-64": "^1.0.0"
+    "@types/base-64": "^1.0.2"
   }
 }
