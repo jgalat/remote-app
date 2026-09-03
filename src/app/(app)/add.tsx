@@ -315,13 +315,13 @@ export default function AddTorrentScreen() {
           control={control}
           render={({ field, fieldState }) => (
             <SettingsFieldRow
-              label="Magnet link"
+              label="Torrent URL"
               error={fieldState.error?.message}
               reserveErrorSpace
             >
               <TextInput
                 variant="settings"
-                placeholder="magnet:?xt=urn:btih:..."
+                placeholder="magnet:… or https://…"
                 icon="link"
                 style={fieldState.error ? { borderColor: red } : undefined}
                 value={field.value?.toString() || ""}
