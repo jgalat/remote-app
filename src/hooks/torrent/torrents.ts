@@ -26,6 +26,7 @@ import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { Server } from "~/store/settings";
 import { useClient, useServerClient } from "./client";
 import { queryKeys, queryMatchers } from "./query-keys";
+import { getActionErrorMessage } from "~/utils/network-error";
 
 export type Torrent = TorrentListItem;
 export type TorrentInfo = TorrentInfoDetail;
@@ -290,10 +291,14 @@ export function useRenamePath() {
 
   return useMutation({
     mutationFn: async (params: RenamePathParams) => {
-      await client?.renamePath(params);
+      if (!client) throw new Error("No server selected");
+      await client.renamePath(params);
     },
-    onError: () => {
-      ToastAndroid.show("Failed to rename", ToastAndroid.SHORT);
+    onError: (error) => {
+      ToastAndroid.show(
+        getActionErrorMessage("Failed to rename", error),
+        ToastAndroid.LONG,
+      );
     },
     onSettled: () => {
       setTimeout(
@@ -312,13 +317,17 @@ export function useTorrentSetLocation() {
 
   return useMutation({
     mutationFn: async (params: SetLocationParams) => {
-      await client?.setLocation(params);
+      if (!client) throw new Error("No server selected");
+      await client.setLocation(params);
     },
-    onError: () => {
-      ToastAndroid.show("Failed to move torrent", ToastAndroid.SHORT);
+    onError: (error) => {
+      ToastAndroid.show(
+        getActionErrorMessage("Failed to move torrent", error),
+        ToastAndroid.LONG,
+      );
     },
+    onSuccess: clear,
     onSettled: () => {
-      clear();
       setTimeout(
         () => queryClient.invalidateQueries(queryMatchers.torrents(server)),
         optimisticInvalidationDelayMs,

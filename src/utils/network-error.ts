@@ -33,3 +33,8 @@ export function getNetworkErrorContent(error: Error) {
 
   return { title, message };
 }
+
+export function getActionErrorMessage(action: string, error: Error): string {
+  const { title, message } = getNetworkErrorContent(error);
+  return `${action}: ${message || title}`;
+}

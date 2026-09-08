@@ -1,0 +1,23 @@
+diff --git a/dist/src/index.js b/dist/src/index.js
+index a5a1305189eab6db868a434209809a645a92951b..501cf00f567ae68cbcdeb7c8691965c9761fe7c5 100644
+--- a/dist/src/index.js
++++ b/dist/src/index.js
+@@ -1040,10 +1040,16 @@ export default forwardRef(function ActionSheet(_a, ref) {
+                   <Animated.View onLayout={function (event) {
+                 if (event.nativeEvent.layout.height < 10)
+                     return;
+-                setDimensions({
++                var nextDimensions = {
+                     width: event.nativeEvent.layout.width,
+                     height: event.nativeEvent.layout.height,
+-                });
++                };
++                // Android modal bounds can change without changing the sheet content height.
++                dimensionsRef.current = nextDimensions;
++                setDimensions(nextDimensions);
++                if (sheetHeightRef.current > 0) {
++                    onSheetLayout(sheetHeightRef.current);
++                }
+             }} ref={rootViewContainerRef} pointerEvents={(props === null || props === void 0 ? void 0 : props.backgroundInteractionEnabled) ? 'box-none' : 'auto'} style={[
+                 styles.parentContainer,
+                 {

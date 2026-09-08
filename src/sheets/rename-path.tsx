@@ -1,7 +1,6 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import _ActionSheet, { SheetManager } from "react-native-actions-sheet";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -32,7 +31,6 @@ function RenamePathSheet({
   ...props
 }: SheetProps<typeof RENAME_PATH_SHEET_ID>) {
   const { background, text } = useTheme();
-  const insets = useSafeAreaInsets();
   const renamePath = useRenamePath();
 
   const id = payload?.id;
@@ -46,16 +44,24 @@ function RenamePathSheet({
     setName(currentName);
   }, [currentName]);
 
+  React.useEffect(() => {
+    if (renamePath.isSuccess) void SheetManager.hide(RENAME_PATH_SHEET_ID);
+  }, [renamePath.isSuccess]);
+
   const onRename = React.useCallback(() => {
     const trimmed = name.trim();
-    if (id === undefined || !trimmed || trimmed === currentName) return;
+    if (
+      renamePath.isPending ||
+      id === undefined ||
+      !trimmed ||
+      trimmed === currentName
+    ) return;
 
-    SheetManager.hide(RENAME_PATH_SHEET_ID);
     renamePath.mutate({ id, path, name: trimmed, kind });
   }, [id, path, name, currentName, kind, renamePath]);
 
   const trimmed = name.trim();
-  const disabled = !trimmed || trimmed === currentName;
+  const disabled = renamePath.isPending || !trimmed || trimmed === currentName;
 
   return (
     <_ActionSheet
@@ -71,22 +77,26 @@ function RenamePathSheet({
         marginTop: 12,
         height: 4,
       }}
-      openAnimationConfig={{ speed: 50, bounciness: 0 }}
-      closeAnimationConfig={{ speed: 50, bounciness: 0 }}
-      gestureEnabled
+      useBottomSafeAreaPadding
+      gestureEnabled={!renamePath.isPending}
+      closable={!renamePath.isPending}
+      closeOnTouchBackdrop={!renamePath.isPending}
+      closeOnPressBack={!renamePath.isPending}
     >
-      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <View style={styles.container}>
         <Text style={styles.title}>Rename</Text>
         <TextInput
           placeholder="new name"
           icon={ICON_BY_KIND[kind]}
+          editable={!renamePath.isPending}
           value={name}
           onChangeText={setName}
           autoFocus
           selectTextOnFocus
         />
         <Button
-          title="rename"
+          title={renamePath.isPending ? "renaming…" : "rename"}
+          accessibilityState={{ busy: renamePath.isPending, disabled }}
           onPress={onRename}
           disabled={disabled}
           style={styles.button}

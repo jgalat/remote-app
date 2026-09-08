@@ -40,6 +40,7 @@ export default React.forwardRef<_TextInput, TextInputProps>(
       >
         <_TextInput
           ref={ref}
+          editable={editable}
           autoCapitalize="none"
           autoCorrect={false}
           autoComplete="off"

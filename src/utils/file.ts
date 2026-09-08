@@ -97,3 +97,10 @@ export function getPriority(
   if (files.every((f) => f.priority === Priority.HIGH)) return "High";
   return "Mixed";
 }
+
+export function compareFileEntries(
+  a: { isFile: boolean; name: string },
+  b: { isFile: boolean; name: string },
+): number {
+  return Number(a.isFile) - Number(b.isFile) || a.name.localeCompare(b.name);
+}

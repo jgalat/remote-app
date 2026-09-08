@@ -2,7 +2,6 @@ import * as React from "react";
 import { StyleSheet, ToastAndroid } from "react-native";
 import _ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -31,7 +30,6 @@ function MoveTorrentSheet({
   ...props
 }: SheetProps<typeof MOVE_TORRENT_SHEET_ID>) {
   const { background, text } = useTheme();
-  const insets = useSafeAreaInsets();
   const { data: session } = useSession({ stale: true });
   const serverId = useActiveServerId();
   const directories = useDirectories(serverId);
@@ -69,19 +67,19 @@ function MoveTorrentSheet({
     });
   }, [defaultDir, directories]);
 
-  const onMove = React.useCallback(() => {
-    if (!location.trim()) return;
+  React.useEffect(() => {
+    if (!setLocation.isSuccess) return;
+    void SheetManager.hide(MOVE_TORRENT_SHEET_ID);
+    ToastAndroid.show("Torrent moved", ToastAndroid.SHORT);
+  }, [setLocation.isSuccess]);
 
-    SheetManager.hide(MOVE_TORRENT_SHEET_ID);
-    setLocation.mutate(
-      { ids, location: location.trim(), move: true },
-      {
-        onSuccess: () => {
-          ToastAndroid.show("Torrent moved", ToastAndroid.SHORT);
-        },
-      }
-    );
+  const onMove = React.useCallback(() => {
+    if (setLocation.isPending || !location.trim() || ids.length === 0) return;
+
+    setLocation.mutate({ ids, location: location.trim(), move: true });
   }, [ids, location, setLocation]);
+
+  const disabled = setLocation.isPending || !location.trim() || ids.length === 0;
 
   return (
     <_ActionSheet
@@ -97,28 +95,36 @@ function MoveTorrentSheet({
         marginTop: 12,
         height: 4,
       }}
-      openAnimationConfig={{ speed: 50, bounciness: 0 }}
-      closeAnimationConfig={{ speed: 50, bounciness: 0 }}
-      gestureEnabled
+      useBottomSafeAreaPadding
+      gestureEnabled={!setLocation.isPending}
+      closable={!setLocation.isPending}
+      closeOnTouchBackdrop={!setLocation.isPending}
+      closeOnPressBack={!setLocation.isPending}
     >
-      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <View style={styles.container}>
         <Text style={styles.title}>Move</Text>
         <View style={styles.inputRow}>
           <TextInput
             placeholder="/downloads"
             icon="folder"
+            editable={!setLocation.isPending}
             value={location}
             onChangeText={setLocationText}
             containerStyle={styles.input}
           />
-          <Pressable style={styles.pickButton} onPress={onPickDirectory}>
+          <Pressable
+            style={styles.pickButton}
+            onPress={onPickDirectory}
+            disabled={setLocation.isPending}
+          >
             <Feather name="book" size={20} color={text} />
           </Pressable>
         </View>
         <Button
-          title="move"
+          title={setLocation.isPending ? "moving…" : "move"}
+          accessibilityState={{ busy: setLocation.isPending, disabled }}
           onPress={onMove}
-          disabled={!location.trim()}
+          disabled={disabled}
           style={styles.button}
         />
       </View>

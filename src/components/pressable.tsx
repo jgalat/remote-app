@@ -17,6 +17,7 @@ export default React.memo(function Pressable({
 }: PressableProps) {
   return (
     <_Pressable
+      disabled={disabled}
       style={({ pressed }) => [
         style,
         {

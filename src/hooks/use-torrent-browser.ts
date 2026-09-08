@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  compareFileEntries,
   getNode,
   makeFiles,
   makeTree,
@@ -38,21 +39,7 @@ export default function useTorrentBrowser(torrent: TorrentFiles | undefined) {
       });
       next = it.next();
     }
-    for (let i = 0; i < out.length - 1; i++) {
-      for (let j = i + 1; j < out.length; j++) {
-        const ai = out[i],
-          aj = out[j];
-        const cmpType = (ai.isFile ? 1 : 0) - (aj.isFile ? 1 : 0);
-        if (
-          cmpType > 0 ||
-          (cmpType === 0 && ai.name.localeCompare(aj.name) > 0)
-        ) {
-          const tmp = out[i];
-          out[i] = out[j];
-          out[j] = tmp;
-        }
-      }
-    }
+    out.sort(compareFileEntries);
     return out;
   }, [currentNode, files]);
 

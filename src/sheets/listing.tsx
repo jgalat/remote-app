@@ -2,7 +2,6 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import _ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import { Feather } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Text from "~/components/text";
 import View from "~/components/view";
@@ -32,7 +31,6 @@ export type Payload = {
 
 function ListingSheet({ payload }: SheetProps<typeof LISTING_SHEET_ID>) {
   const { background, text, tint } = useTheme();
-  const insets = useSafeAreaInsets();
   const { data: activeTorrents } = useTorrents({ stale: true });
   const { data: session } = useSession({ stale: true });
   const activeServerId = useActiveServerId();
@@ -180,11 +178,10 @@ function ListingSheet({ payload }: SheetProps<typeof LISTING_SHEET_ID>) {
         marginTop: 12,
         height: 4,
       }}
-      openAnimationConfig={{ speed: 50, bounciness: 0 }}
-      closeAnimationConfig={{ speed: 50, bounciness: 0 }}
+      useBottomSafeAreaPadding
       gestureEnabled
     >
-      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <View style={styles.container}>
         <View style={[styles.segmented, { borderColor: text }]}>
           {tabs.map((t) => (
             <Pressable
