@@ -29,25 +29,10 @@ describe("free space adapters", () => {
       server_state: { free_space_on_disk: 2_048 },
     });
     const adapter = new QBittorrentAdapter({ url: "http://localhost" });
-    injectClient(adapter, {
-      defaultSavePath: vi.fn().mockResolvedValue("/downloads"),
-      mainData,
-    });
+    injectClient(adapter, { mainData });
 
-    await expect(adapter.getFreeSpace("/downloads")).resolves.toBe(2_048);
+    await expect(adapter.getFreeSpace()).resolves.toBe(2_048);
     expect(mainData).toHaveBeenCalledOnce();
-  });
-
-  it("does not query qBittorrent space for custom paths", async () => {
-    const mainData = vi.fn();
-    const adapter = new QBittorrentAdapter({ url: "http://localhost" });
-    injectClient(adapter, {
-      defaultSavePath: vi.fn().mockResolvedValue("/downloads"),
-      mainData,
-    });
-
-    await expect(adapter.getFreeSpace("/archive")).resolves.toBeUndefined();
-    expect(mainData).not.toHaveBeenCalled();
   });
 
   it.each([undefined, -1, Number.POSITIVE_INFINITY])(
@@ -55,14 +40,13 @@ describe("free space adapters", () => {
     async (value) => {
       const adapter = new QBittorrentAdapter({ url: "http://localhost" });
       injectClient(adapter, {
-        defaultSavePath: vi.fn().mockResolvedValue("/downloads"),
         mainData: vi.fn().mockResolvedValue({
           server_state: { free_space_on_disk: value },
         }),
       });
 
       await expect(
-        adapter.getFreeSpace("/downloads"),
+        adapter.getFreeSpace(),
       ).resolves.toBeUndefined();
     },
   );
@@ -70,12 +54,11 @@ describe("free space adapters", () => {
   it("accepts zero free bytes", async () => {
     const adapter = new QBittorrentAdapter({ url: "http://localhost" });
     injectClient(adapter, {
-      defaultSavePath: vi.fn().mockResolvedValue("/downloads"),
       mainData: vi.fn().mockResolvedValue({
         server_state: { free_space_on_disk: 0 },
       }),
     });
 
-    await expect(adapter.getFreeSpace("/downloads")).resolves.toBe(0);
+    await expect(adapter.getFreeSpace()).resolves.toBe(0);
   });
 });

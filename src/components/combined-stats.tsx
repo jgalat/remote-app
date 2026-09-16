@@ -1,7 +1,11 @@
 import * as React from "react";
 import { StyleSheet, ToastAndroid } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useQueries, useQueryClient } from "@tanstack/react-query";
+import {
+  useQueries,
+  useQueryClient,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { createClient, TorrentStatus, type Session, type TorrentListItem } from "~/client";
@@ -14,6 +18,12 @@ import type { SelectOption } from "~/sheets/select";
 import Text from "./text";
 import View from "./view";
 import Pressable from "./pressable";
+
+function combineSessions(
+  results: UseQueryResult<Session, Error>[],
+): (Session | undefined)[] {
+  return results.map((result) => result.data);
+}
 
 type Props = {
   torrents: TorrentListItem[];
@@ -41,6 +51,7 @@ export default React.memo(function CombinedStats({
       staleTime: 5_000,
       retry: false,
     })),
+    combine: combineSessions,
   });
   const stats = React.useMemo(
     () => ({
@@ -59,14 +70,14 @@ export default React.memo(function CombinedStats({
     [torrents],
   );
   const alternativeSpeedEnabled = sessions.some(
-    ({ data }) => data?.["alt-speed-enabled"],
+    (session) => session?.["alt-speed-enabled"],
   );
 
   const openSpeedModes = React.useCallback(() => {
     if (remoteServers.length === 0) return;
 
     const options: SelectOption[] = remoteServers.map((server, index) => {
-      const session = sessions[index].data;
+      const session = sessions[index];
       const state = !session
         ? "unavailable"
         : session["alt-speed-enabled"]
@@ -93,7 +104,7 @@ export default React.memo(function CombinedStats({
         onSelect: async (value) => {
           const index = remoteServers.findIndex((server) => server.id === value);
           const server = remoteServers[index];
-          const session = sessions[index]?.data;
+          const session = sessions[index];
           if (!server || !session) return;
 
           const key = queryKeys.sessionGet(server);

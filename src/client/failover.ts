@@ -15,9 +15,8 @@ const RETRYABLE_METHODS: ReadonlySet<keyof TorrentClient> = new Set([
 ]);
 
 export function isRetryableConnectionError(error: unknown): boolean {
-  if (error instanceof TypeError) return true;
   if (!(error instanceof Error)) return false;
-  if (error.name === "RequestTimeoutError" || error.name === "AbortError") {
+  if (error.name === "NetworkError" || error.name === "RequestTimeoutError") {
     return true;
   }
 

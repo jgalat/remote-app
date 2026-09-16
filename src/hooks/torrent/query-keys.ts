@@ -1,6 +1,8 @@
 import type { TorrentId } from "~/client";
 import type { Server } from "~/store/settings";
 
+export const torrentMutationKey = ["torrent"] as const;
+
 export const queryKeys = {
   torrents: (server: Server | undefined) =>
     ["torrents", server?.id, server?.updatedAt] as const,

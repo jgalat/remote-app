@@ -51,6 +51,7 @@ export function useDirectoryFreeSpace(
   server: Server | undefined,
   paths: string[],
   defaultPath: string | undefined,
+  { enabled = true }: { enabled?: boolean } = {},
 ) {
   const client = useServerClient(server);
   const queryClient = useQueryClient();
@@ -63,9 +64,10 @@ export function useDirectoryFreeSpace(
   );
 
   const queries = useQueries({
-    queries: supportedPaths.map((path) =>
-      queryOptions(server, client as TorrentClient, path),
-    ),
+    queries: supportedPaths.map((path) => ({
+      ...queryOptions(server, client as TorrentClient, path),
+      enabled,
+    })),
   });
 
   const spaces = React.useMemo<Record<string, DirectoryFreeSpace>>(() => {

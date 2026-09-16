@@ -4,6 +4,7 @@ import type {
   LocalEngineStatus,
 } from "~/pro/types";
 import type { TorrentClient } from "~/client/interface";
+import { createUnavailableClient } from "~/client/unavailable";
 import type { Server } from "~/store/servers";
 
 export const LOCAL_SERVER_ID = "local" as const;
@@ -14,92 +15,7 @@ function reject(): never {
   throw new Error(UNAVAILABLE);
 }
 
-const unavailableLocalClient: TorrentClient = {
-  async getTorrents() {
-    return [];
-  },
-  async getTorrentInfo() {
-    return undefined;
-  },
-  async getTorrentSettings() {
-    return undefined;
-  },
-  async getTorrentFiles() {
-    return undefined;
-  },
-  async getTorrentPeers() {
-    return undefined;
-  },
-  async getTorrentTrackers() {
-    return undefined;
-  },
-  async addTorrent() {
-    reject();
-  },
-  async removeTorrents() {
-    reject();
-  },
-  async startTorrents() {
-    reject();
-  },
-  async startTorrentsNow() {
-    reject();
-  },
-  async stopTorrents() {
-    reject();
-  },
-  async verifyTorrents() {
-    reject();
-  },
-  async reannounceTorrents() {
-    reject();
-  },
-  async setTorrent() {
-    reject();
-  },
-  async setLocation() {
-    reject();
-  },
-  async renamePath() {
-    reject();
-  },
-  async queueMoveTop() {
-    reject();
-  },
-  async queueMoveUp() {
-    reject();
-  },
-  async queueMoveDown() {
-    reject();
-  },
-  async queueMoveBottom() {
-    reject();
-  },
-  async getSession() {
-    reject();
-  },
-  async setSession() {
-    reject();
-  },
-  async getPreferences() {
-    return {};
-  },
-  async setPreferences() {
-    reject();
-  },
-  async getSessionStats() {
-    return {
-      activeTorrentCount: 0,
-      pausedTorrentCount: 0,
-      torrentCount: 0,
-      downloadSpeed: 0,
-      uploadSpeed: 0,
-    };
-  },
-  async ping() {
-    reject();
-  },
-};
+const unavailableLocalClient = createUnavailableClient(reject);
 
 export function createLocalTorrentClient(server: Server): TorrentClient {
   void server;

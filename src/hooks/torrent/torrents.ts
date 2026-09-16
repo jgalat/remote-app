@@ -25,7 +25,7 @@ import { useServer } from "~/hooks/use-settings";
 import useTorrentSelection from "~/hooks/use-torrent-selection";
 import type { Server } from "~/store/settings";
 import { useClient, useServerClient } from "./client";
-import { queryKeys, queryMatchers } from "./query-keys";
+import { queryKeys, queryMatchers, torrentMutationKey } from "./query-keys";
 import { getActionErrorMessage } from "~/utils/network-error";
 
 export type Torrent = TorrentListItem;
@@ -74,7 +74,7 @@ export function useTorrents({
     enabled: Boolean(client) && !stale,
     refetchInterval: (query) => {
       if (query.state.status === "error") return false;
-      if (queryClient.isMutating()) return false;
+      if (queryClient.isMutating({ mutationKey: torrentMutationKey })) return false;
       return 5_000;
     },
     staleTime: 5_000,
@@ -151,6 +151,7 @@ export function useServerAddTorrent(server: Server | undefined) {
   const client = useServerClient(server);
 
   return useMutation<AddTorrentResult | null | undefined, Error, AddTorrentParams>({
+    mutationKey: torrentMutationKey,
     mutationFn: async (params: AddTorrentParams) => client?.addTorrent(params),
     onMutate: async () => {
       await queryClient.cancelQueries(queryMatchers.torrents(server));
@@ -182,6 +183,7 @@ function useAction(
   const { clear } = useTorrentSelection();
 
   return useMutation({
+    mutationKey: torrentMutationKey,
     mutationFn: async (params: ActionParams) => {
       if (!client) return;
       await getAction(client)(params);
@@ -290,6 +292,7 @@ export function useRenamePath() {
   const server = useServer();
 
   return useMutation({
+    mutationKey: torrentMutationKey,
     mutationFn: async (params: RenamePathParams) => {
       if (!client) throw new Error("No server selected");
       await client.renamePath(params);
@@ -316,6 +319,7 @@ export function useTorrentSetLocation() {
   const { clear } = useTorrentSelection();
 
   return useMutation({
+    mutationKey: torrentMutationKey,
     mutationFn: async (params: SetLocationParams) => {
       if (!client) throw new Error("No server selected");
       await client.setLocation(params);
@@ -352,6 +356,7 @@ export function useTorrentSet(id: TorrentId) {
   const server = useServer();
 
   return useMutation({
+    mutationKey: torrentMutationKey,
     mutationFn: async (params: SetTorrentParams) => {
       await client?.setTorrent([id], params);
     },

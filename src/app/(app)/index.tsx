@@ -686,7 +686,7 @@ function AllServersTorrentsScreen() {
         refreshing={refreshing}
       />
       <CombinedStats
-        torrents={data.map(({ torrent }) => torrent)}
+        torrents={listingPayload.torrents}
         servers={servers}
         connectedServers={servers.length - errors.length}
         totalServers={servers.length}

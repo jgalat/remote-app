@@ -311,6 +311,7 @@ export const AddTorrentParamsSchema = z.object({
   tags: z.string().optional(),
   skip_checking: z.boolean().optional(),
   paused: z.boolean().optional(),
+  stopped: z.boolean().optional(),
   root_folder: z.boolean().optional(),
   rename: z.string().optional(),
   upLimit: z.number().optional(),

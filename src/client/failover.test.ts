@@ -7,12 +7,16 @@ function client(ping: () => Promise<void>): TorrentClient {
   return { ping } as TorrentClient;
 }
 
+function networkError(): Error {
+  return Object.assign(new Error("offline"), { name: "NetworkError" });
+}
+
 describe("createFailoverClient", () => {
   it("tries addresses in order and keeps using the successful address", async () => {
-    const primaryPing = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const primaryPing = vi.fn().mockRejectedValue(networkError());
     const firstAlternativePing = vi
       .fn()
-      .mockRejectedValue(new TypeError("offline"));
+      .mockRejectedValue(networkError());
     const secondAlternativePing = vi.fn().mockResolvedValue(undefined);
     const failover = createFailoverClient([
       client(primaryPing),
@@ -31,12 +35,12 @@ describe("createFailoverClient", () => {
   it("cycles back through the list when the active address fails", async () => {
     const primaryPing = vi
       .fn()
-      .mockRejectedValueOnce(new TypeError("offline"))
+      .mockRejectedValueOnce(networkError())
       .mockResolvedValue(undefined);
     const alternativePing = vi
       .fn()
       .mockResolvedValueOnce(undefined)
-      .mockRejectedValueOnce(new TypeError("offline"));
+      .mockRejectedValueOnce(networkError());
     const failover = createFailoverClient([
       client(primaryPing),
       client(alternativePing),
@@ -81,7 +85,7 @@ describe("createFailoverClient", () => {
   });
 
   it("runs mutations on the address selected by a successful read", async () => {
-    const primaryPing = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const primaryPing = vi.fn().mockRejectedValue(networkError());
     const alternativePing = vi.fn().mockResolvedValue(undefined);
     const primaryMove = vi.fn().mockResolvedValue(undefined);
     const alternativeMove = vi.fn().mockResolvedValue(undefined);
@@ -104,7 +108,7 @@ describe("createFailoverClient", () => {
   });
 
   it("retries free-space reads on alternative addresses", async () => {
-    const primaryFreeSpace = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const primaryFreeSpace = vi.fn().mockRejectedValue(networkError());
     const alternativeFreeSpace = vi.fn().mockResolvedValue(1_024);
     const failover = createFailoverClient([
       { getFreeSpace: primaryFreeSpace } as unknown as TorrentClient,

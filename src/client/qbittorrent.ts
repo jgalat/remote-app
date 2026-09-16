@@ -8,7 +8,7 @@ import type {
   TorrentTracker,
 } from "@remote-app/qbittorrent-client";
 
-import { TorrentStatus, Priority } from "./types";
+import { TorrentStatus, Priority, Mode } from "./types";
 import type { TorrentClient } from "./interface";
 import type {
   TorrentId,
@@ -85,19 +85,35 @@ function mapTorrent(t: TorrentInfo): TorrentListItem {
   };
 }
 
-function mapSettings(t: TorrentInfo): TorrentSettingsDetail {
-  const seedIdleRaw =
-    t.inactive_seeding_time_limit ?? t.seeding_time_limit;
+// qBittorrent share limits: -2 = use global, -1 = unlimited, >= 0 = value
+function shareLimitMode(limit: number): number {
+  if (limit === -2) return Mode.GLOBAL;
+  if (limit === -1) return Mode.UNLIMITED;
+  return Mode.SINGLE;
+}
 
+function toShareLimit(
+  mode: number | undefined,
+  limit: number | undefined,
+  current: number,
+): number {
+  if (mode === undefined && limit === undefined) return current;
+  const resolvedMode = mode ?? shareLimitMode(current);
+  if (resolvedMode === Mode.GLOBAL) return -2;
+  if (resolvedMode === Mode.UNLIMITED) return -1;
+  return limit ?? Math.max(current, 0);
+}
+
+function mapSettings(t: TorrentInfo): TorrentSettingsDetail {
   return {
     downloadLimited: t.dl_limit > 0,
     downloadLimit: t.dl_limit > 0 ? Math.round(t.dl_limit / 1_024) : 0,
     uploadLimited: t.up_limit > 0,
     uploadLimit: t.up_limit > 0 ? Math.round(t.up_limit / 1_024) : 0,
-    seedRatioMode: t.ratio_limit === -2 ? 0 : t.ratio_limit === -1 ? 2 : 1,
-    seedRatioLimit: t.ratio_limit >= 0 ? t.ratio_limit : 0,
-    seedIdleMode: seedIdleRaw === -2 ? 0 : seedIdleRaw === -1 ? 2 : 1,
-    seedIdleLimit: seedIdleRaw >= 0 ? seedIdleRaw : 0,
+    seedRatioMode: shareLimitMode(t.ratio_limit),
+    seedRatioLimit: Math.max(t.ratio_limit, 0),
+    seedIdleMode: shareLimitMode(t.inactive_seeding_time_limit),
+    seedIdleLimit: Math.max(t.inactive_seeding_time_limit, 0),
   };
 }
 
@@ -252,7 +268,13 @@ export class QBittorrentAdapter implements TorrentClient {
   }
 
   async addTorrent(params: AddTorrentParams): Promise<AddTorrentResult | null> {
-    const qParams: { urls?: string; torrents?: TorrentFileInput; savepath?: string; paused?: boolean } = {};
+    const qParams: {
+      urls?: string;
+      torrents?: TorrentFileInput;
+      savepath?: string;
+      paused?: boolean;
+      stopped?: boolean;
+    } = {};
 
     if (params.filename) qParams.urls = params.filename;
     if (params.metainfo) {
@@ -262,7 +284,11 @@ export class QBittorrentAdapter implements TorrentClient {
       };
     }
     if (params["download-dir"]) qParams.savepath = params["download-dir"];
-    if (params.paused !== undefined) qParams.paused = params.paused;
+    // qBittorrent 5 reads "stopped" and ignores "paused"; send both.
+    if (params.paused !== undefined) {
+      qParams.paused = params.paused;
+      qParams.stopped = params.paused;
+    }
 
     await this.client.add(qParams);
     return null;
@@ -333,11 +359,23 @@ export class QBittorrentAdapter implements TorrentClient {
       params.seedIdleMode !== undefined ||
       params.seedIdleLimit !== undefined
     ) {
-      const ratioMode = params.seedRatioMode ?? 0;
-      const ratioLimit = ratioMode === 0 ? -2 : ratioMode === 2 ? -1 : (params.seedRatioLimit ?? -2);
-      const idleMode = params.seedIdleMode ?? 0;
-      const idleLimit = idleMode === 0 ? -2 : idleMode === 2 ? -1 : (params.seedIdleLimit ?? -2);
-      await this.client.setShareLimits(hashes, ratioLimit, -2, idleLimit);
+      for (const hash of hashes) {
+        const info = await this.getInfoOrUndefined(hash);
+        await this.client.setShareLimits(
+          [hash],
+          toShareLimit(
+            params.seedRatioMode,
+            params.seedRatioLimit,
+            info?.ratio_limit ?? -2,
+          ),
+          info?.seeding_time_limit ?? -2,
+          toShareLimit(
+            params.seedIdleMode,
+            params.seedIdleLimit,
+            info?.inactive_seeding_time_limit ?? -2,
+          ),
+        );
+      }
     }
   }
 
@@ -406,8 +444,8 @@ export class QBittorrentAdapter implements TorrentClient {
       "alt-speed-up": Math.round(prefs.alt_up_limit / 1_024),
       seedRatioLimited: prefs.max_ratio_enabled,
       seedRatioLimit: Math.max(prefs.max_ratio, 0),
-      "idle-seeding-limit-enabled": prefs.max_seeding_time_enabled,
-      "idle-seeding-limit": Math.max(prefs.max_seeding_time, 0),
+      "idle-seeding-limit-enabled": prefs.max_inactive_seeding_time_enabled ?? false,
+      "idle-seeding-limit": Math.max(prefs.max_inactive_seeding_time ?? -1, 0),
       "download-queue-enabled": prefs.queueing_enabled,
       "download-queue-size": prefs.max_active_downloads,
       "seed-queue-enabled": prefs.queueing_enabled,
@@ -445,8 +483,8 @@ export class QBittorrentAdapter implements TorrentClient {
     if (params["alt-speed-up"] !== undefined) prefs.alt_up_limit = params["alt-speed-up"] * 1_024;
     if (params.seedRatioLimited !== undefined) prefs.max_ratio_enabled = params.seedRatioLimited;
     if (params.seedRatioLimit !== undefined) prefs.max_ratio = params.seedRatioLimit;
-    if (params["idle-seeding-limit-enabled"] !== undefined) prefs.max_seeding_time_enabled = params["idle-seeding-limit-enabled"];
-    if (params["idle-seeding-limit"] !== undefined) prefs.max_seeding_time = params["idle-seeding-limit"];
+    if (params["idle-seeding-limit-enabled"] !== undefined) prefs.max_inactive_seeding_time_enabled = params["idle-seeding-limit-enabled"];
+    if (params["idle-seeding-limit"] !== undefined) prefs.max_inactive_seeding_time = params["idle-seeding-limit"];
     if (params["download-queue-enabled"] !== undefined) prefs.queueing_enabled = params["download-queue-enabled"];
     if (params["download-queue-size"] !== undefined) prefs.max_active_downloads = params["download-queue-size"];
     if (params["seed-queue-size"] !== undefined) prefs.max_active_uploads = params["seed-queue-size"];
@@ -493,7 +531,7 @@ export class QBittorrentAdapter implements TorrentClient {
       lsd: p.lsd,
       encryption: p.encryption,
     };
-    return { ...result };
+    return result;
   }
 
   async setPreferences(prefs: Record<string, unknown>): Promise<void> {
@@ -532,10 +570,9 @@ export class QBittorrentAdapter implements TorrentClient {
     };
   }
 
-  async getFreeSpace(path: string): Promise<number | undefined> {
-    const defaultPath = await this.client.defaultSavePath();
-    if (path !== defaultPath) return undefined;
-
+  // qBittorrent only reports free space for its default save path; callers
+  // gate on it (see hooks/torrent/free-space.ts).
+  async getFreeSpace(): Promise<number | undefined> {
     const data = await this.client.mainData();
     const bytes = data.server_state.free_space_on_disk;
     if (bytes === undefined || !Number.isFinite(bytes) || bytes < 0) {

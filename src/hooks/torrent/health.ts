@@ -19,7 +19,7 @@ export function useHealthPing(servers: Server[]): UseHealthPingResult {
   const queries = React.useMemo(
     () =>
       servers.map((server) => ({
-        queryKey: ["health-ping", server.id, server.url] as const,
+        queryKey: ["health-ping", server.id, server.updatedAt] as const,
         queryFn: async () => {
           const client = isTestingServer(server)
             ? new MockClient()

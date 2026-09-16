@@ -7,6 +7,7 @@ import {
   TransmissionError,
   ResponseParseError,
   RequestTimeoutError,
+  NetworkError,
 } from "./error";
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
@@ -28,7 +29,7 @@ export class TransmissionClient {
       if (controller.signal.aborted) {
         throw new RequestTimeoutError(timeoutMs);
       }
-      throw error;
+      throw new NetworkError(error);
     } finally {
       clearTimeout(timer);
     }

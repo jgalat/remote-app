@@ -1,5 +1,6 @@
 import "~/store/migrations";
 
+import * as React from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useColorScheme as _useColorScheme } from "react-native";
 
@@ -242,12 +243,15 @@ export function useDirectories(serverId: string | undefined) {
 export function useAllDirectories() {
   const { data } = useDirectoriesQuery();
   const { servers } = useServersQuery().data;
-  return [
-    ...new Set([
-      ...data.global,
-      ...servers.flatMap((server) => data.servers[server.id] ?? []),
-    ]),
-  ];
+  return React.useMemo(
+    () => [
+      ...new Set([
+        ...data.global,
+        ...servers.flatMap((server) => data.servers[server.id] ?? []),
+      ]),
+    ],
+    [data, servers],
+  );
 }
 
 // Read-only hooks

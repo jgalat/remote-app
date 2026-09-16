@@ -65,7 +65,6 @@ const Form = z
     port: z.coerce
       .number()
       .int()
-      .min(0, "minimum port is 1")
       .max(65_535, "maximum port is 65535")
       .optional(),
     path: z.string().optional(),
@@ -286,7 +285,10 @@ export default function ConnectionScreen() {
           : "transmission"
       ) as "transmission" | "qbittorrent" | "local";
       setValue("type", t);
-      if (t === "local") return;
+      if (t === "local") {
+        setValue("port", 0);
+        return;
+      }
       const defaults = typeDefaults[t];
       if (!useSSL) setValue("port", defaults.port);
       setValue("path", defaults.path);
@@ -1020,23 +1022,5 @@ const styles = StyleSheet.create({
   },
   editSaveButton: {
     marginBottom: 16,
-  },
-  localCallout: {
-    marginTop: 4,
-    marginBottom: 8,
-    paddingVertical: 4,
-    gap: 8,
-  },
-  localCalloutTitle: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 14,
-  },
-  localCalloutBody: {
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  localCalloutEmph: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 12,
   },
 });

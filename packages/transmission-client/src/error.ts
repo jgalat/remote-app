@@ -32,3 +32,10 @@ export class RequestTimeoutError extends Error {
     this.name = "RequestTimeoutError";
   }
 }
+
+export class NetworkError extends Error {
+  constructor(public readonly cause: unknown) {
+    super(cause instanceof Error ? cause.message : "Network request failed");
+    this.name = "NetworkError";
+  }
+}

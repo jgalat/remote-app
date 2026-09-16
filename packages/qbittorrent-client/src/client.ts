@@ -12,7 +12,7 @@ import type {
   AddTorrentParams,
   TorrentFileInput,
 } from "./types";
-import { HTTPError, QBittorrentError, RequestTimeoutError } from "./error";
+import { HTTPError, QBittorrentError, RequestTimeoutError, NetworkError } from "./error";
 
 type MultipartFile = { bytes: Uint8Array; filename: string };
 type MultipartBody = { bytes: Uint8Array<ArrayBuffer>; contentType: string };
@@ -77,7 +77,7 @@ export class QBittorrentClient {
       if (controller.signal.aborted) {
         throw new RequestTimeoutError(timeoutMs);
       }
-      throw error;
+      throw new NetworkError(error);
     } finally {
       clearTimeout(timer);
     }

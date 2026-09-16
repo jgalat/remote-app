@@ -112,6 +112,7 @@ export default function AddTorrentScreen() {
     destination,
     downloadDirectories,
     defaultDir,
+    { enabled: false },
   );
 
   React.useEffect(() => {
@@ -134,7 +135,7 @@ export default function AddTorrentScreen() {
     staleTime: Infinity,
   });
 
-  const { control, handleSubmit, setValue } = useForm({
+  const { control, handleSubmit, setValue, getValues } = useForm({
     mode: "onSubmit",
     resolver: zodResolver(Form),
     defaultValues: {
@@ -151,9 +152,9 @@ export default function AddTorrentScreen() {
   }, [destinationId, setValue]);
 
   React.useEffect(() => {
-    if (!session) return;
+    if (!session || getValues("path")) return;
     setValue("path", isLocal ? undefined : session["download-dir"]);
-  }, [isLocal, session, setValue]);
+  }, [getValues, isLocal, session, setValue]);
 
   React.useEffect(() => {
     if (!sharedTorrent.data) return;
@@ -224,25 +225,30 @@ export default function AddTorrentScreen() {
   const addTorrent = useServerAddTorrent(destination);
 
   const onPickDocument = React.useCallback(async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "application/x-bittorrent",
-      copyToCacheDirectory: true,
-      multiple: false,
-    });
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/x-bittorrent",
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
 
-    if (result.canceled) {
-      return;
+      if (result.canceled) {
+        return;
+      }
+
+      const [file] = result.assets;
+
+      const content = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      setValue("file", file.name);
+      setValue("content", content);
+      setValue("magnet", "");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      ToastAndroid.show(`Failed to read file: ${message}`, ToastAndroid.SHORT);
     }
-
-    const [file] = result.assets;
-
-    const content = await FileSystem.readAsStringAsync(file.uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    setValue("file", file.name);
-    setValue("content", content);
-    setValue("magnet", "");
   }, [setValue]);
 
   const onSubmit = React.useCallback(

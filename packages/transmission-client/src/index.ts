@@ -54,6 +54,7 @@ export {
   TransmissionError,
   ResponseParseError,
   RequestTimeoutError,
+  NetworkError,
 } from "./error";
 
 export { TransmissionClient as default } from "./client";
