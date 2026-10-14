@@ -1428,7 +1428,12 @@ function QBitConfigForm({ server }: { server: Server }) {
                   keyboardType="numeric"
                   editable={!watch("random_port")}
                   placeholder={watch("random_port") ? "Random" : undefined}
-                  value={watch("random_port") ? "" : field.value?.toString() || ""}
+                  // qBittorrent reports port 0 while on a random port
+                  value={
+                    watch("random_port") || field.value === 0
+                      ? ""
+                      : field.value?.toString() || ""
+                  }
                   onChangeText={field.onChange}
                   style={[fieldState.error ? { borderColor: red } : {}]}
                 />
