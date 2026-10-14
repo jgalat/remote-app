@@ -47,6 +47,17 @@ async function waitForTorrent(client: QBittorrentClient, hash: string): Promise<
   throw new Error("Torrent did not appear");
 }
 
+// qBittorrent applies file renames when libtorrent's alert is processed, so a
+// read right after renameFile can still return the old name.
+async function waitForFileName(client: QBittorrentClient, hash: string, name: string): Promise<string> {
+  for (let i = 0; i < 20; i++) {
+    const files = await client.files(hash);
+    if (files[0].name === name) return name;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return (await client.files(hash))[0].name;
+}
+
 describeIfQBittorrent("QBittorrentClient", () => {
   const client = new QBittorrentClient({
     url: URL,
@@ -209,9 +220,9 @@ describeIfQBittorrent("QBittorrentClient", () => {
       const original = files[0].name;
       const renamed = "renamed-file.txt";
       await client.renameFile(HASH, original, renamed);
-      const updated = await client.files(HASH);
-      expect(updated[0].name).toBe(renamed);
+      expect(await waitForFileName(client, HASH, renamed)).toBe(renamed);
       await client.renameFile(HASH, renamed, original);
+      expect(await waitForFileName(client, HASH, original)).toBe(original);
     });
 
     it("queue priority", async () => {
