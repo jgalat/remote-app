@@ -194,6 +194,32 @@ describe("TransmissionClient session negotiation", () => {
     expect(calls).toBe(4);
   });
 
+  it("sends ip_protocol with port-test", async () => {
+    let portTestArgs: unknown;
+    global.fetch = vi.fn(async (input: FetchInput) => {
+      const request = input as Request;
+      if (!request.headers.get("x-transmission-session-id")) return conflict("sid-1");
+      const body = JSON.parse(await request.clone().text()) as { arguments?: unknown };
+      portTestArgs = body.arguments;
+      return new Response(
+        JSON.stringify({
+          result: "success",
+          arguments: { "port-is-open": true, ip_protocol: "ipv4" },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    }) as typeof global.fetch;
+
+    const client = new TransmissionClient({ url: URL });
+    const response = await client.request({
+      method: "port-test",
+      arguments: { ip_protocol: "ipv4" },
+    });
+
+    expect(portTestArgs).toEqual({ ip_protocol: "ipv4" });
+    expect(response.arguments).toEqual({ "port-is-open": true, ip_protocol: "ipv4" });
+  });
+
   it("aborts requests after the configured timeout", async () => {
     global.fetch = vi.fn(
       async (_input: FetchInput, init?: RequestInit) =>

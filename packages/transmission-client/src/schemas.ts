@@ -575,13 +575,13 @@ export const BlocklistUpdateResponseSchema = z
   .passthrough();
 
 export const PortTestRequestSchema = z.object({
-  ipProtocol: z.enum(["ipv4", "ipv6"]).optional(),
+  ip_protocol: z.enum(["ipv4", "ipv6"]).optional(),
 });
 
 export const PortTestResponseSchema = z
   .object({
     "port-is-open": z.boolean(),
-    ipProtocol: z.enum(["ipv4", "ipv6"]).optional(),
+    ip_protocol: z.enum(["ipv4", "ipv6"]).optional(),
   })
   .passthrough();
 

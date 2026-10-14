@@ -9,6 +9,7 @@ import {
   SessionGetResponseSchema,
   SessionStatsResponseSchema,
   FreeSpaceResponseSchema,
+  PortTestResponseSchema,
 } from "../src/schemas";
 
 const URL = "http://localhost:9091/transmission/rpc";
@@ -92,6 +93,14 @@ describeIfTransmission("TransmissionClient", () => {
       const response = await client.request({ method: "session-stats" });
       SessionStatsResponseSchema.parse(response.arguments);
     });
+
+    it("port-test", async () => {
+      const response = await client.request({
+        method: "port-test",
+        arguments: { ip_protocol: "ipv4" },
+      });
+      PortTestResponseSchema.parse(response.arguments);
+    }, 30_000);
   });
 
   describe("torrents", () => {
