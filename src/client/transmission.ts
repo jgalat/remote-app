@@ -21,6 +21,7 @@ import type {
   RenamePathParams,
   Session,
   SessionStats,
+  PortCheck,
 } from "./types";
 
 const listFields = [
@@ -102,6 +103,9 @@ const sessionFields = [
   "lpd-enabled",
   "pex-enabled",
   "download-dir",
+  "peer-port",
+  "peer-port-random-on-start",
+  "port-forwarding-enabled",
 ] as const satisfies readonly SessionGetField[];
 
 type TorrentField = TransmissionTorrentField;
@@ -432,6 +436,23 @@ export class TransmissionAdapter implements TorrentClient {
     const bytes = response.arguments["size-bytes"];
     if (!Number.isFinite(bytes) || bytes < 0) return undefined;
     return bytes;
+  }
+
+  async checkPort(): Promise<PortCheck> {
+    const [session, test] = await Promise.all([
+      this.client.request({
+        method: "session-get",
+        arguments: { fields: ["peer-port"] },
+      }),
+      this.client.request({
+        method: "port-test",
+        arguments: { ip_protocol: "ipv4" },
+      }),
+    ]);
+    return {
+      port: session.arguments["peer-port"] ?? 0,
+      open: test.arguments["port-is-open"],
+    };
   }
 
   async ping(): Promise<void> {

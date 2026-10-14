@@ -133,6 +133,14 @@ export type Session = {
   "lpd-enabled": boolean;
   "pex-enabled": boolean;
   "download-dir": string;
+  "peer-port"?: number;
+  "peer-port-random-on-start"?: boolean;
+  "port-forwarding-enabled"?: boolean;
+};
+
+export type PortCheck = {
+  port: number;
+  open: boolean;
 };
 
 export type SessionStats = {
@@ -212,6 +220,11 @@ export type QBitPreferences = {
   pex: boolean;
   lsd: boolean;
   encryption: number;
+
+  // Listening port
+  listen_port: number;
+  random_port: boolean;
+  upnp: boolean;
 };
 
 export type SetLocationParams = {

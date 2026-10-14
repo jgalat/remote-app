@@ -31,6 +31,8 @@ export {
 
 export { useHealthPing, type HealthStatus } from "./health";
 
+export { useServerPortCheck } from "./port-check";
+
 export {
   useDirectoryFreeSpace,
   type DirectoryFreeSpace,

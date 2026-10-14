@@ -12,6 +12,7 @@ import {
   type SetTorrentParams,
   type Session,
   type SessionStats,
+  type PortCheck,
 } from "~/client/types";
 import type { TorrentClient } from "~/client/interface";
 
@@ -182,6 +183,9 @@ const storage: {
     "lpd-enabled": false,
     "pex-enabled": true,
     "download-dir": "/downloads/complete",
+    "peer-port": 51_413,
+    "peer-port-random-on-start": false,
+    "port-forwarding-enabled": true,
     "speed-limit-down-enabled": false,
     "speed-limit-down": 100,
     "speed-limit-up-enabled": false,
@@ -396,6 +400,10 @@ export default class MockClient implements TorrentClient {
 
   async getFreeSpace(): Promise<number> {
     return 128 * 1_024 ** 3;
+  }
+
+  async checkPort(): Promise<PortCheck> {
+    return { port: storage.session["peer-port"] ?? 51_413, open: true };
   }
 
   async ping(): Promise<void> {}

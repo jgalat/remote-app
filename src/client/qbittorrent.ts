@@ -28,6 +28,7 @@ import type {
   Session,
   SessionStats,
   QBitPreferences,
+  PortCheck,
 } from "./types";
 
 const stateMap: Record<TorrentState, TorrentStatus> = {
@@ -530,6 +531,9 @@ export class QBittorrentAdapter implements TorrentClient {
       pex: p.pex,
       lsd: p.lsd,
       encryption: p.encryption,
+      listen_port: p.listen_port,
+      random_port: p.random_port,
+      upnp: p.upnp,
     };
     return result;
   }
@@ -579,6 +583,19 @@ export class QBittorrentAdapter implements TorrentClient {
       return undefined;
     }
     return bytes;
+  }
+
+  // qBittorrent has no port test; "connected" means it has received incoming
+  // connections, "firewalled" means none yet.
+  async checkPort(): Promise<PortCheck> {
+    const [prefs, transfer] = await Promise.all([
+      this.client.preferences(),
+      this.client.transferInfo(),
+    ]);
+    return {
+      port: prefs.listen_port,
+      open: transfer.connection_status === "connected",
+    };
   }
 
   async ping(): Promise<void> {

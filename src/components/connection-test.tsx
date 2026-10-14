@@ -1,15 +1,7 @@
 import * as React from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+import type { StyleProp, ViewStyle } from "react-native";
 
-import Pressable from "~/components/pressable";
-import Text from "~/components/text";
-import View from "~/components/view";
+import StatusCard from "~/components/status-card";
 import { useTheme } from "~/hooks/use-theme-color";
 
 type ConnectionTestResult = {
@@ -42,7 +34,7 @@ export default React.memo(function ConnectionTest({
   onDetails,
   style,
 }: ConnectionTestProps) {
-  const { gray, green, lightestGray, red, text, tint } = useTheme();
+  const { gray, green, red, tint } = useTheme();
   const failed = Boolean(data && !data.connected);
   const canOpenDetails = failed && Boolean(onDetails);
 
@@ -79,108 +71,13 @@ export default React.memo(function ConnectionTest({
           };
 
   return (
-    <View style={[styles.container, { borderColor: lightestGray }, style]}>
-      <Pressable
-        accessibilityRole={canOpenDetails ? "button" : undefined}
-        accessibilityLabel={
-          canOpenDetails
-            ? `Connection failed: ${state.message}. View debug details`
-            : `${state.title}. ${state.message}`
-        }
-        disabled={!canOpenDetails}
-        onPress={canOpenDetails ? onDetails : undefined}
-        style={styles.status}
-      >
-        <View style={styles.icon}>
-          {isPending ? (
-            <ActivityIndicator size="small" color={state.color} />
-          ) : (
-            <Feather name={state.icon!} size={20} color={state.color} />
-          )}
-        </View>
-        <View style={styles.copy}>
-          <Text style={styles.title} numberOfLines={1}>
-            {state.title}
-          </Text>
-          <Text color={state.color} style={styles.message} numberOfLines={1}>
-            {state.message}
-          </Text>
-        </View>
-        <View style={styles.chevron}>
-          {canOpenDetails ? (
-            <Feather name="chevron-right" size={18} color={red} />
-          ) : null}
-        </View>
-      </Pressable>
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={state.action}
-        disabled={isPending}
-        onPress={onPress}
-        style={[styles.action, { borderColor: text }]}
-      >
-        <Text style={styles.actionText} numberOfLines={1}>
-          {state.action}
-        </Text>
-      </Pressable>
-    </View>
+    <StatusCard
+      {...state}
+      pending={isPending}
+      onPress={onPress}
+      onDetails={canOpenDetails ? onDetails : undefined}
+      detailsLabel={`Connection failed: ${state.message}. View debug details`}
+      style={style}
+    />
   );
-});
-
-const styles = StyleSheet.create({
-  container: {
-    height: 76,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  status: {
-    minWidth: 0,
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  icon: {
-    width: 22,
-    height: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  copy: {
-    minWidth: 0,
-    flex: 1,
-    height: 42,
-    justifyContent: "center",
-    gap: 3,
-  },
-  title: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 13,
-  },
-  message: {
-    fontSize: 11,
-    lineHeight: 16,
-  },
-  chevron: {
-    width: 18,
-    alignItems: "center",
-  },
-  action: {
-    width: 76,
-    height: 38,
-    borderWidth: 1,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 8,
-  },
-  actionText: {
-    fontFamily: "RobotoMono-Medium",
-    fontSize: 12,
-  },
 });

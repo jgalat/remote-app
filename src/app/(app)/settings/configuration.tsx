@@ -13,6 +13,7 @@ import Pressable from "~/components/pressable";
 import Screen from "~/components/screen";
 import TextInputBase from "~/components/text-input";
 import ActionIcon from "~/components/action-icon";
+import PortCheck from "~/components/port-check";
 import { SettingsInlineGroup, SettingsSectionTitle } from "~/components/settings";
 import {
   NetworkErrorScreen,
@@ -29,6 +30,7 @@ import {
   useServerSessionSet,
   useServerPreferences,
   useServerPreferencesSet,
+  useServerPortCheck,
 } from "~/hooks/torrent";
 import SelectInputBase from "~/components/select-input";
 import type { SelectOption } from "~/sheets/select";
@@ -70,6 +72,13 @@ function SettingsToggleFieldLabel({
   );
 }
 
+const portRange = "must be between 1 and 65535";
+const Port = z.coerce
+  .number({ message: "expected a number" })
+  .int("expected a whole number")
+  .min(1, portRange)
+  .max(65_535, portRange);
+
 type Form = z.infer<typeof Form>;
 const Form = z
   .object({
@@ -101,6 +110,10 @@ const Form = z
     "dht-enabled": z.boolean().optional(),
     "lpd-enabled": z.boolean().optional(),
     "pex-enabled": z.boolean().optional(),
+
+    "peer-port": Port.optional(),
+    "peer-port-random-on-start": z.boolean().optional(),
+    "port-forwarding-enabled": z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
     if (data["speed-limit-down-enabled"] && !data["speed-limit-down"]) {
@@ -181,7 +194,7 @@ function formValuesToSession(f: Form): Partial<Session> {
 
 function ConfigurationForm({ server }: { server: Server }) {
   const { data: session, isLoading, error, refetch } = useServerSession(server);
-  const { mutate } = useServerSessionSet(server);
+  const { mutate, isPending: saving } = useServerSessionSet(server);
   const { red } = useTheme();
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -195,11 +208,44 @@ function ConfigurationForm({ server }: { server: Server }) {
     [session],
   );
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch, trigger, getValues } = useForm({
     mode: "onBlur",
     resolver: zodResolver(Form),
     values: formValues ?? undefined,
+    // Saving the port from the port check updates `values`; keep other edits.
+    resetOptions: { keepDirtyValues: true },
   });
+  const portCheck = useServerPortCheck(server);
+  const portChanged =
+    !isLocal &&
+    (Number(watch("peer-port")) !== session?.["peer-port"] ||
+      watch("port-forwarding-enabled") !== session?.["port-forwarding-enabled"]);
+
+  const onPortCheck = async () => {
+    if (!portChanged) {
+      portCheck.mutate();
+      return;
+    }
+    if (!(await trigger("peer-port"))) return;
+    const [port, random, forwarding] = getValues([
+      "peer-port",
+      "peer-port-random-on-start",
+      "port-forwarding-enabled",
+    ]);
+    mutate(
+      {
+        "peer-port": Number(port),
+        "peer-port-random-on-start": random,
+        "port-forwarding-enabled": forwarding,
+      },
+      {
+        onSuccess: () => portCheck.mutate(),
+        onError: () => {
+          ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+        },
+      },
+    );
+  };
 
   const onSubmit = handleSubmit(
     React.useCallback(
@@ -609,6 +655,76 @@ function ConfigurationForm({ server }: { server: Server }) {
           />
         </View>
 
+        {(!isLocal || portCheck.supported) && (
+          <>
+            <SettingsSectionTitle title="Listening port" />
+
+            {!isLocal && (
+              <>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Peer port</Text>
+                  <Controller
+                    name="peer-port"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <SettingsTextInput
+                          keyboardType="numeric"
+                          value={field.value?.toString() || ""}
+                          onChangeText={field.onChange}
+                          style={[fieldState.error ? { borderColor: red } : {}]}
+                        />
+                        <Text style={[styles.error, { color: red }]}>
+                          {fieldState.error?.message}
+                        </Text>
+                      </>
+                    )}
+                  />
+                </View>
+
+                <View style={[styles.row, { gap: 16 }]}>
+                  <Controller
+                    name="peer-port-random-on-start"
+                    control={control}
+                    render={({ field }) => (
+                      <SettingsToggle
+                        value={field.value ?? false}
+                        onPress={field.onChange}
+                        label="Random port on start"
+                        description="Pick a new port each time the server starts, replacing the one above."
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="port-forwarding-enabled"
+                    control={control}
+                    render={({ field }) => (
+                      <SettingsToggle
+                        value={field.value ?? false}
+                        onPress={field.onChange}
+                        label="Enable port forwarding"
+                        description="Open the port on your router with UPnP or NAT-PMP."
+                      />
+                    )}
+                  />
+                </View>
+              </>
+            )}
+
+            {portCheck.supported && (
+              <View style={styles.row}>
+                <PortCheck
+                  data={portCheck.data}
+                  error={portCheck.error}
+                  isPending={portCheck.isPending || saving}
+                  unsaved={portChanged}
+                  onPress={onPortCheck}
+                />
+              </View>
+            )}
+          </>
+        )}
+
         {(server.type === "transmission" || server.type === "local") && (
           <>
             <SettingsSectionTitle title="Peer discovery" />
@@ -704,6 +820,22 @@ const QBitForm = z.object({
   pex: z.boolean(),
   lsd: z.boolean(),
   encryption: z.number(),
+
+  // Listening port
+  listen_port: z.coerce.number({ message: "expected a number" }),
+  random_port: z.boolean(),
+  upnp: z.boolean(),
+}).superRefine((data, ctx) => {
+  // qBittorrent 5 reports listen_port 0 while on a random port.
+  if (data.random_port) return;
+  const result = Port.safeParse(data.listen_port);
+  if (!result.success) {
+    ctx.addIssue({
+      path: ["listen_port"],
+      code: z.ZodIssueCode.custom,
+      message: result.error.issues[0].message,
+    });
+  }
 });
 
 const encryptionOptions: SelectOption[] = [
@@ -761,7 +893,8 @@ function formValuesToPrefs(f: QBitForm): Record<string, unknown> {
 
 function QBitConfigForm({ server }: { server: Server }) {
   const { data: raw, isLoading, error, refetch } = useServerPreferences(server);
-  const { mutate } = useServerPreferencesSet(server);
+  const { mutate, isPending: saving } = useServerPreferencesSet(server);
+  const { red } = useTheme();
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
 
@@ -771,11 +904,36 @@ function QBitConfigForm({ server }: { server: Server }) {
     [prefs],
   );
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch, trigger, getValues } = useForm({
     mode: "onBlur",
     resolver: zodResolver(QBitForm),
     values: formValues ?? undefined,
+    // Saving the port from the port check updates `values`; keep other edits.
+    resetOptions: { keepDirtyValues: true },
   });
+  const portCheck = useServerPortCheck(server);
+  const portChanged =
+    Number(watch("listen_port")) !== prefs?.listen_port ||
+    watch("random_port") !== prefs?.random_port ||
+    watch("upnp") !== prefs?.upnp;
+
+  const onPortCheck = async () => {
+    if (!portChanged) {
+      portCheck.mutate();
+      return;
+    }
+    if (!(await trigger("listen_port"))) return;
+    const [port, random, upnp] = getValues(["listen_port", "random_port", "upnp"]);
+    mutate(
+      { listen_port: Number(port), random_port: random, upnp },
+      {
+        onSuccess: () => portCheck.mutate(),
+        onError: () => {
+          ToastAndroid.show("Failed to update server", ToastAndroid.SHORT);
+        },
+      },
+    );
+  };
 
   const onSubmit = handleSubmit(
     React.useCallback(
@@ -1256,6 +1414,71 @@ function QBitConfigForm({ server }: { server: Server }) {
             )}
           />
         </View>
+
+        <SettingsSectionTitle title="Listening port" />
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Peer port</Text>
+          <Controller
+            name="listen_port"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <SettingsTextInput
+                  keyboardType="numeric"
+                  editable={!watch("random_port")}
+                  placeholder={watch("random_port") ? "Random" : undefined}
+                  value={watch("random_port") ? "" : field.value?.toString() || ""}
+                  onChangeText={field.onChange}
+                  style={[fieldState.error ? { borderColor: red } : {}]}
+                />
+                <Text style={[styles.error, { color: red }]}>
+                  {fieldState.error?.message}
+                </Text>
+              </>
+            )}
+          />
+        </View>
+
+        <View style={[styles.row, { gap: 16 }]}>
+          <Controller
+            name="random_port"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggle
+                value={field.value}
+                onPress={field.onChange}
+                label="Use random port"
+                description="Pick a new port now and on every restart. qBittorrent doesn't report which one."
+              />
+            )}
+          />
+          <Controller
+            name="upnp"
+            control={control}
+            render={({ field }) => (
+              <SettingsToggle
+                value={field.value}
+                onPress={field.onChange}
+                label="Enable port forwarding"
+                description="Open the port on your router with UPnP or NAT-PMP."
+              />
+            )}
+          />
+        </View>
+
+        {portCheck.supported && (
+          <View style={styles.row}>
+            <PortCheck
+              data={portCheck.data}
+              error={portCheck.error}
+              isPending={portCheck.isPending || saving}
+              statusOnly
+              unsaved={portChanged}
+              onPress={onPortCheck}
+            />
+          </View>
+        )}
 
         <SettingsSectionTitle title="Peer discovery" />
 

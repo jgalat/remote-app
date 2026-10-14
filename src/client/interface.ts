@@ -13,6 +13,7 @@ import type {
   RenamePathParams,
   Session,
   SessionStats,
+  PortCheck,
 } from "./types";
 
 export interface TorrentClient {
@@ -42,5 +43,6 @@ export interface TorrentClient {
   setPreferences(prefs: Record<string, unknown>): Promise<void>;
   getSessionStats(): Promise<SessionStats>;
   getFreeSpace?(path: string): Promise<number | undefined>;
+  checkPort?(): Promise<PortCheck>;
   ping(): Promise<void>;
 }
