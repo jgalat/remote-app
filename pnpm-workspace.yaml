@@ -11,31 +11,28 @@ ignoredBuiltDependencies:
   - dtrace-provider
 
 minimumReleaseAgeExclude:
-  - '@expo/cli@57.0.21 || 57.0.22 || 57.0.23'
-  - '@expo/env@2.4.3'
-  - '@expo/fingerprint@0.20.12'
-  - '@expo/metro-config@57.0.12'
-  - '@expo/metro-file-map@57.0.3'
-  - '@expo/router-server@57.0.9'
-  - 'babel-preset-expo@57.0.10 || 57.0.11'
-  - expo-asset@57.0.16
-  - expo-constants@57.0.17
-  - expo-font@57.0.3
-  - 'expo-modules-core@57.0.15 || 57.0.16 || 57.0.17'
-  - 'expo-modules-jsi@57.0.7 || 57.0.8 || 57.1.0'
-  - 'expo@57.0.19 || 57.0.20 || 57.0.21'
-  - '@expo/metro-runtime@57.0.15'
-  - '@expo/ui@57.0.15 || 57.0.16 || 57.0.17'
-  - expo-glass-effect@57.0.2
-  - 'expo-background-task@57.0.15 || 57.0.16'
-  - 'expo-build-properties@57.0.16 || 57.0.17'
-  - expo-dev-client@57.0.18
-  - expo-dev-launcher@57.0.19
-  - expo-dev-menu@57.0.18
-  - expo-linking@57.0.9
-  - 'expo-notifications@57.0.16 || 57.0.17'
-  - 'expo-router@57.0.18 || 57.0.19 || 57.0.20'
-  - 'expo-task-manager@57.0.15 || 57.0.16'
+  - '@expo/cli@57.0.30'
+  - '@expo/fingerprint@0.20.14'
+  - '@expo/inline-modules@0.1.8'
+  - '@expo/local-build-cache-provider@57.0.9'
+  - '@expo/metro-runtime@57.0.17'
+  - '@expo/prebuild-config@57.0.19'
+  - '@expo/ui@57.0.24'
+  - babel-preset-expo@57.0.15
+  - expo-asset@57.0.20
+  - expo-constants@57.0.22
+  - expo-crypto@57.0.4
+  - expo-dev-client@57.0.20
+  - expo-dev-launcher@57.0.21
+  - expo-dev-menu@57.0.20
+  - expo-linking@57.0.13
+  - expo-modules-autolinking@57.0.16
+  - expo-modules-core@57.0.23
+  - expo-modules-jsi@57.1.2
+  - expo-notifications@57.0.23
+  - expo-router@57.0.27
+  - expo-splash-screen@57.0.10
+  - expo@57.0.29
 
 nodeLinker: hoisted
 
