@@ -1,0 +1,8 @@
+services:
+  transmission:
+    network_mode: host
+    ports: !reset []
+
+  qbittorrent:
+    network_mode: host
+    ports: !reset []
