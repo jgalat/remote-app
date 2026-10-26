@@ -68,25 +68,29 @@ export default React.memo(function PortCheck({
                 : "Peers can connect to you",
               action,
             }
-          : data
+          : data && statusOnly
             ? {
-                color: red,
-                icon: "alert-circle" as const,
-                title: statusOnly
-                  ? `${portLabel} is firewalled`
-                  : `${portLabel} is closed`,
-                message: statusOnly
-                  ? "No incoming connections yet"
-                  : "Peers can’t connect to you",
+                color: gray,
+                icon: "clock" as const,
+                title: "No incoming connections yet",
+                message: "Turns green once a peer connects to you",
                 action,
               }
-            : {
-                color: gray,
-                icon: "circle" as const,
-                title: "Port check",
-                message: "Checks if peers can reach you",
-                action,
-              };
+            : data
+              ? {
+                  color: red,
+                  icon: "alert-circle" as const,
+                  title: `${portLabel} is closed`,
+                  message: "Peers can’t connect to you",
+                  action,
+                }
+              : {
+                  color: gray,
+                  icon: "circle" as const,
+                  title: "Port check",
+                  message: "Checks if peers can reach you",
+                  action,
+                };
 
   return (
     <StatusCard
